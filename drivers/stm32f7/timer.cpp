@@ -79,7 +79,7 @@ timer::~timer()
     for (auto &ch : this->hw.channels)
     {
         if (ch.used)
-            gpio::init(ch.pin, gpio::af::af0, gpio::mode::analog);
+            gpio::configure(ch.pin, gpio::mode::analog);
     }
 
     /* Disable interrupt */
@@ -93,8 +93,8 @@ bool timer::set_frequency(uint32_t frequency)
     uint32_t psc = 1;
 
     /* Clocks from APB1 and APB2 buses that are connected to timers are multiplied internally by two if prescaler is greater than 1. */
-    uint32_t tim_bus_clock = rcc::get_periph_bus_freq(this->hw.pbus.bus);
-    if (rcc::get_periph_bus_presc(this->hw.pbus.bus) > 1)
+    uint32_t tim_bus_clock = rcc::get_bus_freq(this->hw.pbus.bus);
+    if (rcc::get_bus_presc(this->hw.pbus.bus) > 1)
         tim_bus_clock *=2;
 
     /* Find smallest prescaler value according to specified frequency to achieve best frequency accuracy.
@@ -127,7 +127,7 @@ bool timer::configure_channel(channel ch, channel_mode mode)
     if (!hw_ch.used)
         return false;
 
-    gpio::init(hw_ch.pin, hw_ch.pin_af, gpio::mode::af);
+    gpio::configure(hw_ch.pin, gpio::mode::af, hw_ch.pin_af);
 
     /* Set PWM mode 1, edge aligned with preload enable on selected channel. Invert output polarity if needed. */
        switch (ch)

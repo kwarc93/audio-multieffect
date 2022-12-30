@@ -52,9 +52,7 @@ int main(void)
                     &task_h );              /* Used to pass out the created task's handle. */
 
     if( result != pdPASS )
-    {
         std::cout << "Failed to create blinky_task" << std::endl;
-    }
 
     vTaskStartScheduler();
 

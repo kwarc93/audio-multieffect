@@ -36,6 +36,13 @@ namespace hal::interface
         virtual ~led() {};
         virtual void set(uint8_t brightness) = 0;
     };
+
+    class button
+    {
+    public:
+        virtual ~button() {};
+        virtual bool is_pressed(void) = 0;
+    };
 }
 
 #endif /* HAL_INTERFACE_HPP_ */

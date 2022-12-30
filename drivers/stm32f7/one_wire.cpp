@@ -18,9 +18,8 @@ one_wire::one_wire(gpio::io io)
 {
     this->io = io;
 
-    gpio::init(this->io, gpio::af::af0,
-               gpio::mode::output, gpio::type::od,
-               gpio::speed::very_high, gpio::pupd::pu);
+    gpio::configure(this->io, gpio::mode::output, gpio::af::af0,
+                    gpio::pupd::pu, gpio::type::od, gpio::speed::very_high);
 }
 
 bool one_wire::reset_pulse(void)

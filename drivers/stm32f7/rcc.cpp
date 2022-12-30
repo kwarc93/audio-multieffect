@@ -325,7 +325,7 @@ uint32_t rcc::get_sysclk_freq(void)
 
 //-----------------------------------------------------------------------------
 
-uint32_t rcc::get_periph_bus_freq(rcc::bus bus)
+uint32_t rcc::get_bus_freq(rcc::bus bus)
 {
     switch (bus)
     {
@@ -347,7 +347,7 @@ uint32_t rcc::get_periph_bus_freq(rcc::bus bus)
 
 //-----------------------------------------------------------------------------
 
-int8_t rcc::get_periph_bus_presc(rcc::bus bus)
+int8_t rcc::get_bus_presc(rcc::bus bus)
 {
     switch (bus)
     {

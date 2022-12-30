@@ -24,8 +24,10 @@ void system::init(void)
     /* Number of group priorities: 16, subpriorities: 16. */
     NVIC_SetPriorityGrouping(0x07 - __NVIC_PRIO_BITS);
 
+#ifndef HAL_SYSTEM_FREERTOS_ENABLED
     /* Set System Tick interrupt */
-//    SysTick_Config(system::system_clock / system::systick_freq);
+    SysTick_Config(system::system_clock / system::systick_freq);
+#endif
 
     drivers::core::enable_cycles_counter();
 
@@ -73,7 +75,9 @@ extern "C" void _ttywrch(int ch)
     debug.write(static_cast<std::byte>(ch));
 }
 
-//extern "C" void SysTick_Handler(void)
-//{
-//
-//}
+#ifndef HAL_SYSTEM_FREERTOS_ENABLED
+extern "C" void SysTick_Handler(void)
+{
+
+}
+#endif

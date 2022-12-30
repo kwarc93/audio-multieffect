@@ -10,6 +10,8 @@
 
 #include <cmsis/stm32f7xx.h>
 
+#define HAL_SYSTEM_FREERTOS_ENABLED
+
 namespace hal::system
 {
     static constexpr uint32_t hsi_clock = 16000000;

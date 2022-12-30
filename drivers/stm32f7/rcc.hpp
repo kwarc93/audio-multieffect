@@ -135,14 +135,14 @@ public:
      * @param   bus - @ref bus
      * @return  0 if bus is not valid
      */
-    static uint32_t get_periph_bus_freq(bus bus);
+    static uint32_t get_bus_freq(bus bus);
 
     /**
      * @brief   Gets actual prescaler for given bus.
      * @param   bus - @ref bus
      * @return  -1 if bus is not valid
      */
-    static int8_t get_periph_bus_presc(bus bus);
+    static int8_t get_bus_presc(bus bus);
 
     /**
      * @brief   Gets reset source flags.

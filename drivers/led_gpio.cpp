@@ -13,7 +13,7 @@ led_gpio::led_gpio(gpio::io io)
 {
     this->io = io;
 
-    gpio::init(this->io);
+    gpio::configure(this->io);
 }
 
 void led_gpio::set(uint8_t brightness)
