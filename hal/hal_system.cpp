@@ -19,6 +19,10 @@ using namespace hal;
 
 //-----------------------------------------------------------------------------
 
+volatile uint32_t system::systick = 0;
+
+//-----------------------------------------------------------------------------
+
 void system::init(void)
 {
     /* Number of group priorities: 16, subpriorities: 16. */
@@ -74,10 +78,3 @@ extern "C" void _ttywrch(int ch)
     auto &debug = usart::debug::get_instance();
     debug.write(static_cast<std::byte>(ch));
 }
-
-#ifndef HAL_SYSTEM_FREERTOS_ENABLED
-extern "C" void SysTick_Handler(void)
-{
-
-}
-#endif
