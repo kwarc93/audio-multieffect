@@ -1,0 +1,63 @@
+/*
+ * hal_led.hpp
+ *
+ *  Created on: 25 paź 2020
+ *      Author: kwarc
+ */
+
+#ifndef HAL_LED_HPP_
+#define HAL_LED_HPP_
+
+#include <array>
+
+#include <hal/hal_interface.hpp>
+
+#include <drivers/led_gpio.hpp>
+#include <drivers/led_pwm.hpp>
+
+namespace hal
+{
+
+//---------------------------------------------------------------------------
+
+    class led
+    {
+    public:
+        led(hal::interface::led *interface);
+        virtual ~led();
+        void set(uint8_t brightness);
+        void set(bool state);
+    protected:
+        hal::interface::led *interface;
+    private:
+        uint8_t brightness;
+    };
+
+//-----------------------------------------------------------------------------
+
+namespace leds
+{
+    class debug : public led
+    {
+    public:
+        debug(void) : led {&drv} {}
+    private:
+        const drivers::gpio::io io = { drivers::gpio::port::porti, drivers::gpio::pin::pin1 };
+        drivers::led_gpio drv {io};
+    };
+
+    class backlight : public led
+    {
+    public:
+        backlight(void) : led {&drv} {}
+    private:
+        const drivers::gpio::io io = { drivers::gpio::port::portk, drivers::gpio::pin::pin3 };
+        drivers::led_gpio drv {io};
+    };
+}
+
+//---------------------------------------------------------------------------
+
+}
+
+#endif /* HAL_LED_HPP_ */
