@@ -8,6 +8,8 @@
 #include "hal_system.hpp"
 
 #include <cassert>
+#include <cstdio>
+#include <cerrno>
 
 #include <hal/hal_usart.hpp>
 
@@ -61,20 +63,24 @@ void system::init(void)
 //-----------------------------------------------------------------------------
 /* syscalls */
 
-extern "C" int _write (int fd, char *ptr, int len)
+/* Redirect stdout & stdin to USART */
+
+extern "C" ssize_t _write_r(struct _reent *ptr, int fd, const void *buf, size_t cnt)
 {
     auto &debug = usart::debug::get_instance();
-    return debug.write(reinterpret_cast<std::byte*>(ptr), len);
+
+    /* TODO: Make this reentrant? */
+    size_t ret = debug.write(reinterpret_cast<const std::byte*>(buf), cnt);
+    ptr->_errno = (ret != cnt) ? EIO : 0;
+    return ret;
 }
 
-extern "C" int _read (int fd, char *ptr, int len)
+extern "C" ssize_t _read_r(struct _reent *ptr, int fd, void *buf, size_t cnt)
 {
     auto &debug = usart::debug::get_instance();
-    return debug.read(reinterpret_cast<std::byte*>(ptr), len);
-}
 
-extern "C" void _ttywrch(int ch)
-{
-    auto &debug = usart::debug::get_instance();
-    debug.write(static_cast<std::byte>(ch));
+    /* TODO: Make this reentrant? */
+    size_t ret = debug.read(reinterpret_cast<std::byte*>(ptr), cnt);
+    ptr->_errno = (ret != cnt) ? EIO : 0;
+    return ret;
 }

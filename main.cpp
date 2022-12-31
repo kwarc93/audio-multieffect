@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <memory>
+#include <cassert>
 
 #include <hal/hal_system.hpp>
 #include <hal/hal_delay.hpp>
@@ -51,8 +52,7 @@ int main(void)
                     tskIDLE_PRIORITY + 1,   /* Priority at which the task is created. */
                     &task_h );              /* Used to pass out the created task's handle. */
 
-    if( result != pdPASS )
-        std::cout << "Failed to create blinky_task" << std::endl;
+    assert(result == pdPASS);
 
     vTaskStartScheduler();
 
