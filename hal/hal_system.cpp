@@ -8,10 +8,6 @@
 #include "hal_system.hpp"
 
 #include <cassert>
-#include <cstdio>
-#include <cerrno>
-
-#include <hal/hal_usart.hpp>
 
 #include <drivers/stm32f7/core.hpp>
 #include <drivers/stm32f7/rcc.hpp>
@@ -62,27 +58,3 @@ void system::init(void)
     SystemCoreClock = system::system_clock;
 }
 
-//-----------------------------------------------------------------------------
-/* syscalls */
-
-/* Redirect stdout & stdin to USART */
-
-extern "C" ssize_t _write_r(struct _reent *ptr, int fd, const void *buf, size_t cnt)
-{
-    auto &debug = usart::debug::get_instance();
-
-    /* TODO: Make this reentrant? */
-    size_t ret = debug.write(reinterpret_cast<const std::byte*>(buf), cnt);
-    ptr->_errno = (ret != cnt) ? EIO : 0;
-    return ret;
-}
-
-extern "C" ssize_t _read_r(struct _reent *ptr, int fd, void *buf, size_t cnt)
-{
-    auto &debug = usart::debug::get_instance();
-
-    /* TODO: Make this reentrant? */
-    size_t ret = debug.read(reinterpret_cast<std::byte*>(ptr), cnt);
-    ptr->_errno = (ret != cnt) ? EIO : 0;
-    return ret;
-}

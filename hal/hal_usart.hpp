@@ -12,7 +12,7 @@
 
 namespace hal::usart
 {
-    namespace debug
+    namespace stdio
     {
         hal::interface::serial & get_instance(void);
     }

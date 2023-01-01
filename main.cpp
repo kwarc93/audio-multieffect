@@ -14,12 +14,14 @@
 #include <hal/hal_led.hpp>
 
 #include "cmsis_os2.h"
+#include "FreeRTOS.h"
+#include "task.h"
 
 auto debug_led = hal::leds::debug();
 
-void blinky_task(void *param)
+void blinky_thread(void *param)
 {
-    std::cout << "blinky_task started" << std::endl;
+    std::cout << "blinky_thread started" << std::endl;
 
     while (true)
     {
@@ -30,6 +32,34 @@ void blinky_task(void *param)
     }
 }
 
+void printf1_thread(void *param)
+{
+    std::cout << "printf1_thread started" << std::endl;
+    osDelay(1000);
+
+    while (true)
+    {
+        std::string *s = new std::string("****************");
+        std::cout << *s << std::endl;
+        delete s;
+        osDelay(10);
+    }
+}
+
+void printf2_thread(void *param)
+{
+    std::cout << "printf2_thread started" << std::endl;
+    osDelay(1000);
+
+    while (true)
+    {
+        std::string *s = new std::string("----------------");
+        std::cout << *s << std::endl;
+        delete s;
+        osDelay(10);
+    }
+}
+
 int main(void)
 {
     hal::system::init();
@@ -37,15 +67,19 @@ int main(void)
     std::cout << "System started" << std::endl;
 
     auto backlight_led = std::make_unique<hal::leds::backlight>();
-
     backlight_led->set(false);
 
-    osKernelInitialize();                       // Initialize CMSIS-RTOS
-    osThreadNew(blinky_task, NULL, NULL);       // Create application main thread
-    if (osKernelGetState() == osKernelReady)
-      osKernelStart();                          // Start thread execution
+    osKernelInitialize();
 
-    assert(0);
+    osThreadNew(blinky_thread, NULL, NULL);
+    osThreadNew(printf1_thread, NULL, NULL);
+    osThreadNew(printf2_thread, NULL, NULL);
+
+    if (osKernelGetState() == osKernelReady)
+      osKernelStart();
+
+    assert(!"OS kernel start error");
+
     while(1);
 
     return 0;
