@@ -7,6 +7,8 @@
 
 #include <cmsis/stm32f7xx.h>
 
+uint32_t SystemCoreClock = 16000000;
+
 extern "C" void system_init(void)
 {
 #if (__FPU_USED == 1)

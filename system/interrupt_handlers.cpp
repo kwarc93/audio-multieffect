@@ -10,7 +10,7 @@
 //-----------------------------------------------------------------------------
 /* interrupt handlers */
 
-#ifndef HAL_SYSTEM_FREERTOS_ENABLED
+#ifndef HAL_SYSTEM_RTOS_ENABLED
 extern "C" void SysTick_Handler(void)
 {
     hal::system::systick++;

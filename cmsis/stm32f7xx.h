@@ -141,7 +141,7 @@
 #elif defined(STM32F756xx)
   #include "stm32f756xx.h"
 #elif defined(STM32F746xx)
-  #include <cmsis/stm32f746xx.h>
+  #include "stm32f746xx.h"
 #elif defined(STM32F745xx)
   #include "stm32f745xx.h"
 #elif defined(STM32F765xx)
@@ -218,6 +218,8 @@ typedef enum
 #ifdef USE_HAL_DRIVER
  #include "stm32f7xx_hal.h"
 #endif /* USE_HAL_DRIVER */
+
+extern uint32_t SystemCoreClock;
 
 #ifdef __cplusplus
 }

@@ -56,6 +56,8 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis/rtos2}&quot;"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs.1261960133" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs" useByScannerDiscovery="true" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__HEAP_SIZE=0x00020000"/>
@@ -71,6 +73,8 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis/rtos2}&quot;"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs.1607984180" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs" useByScannerDiscovery="true" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__HEAP_SIZE=0x00020000"/>
@@ -89,6 +93,8 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis/rtos2}&quot;"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs.2054317130" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs" useByScannerDiscovery="true" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__HEAP_SIZE=0x00020000"/>
@@ -171,6 +177,8 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis/rtos2}&quot;"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input.1624684100" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input"/>
 							</tool>
@@ -180,6 +188,8 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis/rtos2}&quot;"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.779354331" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input"/>
 							</tool>
@@ -189,6 +199,8 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis/rtos2}&quot;"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.965193785" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input"/>
 							</tool>
@@ -203,13 +215,13 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="app|drivers|hal|libs|middlewares|rtos|system" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="drivers|app|system|hal|middlewares|rtos|libs" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="app"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="drivers"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="hal"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="libs"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="middlewares"/>
-						<entry excluding="FreeRTOS/Source/portable/MemMang/heap_3.c|FreeRTOS/Source/portable/MemMang/heap_5.c|FreeRTOS/Source/portable/MemMang/heap_4.c|FreeRTOS/Source/portable/MemMang/heap_2.c|FreeRTOS/Source/portable/MemMang/heap_1.c|FreeRTOS/Source/portable/GCC/ARM_CM4F" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="rtos"/>
+						<entry excluding="FreeRTOS/Source/portable/MemMang/heap_1.c|FreeRTOS/Source/portable/MemMang/heap_3.c|FreeRTOS/Source/portable/MemMang/heap_5.c|FreeRTOS/Source/portable/MemMang/heap_4.c|FreeRTOS/Source/portable/MemMang/heap_2.c|FreeRTOS/Source/portable/GCC/ARM_CM4F" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="rtos"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="system"/>
 					</sourceEntries>
 				</configuration>
@@ -271,6 +283,8 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis/rtos2}&quot;"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs.1701074922" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs" useByScannerDiscovery="true" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__HEAP_SIZE=0x00020000"/>
@@ -286,6 +300,8 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis/rtos2}&quot;"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs.653498579" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs" useByScannerDiscovery="true" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__HEAP_SIZE=0x00020000"/>
@@ -304,6 +320,8 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis/rtos2}&quot;"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs.313233473" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs" useByScannerDiscovery="true" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__HEAP_SIZE=0x00020000"/>
@@ -386,6 +404,8 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis/rtos2}&quot;"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input.1040799421" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input"/>
 							</tool>
@@ -395,6 +415,8 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis/rtos2}&quot;"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.1139684497" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input"/>
 							</tool>
@@ -404,6 +426,8 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis/rtos2}&quot;"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.1179928803" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input"/>
 							</tool>
@@ -418,13 +442,13 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="app|drivers|hal|libs|middlewares|rtos|system" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="drivers|app|system|hal|middlewares|rtos|libs" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="app"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="drivers"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="hal"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="libs"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="middlewares"/>
-						<entry excluding="FreeRTOS/Source/portable/MemMang/heap_3.c|FreeRTOS/Source/portable/MemMang/heap_5.c|FreeRTOS/Source/portable/MemMang/heap_4.c|FreeRTOS/Source/portable/MemMang/heap_2.c|FreeRTOS/Source/portable/MemMang/heap_1.c|FreeRTOS/Source/portable/GCC/ARM_CM4F" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="rtos"/>
+						<entry excluding="FreeRTOS/Source/portable/MemMang/heap_1.c|FreeRTOS/Source/portable/MemMang/heap_3.c|FreeRTOS/Source/portable/MemMang/heap_5.c|FreeRTOS/Source/portable/MemMang/heap_4.c|FreeRTOS/Source/portable/MemMang/heap_2.c|FreeRTOS/Source/portable/GCC/ARM_CM4F" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="rtos"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="system"/>
 					</sourceEntries>
 				</configuration>
@@ -434,21 +458,6 @@
 	</storageModule>
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 		<project id="audio-multieffect.ilg.gnuarmeclipse.managedbuild.cross.target.elf.1401993430" name="Executable" projectType="ilg.gnuarmeclipse.managedbuild.cross.target.elf"/>
-	</storageModule>
-	<storageModule moduleId="scannerConfiguration">
-		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.592488182;ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.592488182.;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.1056175497;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.1961230504">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.823342004;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.823342004.;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.268041881;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.1170250991">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.823342004;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.823342004.;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.92650984;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.1236625047">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.592488182;ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.592488182.;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.1354860496;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.1062191388">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		</scannerConfigBuildInfo>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
@@ -460,4 +469,25 @@
 		</configuration>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
+	<storageModule moduleId="scannerConfiguration">
+		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.592488182;ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.592488182.;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.1056175497;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.1961230504">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.823342004;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.823342004.;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.268041881;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.1170250991">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.823342004;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.823342004.;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.92650984;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.1236625047">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.823342004.1398752689;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.823342004.1398752689.;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.494287248;ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.790242919">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.823342004.1398752689;ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.823342004.1398752689.;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.1461772922;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.722942255">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.592488182;ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.592488182.;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.1354860496;ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.1062191388">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+	</storageModule>
 </cproject>

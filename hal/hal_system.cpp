@@ -30,7 +30,7 @@ void system::init(void)
     /* Number of group priorities: 16, subpriorities: 16. */
     NVIC_SetPriorityGrouping(0x07 - __NVIC_PRIO_BITS);
 
-#ifndef HAL_SYSTEM_FREERTOS_ENABLED
+#ifndef HAL_SYSTEM_RTOS_ENABLED
     /* Set System Tick interrupt */
     SysTick_Config(system::system_clock / system::systick_freq);
 #endif
@@ -58,6 +58,8 @@ void system::init(void)
     drivers::rcc::set_main_pll(pll, presc);
 
     assert(drivers::rcc::get_sysclk_freq() == system::system_clock);
+
+    SystemCoreClock = system::system_clock;
 }
 
 //-----------------------------------------------------------------------------

@@ -12,7 +12,7 @@
 
 #include <cmsis/stm32f7xx.h>
 
-#define HAL_SYSTEM_FREERTOS_ENABLED
+#define HAL_SYSTEM_RTOS_ENABLED
 
 namespace hal::system
 {
