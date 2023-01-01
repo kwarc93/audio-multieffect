@@ -16,7 +16,7 @@
  * limitations under the License.
  *
  *      Name:    cmsis_os2.c
- *      Purpose: CMSIS RTOS2 wrapper for FreeRTOS
+ *      Purpose: CMSIS RTOS2 wrapper for FreeRTOS v10.5.1
  *
  *---------------------------------------------------------------------------*/
 
@@ -2847,7 +2847,7 @@ extern void vApplicationDaemonTaskStartupHook (void);
   Dummy implementation of the callback function vApplicationIdleHook().
 */
 #if (configUSE_IDLE_HOOK == 1)
-__WEAK void vApplicationIdleHook (void){}
+__WEAK void vApplicationIdleHook (void){ __WFI(); }
 #endif
 
 /**

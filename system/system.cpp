@@ -17,15 +17,6 @@
 
 uint32_t SystemCoreClock = 16000000;
 
-osMutexId_t stdio_mutex_id = NULL;
-static const osMutexAttr_t stdio_mutex_attr =
-{
-    "stdio_mutex",                            // human readable mutex name
-    osMutexRecursive | osMutexPrioInherit,    // attr_bits
-    NULL,                                     // memory for control block
-    0U                                        // size for control block
-};
-
 //-----------------------------------------------------------------------------
 /* system_init function (used by startup code, called just before main) */
 
@@ -43,6 +34,15 @@ extern "C" void system_init(void)
 /* syscalls */
 
 /* Redirect stdout & stdin to USART */
+
+static osMutexId_t stdio_mutex_id = NULL;
+static const osMutexAttr_t stdio_mutex_attr =
+{
+    "stdio_mutex",                            // human readable mutex name
+    osMutexRecursive | osMutexPrioInherit,    // attr_bits
+    NULL,                                     // memory for control block
+    0U                                        // size for control block
+};
 
 extern "C" ssize_t _write_r(struct _reent *ptr, int fd, const void *buf, size_t cnt)
 {
@@ -100,3 +100,4 @@ extern "C" ssize_t _read_r(struct _reent *ptr, int fd, void *buf, size_t cnt)
 //    auto &stdio = hal::usart::stdio::get_instance();
 //    return stdio.read(reinterpret_cast<std::byte*>(buf), cnt);
 //}
+
