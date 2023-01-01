@@ -14,8 +14,6 @@
 #include <hal/hal_led.hpp>
 
 #include "cmsis_os2.h"
-#include "FreeRTOS.h"
-#include "task.h"
 
 auto debug_led = hal::leds::debug();
 
@@ -76,7 +74,7 @@ int main(void)
     osThreadNew(printf2_thread, NULL, NULL);
 
     if (osKernelGetState() == osKernelReady)
-      osKernelStart();
+        osKernelStart();
 
     assert(!"OS kernel start error");
 
