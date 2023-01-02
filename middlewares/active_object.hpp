@@ -19,17 +19,16 @@ namespace ao
 template<typename T> class active_object
 {
 public:
-    active_object(const std::string &name, osPriority_t priority, size_t stack_size)
+    active_object(const std::string_view &name, osPriority_t priority, size_t stack_size)
     {
         /* Create queue of events */
-        const std::string qname = name + "_queue";
-        this->queue_attr.name = qname.c_str();
+        this->queue_attr.name = name.data();
 
         this->queue = osMessageQueueNew(32, sizeof(T*), &this->queue_attr);
         assert(this->queue != nullptr);
 
-        /* Create working thread */
-        this->thread_attr.name = name.c_str();
+        /* Create worker thread */
+        this->thread_attr.name = name.data();
         this->thread_attr.priority = priority;
         this->thread_attr.stack_size = stack_size;
 
