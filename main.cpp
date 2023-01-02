@@ -25,16 +25,10 @@ void blinky_timer_callback(void *arg)
     blinky_ao->send(e);
 }
 
-int main(void)
+void init_thread(void *arg)
 {
-    hal::system::init();
-
-    std::cout << "System started" << std::endl;
-
     auto backlight_led = std::make_unique<hal::leds::backlight>();
     backlight_led->set(false);
-
-    osKernelInitialize();
 
     blinky blinky_ao;
 
@@ -42,6 +36,17 @@ int main(void)
     assert(timer != nullptr);
     osTimerStart(timer, 500);
 
+    osThreadSuspend(osThreadGetId());
+}
+
+int main(void)
+{
+    hal::system::init();
+
+    std::cout << "System started" << std::endl;
+
+    osKernelInitialize();
+    osThreadNew(init_thread, NULL, NULL);
     if (osKernelGetState() == osKernelReady)
         osKernelStart();
 
