@@ -35,6 +35,7 @@ namespace hal::interface
     public:
         virtual ~led() {};
         virtual void set(uint8_t brightness) = 0;
+        virtual uint8_t get(void) = 0;
     };
 
     class button

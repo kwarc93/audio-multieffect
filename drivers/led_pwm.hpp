@@ -18,10 +18,12 @@ namespace drivers
     {
     public:
         led_pwm(drivers::pwm &pwm);
-        void set(uint8_t brightness);
+        void set(uint8_t brightness) override;
+        uint8_t get(void) override;
 
     private:
         drivers::pwm &pwm;
+        uint8_t brightness;
     };
 }
 

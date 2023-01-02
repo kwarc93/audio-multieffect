@@ -20,3 +20,8 @@ void led_gpio::set(uint8_t brightness)
 {
     gpio::write(this->io, brightness);
 }
+
+uint8_t led_gpio::get(void)
+{
+    return gpio::read(this->io);
+}

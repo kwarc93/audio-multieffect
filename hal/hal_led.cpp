@@ -51,6 +51,11 @@ void led::set(uint8_t brightness)
     this->interface->set(this->brightness);
 }
 
+uint8_t led::get(void)
+{
+    return this->brightness;
+}
+
 void led::set(bool state)
 {
     uint8_t brightness = state ? 255 : 0;

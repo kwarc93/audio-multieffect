@@ -15,47 +15,14 @@
 
 #include "cmsis_os2.h"
 
-auto debug_led = hal::leds::debug();
+#include "app/blinky.hpp"
 
-void blinky_thread(void *param)
+void blinky_timer_callback(void *arg)
 {
-    std::cout << "blinky_thread started" << std::endl;
+    blinky *blinky_ao = static_cast<blinky*>(arg);
 
-    while (true)
-    {
-        debug_led.set(true);
-        osDelay(500);
-        debug_led.set(false);
-        osDelay(500);
-    }
-}
-
-void printf1_thread(void *param)
-{
-    std::cout << "printf1_thread started" << std::endl;
-    osDelay(1000);
-
-    while (true)
-    {
-        std::string *s = new std::string("****************");
-        std::cout << *s << std::endl;
-        delete s;
-        osDelay(10);
-    }
-}
-
-void printf2_thread(void *param)
-{
-    std::cout << "printf2_thread started" << std::endl;
-    osDelay(1000);
-
-    while (true)
-    {
-        std::string *s = new std::string("----------------");
-        std::cout << *s << std::endl;
-        delete s;
-        osDelay(10);
-    }
+    blinky_evt::timer_evt_t e;
+    blinky_ao->send(e);
 }
 
 int main(void)
@@ -69,9 +36,11 @@ int main(void)
 
     osKernelInitialize();
 
-    osThreadNew(blinky_thread, NULL, NULL);
-    osThreadNew(printf1_thread, NULL, NULL);
-    osThreadNew(printf2_thread, NULL, NULL);
+    blinky blinky_ao;
+
+    osTimerId_t timer = osTimerNew(blinky_timer_callback, osTimerPeriodic, &blinky_ao, NULL);
+    assert(timer != nullptr);
+    osTimerStart(timer, 500);
 
     if (osKernelGetState() == osKernelReady)
         osKernelStart();

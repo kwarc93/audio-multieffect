@@ -19,6 +19,7 @@ namespace drivers
     public:
         led_gpio(drivers::gpio::io io);
         void set(uint8_t brightness) override;
+        uint8_t get(void) override;
 
     private:
         drivers::gpio::io io;
