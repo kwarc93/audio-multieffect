@@ -21,8 +21,9 @@ void blinky_timer_callback(void *arg)
 {
     blinky *blinky_ao = static_cast<blinky*>(arg);
 
-    blinky::event e {blinky::timer_evt_t(), blinky::event::flags::dynamic_data};
+    static const blinky::event e{ blinky::timer_evt_t{}, blinky::event::flags::static_storage };
     blinky_ao->send(e);
+//    blinky::instance->send(e);
 }
 
 void init_thread(void *arg)

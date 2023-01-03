@@ -24,12 +24,15 @@ public:
     {
         T data;
         uint32_t flags = 0;
-        enum flags { static_data = 1 << 0, dynamic_data = 1 << 1 };
-        event(const T &data, uint32_t flags) : data {data}, flags {flags} {}
+        enum flags { static_storage = 1 << 0 };
+        event(const T &data, uint32_t flags = 0) : data {data}, flags {flags} {}
     };
 
     active_object(const std::string_view &name, osPriority_t priority, size_t stack_size)
     {
+        /* It is assumed that each active object is unique */
+        this->instance = this;
+
         /* Create queue of events */
         this->queue_attr.name = name.data();
 
@@ -55,23 +58,25 @@ public:
         status = osThreadTerminate(this->thread);
         assert(status == osOK);
         this->thread = nullptr;
+
+        this->instance = nullptr;
     }
 
     void send(const event &e)
     {
-        assert(e.flags != 0);
-
         const event *evt = nullptr;
 
-        if (e.flags & event::flags::dynamic_data)
-            evt = new event(e);
-        else if (e.flags & event::flags::static_data)
+        if (e.flags & event::flags::static_storage)
             evt = &e;
+        else
+            evt = new event(e);
 
         assert(evt != nullptr);
         osMessageQueuePut(this->queue, &evt, 0, osWaitForever);
     }
 
+    /* Used for global access (e.g. from interrupt) */
+    static inline active_object *instance;
 private:
     virtual void dispatch(const event &e) = 0;
 
@@ -88,7 +93,7 @@ private:
             {
                 this_->dispatch(*evt);
 
-                if ((*evt).flags & event::flags::dynamic_data)
+                if (!((*evt).flags & event::flags::static_storage))
                     delete evt;
             }
         }
