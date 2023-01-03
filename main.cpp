@@ -5,9 +5,9 @@
  *      Author: kwarc
  */
 
-#include <iostream>
 #include <memory>
 #include <cassert>
+#include <cstdio>
 
 #include <hal/hal_system.hpp>
 #include <hal/hal_delay.hpp>
@@ -21,7 +21,9 @@ void blinky_timer_callback(void *arg)
 {
     blinky *blinky_ao = static_cast<blinky*>(arg);
 
-    blinky_evt::timer_evt_t e;
+    blinky::event_t e;
+    e.data = blinky_evt::timer_evt_t();
+    e.flags = blinky::event_t::flags::dynamic_data;
     blinky_ao->send(e);
 }
 
@@ -43,7 +45,7 @@ int main(void)
 {
     hal::system::init();
 
-    std::cout << "System started" << std::endl;
+    printf("System started\n");
 
     osKernelInitialize();
     osThreadNew(init_thread, NULL, NULL);

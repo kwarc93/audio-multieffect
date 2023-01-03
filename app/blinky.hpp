@@ -28,16 +28,17 @@ struct button_evt_t
     bool pressed;
 };
 
-using event_t = std::variant<timer_evt_t, button_evt_t>;
+using blinky_evt_t = std::variant<timer_evt_t, button_evt_t>;
 
 }
 
-class blinky : public ao::active_object<blinky_evt::event_t>
+class blinky : public ao::active_object<blinky_evt::blinky_evt_t>
 {
 public:
+    using event_t = ao::active_object<blinky_evt::blinky_evt_t>::base_evt_t;
     blinky();
 private:
-    void dispatch(const blinky_evt::event_t &e) override;
+    void dispatch(const blinky_evt::blinky_evt_t &e) override;
 
     /* Event handlers */
     void event_handler(const blinky_evt::timer_evt_t &e);
