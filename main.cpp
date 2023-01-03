@@ -21,9 +21,7 @@ void blinky_timer_callback(void *arg)
 {
     blinky *blinky_ao = static_cast<blinky*>(arg);
 
-    blinky::event_t e;
-    e.data = blinky_evt::timer_evt_t();
-    e.flags = blinky::event_t::flags::dynamic_data;
+    blinky::event e {blinky::timer_evt_t(), blinky::event::flags::dynamic_data};
     blinky_ao->send(e);
 }
 
