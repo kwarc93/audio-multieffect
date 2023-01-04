@@ -43,7 +43,7 @@ void init_thread(void *arg)
     /* Test of Active Object 'effect_manager' */
     effect_manager em;
 
-    static const std::array<effect_manager::event, 7> em_events =
+    static const std::array<effect_manager::event, 8> em_events =
     {{
         { effect_manager::add_effect_evt_t {effect_id::equalizer} },
         { effect_manager::add_effect_evt_t {effect_id::reverb} },
@@ -51,13 +51,20 @@ void init_thread(void *arg)
         { effect_manager::process_data_evt_t {} },
         { effect_manager::bypass_evt_t {effect_id::reverb, true} },
         { effect_manager::remove_effect_evt_t {effect_id::compressor} },
-        { effect_manager::process_data_evt_t {} }
+        { effect_manager::process_data_evt_t {} },
+        { effect_manager::bypass_evt_t {effect_id::reverb, false} }
     }};
 
-    for (const auto &e : em_events)
+    while (true)
     {
-        em.send(e);
-        osDelay(500);
+        printf("\n--- Start of test loop ---\n");
+        for (const auto &e : em_events)
+        {
+            em.send(e);
+            osDelay(500);
+        }
+
+        printf("\n--- End of test loop ---\n");
     }
 
     osThreadSuspend(osThreadGetId());
