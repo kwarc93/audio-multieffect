@@ -49,7 +49,7 @@ void init_thread(void *arg)
         { effect_manager::add_effect_evt_t {effect_id::reverb} },
         { effect_manager::add_effect_evt_t {effect_id::compressor} },
         { effect_manager::process_data_evt_t {} },
-        { effect_manager::bypass_evt_t {effect_id::reverb} },
+        { effect_manager::bypass_evt_t {effect_id::reverb, true} },
         { effect_manager::remove_effect_evt_t {effect_id::compressor} },
         { effect_manager::process_data_evt_t {} }
     }};

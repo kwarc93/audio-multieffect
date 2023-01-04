@@ -67,7 +67,8 @@ void effect_manager::event_handler(const process_data_evt_t &e)
     std::vector<uint32_t> input, output;
 
     for (auto &effect : this->effects)
-        effect.second->process(input, output);
+        if (!effect.second->is_bypassed())
+            effect.second->process(input, output);
 }
 
 //-----------------------------------------------------------------------------
