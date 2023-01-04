@@ -6,6 +6,7 @@
  */
 
 #include <memory>
+#include <array>
 #include <cassert>
 #include <cstdio>
 
@@ -17,12 +18,13 @@
 #include "cmsis_os2.h"
 
 #include "app/blinky.hpp"
+#include "app/effects/effect_manager.hpp"
 
 void blinky_timer_callback(void *arg)
 {
     blinky *blinky_ao = static_cast<blinky*>(arg);
 
-    static const blinky::event e{ blinky::timer_evt_t{}, blinky::event::flags::static_storage };
+    static const blinky::event e{ blinky::timer_evt_t {}, blinky::event::flags::static_storage };
     blinky_ao->send(e);
 }
 
@@ -31,11 +33,32 @@ void init_thread(void *arg)
     auto backlight_led = std::make_unique<hal::leds::backlight>();
     backlight_led->set(false);
 
+    /* Test of Active Object 'blinky' */
     blinky blinky_ao;
 
     osTimerId_t blinky_tim = osTimerNew(blinky_timer_callback, osTimerPeriodic, &blinky_ao, NULL);
     assert(blinky_tim != nullptr);
     osTimerStart(blinky_tim, 500);
+
+    /* Test of Active Object 'effect_manager' */
+    effect_manager em;
+
+    static const std::array<effect_manager::event, 7> em_events =
+    {{
+        { effect_manager::add_effect_evt_t {effect_id::equalizer} },
+        { effect_manager::add_effect_evt_t {effect_id::reverb} },
+        { effect_manager::add_effect_evt_t {effect_id::compressor} },
+        { effect_manager::process_data_evt_t {} },
+        { effect_manager::bypass_evt_t {effect_id::reverb} },
+        { effect_manager::remove_effect_evt_t {effect_id::compressor} },
+        { effect_manager::process_data_evt_t {} }
+    }};
+
+    for (const auto &e : em_events)
+    {
+        em.send(e);
+        osDelay(500);
+    }
 
     osThreadSuspend(osThreadGetId());
 }

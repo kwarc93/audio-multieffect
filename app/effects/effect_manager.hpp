@@ -11,14 +11,18 @@
 #include "middlewares/active_object.hpp"
 
 #include <variant>
-#include <vector>
-#include <memory>
 #include <map>
+#include <memory>
 
 #include "effect_interface.hpp"
 
 struct effect_manager_event
 {
+    struct process_data_evt_t
+    {
+
+    };
+
     struct add_effect_evt_t
     {
         effect_id id;
@@ -35,7 +39,7 @@ struct effect_manager_event
         bool bypassed;
     };
 
-    using holder = std::variant<add_effect_evt_t, remove_effect_evt_t, bypass_evt_t>;
+    using holder = std::variant<process_data_evt_t, add_effect_evt_t, remove_effect_evt_t, bypass_evt_t>;
 };
 
 class effect_manager : public effect_manager_event, public ao::active_object<effect_manager_event::holder>
@@ -51,10 +55,9 @@ private:
     void event_handler(const add_effect_evt_t &e);
     void event_handler(const remove_effect_evt_t &e);
     void event_handler(const bypass_evt_t &e);
+    void event_handler(const process_data_evt_t &e);
 
-    std::vector<std::unique_ptr<effect>> effects;
-
-//    std::map<effect_id, std::function<std::unique_ptr<effect>()>> effects_map;
+    std::map<effect_id, std::unique_ptr<effect>> effects;
 };
 
 #endif /* EFFECTS_EFFECT_MANAGER_HPP_ */

@@ -22,6 +22,11 @@ public:
     virtual ~effect() {};
 
     virtual void process(const input_t &in, output_t &out) = 0;
+
+    effect_id get_id() const { return this->id; };
+    const std::string_view& get_name() const { return this->name; };
+    bool is_bypassed() const { return this->bypassed; };
+    void bypass(bool state) { this->bypassed = state; };
 protected:
     const effect_id id;
     const std::string_view name;

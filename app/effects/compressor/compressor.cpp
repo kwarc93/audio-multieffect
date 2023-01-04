@@ -10,7 +10,7 @@
 //-----------------------------------------------------------------------------
 /* public */
 
-compressor::compressor() : effect {effect_id::compressor, "compressor"}
+compressor::compressor() : effect { effect_id::compressor, "compressor" }
 {
 
 }

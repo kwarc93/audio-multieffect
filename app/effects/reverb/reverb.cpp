@@ -10,7 +10,7 @@
 //-----------------------------------------------------------------------------
 /* public */
 
-reverb::reverb() : effect {effect_id::reverb, "reverb"}
+reverb::reverb() : effect { effect_id::reverb, "reverb" }
 {
 
 }

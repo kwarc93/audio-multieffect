@@ -1,12 +1,12 @@
 /*
- * equalizer_effect.hpp
+ * equalizer.hpp
  *
  *  Created on: 4 sty 2023
  *      Author: kwarc
  */
 
-#ifndef EFFECTS_EQUALIZER_EQUALIZER_EFFECT_HPP_
-#define EFFECTS_EQUALIZER_EQUALIZER_EFFECT_HPP_
+#ifndef EFFECTS_EQUALIZER_EQUALIZER_HPP_
+#define EFFECTS_EQUALIZER_EQUALIZER_HPP_
 
 #include "app/effects/effect_interface.hpp"
 
@@ -19,4 +19,4 @@ public:
     void process(const input_t &in, output_t &out) override;
 };
 
-#endif /* EFFECTS_EQUALIZER_EQUALIZER_EFFECT_HPP_ */
+#endif /* EFFECTS_EQUALIZER_EQUALIZER_HPP_ */
