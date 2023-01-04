@@ -23,7 +23,7 @@ public:
     struct event
     {
         T data;
-        uint32_t flags = 0;
+        uint32_t flags;
         enum flags { static_storage = 1 << 0 };
         event(const T &data, uint32_t flags = 0) : data {data}, flags {flags} {}
     };

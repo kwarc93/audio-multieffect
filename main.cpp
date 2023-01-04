@@ -12,10 +12,15 @@
 #include <hal/hal_system.hpp>
 #include <hal/hal_delay.hpp>
 #include <hal/hal_led.hpp>
+#include <hal/hal_button.hpp>
 
 #include "cmsis_os2.h"
 
 #include "app/blinky.hpp"
+#include "app/echo.hpp"
+
+osTimerId_t blinky_tim = nullptr;
+uint32_t blinky_tim_period = 500;
 
 void blinky_timer_callback(void *arg)
 {
@@ -23,7 +28,22 @@ void blinky_timer_callback(void *arg)
 
     static const blinky::event e{ blinky::timer_evt_t{}, blinky::event::flags::static_storage };
     blinky_ao->send(e);
-//    blinky::instance->send(e);
+}
+
+void button_timer_callback(void *arg)
+{
+    hal::buttons::blue_btn *btn = static_cast<hal::buttons::blue_btn*>(arg);
+
+    btn->debounce();
+
+    if (btn->was_pressed())
+    {
+        blinky_tim_period = blinky_tim_period == 500 ? 100 : 500;
+        osTimerStart(blinky_tim, blinky_tim_period);
+
+        static const echo::event e2{ echo::button_evt_t{}, blinky::event::flags::static_storage };
+        echo::instance->send(e2);
+    }
 }
 
 void init_thread(void *arg)
@@ -32,10 +52,16 @@ void init_thread(void *arg)
     backlight_led->set(false);
 
     blinky blinky_ao;
+    echo echo_ao;
+    hal::buttons::blue_btn button;
 
-    osTimerId_t timer = osTimerNew(blinky_timer_callback, osTimerPeriodic, &blinky_ao, NULL);
-    assert(timer != nullptr);
-    osTimerStart(timer, 500);
+    blinky_tim = osTimerNew(blinky_timer_callback, osTimerPeriodic, &blinky_ao, NULL);
+    assert(blinky_tim != nullptr);
+    osTimerStart(blinky_tim, blinky_tim_period);
+
+    osTimerId_t button_tim = osTimerNew(button_timer_callback, osTimerPeriodic, &button, NULL);
+    assert(button_tim != nullptr);
+    osTimerStart(button_tim, 20);
 
     osThreadSuspend(osThreadGetId());
 }

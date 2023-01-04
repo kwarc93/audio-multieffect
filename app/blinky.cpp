@@ -7,10 +7,17 @@
 
 #include "blinky.hpp"
 
+
+//-----------------------------------------------------------------------------
+/* public */
+
 blinky::blinky() : active_object("blinky", osPriorityNormal, 512)
 {
     this->led.set(false);
 };
+
+//-----------------------------------------------------------------------------
+/* private */
 
 void blinky::dispatch(const event &e)
 {
@@ -24,5 +31,5 @@ void blinky::event_handler(const timer_evt_t &e)
 
 void blinky::event_handler(const button_evt_t &e)
 {
-    this->led.set(e.pressed);
+    this->led.set(!led.get());
 }

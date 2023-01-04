@@ -11,6 +11,7 @@
 #include <cassert>
 
 #include <cmsis/stm32f7xx.h>
+#include <hal/hal_system.hpp>
 #include <hal/hal_usart.hpp>
 
 #include "cmsis_os2.h"
@@ -33,8 +34,7 @@ extern "C" void system_init(void)
 //-----------------------------------------------------------------------------
 /* syscalls */
 
-/* Redirect stdout & stdin to USART */
-
+#ifdef HAL_SYSTEM_RTOS_ENABLED
 static osMutexId_t stdio_mutex_id = NULL;
 static const osMutexAttr_t stdio_mutex_attr =
 {
@@ -88,16 +88,17 @@ extern "C" ssize_t _read_r(struct _reent *ptr, int fd, void *buf, size_t cnt)
     return ret;
 }
 
-// Non re-entrant versions
-//extern "C" int _write (int fd, char *buf, int cnt)
-//{
-//    auto &stdio = hal::usart::stdio::get_instance();
-//    return stdio.write(reinterpret_cast<const std::byte*>(buf), cnt);
-//}
-//
-//extern "C" int _read (int fd, char *buf, int cnt)
-//{
-//    auto &stdio = hal::usart::stdio::get_instance();
-//    return stdio.read(reinterpret_cast<std::byte*>(buf), cnt);
-//}
+#else
+extern "C" int _write (int fd, char *buf, int cnt)
+{
+    auto &stdio = hal::usart::stdio::get_instance();
+    return stdio.write(reinterpret_cast<const std::byte*>(buf), cnt);
+}
+
+extern "C" int _read (int fd, char *buf, int cnt)
+{
+    auto &stdio = hal::usart::stdio::get_instance();
+    return stdio.read(reinterpret_cast<std::byte*>(buf), cnt);
+}
+#endif /* HAL_SYSTEM_RTOS_ENABLED */
 

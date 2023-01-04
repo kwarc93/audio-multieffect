@@ -7,6 +7,8 @@
 
 #include <hal/hal_system.hpp>
 
+#include <drivers/stm32f7/usart.hpp>
+
 //-----------------------------------------------------------------------------
 /* interrupt handlers */
 
@@ -16,3 +18,8 @@ extern "C" void SysTick_Handler(void)
     hal::system::systick++;
 }
 #endif
+
+extern "C" void USART1_IRQHandler(void)
+{
+    drivers::usart::instance[static_cast<uint8_t>(drivers::usart::id::usart1)]->irq_handler();
+}

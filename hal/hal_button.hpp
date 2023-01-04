@@ -36,48 +36,12 @@ namespace hal
 
 namespace buttons
 {
-    class center_btn : public button
+    class blue_btn : public button
     {
     public:
-        center_btn(void) : button {&drv} {}
+        blue_btn(void) : button {&drv} {}
     private:
-        const drivers::gpio::io io = { drivers::gpio::port::porta, drivers::gpio::pin::pin0 };
-        drivers::button_gpio drv {io};
-    };
-
-    class up_btn : public button
-    {
-    public:
-        up_btn(void) : button {&drv} {}
-    private:
-        const drivers::gpio::io io = { drivers::gpio::port::porta, drivers::gpio::pin::pin3 };
-        drivers::button_gpio drv {io};
-    };
-
-    class down_btn : public button
-    {
-    public:
-        down_btn(void) : button {&drv} {}
-    private:
-        const drivers::gpio::io io = { drivers::gpio::port::porta, drivers::gpio::pin::pin5 };
-        drivers::button_gpio drv {io};
-    };
-
-    class left_btn : public button
-    {
-    public:
-        left_btn(void) : button {&drv} {}
-    private:
-        const drivers::gpio::io io = { drivers::gpio::port::porta, drivers::gpio::pin::pin1 };
-        drivers::button_gpio drv {io};
-    };
-
-    class right_btn : public button
-    {
-    public:
-        right_btn(void) : button {&drv} {}
-    private:
-        const drivers::gpio::io io = { drivers::gpio::port::porta, drivers::gpio::pin::pin2 };
+        const drivers::gpio::io io = { drivers::gpio::port::porti, drivers::gpio::pin::pin11 };
         drivers::button_gpio drv {io};
     };
 }

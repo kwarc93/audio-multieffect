@@ -9,7 +9,6 @@
 #define BLINKY_HPP_
 
 #include <variant>
-#include <functional>
 
 #include <hal/hal_led.hpp>
 
@@ -24,7 +23,7 @@ struct blinky_event
 
     struct button_evt_t
     {
-        bool pressed;
+
     };
 
     using holder = std::variant<timer_evt_t, button_evt_t>;

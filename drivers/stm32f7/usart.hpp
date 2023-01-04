@@ -24,16 +24,40 @@ public:
     };
 
     usart(id id, uint32_t baudrate);
-    ~usart() {};
+    ~usart();
 
     std::byte read(void);
     void write(std::byte byte);
     std::size_t read(std::byte *data, std::size_t size);
     std::size_t write(const std::byte *data, std::size_t size);
 
+    void read_async(std::byte *data, std::size_t size, const read_cb_t &callback, bool listen = false);
+    void write_async(const std::byte *data, std::size_t size, const write_cb_t &callback);
+
+    void irq_handler(void);
+
+    static inline std::array<usart*, 3> instance; /* Used for global access (e.g. from interrupt) */
     struct usart_hw;
 private:
     const usart_hw &hw;
+
+    struct async_read_data
+    {
+        std::size_t counter;
+        std::size_t data_length;
+        std::byte *data;
+        read_cb_t callback;
+        bool listen;
+    };
+
+    struct async_write_data
+    {
+        /* TODO */
+        write_cb_t async_write_callback;
+    };
+
+    async_read_data async_read;
+    async_write_data async_write;
 };
 
 }
