@@ -10,20 +10,11 @@
 
 #include <middlewares/active_object.hpp>
 
-#include <variant>
 #include <memory>
 
 #include <hal/hal_button.hpp>
 
-struct controller_event
-{
-    struct button_evt_t
-    {
-        bool state;
-    };
-
-    using holder = std::variant<button_evt_t>;
-};
+#include "controller_events.hpp"
 
 class controller : public controller_event, public ao::active_object<controller_event::holder>
 {
@@ -36,6 +27,7 @@ private:
 
     /* Event handlers */
     void event_handler(const button_evt_t &e);
+    void event_handler(const effect_controls_evt_t &e);
 
     hal::buttons::blue_btn button;
     osTimerId_t button_timer;

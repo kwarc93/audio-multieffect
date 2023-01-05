@@ -22,7 +22,7 @@
 
 void effect_manager::dispatch(const event &e)
 {
-    std::visit([this](const auto &e) { return this->event_handler(e); }, e.data);
+    std::visit([this](const auto &e) { this->event_handler(e); }, e.data);
 }
 
 void effect_manager::event_handler(const add_effect_evt_t &e)

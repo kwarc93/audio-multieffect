@@ -31,6 +31,7 @@ public:
     active_object(const std::string_view &name, osPriority_t priority, size_t stack_size)
     {
         /* It is assumed that each active object is unique */
+        assert(this->instance == nullptr);
         this->instance = this;
 
         /* Create queue of events */
