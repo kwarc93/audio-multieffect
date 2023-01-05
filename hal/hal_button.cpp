@@ -23,18 +23,24 @@ button::button(hal::interface::button *interface) : interface {interface}
 
 void button::debounce(void)
 {
-    constexpr uint32_t ignore_mask = 0xFFFFFFF0;
-    /* Release time: 3 <bits> * <loop period> */
-    constexpr uint32_t release_mask = 0xFFFFFFF8;
-    /* Press time: 1 <bit> * <loop period> */
-    constexpr uint32_t press_mask = 0x00000001;
+    // This works like FIFO of button states, shifts actual button state bit from LSB to MSB
+    //          _      ____
+    // MSB < __| |____|    |_______ < LSB
+    //                  ^      ^
+    //                  |      |
+    //        pressed --+      +-- released
 
-    /* This works like FIFO of button states, shifts actual button state to MSB */
+    constexpr uint32_t ignore_mask = 0xFFFFFFE0;
+    /* Release debounce time: 3 <bits> * <loop period> */
+    constexpr uint32_t release_mask = 0xFFFFFFF8;
+    /* Press debounce time: 2 <bit> * <loop period> */
+    constexpr uint32_t press_mask = 0xFFFFFFE3;
+
     this->debounce_state = (this->debounce_state << 1) | this->interface->is_pressed() | ignore_mask;
 
     if (this->debounce_state == release_mask)
         this->released = true;
-    else if ((this->debounce_state & ~ignore_mask) == press_mask)
+    else if (this->debounce_state == press_mask)
         this->pressed = true;
 }
 

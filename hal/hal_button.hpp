@@ -29,7 +29,7 @@ namespace hal
     protected:
         hal::interface::button *interface;
     private:
-        bool released, pressed;
+        bool pressed, released;
         uint32_t debounce_state;
     };
 
