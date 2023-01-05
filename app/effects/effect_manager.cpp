@@ -22,12 +22,6 @@
 
 namespace
 {
-    const std::map<effect_id, std::function<std::unique_ptr<effect>()>> effect_factory =
-    {
-        { effect_id::equalizer,     []() { return std::make_unique<equalizer>(); } },
-        { effect_id::reverb,        []() { return std::make_unique<reverb>(); } },
-        { effect_id::compressor,    []() { return std::make_unique<compressor>(); } },
-    };
 }
 
 void effect_manager::dispatch(const event &e)
@@ -37,29 +31,39 @@ void effect_manager::dispatch(const event &e)
 
 void effect_manager::event_handler(const add_effect_evt_t &e)
 {
-    auto effect = effect_factory.at(e.id)();
+    std::vector<std::unique_ptr<effect>>::iterator it;
 
-    printf("Effect '%s' added\n", effect->get_name().data());
-
-    this->effects.insert({e.id, std::move(effect)});
-
+    if (!this->find_effect(e.id, it))
+    {
+        auto effect = this->create_new(e.id);
+        printf("Effect '%s' added\n", effect->get_name().data());
+        this->effects.push_back(std::move(effect));
+    }
 }
 
 void effect_manager::event_handler(const remove_effect_evt_t &e)
 {
-    auto &effect = this->effects.at(e.id);
+    std::vector<std::unique_ptr<effect>>::iterator it;
 
-    printf("Effect '%s' removed\n", effect->get_name().data());
-
-    this->effects.erase(e.id);
+    if (this->find_effect(e.id, it))
+    {
+        auto &effect = *it;
+        printf("Effect '%s' removed\n", effect->get_name().data());
+        this->effects.erase(it);
+    }
 }
 
 void effect_manager::event_handler(const bypass_evt_t &e)
 {
-    auto &effect = this->effects.at(e.id);
-    effect->bypass(e.bypassed);
+    std::vector<std::unique_ptr<effect>>::iterator it;
 
-    printf("Effect '%s' bypass state: %s\n", effect->get_name().data(), effect->is_bypassed() ? "on" : "off");
+    if (this->find_effect(e.id, it))
+    {
+        auto &effect = *it;
+        effect->bypass(e.bypassed);
+
+        printf("Effect '%s' bypass state: %s\n", effect->get_name().data(), effect->is_bypassed() ? "on" : "off");
+    }
 }
 
 void effect_manager::event_handler(const process_data_evt_t &e)
@@ -67,14 +71,36 @@ void effect_manager::event_handler(const process_data_evt_t &e)
     std::vector<uint32_t> input, output;
 
     for (auto &effect : this->effects)
-        if (!effect.second->is_bypassed())
-            effect.second->process(input, output);
+        if (!(effect->is_bypassed()))
+            effect->process(input, output);
+}
+
+std::unique_ptr<effect> effect_manager::create_new(effect_id id)
+{
+    static const std::map<effect_id, std::function<std::unique_ptr<effect>()>> effect_factory =
+    {
+        { effect_id::equalizer,     []() { return std::make_unique<equalizer>(); } },
+        { effect_id::reverb,        []() { return std::make_unique<reverb>(); } },
+        { effect_id::compressor,    []() { return std::make_unique<compressor>(); } },
+    };
+
+    return effect_factory.at(id)();
+}
+
+bool effect_manager::find_effect(effect_id id, std::vector<std::unique_ptr<effect>>::iterator &it)
+{
+    auto effect_it = std::find_if(begin(this->effects), end(this->effects),
+                                  [id](const auto &effect) { return effect->get_id() == id; });
+
+    it = effect_it;
+
+    return effect_it != std::end(this->effects);
 }
 
 //-----------------------------------------------------------------------------
 /* public */
 
-effect_manager::effect_manager() : active_object("effect_manager", osPriorityNormal, 2048)
+effect_manager::effect_manager() : active_object("effect_manager", osPriorityHigh, 2048)
 {
 
 }

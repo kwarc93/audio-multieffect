@@ -53,11 +53,14 @@ private:
 
     /* Event handlers */
     void event_handler(const add_effect_evt_t &e);
-    void event_handler(const remove_effect_evt_t &e);
+    void event_handler(const remove_effect_evt_t& e);
     void event_handler(const bypass_evt_t &e);
     void event_handler(const process_data_evt_t &e);
 
-    std::map<effect_id, std::unique_ptr<effect>> effects;
+    std::unique_ptr<effect> create_new(effect_id id);
+    bool find_effect(effect_id id, std::vector<std::unique_ptr<effect>>::iterator &it);
+
+    std::vector<std::unique_ptr<effect>> effects;
 };
 
 #endif /* EFFECTS_EFFECT_MANAGER_HPP_ */
