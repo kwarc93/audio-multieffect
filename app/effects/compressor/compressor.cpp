@@ -5,7 +5,10 @@
  *      Author: kwarc
  */
 
-#include "app/effects/compressor/compressor.hpp"
+#include "compressor.hpp"
+
+//-----------------------------------------------------------------------------
+/* private */
 
 //-----------------------------------------------------------------------------
 /* public */
@@ -24,8 +27,5 @@ void compressor::process(const input_t& in, output_t& out)
 {
     printf("Effect '%s' (id:%u) processing data\n", this->name.data(), static_cast<unsigned>(this->id));
 }
-
-//-----------------------------------------------------------------------------
-/* private */
 
 

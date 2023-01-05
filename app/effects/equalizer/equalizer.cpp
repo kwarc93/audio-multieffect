@@ -6,7 +6,10 @@
  */
 
 
-#include "app/effects/equalizer/equalizer.hpp"
+#include "equalizer.hpp"
+
+//-----------------------------------------------------------------------------
+/* private */
 
 //-----------------------------------------------------------------------------
 /* public */
@@ -25,7 +28,4 @@ void equalizer::process(const input_t& in, output_t& out)
 {
     printf("Effect '%s'(id:%u) processing data\n", this->name.data(), static_cast<unsigned>(this->id));
 }
-
-//-----------------------------------------------------------------------------
-/* private */
 

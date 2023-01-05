@@ -20,10 +20,6 @@
 //-----------------------------------------------------------------------------
 /* private */
 
-namespace
-{
-}
-
 void effect_manager::dispatch(const event &e)
 {
     std::visit([this](const auto &e) { return this->event_handler(e); }, e.data);

@@ -19,6 +19,7 @@
 
 #include "app/blinky.hpp"
 #include "app/effects/effect_manager.hpp"
+#include "app/controller/controller.hpp"
 
 void blinky_timer_callback(void *arg)
 {
@@ -40,6 +41,9 @@ void init_thread(void *arg)
     assert(blinky_tim != nullptr);
     osTimerStart(blinky_tim, 500);
 
+    /* Test of Active Object 'controller' */
+    controller ctrl;
+
     /* Test of Active Object 'effect_manager' */
     effect_manager em;
 
@@ -58,10 +62,11 @@ void init_thread(void *arg)
     while (true)
     {
         printf("\n--- Start of test loop ---\n");
+
         for (const auto &e : em_events)
         {
             em.send(e);
-            osDelay(1);
+            osDelay(500);
         }
 
         printf("\n--- End of test loop ---\n");

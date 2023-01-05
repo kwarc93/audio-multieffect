@@ -8,10 +8,9 @@
 #ifndef EFFECTS_EFFECT_MANAGER_HPP_
 #define EFFECTS_EFFECT_MANAGER_HPP_
 
-#include "middlewares/active_object.hpp"
+#include <middlewares/active_object.hpp>
 
 #include <variant>
-#include <map>
 #include <memory>
 
 #include "effect_interface.hpp"

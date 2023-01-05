@@ -25,10 +25,11 @@ namespace hal
         virtual void debounce(void);
         bool is_pressed(void);
         bool was_pressed(void);
+        bool was_released(void);
     protected:
         hal::interface::button *interface;
     private:
-        bool pressed;
+        bool released, pressed;
         uint32_t debounce_state;
     };
 
