@@ -63,7 +63,7 @@ public:
         this->instance = nullptr;
     }
 
-    void send(const event &e)
+    void send(const event &e, uint32_t timeout = osWaitForever)
     {
         const event *evt = nullptr;
 
@@ -73,7 +73,7 @@ public:
             evt = new event(e);
 
         assert(evt != nullptr);
-        osMessageQueuePut(this->queue, &evt, 0, osWaitForever);
+        assert(osMessageQueuePut(this->queue, &evt, 0, timeout) == osOK);
     }
 
     /* Used for global access (e.g. from interrupt) */

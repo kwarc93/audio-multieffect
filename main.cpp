@@ -18,6 +18,7 @@
 #include "cmsis_os2.h"
 
 #include "app/blinky.hpp"
+#include "app/echo.hpp"
 #include "app/effects/effect_manager.hpp"
 #include "app/controller/controller.hpp"
 
@@ -25,7 +26,7 @@ void blinky_timer_callback(void *arg)
 {
     blinky *blinky_ao = static_cast<blinky*>(arg);
 
-    static const blinky::event e{ blinky::timer_evt_t {}, blinky::event::flags::static_storage };
+    static const blinky::event e { blinky::timer_evt_t {}, blinky::event::flags::static_storage };
     blinky_ao->send(e);
 }
 
@@ -34,10 +35,13 @@ void init_thread(void *arg)
     auto backlight_led = std::make_unique<hal::leds::backlight>();
     backlight_led->set(false);
 
-    /* Test of Active Object 'blinky' */
-    blinky blinky_ao;
+    /* Test of Active Object 'echo' */
+    std::unique_ptr<echo> echo_ao = std::make_unique<echo>();
 
-    osTimerId_t blinky_tim = osTimerNew(blinky_timer_callback, osTimerPeriodic, &blinky_ao, NULL);
+    /* Test of Active Object 'blinky' */
+    std::unique_ptr<blinky> blinky_ao = std::make_unique<blinky>();
+
+    osTimerId_t blinky_tim = osTimerNew(blinky_timer_callback, osTimerPeriodic, blinky_ao.get(), NULL);
     assert(blinky_tim != nullptr);
     osTimerStart(blinky_tim, 500);
 

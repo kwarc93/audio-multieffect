@@ -41,6 +41,8 @@ private:
     void event_handler(const char_queue_not_empty_evt_t &e);
     void event_handler(const button_evt_t &e);
 
+    void character_received_callback(const std::byte *data, std::size_t bytes_read);
+
     char received_char;
     spsc_queue<char, 16> char_queue;
     hal::interface::serial &stdio_serial;
