@@ -13,10 +13,11 @@
 #include <hal/hal_usart.hpp>
 
 #include "middlewares/active_object.hpp"
+#include "libs/spsc_queue.hpp"
 
 struct echo_event
 {
-    struct char_received_evt_t
+    struct char_queue_not_empty_evt_t
     {
 
     };
@@ -26,7 +27,7 @@ struct echo_event
 
     };
 
-    using holder = std::variant<char_received_evt_t, button_evt_t>;
+    using holder = std::variant<char_queue_not_empty_evt_t, button_evt_t>;
 };
 
 class echo : public echo_event, public ao::active_object<echo_event::holder>
@@ -37,11 +38,12 @@ private:
     void dispatch(const event &e) override;
 
     /* Event handlers */
-    void event_handler(const char_received_evt_t &e);
+    void event_handler(const char_queue_not_empty_evt_t &e);
     void event_handler(const button_evt_t &e);
 
-    hal::interface::serial &stdio_serial;
     char received_char;
+    spsc_queue<char, 16> char_queue;
+    hal::interface::serial &stdio_serial;
 };
 
 
