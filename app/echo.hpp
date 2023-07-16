@@ -30,7 +30,7 @@ struct echo_event
     using holder = std::variant<char_queue_not_empty_evt_t, button_evt_t>;
 };
 
-class echo : public echo_event, public ao::active_object<echo_event::holder>
+class echo : public echo_event, public active_object<echo_event::holder>
 {
 public:
     echo();

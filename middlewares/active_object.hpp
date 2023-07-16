@@ -13,9 +13,6 @@
 #include <string>
 #include <cassert>
 
-namespace ao
-{
-
 template<typename T>
 class active_object
 {
@@ -105,7 +102,5 @@ private:
     osThreadId_t thread;
     osThreadAttr_t thread_attr = { 0 };
 };
-
-}
 
 #endif /* ACTIVE_OBJECT_HPP_ */

@@ -41,7 +41,7 @@ struct effect_manager_event
     using holder = std::variant<process_data_evt_t, add_effect_evt_t, remove_effect_evt_t, bypass_evt_t>;
 };
 
-class effect_manager : public effect_manager_event, public ao::active_object<effect_manager_event::holder>
+class effect_manager : public effect_manager_event, public active_object<effect_manager_event::holder>
 {
 public:
     effect_manager();

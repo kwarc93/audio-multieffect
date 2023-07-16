@@ -36,10 +36,10 @@ void init_thread(void *arg)
     backlight_led->set(false);
 
     /* Test of Active Object 'echo' */
-    std::unique_ptr<echo> echo_ao = std::make_unique<echo>();
+    auto echo_ao = std::make_unique<echo>();
 
     /* Test of Active Object 'blinky' */
-    std::unique_ptr<blinky> blinky_ao = std::make_unique<blinky>();
+    auto blinky_ao = std::make_unique<blinky>();
 
     osTimerId_t blinky_tim = osTimerNew(blinky_timer_callback, osTimerPeriodic, blinky_ao.get(), NULL);
     assert(blinky_tim != nullptr);
