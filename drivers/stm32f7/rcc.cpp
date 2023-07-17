@@ -186,7 +186,7 @@ void rcc::set_main_pll(const main_pll &pll, const bus_presc &presc)
     else
         toggle_hsi(true);
 
-    /* Select regulator voltage output Scale 3 mode, System frequency up to 120 MHz */
+    /* Select regulator voltage output Scale 3 mode, System frequency up to 144 MHz */
     PWR->CR1 &= ~PWR_CR1_VOS_1;
 
     /* Set prescalers for HCLK, PCLK1 & PCLK2 */
