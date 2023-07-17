@@ -9,7 +9,6 @@
 
 #include <cmsis/stm32f7xx.h>
 #include <drivers/stm32f7/rcc.hpp>
-#include <drivers/stm32f7/delay.hpp>
 
 using namespace drivers;
 
@@ -22,7 +21,7 @@ bool fmc::sdram::init(const fmc::sdram::cfg &cfg)
 {
     rcc::enable_periph_clock({rcc::bus::AHB3, RCC_AHB3ENR_FMCEN}, true);
 
-    /* 1. Program the memory device features */
+    /* Program the memory device features */
     const uint8_t bank = cfg.bank == fmc::sdram::bank::bank1 ? 0 : 1;
 
     uint32_t tmp_reg = 0;
@@ -36,7 +35,7 @@ bool fmc::sdram::init(const fmc::sdram::cfg &cfg)
 
     FMC_Bank5_6->SDCR[bank] = tmp_reg;
 
-    /* 2. Program the memory device timing */
+    /* Program the memory device timings */
     tmp_reg = 0;
 
     tmp_reg |= (static_cast<uint32_t>(cfg.timing.load_to_active_delay) & FMC_SDTR1_TMRD_Msk) << FMC_SDTR1_TMRD_Pos;
@@ -48,26 +47,6 @@ bool fmc::sdram::init(const fmc::sdram::cfg &cfg)
     tmp_reg |= (static_cast<uint32_t>(cfg.timing.row_to_col_delay) & FMC_SDTR1_TRCD_Msk) << FMC_SDTR1_TRCD_Pos;
 
     FMC_Bank5_6->SDTR[bank] = tmp_reg;
-
-    /* 3. Send command CLOCK CONFIG ENABLE */
-    send_cmd(cfg.bank, fmc::sdram::cmd::clock_cfg_enable, 0);
-
-    /* 4. Wait (typical 100us) */
-    delay::us(100);
-
-    /* 5. Send command PRECHARGE ALL */
-    send_cmd(cfg.bank, fmc::sdram::cmd::precharge_all, 0);
-
-    /* 6. Send command AUTO REFRESH */
-    send_cmd(cfg.bank, fmc::sdram::cmd::auto_refresh, 8);
-
-    /* 7. Send command LOAD MODE REGISTER */
-    uint32_t mode_register = static_cast<uint32_t>(cfg.cas_latency) << 4 | 1 << 9;
-    send_cmd(cfg.bank, fmc::sdram::cmd::load_mode_register, mode_register);
-
-    /* 8. Program the refresh rate */
-//    FMC_Bank5_6->SDRTR =
-
 
     return true;
 }
@@ -92,6 +71,17 @@ void fmc::sdram::send_cmd(fmc::sdram::bank bank, fmc::sdram::cmd cmd, uint32_t p
 
     FMC_Bank5_6->SDCMR |= (static_cast<uint32_t>(bank) & (FMC_SDCMR_CTB1_Msk | FMC_SDCMR_CTB2_Msk)) << FMC_SDCMR_CTB2_Pos;
     FMC_Bank5_6->SDCMR |= (static_cast<uint32_t>(cmd) & FMC_SDCMR_MODE_Msk) << FMC_SDCMR_MODE_Pos;
+}
+
+void fmc::sdram::set_refresh_rate(uint16_t refresh_timer_count)
+{
+    while (FMC_Bank5_6->SDSR & FMC_SDSR_BUSY);
+
+    /* It must be set at least to 41 SDRAM clock cycles (0x29) */
+    if (refresh_timer_count < 41)
+        refresh_timer_count = 41;
+
+    FMC_Bank5_6->SDRTR = (refresh_timer_count & FMC_SDRTR_COUNT_Msk) << FMC_SDRTR_COUNT_Pos;
 }
 
 

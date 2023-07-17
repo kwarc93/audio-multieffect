@@ -40,7 +40,7 @@ void system::init(void)
         RCC_PLLCFGR_PLLSRC_HSE,
         15,
         240,
-        8,
+        4,
         2
     };
 

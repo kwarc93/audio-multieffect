@@ -8,7 +8,7 @@
 #ifndef STM32F7_FMC_HPP_
 #define STM32F7_FMC_HPP_
 
-#include <stdint.h>
+#include <cstdint>
 
 namespace drivers
 {
@@ -33,7 +33,7 @@ public:
             bank1 = 0b10, bank2 = 0b01
         };
 
-        enum class clock
+        enum class clock_period
         {
             disabled = 0b00, hclk_x2 = 0b10, hclk_x3 = 0b11
         };
@@ -63,6 +63,11 @@ public:
             _8bit, _9bit, _10bit, _11bit
         };
 
+        enum class cmd
+        {
+            normal, clock_cfg_enable, precharge_all, auto_refresh, load_mode_register, self_refresh, power_down
+        };
+
         struct cfg
         {
             sdram::bank bank;
@@ -71,11 +76,11 @@ public:
             sdram::data_width data_width;
             sdram::internal_banks internal_banks;
             sdram::cas_latency cas_latency;
-            sdram::clock clock_period;
+            sdram::clock_period clock_period;
 
             struct timing
             {
-                /* All parameters are expressed in memory clock cycles */
+                /* All parameters are expressed in memory clock_period cycles */
                 uint8_t load_to_active_delay;
                 uint8_t exit_self_refresh_time;
                 uint8_t self_refresh_time;
@@ -88,13 +93,8 @@ public:
         };
 
         static bool init(const cfg &cfg);
-
-        enum class cmd
-        {
-            normal, clock_cfg_enable, precharge_all, auto_refresh, load_mode_register, self_refresh, power_down
-        };
-
         static void send_cmd(bank bank, cmd cmd, uint32_t param);
+        static void set_refresh_rate(uint16_t refresh_timer_count);
     };
 
 //-----------------------------------------------------------------------------

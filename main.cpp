@@ -14,6 +14,7 @@
 #include <hal/hal_delay.hpp>
 #include <hal/hal_led.hpp>
 #include <hal/hal_button.hpp>
+#include <hal/hal_sdram.hpp>
 
 #include "cmsis_os2.h"
 
@@ -21,6 +22,8 @@
 #include "app/echo.hpp"
 #include "app/effects/effect_manager.hpp"
 #include "app/controller/controller.hpp"
+
+#include "libs/memtest/memtest.h"
 
 void blinky_timer_callback(void *arg)
 {
@@ -32,6 +35,25 @@ void blinky_timer_callback(void *arg)
 
 void init_thread(void *arg)
 {
+    /* Initialize and test SDRAM */
+    hal::sdram::init();
+
+    datum *sdram_base_addr = reinterpret_cast<datum*>(hal::sdram::start_addr());
+    size_t sdram_size = hal::sdram::size() / 16;
+
+    if ((memTestDataBus(sdram_base_addr) != 0) ||
+        (memTestAddressBus(sdram_base_addr, sdram_size) != NULL) ||
+        (memTestDevice(sdram_base_addr, sdram_size) != NULL))
+    {
+        printf("SDRAM memtest failed!\n");
+    }
+    else
+    {
+        printf("SDRAM memtest passed!\n");;
+    }
+
+    /* Create and test active objects */
+
     auto backlight_led = std::make_unique<hal::leds::backlight>();
     backlight_led->set(false);
 
