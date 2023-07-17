@@ -25,10 +25,10 @@ using namespace hal;
 #define SDRAM_MODE_REG_BURST_LEN_Msk              (0b111u)
 #define SDRAM_MODE_REG_BURST_TYPE_Pos             (3u)
 #define SDRAM_MODE_REG_BURST_TYPE_Msk             (0b1u)
-#define SDRAM_MODE_REG_BURST_CAS_LATENCY_Pos      (4u)
-#define SDRAM_MODE_REG_BURST_CAS_LATENCY_Msk      (0b111u)
-#define SDRAM_MODE_REG_BURST_OP_MODE_Pos          (7u)
-#define SDRAM_MODE_REG_BURST_OP_MODE_Msk          (0b11u)
+#define SDRAM_MODE_REG_CAS_LATENCY_Pos            (4u)
+#define SDRAM_MODE_REG_CAS_LATENCY_Msk            (0b111u)
+#define SDRAM_MODE_REG_OP_MODE_Pos                (7u)
+#define SDRAM_MODE_REG_OP_MODE_Msk                (0b11u)
 #define SDRAM_MODE_REG_WRITE_BURST_MODE_Pos       (9u)
 #define SDRAM_MODE_REG_WRITE_BURST_MODE_Msk       (0b1u)
 
@@ -133,7 +133,7 @@ void sdram::init(void)
     drivers::delay::us(100);
     drivers::fmc::sdram::send_cmd(config.bank, drivers::fmc::sdram::cmd::precharge_all, 0);
     drivers::fmc::sdram::send_cmd(config.bank, drivers::fmc::sdram::cmd::auto_refresh, 2);
-    const uint32_t mode_register = static_cast<uint32_t>(config.cas_latency) << SDRAM_MODE_REG_BURST_CAS_LATENCY_Pos;
+    const uint32_t mode_register = static_cast<uint32_t>(config.cas_latency) << SDRAM_MODE_REG_CAS_LATENCY_Pos;
     drivers::fmc::sdram::send_cmd(config.bank, drivers::fmc::sdram::cmd::load_mode_register, mode_register);
 
     /* count = SDRAM refresh period (us) / number of SDRAM rows * SDCLK (MHz) - 20 */

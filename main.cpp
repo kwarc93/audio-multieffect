@@ -41,14 +41,10 @@ void init_thread(void *arg)
     datum *sdram_base_addr = reinterpret_cast<datum*>(hal::sdram::start_addr());
     size_t sdram_size = hal::sdram::size();
 
-    if (memTestAll(sdram_base_addr, sdram_size))
-    {
-        printf("SDRAM memtest failed!\n");
-    }
-    else
-    {
-        printf("SDRAM memtest passed!\n");;
-    }
+    uint32_t tick_start = osKernelGetTickCount();
+    int result  = memTestAll(sdram_base_addr, sdram_size);
+    uint32_t test_time = osKernelGetTickCount() - tick_start;
+    printf("SDRAM memtest %s! Duration: %lu ms\n", result ? "failed" : "passed", test_time);
 
     /* Create and test active objects */
 
