@@ -36,7 +36,7 @@ using namespace hal;
 /* SDRAM target setup definitions */
 
 #define SDRAM_START_ADDR                          (0x60000000u)
-#define SDRAM_SIZE                                (16u * 1024u * 1024u)
+#define SDRAM_SIZE                                (8u * 1024u * 1024u)
 #define SDRAM_SDCLK_HZ                            (50000000u)
 #define SDRAM_SDCLK_NS                            (1000000000u / SDRAM_SDCLK_HZ)
 #define NS_TO_SDCLK_CYCLES(_ns)                   ((_ns + SDRAM_SDCLK_NS - 1) / SDRAM_SDCLK_NS)
@@ -115,6 +115,15 @@ static constexpr drivers::fmc::sdram::cfg config
 
 void sdram::init(void)
 {
+    /* Remap the SDRAM to a different address (0x60000000)
+     *
+     * NOTE: The area 0xC0000000-0xDFFFFFFF (32MB, FMC bank 5 & 6) is specified as Device Memory Type.
+     * According to the ARMv7-M Architecture Reference Manual chapter B3.1 (table B3-1),
+     * all accesses to Device Memory Types must be naturally aligned.
+     * If they are not, a hard fault will execute no matter if the bit UNALIGN_TRP (bit 3) in the CCR register is enabled or not.*/
+    drivers::rcc::enable_periph_clock({drivers::rcc::bus::APB2, RCC_APB2ENR_SYSCFGEN}, true);
+    SYSCFG->MEMRMP |= SYSCFG_MEMRMP_SWP_FMC_0;
+
     /* Initialize GPIOs */
     for (const auto &pin : gpios)
         drivers::gpio::configure(pin, drivers::gpio::mode::af, drivers::gpio::af::af12);
@@ -124,25 +133,12 @@ void sdram::init(void)
     drivers::delay::us(100);
     drivers::fmc::sdram::send_cmd(config.bank, drivers::fmc::sdram::cmd::precharge_all, 0);
     drivers::fmc::sdram::send_cmd(config.bank, drivers::fmc::sdram::cmd::auto_refresh, 2);
-
-    const uint32_t mode_register = static_cast<uint32_t>(config.cas_latency) << SDRAM_MODE_REG_BURST_CAS_LATENCY_Pos
-                                 | 1 << SDRAM_MODE_REG_WRITE_BURST_MODE_Pos;
-
+    const uint32_t mode_register = static_cast<uint32_t>(config.cas_latency) << SDRAM_MODE_REG_BURST_CAS_LATENCY_Pos;
     drivers::fmc::sdram::send_cmd(config.bank, drivers::fmc::sdram::cmd::load_mode_register, mode_register);
 
     /* count = SDRAM refresh period (us) / number of SDRAM rows * SDCLK (MHz) - 20 */
     constexpr uint16_t count = 64000.f / 4096.f * 50.f - 20.f;
     drivers::fmc::sdram::set_refresh_rate(count);
-
-
-    /* Remap the SDRAM to a different address (0x60000000)
-     *
-     * NOTE: The area 0xC0000000-0xDFFFFFFF (32MB, FMC bank 5 & 6) is specified as Device Memory Type.
-     * According to the ARMv7-M Architecture Reference Manual chapter B3.1 (table B3-1),
-     * all accesses to Device Memory Types must be naturally aligned.
-     * If they are not, a hard fault will execute no matter if the bit UNALIGN_TRP (bit 3) in the CCR register is enabled or not.*/
-    drivers::rcc::enable_periph_clock({drivers::rcc::bus::APB2, RCC_APB2ENR_SYSCFGEN}, true);
-    SYSCFG->MEMRMP |= SYSCFG_MEMRMP_SWP_FMC_0;
 }
 
 void *sdram::start_addr(void)

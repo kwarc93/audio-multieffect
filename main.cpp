@@ -39,11 +39,9 @@ void init_thread(void *arg)
     hal::sdram::init();
 
     datum *sdram_base_addr = reinterpret_cast<datum*>(hal::sdram::start_addr());
-    size_t sdram_size = hal::sdram::size() / 16;
+    size_t sdram_size = hal::sdram::size();
 
-    if ((memTestDataBus(sdram_base_addr) != 0) ||
-        (memTestAddressBus(sdram_base_addr, sdram_size) != NULL) ||
-        (memTestDevice(sdram_base_addr, sdram_size) != NULL))
+    if (memTestAll(sdram_base_addr, sdram_size))
     {
         printf("SDRAM memtest failed!\n");
     }

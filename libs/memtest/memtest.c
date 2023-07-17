@@ -219,3 +219,31 @@ memTestDevice(volatile datum * baseAddress, unsigned long nBytes)
     return (NULL);
 
 }   /* memTestDevice() */
+
+
+/**********************************************************************
+ *
+ * Function:    memTestAll()
+ *
+ * Description: Test the integrity of a physical memory device by
+ *              performing three tests:
+ *
+ *              memTestAddressBus
+ *              memTestDataBus
+ *              memTestDevice
+ *
+ * Notes:
+ *
+ * Returns:     0 if the test succeeds.
+ *              A non-zero result if some of tests failed.
+ *
+ **********************************************************************/
+datum
+memTestAll(volatile datum * baseAddress, unsigned long nBytes)
+{
+    return !((memTestDataBus(baseAddress) == 0) &&
+           (memTestAddressBus(baseAddress, nBytes) == NULL) &&
+           (memTestDevice(baseAddress, nBytes) == NULL));
+
+}   /* memTestAll() */
+

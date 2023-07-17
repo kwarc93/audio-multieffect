@@ -18,7 +18,7 @@ void flash::set_wait_states(uint32_t sysclk_freq)
     uint32_t wait_states = sysclk_freq / 30000000ul;
 
     /* Trim to max allowed value */
-    wait_states &= FLASH_ACR_LATENCY_Msk;
+    wait_states = wait_states > 15 ? 15 : wait_states;
 
     /* Enable prefetch & ART accelerator & set wait states */
     FLASH->ACR = FLASH_ACR_ARTEN | FLASH_ACR_PRFTEN | wait_states;
