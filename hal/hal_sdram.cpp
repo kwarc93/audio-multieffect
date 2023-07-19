@@ -22,15 +22,15 @@ using namespace hal;
 
 #define SDRAM_MODE_REG_Msk                        (0b1111111111111u)
 #define SDRAM_MODE_REG_BURST_LEN_Pos              (0u)
-#define SDRAM_MODE_REG_BURST_LEN_Msk              (0b111u)
+#define SDRAM_MODE_REG_BURST_LEN_Msk              (0b111u << SDRAM_MODE_REG_BURST_LEN_Pos)
 #define SDRAM_MODE_REG_BURST_TYPE_Pos             (3u)
-#define SDRAM_MODE_REG_BURST_TYPE_Msk             (0b1u)
+#define SDRAM_MODE_REG_BURST_TYPE_Msk             (0b1u << SDRAM_MODE_REG_BURST_TYPE_Pos)
 #define SDRAM_MODE_REG_CAS_LATENCY_Pos            (4u)
-#define SDRAM_MODE_REG_CAS_LATENCY_Msk            (0b111u)
+#define SDRAM_MODE_REG_CAS_LATENCY_Msk            (0b111u << SDRAM_MODE_REG_CAS_LATENCY_Pos)
 #define SDRAM_MODE_REG_OP_MODE_Pos                (7u)
-#define SDRAM_MODE_REG_OP_MODE_Msk                (0b11u)
+#define SDRAM_MODE_REG_OP_MODE_Msk                (0b11u << SDRAM_MODE_REG_OP_MODE_Pos)
 #define SDRAM_MODE_REG_WRITE_BURST_MODE_Pos       (9u)
-#define SDRAM_MODE_REG_WRITE_BURST_MODE_Msk       (0b1u)
+#define SDRAM_MODE_REG_WRITE_BURST_MODE_Msk       (0b1u << SDRAM_MODE_REG_WRITE_BURST_MODE_Pos)
 
 //-----------------------------------------------------------------------------
 /* SDRAM target setup definitions */

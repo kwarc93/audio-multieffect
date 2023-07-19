@@ -12,11 +12,6 @@
 
 using namespace drivers;
 
-void fmc::deinit()
-{
-    rcc::enable_periph_clock({rcc::bus::AHB3, RCC_AHB3ENR_FMCEN}, false);
-}
-
 bool fmc::sdram::init(const fmc::sdram::cfg &cfg)
 {
     rcc::enable_periph_clock({rcc::bus::AHB3, RCC_AHB3ENR_FMCEN}, true);

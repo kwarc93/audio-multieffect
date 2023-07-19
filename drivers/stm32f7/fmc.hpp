@@ -17,7 +17,6 @@ class fmc final
 {
 public:
     fmc() = delete;
-    static void deinit(void);
 
 //-----------------------------------------------------------------------------
 /* SDRAM */
@@ -100,7 +99,13 @@ public:
 //-----------------------------------------------------------------------------
 /* SRAM/PSRAM */
 
-    /* TODO */
+    class sram final
+    {
+    public:
+        sram() = delete;
+
+        /* TODO */
+    };
 };
 
 }
