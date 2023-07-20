@@ -221,6 +221,28 @@ void rcc::set_main_pll(const main_pll &pll, const bus_presc &presc)
 
 //-----------------------------------------------------------------------------
 
+void rcc::set_sai_pll(const sai_pll &pll)
+{
+    /* Disable the SAI PLL */
+    RCC->CR &= ~RCC_CR_PLLSAION;
+
+    /* Set dividers: after-Q & after-R */
+    RCC->DCKCFGR1 |= pll.div_q << RCC_DCKCFGR1_PLLSAIDIVQ_Pos | pll.div_r << RCC_DCKCFGR1_PLLSAIDIVR_Pos;
+
+    /* Configure the SAI PLL */
+    RCC->PLLSAICFGR = (pll.n << 6) | (((pll.p >> 1) - 1) << 16) | (pll.q << 24) | (pll.r << 28);
+
+    /* Enable the SAI PLL */
+    RCC->CR |= RCC_CR_PLLSAION;
+
+    while ((RCC->CR & RCC_CR_PLLSAIRDY) == 0)
+    {
+        /* Wait till the SAI PLL is ready */
+    }
+}
+
+//-----------------------------------------------------------------------------
+
 void rcc::toggle_hsi(bool state)
 {
     if (state)

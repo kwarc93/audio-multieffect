@@ -8,6 +8,7 @@
 #include <hal/hal_system.hpp>
 
 #include <drivers/stm32f7/usart.hpp>
+#include <drivers/stm32f7/ltdc.hpp>
 
 //-----------------------------------------------------------------------------
 /* Core interrupt handlers */
@@ -50,4 +51,9 @@ extern "C" void UsageFault_Handler(void)
 extern "C" void USART1_IRQHandler(void)
 {
     drivers::usart::instance[static_cast<uint8_t>(drivers::usart::id::usart1)]->irq_handler();
+}
+
+extern "C" void LTDC_ER_IRQHandler(void)
+{
+    drivers::ltdc::irq_handler();
 }

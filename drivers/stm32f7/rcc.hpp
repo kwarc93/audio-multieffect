@@ -72,6 +72,17 @@ public:
         uint32_t apb2;      /**< APB1 prescaler, use RCC_CFGR_PPRE2_DIVx from CMSIS headers */
     };
 
+    /** @brief  Structure for describing SAI PLL parameters. */
+    struct sai_pll
+    {
+        uint32_t n;         /**< N multiplier, allowed range: 50 - 432 */
+        uint32_t p;         /**< P divider, allowed values: 2, 4, 6, 8 */
+        uint32_t q;         /**< Q divider, allowed range: 2 - 15 */
+        uint32_t r;         /**< R divider, allowed range: 2 - 7 */
+        uint32_t div_q;     /**< After-Q divider, use RCC_DCKCFGR1_PLLSAIDIVQx from CMSIS headers  */
+        uint32_t div_r;     /**< After-R divider, use RCC_DCKCFGR1_PLLSAIDIVRx from CMSIS headers */
+    };
+
 //--------------------------------------------------------------------------------
 
     /** @brief  Resets the RCC clock configuration to the default reset state. */
@@ -99,6 +110,13 @@ public:
      * @param   presc - pointer to bus prescalers configuration
      */
     static void set_main_pll(const main_pll &pll, const bus_presc &presc);
+
+    /**
+     * @brief   Configures the SAI PLL.
+     * @note    This function can be called only after set_main_pll() function call.
+     * @param   pll - pointer to SAI PLL configuration
+     */
+    static void set_sai_pll(const sai_pll &pll);
 
     /** @brief  Enables/disables high speed internal clock.
      *  @param  state - true enables, false disables clock.

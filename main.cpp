@@ -25,6 +25,8 @@
 
 #include "libs/memtest/memtest.h"
 
+__attribute__((section(".sdram"))) static uint32_t ext_mem[1024*1024*8/4];
+
 void blinky_timer_callback(void *arg)
 {
     blinky *blinky_ao = static_cast<blinky*>(arg);
@@ -35,14 +37,9 @@ void blinky_timer_callback(void *arg)
 
 void init_thread(void *arg)
 {
-    /* Initialize and test SDRAM */
-    hal::sdram::init();
-
-    datum *sdram_base_addr = reinterpret_cast<datum*>(hal::sdram::start_addr());
-    size_t sdram_size = hal::sdram::size();
-
+    /* Test SDRAM */
     uint32_t tick_start = osKernelGetTickCount();
-    int result  = memTestAll(sdram_base_addr, sdram_size);
+    int result  = memTestAll(ext_mem, sizeof(ext_mem));
     uint32_t test_time = osKernelGetTickCount() - tick_start;
     printf("SDRAM memtest %s! Duration: %lu ms\n", result ? "failed" : "passed", test_time);
 

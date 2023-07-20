@@ -6,6 +6,7 @@
  */
 
 #include "hal_system.hpp"
+#include "hal_sdram.hpp"
 
 #include <cassert>
 
@@ -56,5 +57,7 @@ void system::init(void)
     /* Set System Tick interrupt */
     SysTick_Config(system::system_clock / system::systick_freq);
 #endif
+
+    hal::sdram::init();
 }
 
