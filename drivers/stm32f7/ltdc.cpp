@@ -15,6 +15,16 @@ using namespace drivers;
 //-----------------------------------------------------------------------------
 /* helpers */
 
+namespace
+{
+
+LTDC_Layer_TypeDef *get_layer_reg(ltdc::layer::id layer)
+{
+    return LTDC_Layer1 + (LTDC_Layer2 - LTDC_Layer1) * static_cast<uint8_t>(layer);
+}
+
+}
+
 //-----------------------------------------------------------------------------
 /* private */
 
@@ -52,9 +62,9 @@ void ltdc::configure(const cfg &cfg)
               |  cfg.pol.de << LTDC_GCR_DEPOL_Pos
               |  cfg.pol.pixel_clk << LTDC_GCR_PCPOL_Pos;
 
-    LTDC->BCCR = (cfg.bkgd_col_r << LTDC_BCCR_BCRED_Pos)
-               | (cfg.bkgd_col_g << LTDC_BCCR_BCGREEN_Pos)
-               | (cfg.bkgd_col_b << LTDC_BCCR_BCBLUE_Pos);
+    LTDC->BCCR = (cfg.r << LTDC_BCCR_BCRED_Pos)
+               | (cfg.g << LTDC_BCCR_BCGREEN_Pos)
+               | (cfg.b << LTDC_BCCR_BCBLUE_Pos);
 
     if (cfg.err_irq_enable)
     {
@@ -99,7 +109,7 @@ void ltdc::irq_handler(void)
     {
         LTDC->ICR |= LTDC_ICR_CFUIF;
 
-        asm volatile ("BKPT 0");
+//        asm volatile ("BKPT 0");
     }
 
     /* Transfer error */
@@ -107,23 +117,44 @@ void ltdc::irq_handler(void)
     {
         LTDC->ICR |= LTDC_ICR_CTERRIF;
 
-        asm volatile ("BKPT 0");
+//        asm volatile ("BKPT 0");
     }
 }
 
-void ltdc::layer::configure(id layer, const cfg &cfg)
+void ltdc::layer::configure(id layer, const layer::cfg &cfg)
 {
+    auto layer_reg = get_layer_reg(layer);
 
+    layer_reg->WHPCR = cfg.h_stop << LTDC_LxWHPCR_WHSPPOS_Pos | cfg.h_start << LTDC_LxWHPCR_WHSTPOS_Pos;
+    layer_reg->WVPCR = cfg.v_stop << LTDC_LxWVPCR_WVSPPOS_Pos | cfg.v_start << LTDC_LxWVPCR_WVSTPOS_Pos;
+
+    layer_reg->PFCR = static_cast<uint32_t>(cfg.pix_fmt) << LTDC_LxPFCR_PF_Pos;
+    layer_reg->CACR = cfg.const_alpha_blend << LTDC_LxCACR_CONSTA_Pos;
+
+    layer_reg->DCCR = cfg.a << LTDC_LxDCCR_DCALPHA_Pos
+                    | cfg.r << LTDC_LxDCCR_DCRED_Pos
+                    | cfg.g << LTDC_LxDCCR_DCGREEN_Pos
+                    | cfg.b << LTDC_LxDCCR_DCBLUE_Pos;
+
+    layer_reg->CFBAR = reinterpret_cast<uint32_t>(cfg.frame_buf_addr);
+    layer_reg->CFBLR = (cfg.frame_buf_width * pixel_size.at(cfg.pix_fmt) + 3) << LTDC_LxCFBLR_CFBLL_Pos
+                     | (cfg.frame_buf_width * pixel_size.at(cfg.pix_fmt)) << LTDC_LxCFBLR_CFBP_Pos;
+    layer_reg->CFBLNR = cfg.frame_buf_height << LTDC_LxCFBLNR_CFBLNBR_Pos;
 }
 
 void ltdc::layer::enable(id layer, bool layer_enable, bool color_keying_enable, bool clut_enable)
 {
-    if (layer_enable)
-    {
+    auto layer_reg = get_layer_reg(layer);
 
-    }
-    else
-    {
+    layer_reg->CR = clut_enable << LTDC_LxCR_CLUTEN_Pos
+                  | color_keying_enable << LTDC_LxCR_COLKEN_Pos
+                  | layer_enable << LTDC_LxCR_LEN_Pos;
 
-    }
+    LTDC->SRCR |= LTDC_SRCR_VBR;
+}
+
+void ltdc::layer::set_framebuf_addr(id layer, void *addr)
+{
+    auto layer_reg = get_layer_reg(layer);
+    layer_reg->CFBAR = reinterpret_cast<uint32_t>(addr);
 }

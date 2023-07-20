@@ -16,7 +16,7 @@ namespace hal
     class lcd_tft_480x272
     {
     public:
-        lcd_tft_480x272();
+        lcd_tft_480x272(void *framebuff);
         ~lcd_tft_480x272();
 
         void backlight(bool state);

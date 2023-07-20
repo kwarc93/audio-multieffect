@@ -19,7 +19,7 @@ namespace drivers
 class lcd_rk043fn48h
 {
 public:
-    lcd_rk043fn48h(const std::array<const gpio::io, 28> &gpios);
+    lcd_rk043fn48h(const std::array<const gpio::io, 28> &gpios, void *framebuf);
     ~lcd_rk043fn48h();
 
     static size_t width(void);

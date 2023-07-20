@@ -26,6 +26,8 @@
 
 #include "libs/memtest/memtest.h"
 
+#include "RGB565_480x272.h"
+
 __attribute__((section(".sdram"))) static uint32_t ext_mem[1024*1024*8/4];
 
 void blinky_timer_callback(void *arg)
@@ -39,8 +41,7 @@ void blinky_timer_callback(void *arg)
 void init_thread(void *arg)
 {
     /* Test LCD */
-    auto lcd = hal::lcd_tft_480x272 {};
-    lcd.backlight(true);
+    auto lcd = hal::lcd_tft_480x272 {(void*)RGB565_480x272};
 
     /* Test SDRAM */
     uint32_t tick_start = osKernelGetTickCount();

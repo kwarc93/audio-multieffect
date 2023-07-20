@@ -23,7 +23,7 @@ using namespace drivers;
 //-----------------------------------------------------------------------------
 /* public */
 
-lcd_rk043fn48h::lcd_rk043fn48h(const std::array<const drivers::gpio::io, 28> &gpios)
+lcd_rk043fn48h::lcd_rk043fn48h(const std::array<const drivers::gpio::io, 28> &gpios, void *framebuf)
 {
     /* Initialize LTDC GPIOs */
     for (const auto &pin : gpios)
@@ -65,14 +65,14 @@ lcd_rk043fn48h::lcd_rk043fn48h(const std::array<const drivers::gpio::io, 28> &gp
         },
 
         /* Background color (RGB) */
-        255, 0, 0,
+        0, 0, 0,
 
         /* Signal polarities */
         {
             false,
             false,
             false,
-            true
+            false
         },
 
         /* Error IRQ enable */
@@ -80,6 +80,24 @@ lcd_rk043fn48h::lcd_rk043fn48h(const std::array<const drivers::gpio::io, 28> &gp
     };
 
     ltdc::configure(cfg);
+
+    const auto ltdc_layer = ltdc::layer::id::layer1;
+
+    static const ltdc::layer::cfg layer_cfg
+    {
+        0, 480,
+        0, 272,
+        ltdc::layer::pixel_format::RGB565,
+        255,
+        framebuf,
+        480, 272,
+
+        /* Background color (ARGB) */
+        0, 0, 0, 0
+    };
+
+    ltdc::layer::configure(ltdc_layer, layer_cfg);
+    ltdc::layer::enable(ltdc_layer, true, false, false);
     ltdc::enable(true);
 }
 

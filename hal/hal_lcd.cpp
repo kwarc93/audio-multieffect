@@ -53,7 +53,7 @@ static constexpr std::array<const drivers::gpio::io, 28> gpios =
 
     /* Control lines */
     {drivers::gpio::port::porti, drivers::gpio::pin::pin10}, // HSYNC
-    {drivers::gpio::port::porti, drivers::gpio::pin::pin9},  // VSYYC
+    {drivers::gpio::port::porti, drivers::gpio::pin::pin9},  // VSYNC
     {drivers::gpio::port::porti, drivers::gpio::pin::pin14}, // LCD_CLK
     {drivers::gpio::port::portk, drivers::gpio::pin::pin7},  // LCD_DE
 }};
@@ -61,12 +61,15 @@ static constexpr std::array<const drivers::gpio::io, 28> gpios =
 //-----------------------------------------------------------------------------
 /* public */
 
-lcd_tft_480x272::lcd_tft_480x272() : lcd_drv { gpios }
+lcd_tft_480x272::lcd_tft_480x272(void *framebuff) : lcd_drv { gpios , framebuff}
 {
     /* Initialize & set LCD display enable pin */
     const drivers::gpio::io lcd_displ {drivers::gpio::port::porti, drivers::gpio::pin::pin12};
     drivers::gpio::configure(lcd_displ);
     drivers::gpio::write(lcd_displ, true);
+
+    /* Enable backlight */
+    this->bkl_drv.set(true);
 }
 
 lcd_tft_480x272::~lcd_tft_480x272()
