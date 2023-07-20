@@ -12,14 +12,14 @@
 #include <drivers/stm32f7/delay.hpp>
 #include <drivers/stm32f7/gpio.hpp>
 
-
 #include <array>
 
 using namespace hal;
 
 //-----------------------------------------------------------------------------
-/* SDRAM MODE REG definitions */
+/* helpers */
 
+/* SDRAM MODE REG definitions */
 #define SDRAM_MODE_REG_Msk                        (0b1111111111111u)
 #define SDRAM_MODE_REG_BURST_LEN_Pos              (0u)
 #define SDRAM_MODE_REG_BURST_LEN_Msk              (0b111u << SDRAM_MODE_REG_BURST_LEN_Pos)
@@ -32,14 +32,16 @@ using namespace hal;
 #define SDRAM_MODE_REG_WRITE_BURST_MODE_Pos       (9u)
 #define SDRAM_MODE_REG_WRITE_BURST_MODE_Msk       (0b1u << SDRAM_MODE_REG_WRITE_BURST_MODE_Pos)
 
-//-----------------------------------------------------------------------------
 /* SDRAM target setup definitions */
-
 #define SDRAM_START_ADDR                          (0x60000000u)
 #define SDRAM_SIZE                                (8u * 1024u * 1024u)
 #define SDRAM_SDCLK_HZ                            (50000000u)
 #define SDRAM_SDCLK_NS                            (1000000000u / SDRAM_SDCLK_HZ)
 #define NS_TO_SDCLK_CYCLES(_ns)                   ((_ns + SDRAM_SDCLK_NS - 1) / SDRAM_SDCLK_NS)
+
+
+//-----------------------------------------------------------------------------
+/* private */
 
 static constexpr std::array<const drivers::gpio::io, 38> gpios =
 {{
@@ -112,6 +114,9 @@ static constexpr drivers::fmc::sdram::cfg config
         NS_TO_SDCLK_CYCLES(18)  // tRCD
     }
 };
+
+//-----------------------------------------------------------------------------
+/* public */
 
 void sdram::init(void)
 {

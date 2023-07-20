@@ -15,6 +15,7 @@
 #include <hal/hal_led.hpp>
 #include <hal/hal_button.hpp>
 #include <hal/hal_sdram.hpp>
+#include <hal/hal_lcd.hpp>
 
 #include "cmsis_os2.h"
 
@@ -37,6 +38,10 @@ void blinky_timer_callback(void *arg)
 
 void init_thread(void *arg)
 {
+    /* Test LCD */
+    auto lcd = hal::lcd_tft_480x272 {};
+    lcd.backlight(true);
+
     /* Test SDRAM */
     uint32_t tick_start = osKernelGetTickCount();
     int result  = memTestAll(ext_mem, sizeof(ext_mem));
@@ -44,9 +49,6 @@ void init_thread(void *arg)
     printf("SDRAM memtest %s! Duration: %lu ms\n", result ? "failed" : "passed", test_time);
 
     /* Create and test active objects */
-
-    auto backlight_led = std::make_unique<hal::leds::backlight>();
-    backlight_led->set(false);
 
     /* Test of Active Object 'echo' */
     auto echo_ao = std::make_unique<echo>();

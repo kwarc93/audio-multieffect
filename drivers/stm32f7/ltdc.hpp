@@ -21,28 +21,32 @@ public:
 
     struct cfg
     {
-        struct horizontal_cfg
+        struct horizontal
         {
             uint32_t width;
             uint32_t sync;
-            bool sync_polarity;
             uint32_t back_porch;
             uint32_t front_porch;
         } h;
 
-        struct vertical_cfg
+        struct vertical
         {
             uint32_t height;
             uint32_t sync;
-            bool sync_polarity;
             uint32_t back_porch;
             uint32_t front_porch;
         } v;
 
         uint8_t bkgd_col_r, bkgd_col_g, bkgd_col_b;
 
-        bool de_pol;
-        bool pixel_clk_pol;
+        struct polarity
+        {
+            bool hsync;
+            bool vsync;
+            bool de;
+            bool pixel_clk;
+        } pol;
+
         bool err_irq_enable;
     };
 
@@ -61,7 +65,7 @@ public:
         };
 
         static void configure(id layer, const cfg &cfg);
-        static void enable(id layer, bool state);
+        static void enable(id layer, bool layer_enable, bool color_keying_enable, bool clut_enable);
     };
 
     static void irq_handler(void);

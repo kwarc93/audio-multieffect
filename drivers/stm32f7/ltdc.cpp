@@ -47,10 +47,10 @@ void ltdc::configure(const cfg &cfg)
 
     LTDC->GCR &= ~(LTDC_GCR_HSPOL_Msk | LTDC_GCR_VSPOL_Msk | LTDC_GCR_DEPOL_Msk | LTDC_GCR_PCPOL_Msk);
 
-    LTDC->GCR |= cfg.h.sync_polarity << LTDC_GCR_HSPOL_Pos
-              |  cfg.v.sync_polarity << LTDC_GCR_VSPOL_Pos
-              |  cfg.de_pol << LTDC_GCR_DEPOL_Pos
-              |  cfg.pixel_clk_pol << LTDC_GCR_PCPOL_Pos;
+    LTDC->GCR |= cfg.pol.hsync << LTDC_GCR_HSPOL_Pos
+              |  cfg.pol.vsync << LTDC_GCR_VSPOL_Pos
+              |  cfg.pol.de << LTDC_GCR_DEPOL_Pos
+              |  cfg.pol.pixel_clk << LTDC_GCR_PCPOL_Pos;
 
     LTDC->BCCR = (cfg.bkgd_col_r << LTDC_BCCR_BCRED_Pos)
                | (cfg.bkgd_col_g << LTDC_BCCR_BCGREEN_Pos)
@@ -116,9 +116,9 @@ void ltdc::layer::configure(id layer, const cfg &cfg)
 
 }
 
-void ltdc::layer::enable(id layer, bool state)
+void ltdc::layer::enable(id layer, bool layer_enable, bool color_keying_enable, bool clut_enable)
 {
-    if (state)
+    if (layer_enable)
     {
 
     }

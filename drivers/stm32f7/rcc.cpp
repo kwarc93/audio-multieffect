@@ -227,7 +227,8 @@ void rcc::set_sai_pll(const sai_pll &pll)
     RCC->CR &= ~RCC_CR_PLLSAION;
 
     /* Set dividers: after-Q & after-R */
-    RCC->DCKCFGR1 |= pll.div_q << RCC_DCKCFGR1_PLLSAIDIVQ_Pos | pll.div_r << RCC_DCKCFGR1_PLLSAIDIVR_Pos;
+    RCC->DCKCFGR1 |= (pll.div_q - 1) << RCC_DCKCFGR1_PLLSAIDIVQ_Pos
+                  |  (pll.div_r == 16 ? 0b11 : pll.div_r >> 2) << RCC_DCKCFGR1_PLLSAIDIVR_Pos;
 
     /* Configure the SAI PLL */
     RCC->PLLSAICFGR = (pll.n << 6) | (((pll.p >> 1) - 1) << 16) | (pll.q << 24) | (pll.r << 28);

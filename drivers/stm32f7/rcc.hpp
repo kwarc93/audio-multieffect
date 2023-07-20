@@ -79,8 +79,8 @@ public:
         uint32_t p;         /**< P divider, allowed values: 2, 4, 6, 8 */
         uint32_t q;         /**< Q divider, allowed range: 2 - 15 */
         uint32_t r;         /**< R divider, allowed range: 2 - 7 */
-        uint32_t div_q;     /**< After-Q divider, use RCC_DCKCFGR1_PLLSAIDIVQx from CMSIS headers  */
-        uint32_t div_r;     /**< After-R divider, use RCC_DCKCFGR1_PLLSAIDIVRx from CMSIS headers */
+        uint32_t div_q;     /**< After-Q divider, allowed values: 1 - 32  */
+        uint32_t div_r;     /**< After-R divider, allowed values: 2, 4, 8, 16 */
     };
 
 //--------------------------------------------------------------------------------
