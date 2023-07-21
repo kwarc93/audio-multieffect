@@ -15,51 +15,39 @@
 #include <hal/hal_led.hpp>
 #include <hal/hal_button.hpp>
 #include <hal/hal_sdram.hpp>
-#include <hal/hal_lcd.hpp>
 
 #include "cmsis_os2.h"
 
 #include "app/blinky.hpp"
 #include "app/echo.hpp"
+#include "app/gui.hpp"
 #include "app/effects/effect_manager.hpp"
 #include "app/controller/controller.hpp"
 
 #include "libs/memtest/memtest.h"
 
-#include "RGB565_480x272.h"
-
 __attribute__((section(".sdram"))) static uint32_t ext_mem[1024*1024*8/4];
 
-void blinky_timer_callback(void *arg)
-{
-    blinky *blinky_ao = static_cast<blinky*>(arg);
-
-    static const blinky::event e { blinky::timer_evt_t {}, blinky::event::flags::static_storage };
-    blinky_ao->send(e);
-}
 
 void init_thread(void *arg)
 {
-    /* Test LCD */
-    auto lcd = hal::lcd_tft_480x272 {(void*)RGB565_480x272};
-
     /* Test SDRAM */
     uint32_t tick_start = osKernelGetTickCount();
     int result  = memTestAll(ext_mem, sizeof(ext_mem));
     uint32_t test_time = osKernelGetTickCount() - tick_start;
     printf("SDRAM memtest %s! Duration: %lu ms\n", result ? "failed" : "passed", test_time);
+    assert(result == 0);
 
     /* Create and test active objects */
+
+    /* Test of Active Object 'gui' */
+    auto gui_ao = std::make_unique<gui>();
 
     /* Test of Active Object 'echo' */
     auto echo_ao = std::make_unique<echo>();
 
     /* Test of Active Object 'blinky' */
     auto blinky_ao = std::make_unique<blinky>();
-
-    osTimerId_t blinky_tim = osTimerNew(blinky_timer_callback, osTimerPeriodic, blinky_ao.get(), NULL);
-    assert(blinky_tim != nullptr);
-    osTimerStart(blinky_tim, 500);
 
     /* Test of Active Object 'controller' */
     controller ctrl;

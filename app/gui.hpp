@@ -1,20 +1,20 @@
 /*
- * blinky.hpp
+ * gui.hpp
  *
- *  Created on: 2 sty 2023
+ *  Created on: 21 lip 2023
  *      Author: kwarc
  */
 
-#ifndef BLINKY_HPP_
-#define BLINKY_HPP_
+#ifndef GUI_HPP_
+#define GUI_HPP_
 
 #include <variant>
 
-#include <hal/hal_led.hpp>
+#include <hal/hal_lcd.hpp>
 
 #include "middlewares/active_object.hpp"
 
-struct blinky_event
+struct gui_event
 {
     struct timer_evt_t
     {
@@ -29,10 +29,10 @@ struct blinky_event
     using holder = std::variant<timer_evt_t, button_evt_t>;
 };
 
-class blinky : public blinky_event, public active_object<blinky_event::holder>
+class gui : public gui_event, public active_object<gui_event::holder>
 {
 public:
-    blinky();
+    gui();
 private:
     void dispatch(const event &e) override;
 
@@ -40,8 +40,9 @@ private:
     void event_handler(const timer_evt_t &e);
     void event_handler(const button_evt_t &e);
 
-    hal::leds::debug led;
+    hal::lcd_tft_480x272 lcd;
     osTimerId_t timer;
 };
 
-#endif /* BLINKY_HPP_ */
+
+#endif /* GUI_HPP_ */

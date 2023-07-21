@@ -21,9 +21,9 @@ namespace hal
 
         void backlight(bool state);
 
-        size_t width(void);
-        size_t height(void);
-        size_t max_bpp(void);
+        size_t width(void) const;
+        size_t height(void) const;
+        size_t max_bpp(void) const;
     private:
         drivers::lcd_rk043fn48h lcd_drv;
         const drivers::gpio::io bkl_io = { drivers::gpio::port::portk, drivers::gpio::pin::pin3 };

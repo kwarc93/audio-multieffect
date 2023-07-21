@@ -82,17 +82,17 @@ void lcd_tft_480x272::backlight(bool state)
     this->bkl_drv.set(state);
 }
 
-size_t lcd_tft_480x272::width(void)
+size_t lcd_tft_480x272::width(void) const
 {
     return this->lcd_drv.width();
 }
 
-size_t lcd_tft_480x272::height(void)
+size_t lcd_tft_480x272::height(void) const
 {
     return this->lcd_drv.height();
 }
 
-size_t lcd_tft_480x272::max_bpp(void)
+size_t lcd_tft_480x272::max_bpp(void) const
 {
     return this->lcd_drv.max_bpp();
 }
