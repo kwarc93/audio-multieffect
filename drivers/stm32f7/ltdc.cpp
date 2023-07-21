@@ -165,4 +165,7 @@ void ltdc::layer::set_framebuf_addr(id layer, void *addr)
     auto layer_reg = get_layer_reg(layer);
     layer_reg->CFBAR = reinterpret_cast<uint32_t>(addr);
     LTDC->SRCR |= LTDC_SRCR_VBR;
+
+    /* Synchronize with VSYNC (blanking period) */
+    while ((LTDC->CDSR & LTDC_CDSR_VSYNCS) == 0);
 }

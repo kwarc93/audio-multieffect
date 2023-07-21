@@ -96,3 +96,8 @@ size_t lcd_tft_480x272::max_bpp(void) const
 {
     return this->lcd_drv.max_bpp();
 }
+
+void lcd_tft_480x272::set_framebuff(void *addr)
+{
+    this->lcd_drv.set_framebuf(addr);
+}

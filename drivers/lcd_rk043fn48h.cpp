@@ -122,17 +122,22 @@ lcd_rk043fn48h::~lcd_rk043fn48h()
     ltdc::enable(false);
 }
 
-size_t lcd_rk043fn48h::width(void)
+size_t lcd_rk043fn48h::width(void) const
 {
     return RK043FN48H_WIDTH;
 }
 
-size_t lcd_rk043fn48h::height(void)
+size_t lcd_rk043fn48h::height(void) const
 {
     return RK043FN48H_HEIGHT;
 }
 
-size_t lcd_rk043fn48h::max_bpp(void)
+size_t lcd_rk043fn48h::max_bpp(void) const
 {
     return 24;
+}
+
+void lcd_rk043fn48h::set_framebuf(void *addr)
+{
+    ltdc::layer::set_framebuf_addr(ltdc::layer::id::layer1, addr);
 }

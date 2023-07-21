@@ -26,14 +26,12 @@
 
 #include "libs/memtest/memtest.h"
 
-__attribute__((section(".sdram"))) static uint32_t ext_mem[1024*1024*8/4];
-
 
 void init_thread(void *arg)
 {
     /* Test SDRAM */
     uint32_t tick_start = osKernelGetTickCount();
-    int result  = memTestAll(ext_mem, sizeof(ext_mem));
+    int result  = memTestAll((datum*)hal::sdram::start_addr(), hal::sdram::size());
     uint32_t test_time = osKernelGetTickCount() - tick_start;
     printf("SDRAM memtest %s! Duration: %lu ms\n", result ? "failed" : "passed", test_time);
     assert(result == 0);
@@ -42,6 +40,8 @@ void init_thread(void *arg)
 
     /* Test of Active Object 'gui' */
     auto gui_ao = std::make_unique<gui>();
+    const gui::event e { gui::performance_test_evt_t {} };
+    gui_ao->send(e);
 
     /* Test of Active Object 'echo' */
     auto echo_ao = std::make_unique<echo>();

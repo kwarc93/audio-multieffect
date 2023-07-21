@@ -24,6 +24,7 @@ namespace hal
         size_t width(void) const;
         size_t height(void) const;
         size_t max_bpp(void) const;
+        void set_framebuff(void *addr);
     private:
         drivers::lcd_rk043fn48h lcd_drv;
         const drivers::gpio::io bkl_io = { drivers::gpio::port::portk, drivers::gpio::pin::pin3 };
