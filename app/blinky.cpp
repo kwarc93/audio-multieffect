@@ -47,10 +47,10 @@ void blinky::dispatch(const event &e)
 
 void blinky::event_handler(const timer_evt_t &e)
 {
-    this->led.set(!led.get());
+    this->led.set(!this->led.get());
 }
 
 void blinky::event_handler(const button_evt_t &e)
 {
-    this->led.set(!led.get());
+    this->led.set(!this->led.get());
 }
