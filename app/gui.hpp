@@ -40,7 +40,7 @@ private:
     void event_handler(const timer_evt_t &e);
     void event_handler(const performance_test_evt_t &e);
 
-    hal::lcd_tft_480x272 lcd;
+    hal::lcd_tft lcd;
     osTimerId_t timer;
 };
 

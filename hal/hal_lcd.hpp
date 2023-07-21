@@ -13,18 +13,22 @@
 
 namespace hal
 {
-    class lcd_tft_480x272
+    class lcd_tft
     {
     public:
-        lcd_tft_480x272(void *framebuff);
-        ~lcd_tft_480x272();
+        lcd_tft();
+        ~lcd_tft();
 
         void backlight(bool state);
 
+        void set_framebuf(void *addr);
+        bool is_double_framebuf(void) const;
+        void *get_framebuf_1(void) const;
+        void *get_framebuf_2(void) const;
+
         size_t width(void) const;
         size_t height(void) const;
-        size_t max_bpp(void) const;
-        void set_framebuff(void *addr);
+        size_t bpp(void) const;
     private:
         drivers::lcd_rk043fn48h lcd_drv;
         const drivers::gpio::io bkl_io = { drivers::gpio::port::portk, drivers::gpio::pin::pin3 };

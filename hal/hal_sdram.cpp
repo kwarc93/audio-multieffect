@@ -35,7 +35,7 @@ using namespace hal;
 /* SDRAM target setup definitions */
 #define SDRAM_START_ADDR                          (0x60000000u)
 #define SDRAM_SIZE                                (8u * 1024u * 1024u)
-#define SDRAM_SDCLK_HZ                            (50000000u)
+#define SDRAM_SDCLK_HZ                            (100000000u)
 #define SDRAM_SDCLK_NS                            (1000000000u / SDRAM_SDCLK_HZ)
 #define NS_TO_SDCLK_CYCLES(_ns)                   ((_ns + SDRAM_SDCLK_NS - 1) / SDRAM_SDCLK_NS)
 
@@ -101,7 +101,7 @@ static constexpr drivers::fmc::sdram::cfg config
     drivers::fmc::sdram::row_addr_width::_12bit,
     drivers::fmc::sdram::data_width::_16bit,
     drivers::fmc::sdram::internal_banks::four,
-    drivers::fmc::sdram::cas_latency::_1_cycle,
+    drivers::fmc::sdram::cas_latency::_2_cycles,
     drivers::fmc::sdram::clock_period::hclk_x2,
 
     {
@@ -142,7 +142,7 @@ void sdram::init(void)
     drivers::fmc::sdram::send_cmd(config.bank, drivers::fmc::sdram::cmd::load_mode_register, mode_register);
 
     /* count = SDRAM refresh period (us) / number of SDRAM rows * SDCLK (MHz) - 20 */
-    constexpr uint16_t count = 64000.f / 4096.f * 50.f - 20.f;
+    constexpr uint16_t count = 64000.f / 4096.f * (SDRAM_SDCLK_HZ / 1000000.0f) - 20.f;
     drivers::fmc::sdram::set_refresh_rate(count);
 }
 

@@ -186,8 +186,14 @@ void rcc::set_main_pll(const main_pll &pll, const bus_presc &presc)
     else
         toggle_hsi(true);
 
-    /* Select regulator voltage output Scale 3 mode, System frequency up to 144 MHz */
-    PWR->CR1 &= ~PWR_CR1_VOS_1;
+    /* Select regulator voltage output Scale 1 mode with overdrive, system frequency up to 216 MHz */
+    RCC->APB1ENR |= RCC_APB1ENR_PWREN;
+
+    PWR->CR1 |= PWR_CR1_VOS | PWR_CR1_ODEN;
+    while ((PWR->CSR1 & PWR_CSR1_ODRDY) == 0);
+
+    PWR->CR1 |= PWR_CR1_ODSWEN;
+    while ((PWR->CSR1 & PWR_CSR1_ODSWRDY) == 0);
 
     /* Set prescalers for HCLK, PCLK1 & PCLK2 */
     RCC->CFGR |= presc.ahb | presc.apb1 | presc.apb2;

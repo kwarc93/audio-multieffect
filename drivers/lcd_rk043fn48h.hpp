@@ -22,10 +22,11 @@ public:
     lcd_rk043fn48h(const std::array<const gpio::io, 28> &gpios, void *framebuf);
     ~lcd_rk043fn48h();
 
-    size_t width(void) const;
-    size_t height(void) const;
-    size_t max_bpp(void) const;
     void set_framebuf(void *addr);
+
+    static constexpr size_t width(void) { return 480; }
+    static constexpr size_t height(void) { return 272; }
+    static constexpr size_t bpp(void) { return 16; }
 };
 
 }

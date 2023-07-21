@@ -36,7 +36,7 @@ void system::init(void)
         RCC_PLLCFGR_PLLSRC_HSE,
         15,
         240,
-        4,
+        2,
         10
     };
 
@@ -57,6 +57,10 @@ void system::init(void)
     /* Set System Tick interrupt */
     SysTick_Config(system::system_clock / system::systick_freq);
 #endif
+
+    /* Enable D-Cache for SDRAM */
+    SCB_InvalidateDCache();
+    SCB_EnableDCache();
 
     hal::sdram::init();
 }
