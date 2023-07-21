@@ -17,6 +17,22 @@ using namespace drivers;
 //-----------------------------------------------------------------------------
 /* helpers */
 
+/**
+  * @brief  RK043FN48H Size
+  */
+#define  RK043FN48H_WIDTH    (480)          /* LCD PIXEL WIDTH            */
+#define  RK043FN48H_HEIGHT   (272)          /* LCD PIXEL HEIGHT           */
+
+/**
+  * @brief  RK043FN48H Timing
+  */
+#define  RK043FN48H_HSYNC            (1)    /* Horizontal synchronization */
+#define  RK043FN48H_HBP              (43)   /* Horizontal back porch      */
+#define  RK043FN48H_HFP              (8)    /* Horizontal front porch     */
+#define  RK043FN48H_VSYNC            (10)   /* Vertical synchronization   */
+#define  RK043FN48H_VBP              (12)   /* Vertical back porch        */
+#define  RK043FN48H_VFP              (4)    /* Vertical front porch       */
+
 //-----------------------------------------------------------------------------
 /* private */
 
@@ -50,18 +66,18 @@ lcd_rk043fn48h::lcd_rk043fn48h(const std::array<const drivers::gpio::io, 28> &gp
     {
         /* Horizontal */
         {
-            480,
-            1,
-            43,
-            8
+            RK043FN48H_WIDTH,
+            RK043FN48H_HSYNC,
+            RK043FN48H_HBP,
+            RK043FN48H_HFP
         },
 
         /* Vertical */
         {
-            272,
-            10,
-            12,
-            4
+            RK043FN48H_HEIGHT,
+            RK043FN48H_VSYNC,
+            RK043FN48H_VBP,
+            RK043FN48H_VFP
         },
 
         /* Background color (RGB) */
@@ -85,12 +101,12 @@ lcd_rk043fn48h::lcd_rk043fn48h(const std::array<const drivers::gpio::io, 28> &gp
 
     static const ltdc::layer::cfg layer_cfg
     {
-        0, 480,
-        0, 272,
+        0, RK043FN48H_WIDTH,
+        0, RK043FN48H_HEIGHT,
         ltdc::layer::pixel_format::RGB565,
         255,
         framebuf,
-        480, 272,
+        RK043FN48H_WIDTH, RK043FN48H_HEIGHT,
 
         /* Background color (ARGB) */
         0, 0, 0, 0
@@ -108,12 +124,12 @@ lcd_rk043fn48h::~lcd_rk043fn48h()
 
 size_t lcd_rk043fn48h::width(void)
 {
-    return 480;
+    return RK043FN48H_WIDTH;
 }
 
 size_t lcd_rk043fn48h::height(void)
 {
-    return 272;
+    return RK043FN48H_HEIGHT;
 }
 
 size_t lcd_rk043fn48h::max_bpp(void)
