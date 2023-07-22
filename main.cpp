@@ -40,7 +40,7 @@ void init_thread(void *arg)
 
     /* Test of Active Object 'gui' */
     auto gui_ao = std::make_unique<gui>();
-    const gui::event e { gui::performance_test_evt_t {} };
+    const gui::event e { gui::demo_test_evt_t {} };
     gui_ao->send(e);
 
     /* Test of Active Object 'echo' */

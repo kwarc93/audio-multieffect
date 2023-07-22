@@ -23,10 +23,14 @@ public:
     ~lcd_rk043fn48h();
 
     void set_framebuf(void *addr);
+    void *get_framebuf(void) const;
 
     static constexpr size_t width(void) { return 480; }
     static constexpr size_t height(void) { return 272; }
     static constexpr size_t bpp(void) { return 16; }
+
+private:
+    void *active_framebuf;
 };
 
 }

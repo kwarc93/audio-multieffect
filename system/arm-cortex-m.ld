@@ -202,4 +202,12 @@ SECTIONS
 		*(.sdram*)
 		. = ALIGN(4);
 	} > SDRAM
+	
+	/* Section for fast RAM */
+	.dtcmram (NOLOAD):
+	{
+		. = ALIGN(4);
+		*(.dtcmram*)
+		. = ALIGN(4);
+	} > DTCMRAM
 }

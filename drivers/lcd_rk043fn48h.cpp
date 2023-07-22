@@ -42,6 +42,8 @@ using namespace drivers;
 
 lcd_rk043fn48h::lcd_rk043fn48h(const std::array<const drivers::gpio::io, 28> &gpios, void *framebuf)
 {
+    this->active_framebuf = framebuf;
+
     /* Initialize LTDC GPIOs */
     for (const auto &pin : gpios)
         drivers::gpio::configure(pin, drivers::gpio::mode::af, drivers::gpio::af::af14);
@@ -126,5 +128,11 @@ lcd_rk043fn48h::~lcd_rk043fn48h()
 void lcd_rk043fn48h::set_framebuf(void *addr)
 {
     ltdc::layer::set_framebuf_addr(ltdc::layer::id::layer1, addr);
+    this->active_framebuf = addr;
+}
+
+void *lcd_rk043fn48h::get_framebuf(void) const
+{
+    return this->active_framebuf;
 }
 

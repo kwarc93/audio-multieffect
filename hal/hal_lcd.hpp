@@ -11,6 +11,8 @@
 #include <drivers/lcd_rk043fn48h.hpp>
 #include <drivers/led_gpio.hpp>
 
+#define HAL_LCD_USE_DOUBLE_FRAMEBUF    (0)
+
 namespace hal
 {
     class lcd_tft
@@ -23,6 +25,7 @@ namespace hal
 
         void set_framebuf(void *addr);
         bool is_double_framebuf(void) const;
+        void *get_curr_framebuf(void) const;
         void *get_framebuf_1(void) const;
         void *get_framebuf_2(void) const;
 

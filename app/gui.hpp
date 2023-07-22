@@ -21,12 +21,12 @@ struct gui_event
 
     };
 
-    struct performance_test_evt_t
+    struct demo_test_evt_t
     {
 
     };
 
-    using holder = std::variant<timer_evt_t, performance_test_evt_t>;
+    using holder = std::variant<timer_evt_t, demo_test_evt_t>;
 };
 
 class gui : public gui_event, public active_object<gui_event::holder>
@@ -38,7 +38,7 @@ private:
 
     /* Event handlers */
     void event_handler(const timer_evt_t &e);
-    void event_handler(const performance_test_evt_t &e);
+    void event_handler(const demo_test_evt_t &e);
 
     hal::lcd_tft lcd;
     osTimerId_t timer;
