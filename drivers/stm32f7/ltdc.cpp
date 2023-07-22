@@ -146,7 +146,7 @@ void ltdc::layer::configure(id layer, const layer::cfg &cfg)
                      | (cfg.frame_buf_width * pixel_size.at(cfg.pix_fmt)) << LTDC_LxCFBLR_CFBP_Pos;
     layer_reg->CFBLNR = cfg.frame_buf_height << LTDC_LxCFBLNR_CFBLNBR_Pos;
 
-    LTDC->SRCR |= LTDC_SRCR_VBR;
+    LTDC->SRCR |= LTDC_SRCR_IMR;
 }
 
 void ltdc::layer::enable(id layer, bool layer_enable, bool color_keying_enable, bool clut_enable)
@@ -157,7 +157,7 @@ void ltdc::layer::enable(id layer, bool layer_enable, bool color_keying_enable, 
                   | color_keying_enable << LTDC_LxCR_COLKEN_Pos
                   | layer_enable << LTDC_LxCR_LEN_Pos;
 
-    LTDC->SRCR |= LTDC_SRCR_VBR;
+    LTDC->SRCR |= LTDC_SRCR_IMR;
 }
 
 void ltdc::layer::set_framebuf_addr(id layer, void *addr)
@@ -166,14 +166,7 @@ void ltdc::layer::set_framebuf_addr(id layer, void *addr)
     layer_reg->CFBAR = reinterpret_cast<uint32_t>(addr);
 
     /* Synchronize with VSYNC (blanking period) */
-    if (LTDC->CDSR & LTDC_CDSR_VSYNCS)
-    {
-        LTDC->SRCR |= LTDC_SRCR_IMR;
-    }
-    else
-    {
-        LTDC->SRCR |= LTDC_SRCR_VBR;
-        while ((LTDC->CDSR & LTDC_CDSR_VSYNCS) == 0);
-    }
+    while ((LTDC->CDSR & LTDC_CDSR_VSYNCS) == 0);
+    LTDC->SRCR |= LTDC_SRCR_IMR;
 }
 

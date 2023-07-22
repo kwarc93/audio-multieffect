@@ -97,7 +97,7 @@ void gui::event_handler(const timer_evt_t &e)
 
 void gui::event_handler(const demo_test_evt_t &e)
 {
-    lv_demo_music();
+    lv_demo_benchmark();
 }
 
 
