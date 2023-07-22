@@ -25,7 +25,7 @@ constexpr size_t framebuf_size = drivers::lcd_rk043fn48h::width()
                                * drivers::lcd_rk043fn48h::bpp() / 8;
 
 __attribute__((section(".sdram"))) uint32_t framebuf_1[framebuf_size / 4];
-#if HAL_LCD_USE_DOUBLE_BUFFERING
+#if HAL_LCD_USE_DOUBLE_FRAMEBUF
 __attribute__((section(".sdram"))) uint32_t framebuf_2[framebuf_size / 4];
 #endif
 
@@ -119,7 +119,7 @@ void *lcd_tft::get_framebuf_1(void) const
 
 void *lcd_tft::get_framebuf_2(void) const
 {
-#if HAL_LCD_USE_DOUBLE_BUFFERING
+#if HAL_LCD_USE_DOUBLE_FRAMEBUF
     return framebuf_2;
 #else
     return NULL;

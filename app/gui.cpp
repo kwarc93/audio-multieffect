@@ -18,7 +18,7 @@
 namespace
 {
 
-#if HAL_LCD_USE_DOUBLE_BUFFERING == 0
+#if HAL_LCD_USE_DOUBLE_FRAMEBUF == 0
 __attribute__((section(".dtcmram"))) static lv_color_t lvgl_buf[64 * 1024 / sizeof(lv_color_t)];
 #endif
 
@@ -37,7 +37,7 @@ void gui_disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t
 {
     hal::lcd_tft *lcd = static_cast<hal::lcd_tft*>(disp_drv->user_data);
 
-#if HAL_LCD_USE_DOUBLE_BUFFERING
+#if HAL_LCD_USE_DOUBLE_FRAMEBUF
     lcd->set_framebuf(color_p);
 #else
     lv_color_t *curr_fb = static_cast<lv_color_t*>(lcd->get_curr_framebuf());
@@ -61,7 +61,7 @@ gui::gui() : active_object("gui", osPriorityNormal, 4096)
 {
     lv_init();
 
-#if HAL_LCD_USE_DOUBLE_BUFFERING
+#if HAL_LCD_USE_DOUBLE_FRAMEBUF
         lv_disp_draw_buf_init(&draw_buf, lcd.get_framebuf_1(), lcd.get_framebuf_2(), lcd.width() * lcd.height());
 #else
         lv_disp_draw_buf_init(&draw_buf, lvgl_buf, NULL, sizeof(lvgl_buf) / sizeof(lv_color_t));
