@@ -57,3 +57,8 @@ extern "C" void LTDC_ER_IRQHandler(void)
 {
     drivers::ltdc::irq_handler();
 }
+
+extern "C" void LTDC_IRQHandler(void)
+{
+    drivers::ltdc::irq_handler();
+}

@@ -17,7 +17,7 @@ using namespace hal;
 //-----------------------------------------------------------------------------
 /* helpers */
 
-template class glcd<drivers::lcd::pixel_t>;
+template class glcd<drivers::glcd_rk043fn48h::pixel_t>;
 
 //-----------------------------------------------------------------------------
 /* private */
@@ -25,52 +25,58 @@ template class glcd<drivers::lcd::pixel_t>;
 //-----------------------------------------------------------------------------
 /* public */
 
-template <typename pixel_t>
-glcd<pixel_t>::glcd(hal::interface::glcd<pixel_t> *glcd, hal::interface::led *backlight)
+template <typename T>
+glcd<T>::glcd(hal::interface::glcd<T> *glcd, hal::interface::led *backlight)
 {
     this->glcd_drv = glcd;
     this->backlight_drv = backlight;
 }
 
-template <typename pixel_t>
-glcd<pixel_t>::~glcd()
+template <typename T>
+glcd<T>::~glcd()
 {
 
 }
 
-template <typename pixel_t>
-void glcd<pixel_t>::backlight(bool state)
+template <typename T>
+void glcd<T>::backlight(bool state)
 {
     this->backlight_drv->set(state);
 }
 
-template <typename pixel_t>
-size_t glcd<pixel_t>::width(void) const
+template <typename T>
+size_t glcd<T>::width(void) const
 {
     return this->glcd_drv->width();
 }
 
-template <typename pixel_t>
-size_t glcd<pixel_t>::height(void) const
+template <typename T>
+size_t glcd<T>::height(void) const
 {
     return this->glcd_drv->height();
 }
 
-template <typename pixel_t>
-size_t glcd<pixel_t>::bpp(void) const
+template <typename T>
+size_t glcd<T>::bpp(void) const
 {
     return this->glcd_drv->bpp();
 }
 
-template <typename pixel_t>
-void glcd<pixel_t>::draw_pixel(int16_t x, int16_t y, pixel_t pixel)
+template <typename T>
+void glcd<T>::draw_pixel(int16_t x, int16_t y, pixel_t pixel)
 {
     this->glcd_drv->draw_pixel(x, y, pixel);
 }
 
-template <typename pixel_t>
-void glcd<pixel_t>::draw_data(int16_t x0, int16_t y0, int16_t x1, int16_t y1, pixel_t *data)
+template <typename T>
+void glcd<T>::draw_data(int16_t x0, int16_t y0, int16_t x1, int16_t y1, pixel_t *data)
 {
     this->glcd_drv->draw_data(x0, y0, x1, y1, data);
+}
+
+template <typename T>
+void glcd<T>::set_vsync_callback(const typename hal::interface::glcd<T>::vsync_cb_t &callback)
+{
+    this->glcd_drv->set_vsync_callback(callback);
 }
 

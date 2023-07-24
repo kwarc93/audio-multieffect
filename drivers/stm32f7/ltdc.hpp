@@ -10,6 +10,7 @@
 
 #include <cstdint>
 #include <cstddef>
+#include <functional>
 #include <unordered_map>
 
 namespace drivers
@@ -18,6 +19,8 @@ namespace drivers
 class ltdc final
 {
 public:
+    using vsync_cb_t = std::function<void(void)>;
+
     ltdc() = delete;
 
     struct cfg
@@ -49,11 +52,15 @@ public:
             bool pixel_clk;
         } pol;
 
-        bool err_irq_enable;
+        bool irq_enable;
     };
 
     static void configure(const cfg &cfg);
     static void enable(bool state);
+    static void wait_for_vsync(void);
+
+    /* @note: Callback is called only if interrupts are enabled */
+    static void set_vsync_callback(const vsync_cb_t &callback);
 
     class layer
     {
@@ -97,6 +104,7 @@ public:
     static void irq_handler(void);
 private:
     static void global_toggle(bool state);
+    static inline vsync_cb_t vsync_callback;
 };
 
 }

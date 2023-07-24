@@ -66,9 +66,10 @@ void ltdc::configure(const cfg &cfg)
                | (cfg.g << LTDC_BCCR_BCGREEN_Pos)
                | (cfg.b << LTDC_BCCR_BCBLUE_Pos);
 
-    if (cfg.err_irq_enable)
+    if (cfg.irq_enable)
     {
-        LTDC->IER |= LTDC_IER_FUIE | LTDC_IER_TERRIE;
+        LTDC->LIPCR = (cfg.v.sync + cfg.v.back_porch + cfg.v.height - 1) << LTDC_LIPCR_LIPOS_Pos;
+        LTDC->IER |= LTDC_IER_FUIE | LTDC_IER_TERRIE | LTDC_IER_LIE;
     }
 }
 
@@ -79,11 +80,10 @@ void ltdc::enable(bool state)
         rcc::enable_periph_clock(RCC_PERIPH_BUS(APB2, LTDC), true);
 
         /* IRQ priority level */
-        IRQn_Type nvic_irq = static_cast<IRQn_Type>(LTDC_ER_IRQn);
-        NVIC_SetPriority(nvic_irq, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 15, 0 ));
-
-        /* Enable IRQ */
-        NVIC_EnableIRQ(nvic_irq);
+        NVIC_SetPriority(LTDC_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 15, 0 ));
+        NVIC_SetPriority(LTDC_ER_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 15, 0 ));
+        NVIC_EnableIRQ(LTDC_IRQn);
+        NVIC_EnableIRQ(LTDC_ER_IRQn);
 
         global_toggle(true);
     }
@@ -92,9 +92,10 @@ void ltdc::enable(bool state)
         global_toggle(false);
 
         /* Disable IRQ */
-        IRQn_Type nvic_irq = static_cast<IRQn_Type>(LTDC_ER_IRQn);
-        NVIC_ClearPendingIRQ(nvic_irq);
-        NVIC_DisableIRQ(nvic_irq);
+        NVIC_DisableIRQ(LTDC_ER_IRQn);
+        NVIC_DisableIRQ(LTDC_IRQn);
+        NVIC_ClearPendingIRQ(LTDC_ER_IRQn);
+        NVIC_ClearPendingIRQ(LTDC_IRQn);
 
         LTDC->IER = 0;
 
@@ -102,8 +103,27 @@ void ltdc::enable(bool state)
     }
 }
 
+void ltdc::set_vsync_callback(const vsync_cb_t &callback)
+{
+    vsync_callback = callback;
+}
+
+void ltdc::wait_for_vsync(void)
+{
+    while ((LTDC->CDSR & LTDC_CDSR_VSYNCS) == 0);
+}
+
 void ltdc::irq_handler(void)
 {
+    /* Line interrupt */
+    if (LTDC->ISR & LTDC_ISR_LIF)
+    {
+        LTDC->ICR |= LTDC_ICR_CLIF;
+
+        if (vsync_callback)
+            vsync_callback();
+    }
+
     /* FIFO Underrun error */
     if (LTDC->ISR & LTDC_ISR_FUIF)
     {
@@ -146,7 +166,7 @@ void ltdc::layer::configure(id layer, const layer::cfg &cfg)
                      | (cfg.frame_buf_width * pixel_size.at(cfg.pix_fmt)) << LTDC_LxCFBLR_CFBP_Pos;
     layer_reg->CFBLNR = cfg.frame_buf_height << LTDC_LxCFBLNR_CFBLNBR_Pos;
 
-    LTDC->SRCR |= LTDC_SRCR_IMR;
+    LTDC->SRCR |= LTDC_SRCR_VBR;
 }
 
 void ltdc::layer::enable(id layer, bool layer_enable, bool color_keying_enable, bool clut_enable)
@@ -157,16 +177,13 @@ void ltdc::layer::enable(id layer, bool layer_enable, bool color_keying_enable, 
                   | color_keying_enable << LTDC_LxCR_COLKEN_Pos
                   | layer_enable << LTDC_LxCR_LEN_Pos;
 
-    LTDC->SRCR |= LTDC_SRCR_IMR;
+    LTDC->SRCR |= LTDC_SRCR_VBR;
 }
 
 void ltdc::layer::set_framebuf_addr(id layer, void *addr)
 {
     auto layer_reg = get_layer_reg(layer);
     layer_reg->CFBAR = reinterpret_cast<uint32_t>(addr);
-
-    /* Synchronize with VSYNC (blanking period) */
-    while ((LTDC->CDSR & LTDC_CDSR_VSYNCS) == 0);
-    LTDC->SRCR |= LTDC_SRCR_IMR;
+    LTDC->SRCR |= LTDC_SRCR_VBR;
 }
 

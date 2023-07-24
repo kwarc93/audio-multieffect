@@ -33,12 +33,14 @@ lv_disp_draw_buf_t draw_buf;
 
 void gui_disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p)
 {
-    hal::displays::tft_lcd *display = static_cast<hal::displays::tft_lcd*>(disp_drv->user_data);
+    using display_t = hal::displays::tft_lcd;
+
+    display_t *display = static_cast<display_t*>(disp_drv->user_data);
 
 #if HAL_LCD_USE_DOUBLE_FRAMEBUF
     lcd->set_framebuf(color_p);
 #else
-    display->draw_data(area->x1, area->y1, area->x2, area->y2, reinterpret_cast<drivers::lcd::pixel_t*>(color_p));
+    display->draw_data(area->x1, area->y1, area->x2, area->y2, reinterpret_cast<display_t::pixel_t*>(color_p));
 #endif
 
     lv_disp_flush_ready(disp_drv);
@@ -64,7 +66,6 @@ gui::gui() : active_object("gui", osPriorityNormal, 4096)
     disp_drv.hor_res = display.width();
     disp_drv.ver_res = display.height();
     disp_drv.flush_cb = gui_disp_flush;
-    disp_drv.render_start_cb = nullptr;
     disp_drv.user_data = &this->display;
     disp_drv.draw_buf = &draw_buf;
     disp_drv.full_refresh = HAL_LCD_USE_DOUBLE_FRAMEBUF;

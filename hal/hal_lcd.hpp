@@ -18,10 +18,12 @@ namespace hal
 
 //---------------------------------------------------------------------------
 
-    template <typename pixel_t>
+    template <typename T>
     class glcd
     {
     public:
+        using pixel_t = T;
+
         glcd(hal::interface::glcd<pixel_t> *glcd, hal::interface::led *backlight);
         virtual ~glcd();
 
@@ -33,6 +35,9 @@ namespace hal
 
         void draw_pixel(int16_t x, int16_t y, pixel_t pixel);
         void draw_data(int16_t x0, int16_t y0, int16_t x1, int16_t y1, pixel_t *data);
+
+        void set_vsync_callback(const typename hal::interface::glcd<pixel_t>::vsync_cb_t &callback);
+
     protected:
         hal::interface::glcd<pixel_t> *glcd_drv;
         hal::interface::led *backlight_drv;
@@ -46,10 +51,13 @@ namespace displays
     /* Full frame buffer for glcd driver */
     __attribute__((section(".sdram"))) static drivers::glcd_rk043fn48h::framebuffer_t frame_buffer;
 
-    class tft_lcd : public glcd<drivers::lcd::pixel_t>
+    class tft_lcd : public glcd<drivers::glcd_rk043fn48h::pixel_t>
     {
     public:
+        using pixel_t = pixel_t;
+
         tft_lcd() : glcd{ &lcd_drv, &backlight_drv } {};
+
     private:
         static constexpr std::array<const drivers::gpio::io, 29> lcd_ios =
         {{

@@ -44,7 +44,7 @@ using namespace drivers;
 
 glcd_rk043fn48h::glcd_rk043fn48h(const std::array<const drivers::gpio::io, 29> &ios, framebuffer_t &frame_buffer)
 {
-    this->active_framebuffer = frame_buffer.data();
+    this->frame_buffer = frame_buffer.data();
 
     /* Initialize LTDC GPIOs */
     for (const auto &pin : ios)
@@ -132,29 +132,40 @@ glcd_rk043fn48h::~glcd_rk043fn48h()
     ltdc::enable(false);
 }
 
-void glcd_rk043fn48h::draw_pixel(int16_t x, int16_t y, lcd::pixel_t pixel)
+void glcd_rk043fn48h::draw_pixel(int16_t x, int16_t y, pixel_t pixel)
 {
-    this->active_framebuffer[y * this->width() + x] = pixel;
+    this->frame_buffer[y * this->width() + x] = pixel;
 }
 
-void glcd_rk043fn48h::draw_data(int16_t x0, int16_t y0, int16_t x1, int16_t y1, lcd::pixel_t *data)
+void glcd_rk043fn48h::draw_data(int16_t x0, int16_t y0, int16_t x1, int16_t y1, pixel_t *data)
 {
     const int16_t w = x1 - x0 + 1;
     for (int16_t y = y0; y <= y1 && y < static_cast<int16_t>(this->height()); y++)
     {
-        memcpy(&this->active_framebuffer[y * this->width() + x0], data, w * sizeof(lcd::pixel_t));
+        memcpy(&this->frame_buffer[y * this->width() + x0], data, w * sizeof(pixel_t));
         data += w;
     }
 }
 
-//void lcd_rk043fn48h::set_framebuf(void *addr)
-//{
-//    ltdc::layer::set_framebuf_addr(ltdc::layer::id::layer1, addr);
-//    this->active_framebuf = addr;
-//}
-//
-//void *lcd_rk043fn48h::get_framebuf(void) const
-//{
-//    return this->active_framebuf;
-//}
+void glcd_rk043fn48h::set_vsync_callback(const vsync_cb_t &callback)
+{
+    ltdc::set_vsync_callback(callback);
+}
+
+void glcd_rk043fn48h::wait_for_vsync(void) const
+{
+    ltdc::wait_for_vsync();
+}
+
+void glcd_rk043fn48h::set_frame_buffer(void *addr)
+{
+    ltdc::layer::set_framebuf_addr(ltdc::layer::id::layer1, addr);
+    this->frame_buffer = static_cast<pixel_t*>(addr);
+}
+
+void *glcd_rk043fn48h::get_frame_buffer(void) const
+{
+    return this->frame_buffer;
+}
+
 
