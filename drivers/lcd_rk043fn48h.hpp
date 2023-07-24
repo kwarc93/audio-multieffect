@@ -36,7 +36,7 @@ public:
     void draw_pixel(int16_t x, int16_t y, pixel_t pixel) override;
     void draw_data(int16_t x0, int16_t y0, int16_t x1, int16_t y1, pixel_t *data) override;
 
-    void set_vsync_callback(const vsync_cb_t &callback);
+    void set_vsync_callback(const vsync_cb_t &callback) override;
     void wait_for_vsync(void) const;
 
     void set_frame_buffer(void *addr);

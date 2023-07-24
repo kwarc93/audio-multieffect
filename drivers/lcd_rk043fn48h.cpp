@@ -101,8 +101,8 @@ glcd_rk043fn48h::glcd_rk043fn48h(const std::array<const drivers::gpio::io, 29> &
             false
         },
 
-        /* Error IRQ enable */
-        true
+        /* IRQ enable */
+        false
     };
 
     ltdc::configure(cfg);

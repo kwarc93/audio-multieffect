@@ -54,7 +54,7 @@ namespace displays
     class tft_lcd : public glcd<drivers::glcd_rk043fn48h::pixel_t>
     {
     public:
-        using pixel_t = pixel_t;
+        using pixel_t = drivers::glcd_rk043fn48h::pixel_t;
 
         tft_lcd() : glcd{ &lcd_drv, &backlight_drv } {};
 

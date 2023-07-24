@@ -38,9 +38,9 @@ void gui_disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t
     display_t *display = static_cast<display_t*>(disp_drv->user_data);
 
 #if HAL_LCD_USE_DOUBLE_FRAMEBUF
-    lcd->set_framebuf(color_p);
+    display->set_framebuf(color_p);
 #else
-    display->draw_data(area->x1, area->y1, area->x2, area->y2, reinterpret_cast<display_t::pixel_t*>(color_p));
+        display->draw_data(area->x1, area->y1, area->x2, area->y2, reinterpret_cast<display_t::pixel_t*>(color_p));
 #endif
 
     lv_disp_flush_ready(disp_drv);
@@ -62,7 +62,6 @@ gui::gui() : active_object("gui", osPriorityNormal, 4096)
 #endif
 
     lv_disp_drv_init(&disp_drv);
-
     disp_drv.hor_res = display.width();
     disp_drv.ver_res = display.height();
     disp_drv.flush_cb = gui_disp_flush;
@@ -75,7 +74,7 @@ gui::gui() : active_object("gui", osPriorityNormal, 4096)
 
     this->timer = osTimerNew(gui_timer_callback, osTimerPeriodic, this, NULL);
     assert(this->timer != nullptr);
-    osTimerStart(this->timer, 5);
+    osTimerStart(this->timer, 10);
 };
 
 //-----------------------------------------------------------------------------
@@ -93,7 +92,7 @@ void gui::event_handler(const timer_evt_t &e)
 
 void gui::event_handler(const demo_test_evt_t &e)
 {
-    lv_demo_benchmark();
+    lv_demo_music();
 }
 
 
