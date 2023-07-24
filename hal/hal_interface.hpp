@@ -51,6 +51,20 @@ namespace hal::interface
         virtual ~button() {};
         virtual bool is_pressed(void) = 0;
     };
+
+    template<typename pixel_t>
+    class glcd
+    {
+    public:
+        virtual ~glcd() {};
+
+        virtual size_t width(void) = 0;
+        virtual size_t height(void) = 0;
+        virtual size_t bpp(void) = 0;
+
+        virtual void draw_pixel(int16_t x, int16_t y, pixel_t pixel) = 0;
+        virtual void draw_data(int16_t x0, int16_t y0, int16_t x1, int16_t y1, pixel_t *data) = 0;
+    };
 }
 
 #endif /* HAL_INTERFACE_HPP_ */

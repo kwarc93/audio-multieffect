@@ -15,6 +15,7 @@
 #include <hal/hal_led.hpp>
 #include <hal/hal_button.hpp>
 #include <hal/hal_sdram.hpp>
+#include <hal/hal_lcd.hpp>
 
 #include "cmsis_os2.h"
 

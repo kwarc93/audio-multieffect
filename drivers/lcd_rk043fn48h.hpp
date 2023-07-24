@@ -5,34 +5,45 @@
  *      Author: kwarc
  */
 
-#ifndef STM32F7_LCD_RK043FN48H_HPP_
-#define STM32F7_LCD_RK043FN48H_HPP_
+#ifndef LCD_RK043FN48H_HPP_
+#define LCD_RK043FN48H_HPP_
 
 #include <array>
 #include <cstddef>
 
+#include <hal/hal_interface.hpp>
 #include <drivers/stm32f7/gpio.hpp>
 
 namespace drivers
 {
 
-class lcd_rk043fn48h
+namespace lcd
 {
+    using pixel_t = uint16_t; // To hold RGB565 format
+}
+
+class glcd_rk043fn48h : public hal::interface::glcd<lcd::pixel_t>
+{
+    static constexpr size_t width_px = 480;
+    static constexpr size_t height_px = 272;
+
 public:
-    lcd_rk043fn48h(const std::array<const gpio::io, 28> &gpios, void *framebuf);
-    ~lcd_rk043fn48h();
+    using framebuffer_t = std::array<lcd::pixel_t, width_px * height_px>;
 
-    void set_framebuf(void *addr);
-    void *get_framebuf(void) const;
+    glcd_rk043fn48h(const std::array<const gpio::io, 29> &gpios, framebuffer_t &frame_buffer);
+    ~glcd_rk043fn48h();
 
-    static constexpr size_t width(void) { return 480; }
-    static constexpr size_t height(void) { return 272; }
-    static constexpr size_t bpp(void) { return 16; }
+    void draw_pixel(int16_t x, int16_t y, lcd::pixel_t pixel) override;
+    void draw_data(int16_t x0, int16_t y0, int16_t x1, int16_t y1, lcd::pixel_t *data) override;
+
+    size_t width(void) override { return width_px; }
+    size_t height(void) override { return height_px; }
+    size_t bpp(void) override { return 5 + 6 + 5; }
 
 private:
-    void *active_framebuf;
+    lcd::pixel_t *active_framebuffer;
 };
 
 }
 
-#endif /* STM32F7_LCD_RK043FN48H_HPP_ */
+#endif /* LCD_RK043FN48H_HPP_ */

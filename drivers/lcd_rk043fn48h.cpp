@@ -12,6 +12,8 @@
 #include <drivers/stm32f7/ltdc.hpp>
 #include <drivers/stm32f7/rcc.hpp>
 
+#include <cstring>
+
 using namespace drivers;
 
 //-----------------------------------------------------------------------------
@@ -40,13 +42,18 @@ using namespace drivers;
 //-----------------------------------------------------------------------------
 /* public */
 
-lcd_rk043fn48h::lcd_rk043fn48h(const std::array<const drivers::gpio::io, 28> &gpios, void *framebuf)
+glcd_rk043fn48h::glcd_rk043fn48h(const std::array<const drivers::gpio::io, 29> &ios, framebuffer_t &frame_buffer)
 {
-    this->active_framebuf = framebuf;
+    this->active_framebuffer = frame_buffer.data();
 
     /* Initialize LTDC GPIOs */
-    for (const auto &pin : gpios)
+    for (const auto &pin : ios)
         drivers::gpio::configure(pin, drivers::gpio::mode::af, drivers::gpio::af::af14);
+
+    /* Initialize & set LCD display enable GPIO */
+    const drivers::gpio::io lcd_displ {ios.back()};
+    drivers::gpio::configure(ios.back());
+    drivers::gpio::write(lcd_displ, true);
 
     /*
      * Configure pixel clock for LCD & LTDC
@@ -108,7 +115,7 @@ lcd_rk043fn48h::lcd_rk043fn48h(const std::array<const drivers::gpio::io, 28> &gp
         0, RK043FN48H_HEIGHT,
         ltdc::layer::pixel_format::RGB565,
         255,
-        framebuf,
+        frame_buffer.data(),
         RK043FN48H_WIDTH, RK043FN48H_HEIGHT,
 
         /* Background color (ARGB) */
@@ -120,19 +127,34 @@ lcd_rk043fn48h::lcd_rk043fn48h(const std::array<const drivers::gpio::io, 28> &gp
     ltdc::enable(true);
 }
 
-lcd_rk043fn48h::~lcd_rk043fn48h()
+glcd_rk043fn48h::~glcd_rk043fn48h()
 {
     ltdc::enable(false);
 }
 
-void lcd_rk043fn48h::set_framebuf(void *addr)
+void glcd_rk043fn48h::draw_pixel(int16_t x, int16_t y, lcd::pixel_t pixel)
 {
-    ltdc::layer::set_framebuf_addr(ltdc::layer::id::layer1, addr);
-    this->active_framebuf = addr;
+    this->active_framebuffer[y * this->width() + x] = pixel;
 }
 
-void *lcd_rk043fn48h::get_framebuf(void) const
+void glcd_rk043fn48h::draw_data(int16_t x0, int16_t y0, int16_t x1, int16_t y1, lcd::pixel_t *data)
 {
-    return this->active_framebuf;
+    const int16_t w = x1 - x0 + 1;
+    for (int16_t y = y0; y <= y1 && y < static_cast<int16_t>(this->height()); y++)
+    {
+        memcpy(&this->active_framebuffer[y * this->width() + x0], data, w * sizeof(lcd::pixel_t));
+        data += w;
+    }
 }
+
+//void lcd_rk043fn48h::set_framebuf(void *addr)
+//{
+//    ltdc::layer::set_framebuf_addr(ltdc::layer::id::layer1, addr);
+//    this->active_framebuf = addr;
+//}
+//
+//void *lcd_rk043fn48h::get_framebuf(void) const
+//{
+//    return this->active_framebuf;
+//}
 
