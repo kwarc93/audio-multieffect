@@ -11,6 +11,7 @@
 #include <cstdint>
 #include <cstddef>
 #include <functional>
+#include <unordered_map>
 
 namespace drivers
 {
@@ -30,17 +31,17 @@ public:
 
     enum class color
     {
-        argb8888,
-        rgb888,
-        rgb565,
-        arg1555,
-        argb4444,
-        l8,
-        al44,
-        al88,
-        l4,
-        a8,
-        a4
+        ARGB8888,
+        RGB888,
+        RGB565,
+        ARGB1555,
+        ARGB4444,
+        L8,
+        AL44,
+        AL88,
+        L4,
+        A8,
+        A4
     };
 
     enum class command
@@ -58,14 +59,11 @@ public:
         uint8_t alpha;
         const void *src;
         void *dst;
-        uint16_t x1;
-        uint16_t y1;
-        uint16_t x2;
-        uint16_t y2;
+        uint16_t width, height;
+        int16_t x1, y1, x2, y2;
     };
 
-    static void init(void);
-    static void deinit(void);
+    static void enable(bool state);
 
     /**
      * @brief Enables dead time inserted between two consecutive accesses on the AHB master port.
@@ -76,7 +74,18 @@ public:
     static void transfer(const transfer_cfg &cfg);
     static void irq_handler(void);
 private:
+    static inline volatile bool busy;
     static inline transfer_cb_t transfer_callback;
+
+    static const inline std::unordered_map<color, size_t> pixel_size
+    {
+        { color::ARGB8888, 4 }, { color::RGB888, 4 },
+        { color::RGB565, 2 },   { color::ARGB1555, 2 },
+        { color::ARGB4444, 2 }, { color::L8, 1 },
+        { color::AL44, 1 },     { color::AL88, 2 },
+        { color::L4, 1 },       { color::A8, 1 },
+        { color::A4, 1 },
+    };
 
     static void set_mode(enum mode mode);
     static void send_command(enum command command);

@@ -10,6 +10,7 @@
 #include <cmsis/stm32f7xx.h>
 
 #include <drivers/stm32f7/ltdc.hpp>
+#include <drivers/stm32f7/dma2d.hpp>
 #include <drivers/stm32f7/rcc.hpp>
 
 #include <cstring>
@@ -38,6 +39,8 @@ using namespace drivers;
 
 //-----------------------------------------------------------------------------
 /* private */
+
+#define LCD_RK043FN48H_USE_DMA2D (1)
 
 //-----------------------------------------------------------------------------
 /* public */
@@ -125,10 +128,14 @@ glcd_rk043fn48h::glcd_rk043fn48h(const std::array<const drivers::gpio::io, 29> &
     ltdc::layer::configure(ltdc_layer, layer_cfg);
     ltdc::layer::enable(ltdc_layer, true, false, false);
     ltdc::enable(true);
+#if LCD_RK043FN48H_USE_DMA2D
+    dma2d::enable(true);
+#endif
 }
 
 glcd_rk043fn48h::~glcd_rk043fn48h()
 {
+    dma2d::enable(false);
     ltdc::enable(false);
 }
 
@@ -139,12 +146,28 @@ void glcd_rk043fn48h::draw_pixel(int16_t x, int16_t y, pixel_t pixel)
 
 void glcd_rk043fn48h::draw_data(int16_t x0, int16_t y0, int16_t x1, int16_t y1, pixel_t *data)
 {
+#if LCD_RK043FN48H_USE_DMA2D
+    const dma2d::transfer_cfg cfg
+    {
+        []() {},
+        dma2d::mode::mem_to_mem,
+        dma2d::color::RGB565,
+        255,
+        data,
+        this->frame_buffer,
+        this->width_px, this->height_px,
+        x0, y0, x1, y1,
+    };
+
+    dma2d::transfer(cfg);
+#else
     const int16_t w = x1 - x0 + 1;
     for (int16_t y = y0; y <= y1 && y < static_cast<int16_t>(this->height()); y++)
     {
         memcpy(&this->frame_buffer[y * this->width() + x0], data, w * sizeof(pixel_t));
         data += w;
     }
+#endif
 }
 
 void glcd_rk043fn48h::set_vsync_callback(const vsync_cb_t &callback)

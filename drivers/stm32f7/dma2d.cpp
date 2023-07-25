@@ -56,24 +56,28 @@ void dma2d::send_command(command cmd)
 //-----------------------------------------------------------------------------
 /* public */
 
-void dma2d::init(void)
+void dma2d::enable(bool state)
 {
-    rcc::enable_periph_clock(RCC_PERIPH_BUS(AHB1, DMA2D), true);
+    if (state)
+    {
+        rcc::enable_periph_clock(RCC_PERIPH_BUS(AHB1, DMA2D), true);
 
-    /* Transfer complete & configuration error interrupt enable. */
-    DMA2D->CR |= DMA2D_CR_TCIE | DMA2D_CR_CEIE;
+        /* Transfer complete & configuration error interrupt enable. */
+        DMA2D->CR |= DMA2D_CR_TCIE | DMA2D_CR_CEIE;
 
-    NVIC_SetPriority(DMA2D_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 15, 0));
-    NVIC_EnableIRQ(DMA2D_IRQn);
-}
+        NVIC_SetPriority(DMA2D_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 15, 0));
+        NVIC_EnableIRQ(DMA2D_IRQn);
+    }
+    else
+    {
+        send_command(command::abort);
 
-void dma2d::deinit(void)
-{
-    rcc::enable_periph_clock(RCC_PERIPH_BUS(AHB1, DMA2D), false);
+        rcc::enable_periph_clock(RCC_PERIPH_BUS(AHB1, DMA2D), false);
 
-    /* Disable interrupt. */
-    NVIC_DisableIRQ(DMA2D_IRQn);
-    NVIC_ClearPendingIRQ(DMA2D_IRQn);
+        /* Disable interrupt. */
+        NVIC_DisableIRQ(DMA2D_IRQn);
+        NVIC_ClearPendingIRQ(DMA2D_IRQn);
+    }
 }
 
 void dma2d::set_ahb_dead_time(uint8_t dead_time)
@@ -83,35 +87,35 @@ void dma2d::set_ahb_dead_time(uint8_t dead_time)
 
 void dma2d::transfer(const transfer_cfg &cfg)
 {
-    /* Set transfer mode. */
+    /* Only mode::mem_to_mem is currently supported */
+    if (cfg.transfer_mode != mode::mem_to_mem)
+        asm volatile ("BKPT 0");
+
+    /* Set transfer mode */
     set_mode(cfg.transfer_mode);
 
-    /* Configure color parameters */
-    DMA2D->OCOLR = (cfg.alpha << 24) | (*(uint16_t*)cfg.src);
-
     /* Configure foreground memory parameters. */
-    DMA2D->FGMAR = (uint32_t)cfg.src;
+    DMA2D->FGMAR = reinterpret_cast<uint32_t>(cfg.src);
     DMA2D->FGPFCCR = (static_cast<uint32_t>(cfg.color_mode) << DMA2D_FGPFCCR_CM_Pos)
                    | (cfg.alpha << DMA2D_FGPFCCR_ALPHA_Pos) | DMA2D_FGPFCCR_AM_0;
     DMA2D->FGOR = 0;
 
-    /* Configure background memory parameters. */
-    DMA2D->BGMAR = (uint32_t)cfg.dst;
-    DMA2D->BGPFCCR = static_cast<uint32_t>(cfg.color_mode) << DMA2D_FGPFCCR_CM_Pos;
-    DMA2D->BGOR = 0;
-
     /* Configure output memory parameters. */
-    DMA2D->OMAR = (uint32_t)cfg.dst;
+    DMA2D->OMAR = reinterpret_cast<uint32_t>(cfg.dst) + pixel_size.at(cfg.color_mode) * (cfg.y1 * cfg.width + cfg.x1);
     DMA2D->OPFCCR = static_cast<uint32_t>(cfg.color_mode) << DMA2D_FGPFCCR_CM_Pos;
-    DMA2D->OOR = 0;
+    DMA2D->OOR = cfg.width - (cfg.x2 - cfg.x1 + 1);
 
     /* Set number of lines and pixels per line values. */
-    DMA2D->NLR = (cfg.y2 - cfg.y1) << DMA2D_NLR_NL_Pos;
-    DMA2D->NLR |= (cfg.x2 - cfg.x1) << DMA2D_NLR_PL_Pos;
+    DMA2D->NLR = (cfg.y2 - cfg.y1 + 1) << DMA2D_NLR_NL_Pos;
+    DMA2D->NLR |= (cfg.x2 - cfg.x1 + 1) << DMA2D_NLR_PL_Pos;
 
     transfer_callback = cfg.transfer_complete_cb;
 
+    busy = true;
+
     send_command(command::start);
+
+    while (busy);
 }
 
 void dma2d::irq_handler(void)
@@ -120,6 +124,7 @@ void dma2d::irq_handler(void)
     {
         DMA2D->IFCR = DMA2D_IFCR_CTCIF;
 
+        busy = false;
         if (transfer_callback)
             transfer_callback();
     }

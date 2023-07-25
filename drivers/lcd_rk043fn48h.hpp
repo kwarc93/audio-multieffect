@@ -42,7 +42,6 @@ public:
     void set_frame_buffer(void *addr);
     void *get_frame_buffer(void) const;
 
-
 private:
     pixel_t *frame_buffer;
 };
