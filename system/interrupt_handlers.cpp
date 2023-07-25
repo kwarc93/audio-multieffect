@@ -9,6 +9,7 @@
 
 #include <drivers/stm32f7/usart.hpp>
 #include <drivers/stm32f7/ltdc.hpp>
+#include <drivers/stm32f7/dma2d.hpp>
 
 //-----------------------------------------------------------------------------
 /* Core interrupt handlers */
@@ -61,4 +62,9 @@ extern "C" void LTDC_ER_IRQHandler(void)
 extern "C" void LTDC_IRQHandler(void)
 {
     drivers::ltdc::irq_handler();
+}
+
+extern "C" void DMA2D_IRQHandler(void)
+{
+    drivers::dma2d::irq_handler();
 }
