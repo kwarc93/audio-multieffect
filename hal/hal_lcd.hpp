@@ -11,7 +11,7 @@
 #include <drivers/lcd_rk043fn48h.hpp>
 #include <drivers/led_gpio.hpp>
 
-#define HAL_LCD_USE_DOUBLE_FRAMEBUF    (0)
+#define HAL_LCD_USE_DOUBLE_FRAMEBUF (0)
 
 namespace hal
 {
@@ -51,12 +51,12 @@ namespace displays
     /* Full frame buffer for glcd driver */
     __attribute__((section(".sdram"))) static drivers::glcd_rk043fn48h::framebuffer_t frame_buffer;
 
-    class tft_lcd : public glcd<drivers::glcd_rk043fn48h::pixel_t>
+    class primary : public glcd<drivers::glcd_rk043fn48h::pixel_t>
     {
     public:
         using pixel_t = drivers::glcd_rk043fn48h::pixel_t;
 
-        tft_lcd() : glcd{ &lcd_drv, &backlight_drv } {};
+        primary() : glcd{ &lcd_drv, &backlight_drv } {};
 
     private:
         static constexpr std::array<const drivers::gpio::io, 29> lcd_ios =

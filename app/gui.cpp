@@ -33,7 +33,7 @@ lv_disp_draw_buf_t draw_buf;
 
 void gui_disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p)
 {
-    using display_t = hal::displays::tft_lcd;
+    using display_t = hal::displays::primary;
 
     display_t *display = static_cast<display_t*>(disp_drv->user_data);
 
