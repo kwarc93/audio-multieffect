@@ -61,6 +61,7 @@ public:
         void *dst;
         uint16_t width, height;
         int16_t x1, y1, x2, y2;
+        bool rotate_90_deg;
     };
 
     static void enable(bool state);

@@ -20,20 +20,22 @@ namespace drivers
 
 class glcd_rk043fn48h : public hal::interface::glcd<uint16_t>
 {
+private:
     static constexpr size_t width_px = 480;
     static constexpr size_t height_px = 272;
+    static constexpr size_t bits_per_px = 5 + 6 + 5; // RGB565
 
 public:
     using pixel_t = pixel_t;
     using framebuffer_t = std::array<pixel_t, width_px * height_px>;
     using draw_cb_t = std::function<void(void)>;
 
-    glcd_rk043fn48h(const std::array<const gpio::io, 29> &gpios, framebuffer_t &frame_buffer);
+    glcd_rk043fn48h(const std::array<const gpio::io, 29> &gpios, framebuffer_t &frame_buffer, bool portrait_mode = false);
     ~glcd_rk043fn48h();
 
-    size_t width(void) override { return width_px; }
-    size_t height(void) override { return height_px; }
-    size_t bpp(void) override { return 5 + 6 + 5; }
+    size_t width(void) override { return this->portrait_mode ? height_px : width_px; }
+    size_t height(void) override { return this->portrait_mode ? width_px : height_px; }
+    size_t bpp(void) override { return bits_per_px; }
 
     void draw_pixel(int16_t x, int16_t y, pixel_t pixel) override;
     void draw_data(int16_t x0, int16_t y0, int16_t x1, int16_t y1, pixel_t *data) override;
@@ -47,9 +49,10 @@ public:
 
 private:
     pixel_t *frame_buffer;
+    draw_cb_t draw_callback;
     volatile bool vsync;
     bool vsync_enabled;
-    draw_cb_t draw_callback;
+    bool portrait_mode;
 };
 
 }

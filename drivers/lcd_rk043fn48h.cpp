@@ -21,21 +21,14 @@ using namespace drivers;
 /* helpers */
 
 /**
-  * @brief  RK043FN48H Size
+  * @brief  RK043FN48H Timings
   */
-#define  RK043FN48H_WIDTH    (480)          /* LCD PIXEL WIDTH            */
-#define  RK043FN48H_HEIGHT   (272)          /* LCD PIXEL HEIGHT           */
-#define  RK043FN48H_BPP      (16)           /* LCD BITS PER PIXEL         */
-
-/**
-  * @brief  RK043FN48H Timing
-  */
-#define  RK043FN48H_HSYNC            (1)    /* Horizontal synchronization */
-#define  RK043FN48H_HBP              (43)   /* Horizontal back porch      */
-#define  RK043FN48H_HFP              (8)    /* Horizontal front porch     */
-#define  RK043FN48H_VSYNC            (10)   /* Vertical synchronization   */
-#define  RK043FN48H_VBP              (12)   /* Vertical back porch        */
-#define  RK043FN48H_VFP              (4)    /* Vertical front porch       */
+#define  LCD_RK043FN48H_HSYNC            (1)    /* Horizontal synchronization */
+#define  LCD_RK043FN48H_HBP              (43)   /* Horizontal back porch      */
+#define  LCD_RK043FN48H_HFP              (8)    /* Horizontal front porch     */
+#define  LCD_RK043FN48H_VSYNC            (10)   /* Vertical synchronization   */
+#define  LCD_RK043FN48H_VBP              (12)   /* Vertical back porch        */
+#define  LCD_RK043FN48H_VFP              (4)    /* Vertical front porch       */
 
 //-----------------------------------------------------------------------------
 /* private */
@@ -46,10 +39,11 @@ using namespace drivers;
 //-----------------------------------------------------------------------------
 /* public */
 
-glcd_rk043fn48h::glcd_rk043fn48h(const std::array<const drivers::gpio::io, 29> &ios, framebuffer_t &frame_buffer)
+glcd_rk043fn48h::glcd_rk043fn48h(const std::array<const drivers::gpio::io, 29> &ios, framebuffer_t &frame_buffer, bool portrait_mode)
 {
     this->vsync = false;
     this->vsync_enabled = false;
+    this->portrait_mode = portrait_mode;
     this->frame_buffer = frame_buffer.data();
 
     /* Initialize LTDC GPIOs */
@@ -82,18 +76,18 @@ glcd_rk043fn48h::glcd_rk043fn48h(const std::array<const drivers::gpio::io, 29> &
     {
         /* Horizontal */
         {
-            RK043FN48H_WIDTH,
-            RK043FN48H_HSYNC,
-            RK043FN48H_HBP,
-            RK043FN48H_HFP
+            this->width_px,
+            LCD_RK043FN48H_HSYNC,
+            LCD_RK043FN48H_HBP,
+            LCD_RK043FN48H_HFP
         },
 
         /* Vertical */
         {
-            RK043FN48H_HEIGHT,
-            RK043FN48H_VSYNC,
-            RK043FN48H_VBP,
-            RK043FN48H_VFP
+            this->height_px,
+            LCD_RK043FN48H_VSYNC,
+            LCD_RK043FN48H_VBP,
+            LCD_RK043FN48H_VFP
         },
 
         /* Background color (RGB) */
@@ -118,12 +112,12 @@ glcd_rk043fn48h::glcd_rk043fn48h(const std::array<const drivers::gpio::io, 29> &
 
     static const ltdc::layer::cfg layer_cfg
     {
-        0, RK043FN48H_WIDTH,
-        0, RK043FN48H_HEIGHT,
+        0, this->width_px,
+        0, this->height_px,
         ltdc::layer::pixel_format::RGB565,
         255,
         frame_buffer.data(),
-        RK043FN48H_WIDTH, RK043FN48H_HEIGHT,
+        this->width_px, this->height_px,
 
         /* Background color (ARGB) */
         0, 0, 0, 0
@@ -145,7 +139,14 @@ glcd_rk043fn48h::~glcd_rk043fn48h()
 
 void glcd_rk043fn48h::draw_pixel(int16_t x, int16_t y, pixel_t pixel)
 {
-    this->frame_buffer[y * this->width() + x] = pixel;
+    if (this->portrait_mode)
+    {
+        int16_t tmp = y;
+        y = this->height_px - x - 1;
+        x = tmp;
+    }
+
+    this->frame_buffer[y * this->width_px + x] = pixel;
 }
 
 void glcd_rk043fn48h::draw_data(int16_t x0, int16_t y0, int16_t x1, int16_t y1, pixel_t *data)
@@ -161,17 +162,27 @@ void glcd_rk043fn48h::draw_data(int16_t x0, int16_t y0, int16_t x1, int16_t y1, 
         255,
         data,
         this->frame_buffer,
-        this->width_px, this->height_px,
+        this->width(), this->height(),
         x0, y0, x1, y1,
+        this->portrait_mode
     };
 
     dma2d::transfer(cfg);
 #else
-    const int16_t w = x1 - x0 + 1;
-    for (int16_t y = y0; y <= y1 && y < static_cast<int16_t>(this->height()); y++)
+    if (!this->portrait_mode)
     {
-        memcpy(&this->frame_buffer[y * this->width() + x0], data, w * sizeof(pixel_t));
-        data += w;
+        const int16_t w = x1 - x0 + 1;
+        for (int16_t y = y0; y <= y1 && y < static_cast<int16_t>(this->height()); y++)
+        {
+            memcpy(&this->frame_buffer[y * this->width() + x0], data, w * sizeof(pixel_t));
+            data += w;
+        }
+    }
+    else
+    {
+        for (int16_t y = y0; y <= y1 && y < static_cast<int16_t>(this->height()); y++)
+            for (int16_t x = x0; x <= x1 && x < static_cast<int16_t>(this->width()); x++)
+                this->draw_pixel(x, y, *data++);
     }
 
     if (this->draw_callback)

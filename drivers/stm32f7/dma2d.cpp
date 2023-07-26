@@ -88,8 +88,8 @@ void dma2d::set_ahb_dead_time(uint8_t dead_time)
 
 void dma2d::transfer(const transfer_cfg &cfg)
 {
-    /* Only 'mode::mem_to_mem' is currently supported */
-    if (cfg.transfer_mode != mode::mem_to_mem)
+    /* Only 'mem_to_mem' and 'reg_to_mem' is currently supported */
+    if (cfg.transfer_mode != mode::mem_to_mem && cfg.transfer_mode != mode::reg_to_mem)
         asm volatile ("BKPT 0");
 
     /* Wait for DMA2D to be ready */
@@ -107,25 +107,54 @@ void dma2d::transfer(const transfer_cfg &cfg)
     DMA2D->FGMAR = reinterpret_cast<uint32_t>(cfg.src);
     DMA2D->FGPFCCR = (static_cast<uint32_t>(cfg.color_mode) << DMA2D_FGPFCCR_CM_Pos)
                    | (cfg.alpha << DMA2D_FGPFCCR_ALPHA_Pos) | DMA2D_FGPFCCR_AM_0;
-    DMA2D->FGOR = 0;
-
-    /* Configure background memory parameters. */
-    DMA2D->BGMAR = reinterpret_cast<uint32_t>(cfg.dst) + pixel_size.at(cfg.color_mode) * (cfg.y1 * cfg.width + cfg.x1);
-    DMA2D->BGPFCCR = static_cast<uint32_t>(cfg.color_mode) << DMA2D_FGPFCCR_CM_Pos;
-    DMA2D->BGOR = cfg.width - (cfg.x2 - cfg.x1 + 1);;
+    DMA2D->FGOR = cfg.rotate_90_deg ? (cfg.x2 - cfg.x1) : 0;
 
     /* Configure output memory parameters. */
     DMA2D->OMAR = reinterpret_cast<uint32_t>(cfg.dst) + pixel_size.at(cfg.color_mode) * (cfg.y1 * cfg.width + cfg.x1);
     DMA2D->OPFCCR = static_cast<uint32_t>(cfg.color_mode) << DMA2D_FGPFCCR_CM_Pos;
-    DMA2D->OOR = cfg.width - (cfg.x2 - cfg.x1 + 1);
+    DMA2D->OOR = cfg.rotate_90_deg ? 0 : cfg.width - (cfg.x2 - cfg.x1 + 1);
 
     /* Set number of lines and pixels per line values. */
     DMA2D->NLR = (cfg.y2 - cfg.y1 + 1) << DMA2D_NLR_NL_Pos;
-    DMA2D->NLR |= (cfg.x2 - cfg.x1 + 1) << DMA2D_NLR_PL_Pos;
+    DMA2D->NLR |= (cfg.rotate_90_deg ? 1 : (cfg.x2 - cfg.x1 + 1)) << DMA2D_NLR_PL_Pos;
 
-    transfer_callback = cfg.transfer_complete_cb;
+    transfer_callback = cfg.rotate_90_deg ? nullptr : cfg.transfer_complete_cb;
 
-    send_command(command::start);
+    if (!cfg.rotate_90_deg)
+    {
+        send_command(command::start);
+        return;
+    }
+
+    const size_t px_size = pixel_size.at(cfg.color_mode);
+    int16_t lines = cfg.x2 - cfg.x1 + 1;
+    int16_t x1 = cfg.x1;
+
+    while (lines)
+    {
+        /* Update transfer mode */
+        set_mode(cfg.transfer_mode);
+
+        int16_t xd1 = cfg.y1;
+        int16_t yd1 = cfg.width - x1 - 1;
+
+        /* Update output memory address */
+        DMA2D->OMAR = reinterpret_cast<uint32_t>(cfg.dst) + px_size * (yd1 * cfg.height + xd1);
+
+        x1++;
+        lines--;
+
+        if (lines == 0)
+            transfer_callback = cfg.transfer_complete_cb;
+
+        send_command(command::start);
+
+        /* Wait for DMA2D to be ready */
+        while (DMA2D->CR & DMA2D_CR_START);
+
+        /* Update foreground memory address */
+        DMA2D->FGMAR += pixel_size.at(cfg.color_mode);
+    }
 }
 
 void dma2d::irq_handler(void)
