@@ -10,6 +10,7 @@
 
 #include <array>
 #include <cstddef>
+#include <functional>
 
 #include <hal/hal_interface.hpp>
 #include <drivers/stm32f7/gpio.hpp>
@@ -25,6 +26,7 @@ class glcd_rk043fn48h : public hal::interface::glcd<uint16_t>
 public:
     using pixel_t = pixel_t;
     using framebuffer_t = std::array<pixel_t, width_px * height_px>;
+    using draw_cb_t = std::function<void(void)>;
 
     glcd_rk043fn48h(const std::array<const gpio::io, 29> &gpios, framebuffer_t &frame_buffer);
     ~glcd_rk043fn48h();
@@ -35,15 +37,19 @@ public:
 
     void draw_pixel(int16_t x, int16_t y, pixel_t pixel) override;
     void draw_data(int16_t x0, int16_t y0, int16_t x1, int16_t y1, pixel_t *data) override;
+    void set_draw_callback(const draw_cb_t &callback);
 
-    void set_vsync_callback(const vsync_cb_t &callback) override;
-    void wait_for_vsync(void) const;
+    void enable_vsync(bool state) override;
+    void wait_for_vsync(void);
 
-    void set_frame_buffer(void *addr);
-    void *get_frame_buffer(void) const;
+    void set_frame_buffer(pixel_t *addr);
+    pixel_t *get_frame_buffer(void) const;
 
 private:
     pixel_t *frame_buffer;
+    volatile bool vsync;
+    bool vsync_enabled;
+    draw_cb_t draw_callback;
 };
 
 }

@@ -57,7 +57,6 @@ namespace hal::interface
     {
     public:
         using pixel_t = T;
-        using vsync_cb_t = std::function<void(void)>;
 
         virtual ~glcd() {};
 
@@ -68,7 +67,7 @@ namespace hal::interface
         virtual void draw_pixel(int16_t x, int16_t y, pixel_t pixel) = 0;
         virtual void draw_data(int16_t x0, int16_t y0, int16_t x1, int16_t y1, pixel_t *data) = 0;
 
-        virtual void set_vsync_callback(const vsync_cb_t &callback) = 0;
+        virtual void enable_vsync(bool state) = 0;
     };
 }
 

@@ -75,8 +75,8 @@ void glcd<T>::draw_data(int16_t x0, int16_t y0, int16_t x1, int16_t y1, pixel_t 
 }
 
 template <typename T>
-void glcd<T>::set_vsync_callback(const typename hal::interface::glcd<T>::vsync_cb_t &callback)
+void glcd<T>::enable_vsync(bool state)
 {
-    this->glcd_drv->set_vsync_callback(callback);
+    this->glcd_drv->enable_vsync(state);
 }
 

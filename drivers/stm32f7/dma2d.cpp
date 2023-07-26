@@ -11,6 +11,7 @@
 #include <drivers/stm32f7/rcc.hpp>
 
 #include <array>
+#include <cstring>
 
 using namespace drivers;
 
@@ -87,18 +88,31 @@ void dma2d::set_ahb_dead_time(uint8_t dead_time)
 
 void dma2d::transfer(const transfer_cfg &cfg)
 {
-    /* Only mode::mem_to_mem is currently supported */
+    /* Only 'mode::mem_to_mem' is currently supported */
     if (cfg.transfer_mode != mode::mem_to_mem)
         asm volatile ("BKPT 0");
 
+    /* Wait for DMA2D to be ready */
+    while (DMA2D->CR & DMA2D_CR_START);
+
     /* Set transfer mode */
     set_mode(cfg.transfer_mode);
+
+    /* Configure color parameters */
+    uint32_t color = 0;
+    memcpy(&color, cfg.src, pixel_size.at(cfg.color_mode));
+    DMA2D->OCOLR = (cfg.alpha << 24) | color;
 
     /* Configure foreground memory parameters. */
     DMA2D->FGMAR = reinterpret_cast<uint32_t>(cfg.src);
     DMA2D->FGPFCCR = (static_cast<uint32_t>(cfg.color_mode) << DMA2D_FGPFCCR_CM_Pos)
                    | (cfg.alpha << DMA2D_FGPFCCR_ALPHA_Pos) | DMA2D_FGPFCCR_AM_0;
     DMA2D->FGOR = 0;
+
+    /* Configure background memory parameters. */
+    DMA2D->BGMAR = reinterpret_cast<uint32_t>(cfg.dst) + pixel_size.at(cfg.color_mode) * (cfg.y1 * cfg.width + cfg.x1);
+    DMA2D->BGPFCCR = static_cast<uint32_t>(cfg.color_mode) << DMA2D_FGPFCCR_CM_Pos;
+    DMA2D->BGOR = cfg.width - (cfg.x2 - cfg.x1 + 1);;
 
     /* Configure output memory parameters. */
     DMA2D->OMAR = reinterpret_cast<uint32_t>(cfg.dst) + pixel_size.at(cfg.color_mode) * (cfg.y1 * cfg.width + cfg.x1);
@@ -111,11 +125,7 @@ void dma2d::transfer(const transfer_cfg &cfg)
 
     transfer_callback = cfg.transfer_complete_cb;
 
-    busy = true;
-
     send_command(command::start);
-
-    while (busy);
 }
 
 void dma2d::irq_handler(void)
@@ -124,7 +134,6 @@ void dma2d::irq_handler(void)
     {
         DMA2D->IFCR = DMA2D_IFCR_CTCIF;
 
-        busy = false;
         if (transfer_callback)
             transfer_callback();
     }

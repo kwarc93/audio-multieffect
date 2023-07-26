@@ -53,7 +53,7 @@ public:
 
     struct transfer_cfg
     {
-        transfer_cb_t transfer_complete_cb;
+        const transfer_cb_t &transfer_complete_cb;
         mode transfer_mode;
         color color_mode;
         uint8_t alpha;
@@ -74,7 +74,6 @@ public:
     static void transfer(const transfer_cfg &cfg);
     static void irq_handler(void);
 private:
-    static inline volatile bool busy;
     static inline transfer_cb_t transfer_callback;
 
     static const inline std::unordered_map<color, size_t> pixel_size

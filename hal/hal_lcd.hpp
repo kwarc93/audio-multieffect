@@ -36,7 +36,7 @@ namespace hal
         void draw_pixel(int16_t x, int16_t y, pixel_t pixel);
         void draw_data(int16_t x0, int16_t y0, int16_t x1, int16_t y1, pixel_t *data);
 
-        void set_vsync_callback(const typename hal::interface::glcd<pixel_t>::vsync_cb_t &callback);
+        void enable_vsync(bool state);
 
     protected:
         hal::interface::glcd<pixel_t> *glcd_drv;
@@ -50,6 +50,9 @@ namespace displays
 {
     /* Full frame buffer for glcd driver */
     __attribute__((section(".sdram"))) static drivers::glcd_rk043fn48h::framebuffer_t frame_buffer;
+#if HAL_LCD_USE_DOUBLE_FRAMEBUF
+    __attribute__((section(".sdram"))) static drivers::glcd_rk043fn48h::framebuffer_t frame_buffer2;
+#endif
 
     class primary : public glcd<drivers::glcd_rk043fn48h::pixel_t>
     {
@@ -57,6 +60,10 @@ namespace displays
         using pixel_t = drivers::glcd_rk043fn48h::pixel_t;
 
         primary() : glcd{ &lcd_drv, &backlight_drv } {};
+
+        void wait_for_vsync(void) { this->lcd_drv.wait_for_vsync(); };
+        void set_frame_buffer(pixel_t *addr) { this->lcd_drv.set_frame_buffer(addr); };
+        void set_draw_callback(const drivers::glcd_rk043fn48h::draw_cb_t &callback) { this->lcd_drv.set_draw_callback(callback); };
 
     private:
         static constexpr std::array<const drivers::gpio::io, 29> lcd_ios =
