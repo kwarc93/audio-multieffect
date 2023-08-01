@@ -44,6 +44,28 @@ namespace hal::interface
         virtual void write(std::byte address, const std::byte *data, std::size_t size, bool no_stop, const write_cb_t &callback) = 0;
     };
 
+    class i2c_device
+    {
+    public:
+        enum class result { ok, error };
+
+        struct transfer_desc
+        {
+            uint8_t address;
+            const std::byte *tx_data;
+            std::size_t tx_size;
+            std::byte *rx_data;
+            std::size_t rx_size;
+            std::function<void(result res)> callback;
+        };
+
+        i2c_device(i2c *drv) : driver {drv} {};
+        virtual ~i2c_device() { driver = nullptr; };
+        virtual result transfer(const transfer_desc &descriptor) = 0;
+    protected:
+        i2c *driver;
+    };
+
     class temperature_sensor
     {
     public:
