@@ -29,9 +29,9 @@ namespace hal
 
         void backlight(bool state);
 
-        size_t width(void) const;
-        size_t height(void) const;
-        size_t bpp(void) const;
+        uint16_t width(void) const;
+        uint16_t height(void) const;
+        uint8_t bpp(void) const;
 
         void draw_pixel(int16_t x, int16_t y, pixel_t pixel);
         void draw_data(int16_t x0, int16_t y0, int16_t x1, int16_t y1, pixel_t *data);
@@ -54,12 +54,12 @@ namespace displays
     __attribute__((section(".sdram"))) static drivers::glcd_rk043fn48h::framebuffer_t frame_buffer2;
 #endif
 
-    class primary : public glcd<drivers::glcd_rk043fn48h::pixel_t>
+    class main : public glcd<drivers::glcd_rk043fn48h::pixel_t>
     {
     public:
         using pixel_t = drivers::glcd_rk043fn48h::pixel_t;
 
-        primary() : glcd{ &lcd_drv, &backlight_drv } {};
+        main() : glcd{ &lcd_drv, &backlight_drv } {};
 
         void wait_for_vsync(void) { this->lcd_drv.wait_for_vsync(); };
         void set_frame_buffer(pixel_t *addr) { this->lcd_drv.set_frame_buffer(addr); };

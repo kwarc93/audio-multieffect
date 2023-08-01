@@ -45,19 +45,19 @@ void glcd<T>::backlight(bool state)
 }
 
 template <typename T>
-size_t glcd<T>::width(void) const
+uint16_t glcd<T>::width(void) const
 {
     return this->glcd_drv->width();
 }
 
 template <typename T>
-size_t glcd<T>::height(void) const
+uint16_t glcd<T>::height(void) const
 {
     return this->glcd_drv->height();
 }
 
 template <typename T>
-size_t glcd<T>::bpp(void) const
+uint8_t glcd<T>::bpp(void) const
 {
     return this->glcd_drv->bpp();
 }

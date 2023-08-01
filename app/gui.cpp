@@ -25,7 +25,7 @@ __attribute__((section(".dtcmram"))) static lv_color_t lvgl_buf[64 * 1024 / size
 
 void lvgl_disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p)
 {
-    using display_t = hal::displays::primary;
+    using display_t = hal::displays::main;
     display_t *display = static_cast<display_t*>(disp_drv->user_data);
 
 #if HAL_LCD_USE_DOUBLE_FRAMEBUF
@@ -38,7 +38,7 @@ void lvgl_disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_
 
 void lvgl_disp_render_start(struct _lv_disp_drv_t * disp_drv)
 {
-    using display_t = hal::displays::primary;
+    using display_t = hal::displays::main;
     display_t *display = static_cast<display_t*>(disp_drv->user_data);
     display->wait_for_vsync();
 }

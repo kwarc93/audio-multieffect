@@ -17,17 +17,31 @@ namespace hal::interface
     class serial
     {
     public:
+        typedef std::function<void(const std::byte *data, std::size_t bytes_read)> read_cb_t;
+        typedef std::function<void(std::size_t bytes_written)> write_cb_t;
+
         virtual ~serial() {};
         virtual std::byte read(void) = 0;
         virtual void write(std::byte byte) = 0;
         virtual std::size_t read(std::byte *data, std::size_t size) = 0;
         virtual std::size_t write(const std::byte *data, std::size_t size) = 0;
+        virtual void read(std::byte *data, std::size_t size, const read_cb_t &callback, bool listen) = 0;
+        virtual void write(const std::byte *data, std::size_t size, const write_cb_t &callback) = 0;
+    };
 
+    class i2c
+    {
+    public:
         typedef std::function<void(const std::byte *data, std::size_t bytes_read)> read_cb_t;
         typedef std::function<void(std::size_t bytes_written)> write_cb_t;
 
-        virtual void read_async(std::byte *data, std::size_t size, const read_cb_t &callback, bool listen) = 0;
-        virtual void write_async(const std::byte *data, std::size_t size, const write_cb_t &callback) = 0;
+        virtual ~i2c() {};
+        virtual std::byte read(void) = 0;
+        virtual void write(std::byte address, std::byte byte, bool no_stop) = 0;
+        virtual std::size_t read(std::byte address, std::byte *data, std::size_t size) = 0;
+        virtual std::size_t write(std::byte address, const std::byte *data, std::size_t size, bool no_stop) = 0;
+        virtual void read(std::byte address, std::byte *data, std::size_t size, const read_cb_t &callback) = 0;
+        virtual void write(std::byte address, const std::byte *data, std::size_t size, bool no_stop, const write_cb_t &callback) = 0;
     };
 
     class temperature_sensor
@@ -60,9 +74,9 @@ namespace hal::interface
 
         virtual ~glcd() {};
 
-        virtual size_t width(void) = 0;
-        virtual size_t height(void) = 0;
-        virtual size_t bpp(void) = 0;
+        virtual uint16_t width(void) = 0;
+        virtual uint16_t height(void) = 0;
+        virtual uint8_t bpp(void) = 0;
 
         virtual void draw_pixel(int16_t x, int16_t y, pixel_t pixel) = 0;
         virtual void draw_data(int16_t x0, int16_t y0, int16_t x1, int16_t y1, pixel_t *data) = 0;

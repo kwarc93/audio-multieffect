@@ -58,13 +58,13 @@ usart::~usart()
 
 std::byte usart::read()
 {
-    while (!( this->hw.reg->ISR & USART_ISR_RXNE));
+    while (!(this->hw.reg->ISR & USART_ISR_RXNE));
     return static_cast<std::byte>(this->hw.reg->RDR);
 }
 
 void usart::write(std::byte byte)
 {
-    while (!( this->hw.reg->ISR & USART_ISR_TXE));
+    while (!(this->hw.reg->ISR & USART_ISR_TXE));
     this->hw.reg->TDR = std::to_integer<volatile uint32_t>(byte);
 }
 
@@ -94,7 +94,7 @@ std::size_t usart::write(const std::byte *data, std::size_t size)
     return bytes_written;
 }
 
-void usart::read_async(std::byte *data, std::size_t size, const read_cb_t &callback, bool listen)
+void usart::read(std::byte *data, std::size_t size, const read_cb_t &callback, bool listen)
 {
     if (size == 0 || data == nullptr)
     {
@@ -122,7 +122,7 @@ void usart::read_async(std::byte *data, std::size_t size, const read_cb_t &callb
     NVIC_EnableIRQ(nvic_irq);
 }
 
-void usart::write_async(const std::byte *data, std::size_t size, const write_cb_t &callback)
+void usart::write(const std::byte *data, std::size_t size, const write_cb_t &callback)
 {
     /* TODO Implement  asynchronous write */
 }

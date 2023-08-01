@@ -25,7 +25,7 @@ public:
         event(const T &data, uint32_t flags = 0) : data {data}, flags {flags} {}
     };
 
-    active_object(const std::string_view &name, osPriority_t priority, size_t stack_size)
+    active_object(const std::string_view &name, osPriority_t priority, size_t stack_size, uint32_t queue_size = 32)
     {
         /* It is assumed that each active object is unique */
         assert(this->instance == nullptr);
@@ -34,7 +34,7 @@ public:
         /* Create queue of events */
         this->queue_attr.name = name.data();
 
-        this->queue = osMessageQueueNew(32, sizeof(event*), &this->queue_attr);
+        this->queue = osMessageQueueNew(queue_size, sizeof(event*), &this->queue_attr);
         assert(this->queue != nullptr);
 
         /* Create worker thread */

@@ -31,8 +31,8 @@ public:
     std::size_t read(std::byte *data, std::size_t size);
     std::size_t write(const std::byte *data, std::size_t size);
 
-    void read_async(std::byte *data, std::size_t size, const read_cb_t &callback, bool listen = false);
-    void write_async(const std::byte *data, std::size_t size, const write_cb_t &callback);
+    void read(std::byte *data, std::size_t size, const read_cb_t &callback, bool listen = false);
+    void write(const std::byte *data, std::size_t size, const write_cb_t &callback);
 
     void irq_handler(void);
 
