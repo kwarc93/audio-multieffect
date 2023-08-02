@@ -36,18 +36,17 @@ namespace hal::interface
         typedef std::function<void(std::size_t bytes_written)> write_cb_t;
 
         virtual ~i2c() {};
-        virtual std::byte read(void) = 0;
-        virtual void write(std::byte address, std::byte byte, bool no_stop) = 0;
-        virtual std::size_t read(std::byte address, std::byte *data, std::size_t size) = 0;
-        virtual std::size_t write(std::byte address, const std::byte *data, std::size_t size, bool no_stop) = 0;
-        virtual void read(std::byte address, std::byte *data, std::size_t size, const read_cb_t &callback) = 0;
-        virtual void write(std::byte address, const std::byte *data, std::size_t size, bool no_stop, const write_cb_t &callback) = 0;
+        virtual std::byte read(uint8_t address) = 0;
+        virtual void write(uint8_t address, std::byte byte, bool no_stop) = 0;
+        virtual std::size_t read(uint8_t address, std::byte *data, std::size_t size) = 0;
+        virtual std::size_t write(uint8_t address, const std::byte *data, std::size_t size, bool no_stop) = 0;
+        virtual void read(uint8_t address, std::byte *data, std::size_t size, const read_cb_t &callback) = 0;
+        virtual void write(uint8_t address, const std::byte *data, std::size_t size, bool no_stop, const write_cb_t &callback) = 0;
     };
 
     class i2c_device
     {
     public:
-        enum class result { ok, error };
 
         struct transfer_desc
         {
@@ -56,12 +55,13 @@ namespace hal::interface
             std::size_t tx_size;
             std::byte *rx_data;
             std::size_t rx_size;
-            std::function<void(result res)> callback;
         };
+
+        typedef std::function<void(const transfer_desc &transfer)> transfer_cb_t;
 
         i2c_device(i2c *drv) : driver {drv} {};
         virtual ~i2c_device() { driver = nullptr; };
-        virtual result transfer(const transfer_desc &descriptor) = 0;
+        virtual void transfer(const transfer_desc &descriptor, const transfer_cb_t &callback) = 0;
     protected:
         i2c *driver;
     };
