@@ -21,7 +21,7 @@ struct i2c_manager_event
     struct transfer_evt_t
     {
         uint8_t address;
-        std::vector<const std::byte> tx;
+        std::vector<std::byte> tx;
         std::vector<std::byte> rx;
         hal::interface::i2c_device::transfer_cb_t callback;
     };
@@ -67,18 +67,21 @@ private:
     void event_handler(const transfer_evt_t &e)
     {
         this->driver->write(e.address, e.tx.data(), e.tx.size(), e.rx.size() > 0);
-        this->driver->read(e.address, static_cast<std::byte*>(e.rx.data()), e.rx.size());
+        this->driver->read(e.address, const_cast<std::byte*>(e.rx.data()), e.rx.size());
 
-        const transfer_desc descriptor
+        if (e.callback)
         {
-            e.address,
-            e.tx.data(),
-            e.tx.size(),
-            e.rx.data(),
-            e.rx.size()
-        };
+            const transfer_desc descriptor
+            {
+                e.address,
+                e.tx.data(),
+                e.tx.size(),
+                const_cast<std::byte*>(e.rx.data()),
+                e.rx.size()
+            };
 
-        e.callback(descriptor);
+            e.callback(descriptor);
+        }
     }
 };
 
@@ -87,7 +90,7 @@ namespace i2c_managers
 
 i2c_manager& main(void)
 {
-    static i2c_manager i2c_main_manager { hal::i2c::main::get_instance() };
+    static i2c_manager i2c_main_manager { &hal::i2c::main::get_instance() };
     return i2c_main_manager;
 }
 

@@ -25,6 +25,8 @@
 #include "app/effects/effect_manager.hpp"
 #include "app/controller/controller.hpp"
 
+#include "middlewares/i2c_manager.hpp"
+
 #include "libs/memtest/memtest.h"
 
 
@@ -38,6 +40,19 @@ void init_thread(void *arg)
     assert(result == 0);
 
     /* Create and test active objects */
+
+    /* Test of Active Object 'i2c_manager' */
+    auto i2c_man = i2c_managers::main();
+    i2c_manager::transfer_desc desc
+    {
+        3,
+        reinterpret_cast<const std::byte*>("dupa"),
+        4,
+        nullptr,
+        0
+    };
+
+    i2c_man.transfer(desc);
 
     /* Test of Active Object 'gui' */
     auto gui_ao = std::make_unique<gui>();
