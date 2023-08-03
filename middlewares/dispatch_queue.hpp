@@ -8,6 +8,9 @@
 #ifndef DISPATCH_QUEUE_HPP_
 #define DISPATCH_QUEUE_HPP_
 
+namespace middlewares
+{
 
+}
 
 #endif /* DISPATCH_QUEUE_HPP_ */

@@ -29,7 +29,7 @@ struct blinky_event
     using holder = std::variant<timer_evt_t, button_evt_t>;
 };
 
-class blinky : public blinky_event, public active_object<blinky_event::holder>
+class blinky : public blinky_event, public middlewares::active_object<blinky_event::holder>
 {
 public:
     blinky();

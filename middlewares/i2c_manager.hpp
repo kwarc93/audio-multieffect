@@ -19,6 +19,9 @@
 
 #include "active_object.hpp"
 
+namespace middlewares
+{
+
 class i2c_manager_simple : public hal::interface::i2c_device
 {
 public:
@@ -128,12 +131,22 @@ private:
 
 namespace i2c_managers
 {
+    namespace main
+    {
 
-template<typename T>
-hal::interface::i2c_device & main(void)
-{
-    static T i2c_main_manager { &hal::i2c::main::get_instance() };
-    return i2c_main_manager;
+        hal::interface::i2c_device & simple(void)
+        {
+            static i2c_manager_simple i2c_main_manager { &hal::i2c::main::get_instance() };
+            return i2c_main_manager;
+        }
+
+        hal::interface::i2c_device & active(void)
+        {
+            static i2c_manager_active i2c_main_manager { &hal::i2c::main::get_instance() };
+            return i2c_main_manager;
+        }
+
+    }
 }
 
 }

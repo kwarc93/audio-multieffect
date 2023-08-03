@@ -29,7 +29,7 @@ struct gui_event
     using holder = std::variant<timer_evt_t, demo_test_evt_t>;
 };
 
-class gui : public gui_event, public active_object<gui_event::holder>
+class gui : public gui_event, public middlewares::active_object<gui_event::holder>
 {
 public:
     gui();

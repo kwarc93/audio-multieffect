@@ -16,7 +16,7 @@
 
 #include "controller_events.hpp"
 
-class controller : public controller_event, public active_object<controller_event::holder>
+class controller : public controller_event, public middlewares::active_object<controller_event::holder>
 {
 public:
     controller();
