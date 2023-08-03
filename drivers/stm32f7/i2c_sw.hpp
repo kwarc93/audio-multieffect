@@ -10,6 +10,9 @@
 
 #include <hal/hal_interface.hpp>
 
+#include <drivers/stm32f7/gpio.hpp>
+#include <drivers/stm32f7/delay.hpp>
+
 #include <cstdint>
 
 namespace drivers
@@ -18,13 +21,171 @@ namespace drivers
 class i2c_sw : public hal::interface::i2c
 {
 public:
-    i2c_sw();
-    std::byte read(uint8_t address);
-    void write(uint8_t address, std::byte byte, bool no_stop);
-    std::size_t read(uint8_t address, std::byte *data, std::size_t size);
-    std::size_t write(uint8_t address, const std::byte *data, std::size_t size, bool no_stop);
-    void read(uint8_t address, std::byte *data, std::size_t size, const read_cb_t &callback);
-    void write(uint8_t address, const std::byte *data, std::size_t size, bool no_stop, const write_cb_t &callback);
+    enum class i2c_mode { master, slave };
+    enum class i2c_speed { standard, fast };
+
+    i2c_sw(gpio::io sda, gpio::io scl, i2c_mode m, i2c_speed s);
+    std::byte read(void);
+    void write(std::byte byte);
+    std::size_t read(std::byte *data, std::size_t size);
+    std::size_t write(const std::byte *data, std::size_t size);
+    void read(std::byte *data, std::size_t size, const read_cb_t &callback);
+    void write(const std::byte *data, std::size_t size, const write_cb_t &callback);
+private:
+    gpio::io sda_io, scl_io;
+    i2c_mode mode;
+    i2c_speed speed;
+
+    inline void delay(void)
+    {
+        delay::us(1);
+
+        if (this->speed == i2c_speed::standard)
+        {
+            delay::us(4);
+        }
+    }
+
+
+    inline void sda_write(bool state)
+    {
+        gpio::write(this->sda_io, state);
+    }
+
+
+    inline void scl_write(bool state)
+    {
+        gpio::write(this->scl_io, state);
+    }
+
+
+    inline bool sda_read(void)
+    {
+        return gpio::read(this->sda_io);
+    }
+
+
+    inline bool scl_read(void)
+    {
+        return gpio::read(this->scl_io);
+    }
+
+
+    inline void clock_stretch(void)
+    {
+        /* Waiting for SCL to go high if the slave is stretching */
+        uint32_t timeout_us = 10000;
+        while (!scl_read() && timeout_us--) { delay::us(1); };
+    }
+
+
+    inline void send_start(void)
+    {
+        sda_write(false);
+        delay();
+        scl_write(false);
+        delay();
+    }
+
+
+    inline void send_stop(void)
+    {
+        sda_write(false);
+        delay();
+        scl_write(true);
+        delay();
+        sda_write(true);
+        delay();
+    }
+
+
+    inline bool detect_ack(void)
+    {
+        sda_write(true);
+        scl_write(true);
+        clock_stretch();
+        delay();
+
+        if (sda_read())
+            return false;
+
+        scl_write(false);
+        delay();
+
+        return true;
+    }
+
+
+    inline void send_ack(bool ack)
+    {
+        sda_write(ack);
+
+        scl_write(true);
+        clock_stretch();
+        delay();
+
+        scl_write(false);
+        sda_write(true);
+        delay();
+    }
+
+
+    inline void write_byte(std::byte byte)
+    {
+        uint8_t bits = 8;
+        do
+        {
+            sda_write(std::to_integer<bool>(byte & std::byte(1 << 7)));
+            scl_write(true);
+            clock_stretch();
+            delay();
+
+            byte <<= 1;
+            bits -= 1;
+
+            scl_write(false);
+            delay();
+        }
+        while (bits > 0);
+    }
+
+
+    inline std::byte read_byte(void)
+    {
+        uint8_t bits = 8;
+        uint8_t byte = 0;
+        do
+        {
+            byte <<= 1;
+            scl_write(true);
+            clock_stretch();
+            delay();
+
+            byte += sda_read();
+
+            bits -= 1;
+            scl_write(false);
+            delay();
+        }
+        while (bits > 0);
+
+        return std::byte(byte);
+    }
+
+
+    inline void reset(void)
+    {
+        for (uint8_t i = 0; i < 9; i++)
+        {
+            scl_write(false);
+            delay();
+            scl_write(true);
+            delay();
+        }
+
+        scl_write(false);
+        send_stop();
+    }
 };
 
 }

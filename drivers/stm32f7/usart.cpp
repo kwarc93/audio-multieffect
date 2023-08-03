@@ -94,7 +94,7 @@ std::size_t usart::write(const std::byte *data, std::size_t size)
     return bytes_written;
 }
 
-void usart::read(std::byte *data, std::size_t size, const read_cb_t &callback, bool listen)
+void usart::read(std::byte *data, std::size_t size, const read_cb_t &callback)
 {
     if (size == 0 || data == nullptr)
     {
@@ -110,9 +110,8 @@ void usart::read(std::byte *data, std::size_t size, const read_cb_t &callback, b
 
     this->async_read.counter = 0;
     this->async_read.data = data;
-    this->async_read.data_length = listen ? 1 : size; /* When listen==true, driver reads one by one forever */
+    this->async_read.data_length = this->listening ? 1 : size; /* When listening == true, driver reads one by one forever */
     this->async_read.callback = callback;
-    this->async_read.listen = listen;
 
     this->hw.reg->CR1 |= USART_CR1_RXNEIE;
 
@@ -151,7 +150,7 @@ void usart::irq_handler(void)
         /* Finish reception & call callback */
         if (this->async_read.counter == this->async_read.data_length)
         {
-            if (!this->async_read.listen)
+            if (!this->listening)
             {
                 this->hw.reg->CR1 &= ~USART_CR1_RXNEIE;
                 IRQn_Type nvic_irq = static_cast<IRQn_Type>(USART1_IRQn + static_cast<uint8_t>(this->hw.id)); /* TODO: Only supported 1, 2 & 3 */

@@ -14,34 +14,40 @@
 
 namespace hal::interface
 {
-    class serial
+    template<typename T>
+    class io_bus
     {
     public:
-        typedef std::function<void(const std::byte *data, std::size_t bytes_read)> read_cb_t;
+        typedef std::function<void(const T *data, std::size_t bytes_read)> read_cb_t;
         typedef std::function<void(std::size_t bytes_written)> write_cb_t;
 
-        virtual ~serial() {};
-        virtual std::byte read(void) = 0;
-        virtual void write(std::byte byte) = 0;
-        virtual std::size_t read(std::byte *data, std::size_t size) = 0;
-        virtual std::size_t write(const std::byte *data, std::size_t size) = 0;
-        virtual void read(std::byte *data, std::size_t size, const read_cb_t &callback, bool listen) = 0;
-        virtual void write(const std::byte *data, std::size_t size, const write_cb_t &callback) = 0;
+        virtual ~io_bus() {};
+        virtual T read(void) = 0;
+        virtual void write(T byte) = 0;
+        virtual std::size_t read(T *data, std::size_t size) = 0;
+        virtual std::size_t write(const T *data, std::size_t size) = 0;
+        virtual void read(T *data, std::size_t size, const read_cb_t &callback) = 0;
+        virtual void write(const T *data, std::size_t size, const write_cb_t &callback) = 0;
     };
 
-    class i2c
+    class serial : public io_bus<std::byte>
     {
     public:
-        typedef std::function<void(const std::byte *data, std::size_t bytes_read)> read_cb_t;
-        typedef std::function<void(std::size_t bytes_written)> write_cb_t;
+        virtual ~serial() {};
+        virtual void listen(bool enable) { this->listening = enable; };
+    protected:
+        bool listening;
+    };
 
+    class i2c : public io_bus<std::byte>
+    {
+    public:
         virtual ~i2c() {};
-        virtual std::byte read(uint8_t address) = 0;
-        virtual void write(uint8_t address, std::byte byte, bool no_stop) = 0;
-        virtual std::size_t read(uint8_t address, std::byte *data, std::size_t size) = 0;
-        virtual std::size_t write(uint8_t address, const std::byte *data, std::size_t size, bool no_stop) = 0;
-        virtual void read(uint8_t address, std::byte *data, std::size_t size, const read_cb_t &callback) = 0;
-        virtual void write(uint8_t address, const std::byte *data, std::size_t size, bool no_stop, const write_cb_t &callback) = 0;
+        virtual void set_address(uint8_t addr) { this->address = addr; };
+        virtual void set_no_stop(bool value) { this->no_stop = value; };
+    protected:
+        uint8_t address;
+        bool no_stop;
     };
 
     class i2c_device

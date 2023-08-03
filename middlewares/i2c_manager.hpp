@@ -42,8 +42,11 @@ public:
 
         if (osMutexAcquire(this->mutex, osWaitForever) == osOK)
         {
-            auto bytes_written = this->driver->write(descriptor.address, descriptor.tx_data, descriptor.tx_size, descriptor.rx_size > 0);
-            auto bytes_read = this->driver->read(descriptor.address, descriptor.rx_data, descriptor.rx_size);
+            this->driver->set_address(descriptor.address);
+            this->driver->set_no_stop(descriptor.rx_size > 0);
+
+            auto bytes_written = this->driver->write(descriptor.tx_data, descriptor.tx_size);
+            auto bytes_read = this->driver->read(descriptor.rx_data, descriptor.rx_size);
 
             osMutexRelease(this->mutex);
 
@@ -109,8 +112,11 @@ private:
     /* Event handlers */
     void event_handler(const transfer_evt_t &e)
     {
-        auto bytes_written = this->driver->write(e.address, e.tx.data(), e.tx.size(), e.rx.size() > 0);
-        auto bytes_read = this->driver->read(e.address, const_cast<std::byte*>(e.rx.data()), e.rx.size());
+        this->driver->set_address(e.address);
+        this->driver->set_no_stop(e.rx.size() > 0);
+
+        auto bytes_written = this->driver->write(e.tx.data(), e.tx.size());
+        auto bytes_read = this->driver->read(const_cast<std::byte*>(e.rx.data()), e.rx.size());
 
         if (e.callback)
         {

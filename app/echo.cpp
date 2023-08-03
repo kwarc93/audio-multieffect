@@ -59,12 +59,12 @@ void echo::character_received_callback(const std::byte *data, std::size_t bytes_
 echo::echo() : active_object("echo", osPriorityNormal, 1024), stdio_serial { hal::usart::stdio::get_instance() }
 {
     /* Start listening for character */
+    this->stdio_serial.listen(true);
     this->stdio_serial.read(reinterpret_cast<std::byte*>(&this->received_char),
                             1,
                             [this](const std::byte *data, std::size_t bytes_read)
                             {
                                  this->character_received_callback(data, bytes_read);
-                            },
-                            true);
+                            });
 };
 
