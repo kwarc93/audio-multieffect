@@ -15,11 +15,11 @@
 namespace drivers
 {
 
-class hw_i2c : public hal::interface::i2c
+class i2c : public hal::interface::i2c
 {
 /* TODO*/
 public:
-    hw_i2c() {};
+    i2c() {};
     std::byte read(uint8_t address) { return std::byte(0); };
     void write(uint8_t address, std::byte byte, bool no_stop) {};
     std::size_t read(uint8_t address, std::byte *data, std::size_t size) { return size; };

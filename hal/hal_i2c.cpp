@@ -13,7 +13,7 @@ using namespace hal;
 
 interface::i2c & i2c::main::get_instance(void)
 {
-    static drivers::hw_i2c main_i2c {};
+    static drivers::i2c main_i2c {};
     return main_i2c;
 }
 
