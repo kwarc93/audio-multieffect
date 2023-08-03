@@ -22,8 +22,8 @@ public:
     hw_i2c() {};
     std::byte read(uint8_t address) { return std::byte(0); };
     void write(uint8_t address, std::byte byte, bool no_stop) {};
-    std::size_t read(uint8_t address, std::byte *data, std::size_t size) { return 0; };
-    std::size_t write(uint8_t address, const std::byte *data, std::size_t size, bool no_stop) { return 0; };
+    std::size_t read(uint8_t address, std::byte *data, std::size_t size) { return size; };
+    std::size_t write(uint8_t address, const std::byte *data, std::size_t size, bool no_stop) { return size; };
     void read(uint8_t address, std::byte *data, std::size_t size, const read_cb_t &callback) {};
     void write(uint8_t address, const std::byte *data, std::size_t size, bool no_stop, const write_cb_t &callback) {};
 };

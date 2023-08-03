@@ -55,13 +55,14 @@ namespace hal::interface
             std::size_t tx_size;
             std::byte *rx_data;
             std::size_t rx_size;
+            bool error;
         };
 
         typedef std::function<void(const transfer_desc &transfer)> transfer_cb_t;
 
         i2c_device(i2c *drv) : driver {drv} {};
         virtual ~i2c_device() { driver = nullptr; };
-        virtual void transfer(const transfer_desc &descriptor, const transfer_cb_t &callback) = 0;
+        virtual void transfer(transfer_desc &descriptor, const transfer_cb_t &callback) = 0;
     protected:
         i2c *driver;
     };

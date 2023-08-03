@@ -42,17 +42,18 @@ void init_thread(void *arg)
     /* Create and test active objects */
 
     /* Test of Active Object 'i2c_manager' */
-    auto i2c_man = i2c_managers::main();
-    i2c_manager::transfer_desc desc
+    auto &i2c_man = i2c_managers::main<i2c_manager_simple>();
+    uint16_t reg;
+    hal::interface::i2c_device::transfer_desc desc
     {
         3,
         reinterpret_cast<const std::byte*>("dupa"),
         4,
-        nullptr,
-        0
+        reinterpret_cast<std::byte*>(&reg),
+        sizeof(reg)
     };
 
-    i2c_man.transfer(desc);
+    i2c_man.transfer(desc, [](const i2c_manager_active::transfer_desc &d) {});
 
     /* Test of Active Object 'gui' */
     auto gui_ao = std::make_unique<gui>();

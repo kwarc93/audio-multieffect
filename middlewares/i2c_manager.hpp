@@ -10,11 +10,51 @@
 
 #include <variant>
 #include <vector>
+#include <cassert>
 
 #include <hal/hal_interface.hpp>
 #include <hal/hal_i2c.hpp>
 
+#include "cmsis_os2.h"
+
 #include "active_object.hpp"
+
+class i2c_manager_simple : public hal::interface::i2c_device
+{
+public:
+    i2c_manager_simple(hal::interface::i2c *drv) : i2c_device(drv)
+    {
+        this->mutex = osMutexNew(nullptr);
+        assert(this->mutex != nullptr);
+    }
+    ~i2c_manager_simple()
+    {
+        osMutexDelete(this->mutex);
+        this->mutex = nullptr;
+    }
+
+    void transfer(transfer_desc &descriptor, const transfer_cb_t &callback = {}) override
+    {
+        descriptor.error = true;
+
+        if (osMutexAcquire(this->mutex, osWaitForever) == osOK)
+        {
+            auto bytes_written = this->driver->write(descriptor.address, descriptor.tx_data, descriptor.tx_size, descriptor.rx_size > 0);
+            auto bytes_read = this->driver->read(descriptor.address, descriptor.rx_data, descriptor.rx_size);
+
+            osMutexRelease(this->mutex);
+
+            descriptor.error = (bytes_written != descriptor.tx_size) || (bytes_read != descriptor.rx_size);
+            descriptor.tx_size = bytes_written;
+            descriptor.rx_size = bytes_read;
+        }
+
+        if (callback)
+            callback(descriptor);
+    }
+private:
+    osMutexId_t mutex;
+};
 
 struct i2c_manager_event
 {
@@ -29,20 +69,20 @@ struct i2c_manager_event
     using holder = std::variant<transfer_evt_t>;
 };
 
-class i2c_manager : public i2c_manager_event, public active_object<i2c_manager_event::holder>, public hal::interface::i2c_device
+class i2c_manager_active : public i2c_manager_event, public active_object<i2c_manager_event::holder>, public hal::interface::i2c_device
 {
 public:
-    i2c_manager(hal::interface::i2c *drv) : active_object("i2c_manager", osPriorityHigh, 1024), i2c_device(drv)
+    i2c_manager_active(hal::interface::i2c *drv) : active_object("i2c_manager", osPriorityHigh, 1024), i2c_device(drv)
     {
 
     }
 
-    ~i2c_manager()
+    ~i2c_manager_active()
     {
 
     }
 
-    void transfer(const transfer_desc &descriptor, const transfer_cb_t &callback = [](const transfer_desc &){}) override
+    void transfer(transfer_desc &descriptor, const transfer_cb_t &callback = {}) override
     {
         const event e
         {
@@ -66,8 +106,8 @@ private:
     /* Event handlers */
     void event_handler(const transfer_evt_t &e)
     {
-        this->driver->write(e.address, e.tx.data(), e.tx.size(), e.rx.size() > 0);
-        this->driver->read(e.address, const_cast<std::byte*>(e.rx.data()), e.rx.size());
+        auto bytes_written = this->driver->write(e.address, e.tx.data(), e.tx.size(), e.rx.size() > 0);
+        auto bytes_read = this->driver->read(e.address, const_cast<std::byte*>(e.rx.data()), e.rx.size());
 
         if (e.callback)
         {
@@ -75,9 +115,10 @@ private:
             {
                 e.address,
                 e.tx.data(),
-                e.tx.size(),
+                bytes_written,
                 const_cast<std::byte*>(e.rx.data()),
-                e.rx.size()
+                bytes_read,
+                (bytes_written != e.tx.size()) || (bytes_read != e.rx.size()),
             };
 
             e.callback(descriptor);
@@ -88,9 +129,10 @@ private:
 namespace i2c_managers
 {
 
-i2c_manager& main(void)
+template<typename T>
+hal::interface::i2c_device & main(void)
 {
-    static i2c_manager i2c_main_manager { &hal::i2c::main::get_instance() };
+    static T i2c_main_manager { &hal::i2c::main::get_instance() };
     return i2c_main_manager;
 }
 
