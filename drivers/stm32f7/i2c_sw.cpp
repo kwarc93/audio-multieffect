@@ -20,8 +20,8 @@ using namespace drivers;
 //-----------------------------------------------------------------------------
 /* public */
 
-i2c_sw::i2c_sw(gpio::io sda, gpio::io scl, i2c_mode mode, i2c_speed speed) :
-sda_io {sda}, scl_io {scl}, mode {mode}, speed {speed}
+i2c_sw::i2c_sw(gpio::io sda, gpio::io scl, mode mode, speed speed) :
+sda_io {sda}, scl_io {scl}, operating_mode {mode}, bus_speed {speed}
 {
     gpio::configure(this->sda_io, gpio::mode::output, gpio::af::af0, gpio::pupd::none, gpio::type::od, gpio::speed::low);
     gpio::configure(this->scl_io, gpio::mode::output, gpio::af::af0, gpio::pupd::none, gpio::type::od, gpio::speed::low);

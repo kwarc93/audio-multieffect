@@ -21,10 +21,10 @@ namespace drivers
 class i2c_sw : public hal::interface::i2c
 {
 public:
-    enum class i2c_mode { master, slave };
-    enum class i2c_speed { standard, fast };
+    enum class mode { master, slave };
+    enum class speed { standard, fast };
 
-    i2c_sw(gpio::io sda, gpio::io scl, i2c_mode m, i2c_speed s);
+    i2c_sw(gpio::io sda, gpio::io scl, mode mode, speed speed);
     std::byte read(void);
     void write(std::byte byte);
     std::size_t read(std::byte *data, std::size_t size);
@@ -33,17 +33,12 @@ public:
     void write(const std::byte *data, std::size_t size, const write_cb_t &callback);
 private:
     gpio::io sda_io, scl_io;
-    i2c_mode mode;
-    i2c_speed speed;
+    mode operating_mode;
+    speed bus_speed;
 
     inline void delay(void)
     {
-        delay::us(1);
-
-        if (this->speed == i2c_speed::standard)
-        {
-            delay::us(4);
-        }
+        delay::us(this->bus_speed == speed::standard ? 5 : 1);
     }
 
 
