@@ -42,7 +42,7 @@ void init_thread(void *arg)
     assert(result == 0);
 
     /* Test of 'i2c_manager' */
-    auto touch = drivers::touch_ft5336 { middlewares::i2c_managers::main::active() };
+    auto touch = drivers::touch_ft5336 { middlewares::i2c_managers::main::get_instance() };
     tick_start = osKernelGetTickCount();
     uint32_t cnt = 1000;
     while (cnt--)

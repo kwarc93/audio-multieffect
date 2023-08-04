@@ -22,54 +22,9 @@
 namespace middlewares
 {
 
-class i2c_manager_simple : public hal::interface::i2c_device
-{
-public:
-    i2c_manager_simple(hal::interface::i2c &drv) : i2c_device(drv)
-    {
-        this->mutex = osMutexNew(nullptr);
-        assert(this->mutex != nullptr);
-    }
-    ~i2c_manager_simple()
-    {
-        osMutexDelete(this->mutex);
-        this->mutex = nullptr;
-    }
-
-    void transfer(transfer_desc &descriptor, const transfer_cb_t &callback) override
-    {
-        if (osMutexAcquire(this->mutex, osWaitForever) == osOK)
-        {
-            descriptor.stat = transfer_desc::status::pending;
-
-            this->driver.set_address(descriptor.address);
-            this->driver.set_no_stop(descriptor.rx_size > 0);
-
-            auto bytes_written = this->driver.write(descriptor.tx_data, descriptor.tx_size);
-            auto bytes_read = this->driver.read(descriptor.rx_data, descriptor.rx_size);
-
-            descriptor.stat = (bytes_written != descriptor.tx_size) || (bytes_read != descriptor.rx_size) ?
-                              transfer_desc::status::error : transfer_desc::status::ok;
-            descriptor.tx_size = bytes_written;
-            descriptor.rx_size = bytes_read;
-
-            osMutexRelease(this->mutex);
-        }
-        else
-        {
-            descriptor.stat = transfer_desc::status::error;
-        }
-
-        if (callback)
-            callback(descriptor);
-    }
-private:
-    osMutexId_t mutex;
-};
-
 struct i2c_manager_event
 {
-    struct transfer_evt_t
+    struct schedule_transfer_evt_t
     {
         uint8_t address;
         std::vector<std::byte> tx;
@@ -77,27 +32,53 @@ struct i2c_manager_event
         hal::interface::i2c_device::transfer_cb_t callback;
     };
 
-    using holder = std::variant<transfer_evt_t>;
+    struct perform_transfer_evt_t
+    {
+        hal::interface::i2c_device::transfer_desc &xfer_desc;
+    };
+
+    using holder = std::variant<schedule_transfer_evt_t, perform_transfer_evt_t>;
 };
 
-class i2c_manager_active : public i2c_manager_event, public active_object<i2c_manager_event::holder>, public hal::interface::i2c_device
+class i2c_manager : public i2c_manager_event, public active_object<i2c_manager_event::holder>, public hal::interface::i2c_device
 {
 public:
-    i2c_manager_active(hal::interface::i2c &drv) : active_object("i2c_manager", osPriorityHigh, 1024), i2c_device(drv)
+    i2c_manager(hal::interface::i2c &drv) : active_object("i2c_manager", osPriorityHigh, 1024), i2c_device(drv)
     {
-
+        this->semaphore = osSemaphoreNew(1, 0, nullptr);
+        assert(this->semaphore != nullptr);
     }
 
-    ~i2c_manager_active()
+    ~i2c_manager()
     {
-
+        osSemaphoreDelete(this->semaphore);
+        this->semaphore = nullptr;
     }
 
-    void transfer(transfer_desc &descriptor, const transfer_cb_t &callback) override
+    void transfer(transfer_desc &descriptor) override
+    {
+        const event e {perform_transfer_evt_t {descriptor}};
+
+        auto bytes_to_write = descriptor.tx_size;
+        auto bytes_to_read = descriptor.rx_size;
+
+        descriptor.stat = transfer_desc::status::pending;
+
+        this->send(e);
+
+        bool transfer_done = osSemaphoreAcquire(this->semaphore, osWaitForever) == osOK;
+
+        if (!transfer_done || (bytes_to_write != descriptor.tx_size) || (bytes_to_read != descriptor.rx_size))
+            descriptor.stat = transfer_desc::status::error;
+        else
+            descriptor.stat = transfer_desc::status::ok;
+    }
+
+    void transfer(const transfer_desc &descriptor, const transfer_cb_t &callback) override
     {
         const event e
         {
-            transfer_evt_t
+            schedule_transfer_evt_t
             {
                 descriptor.address,
                 std::vector<std::byte>(descriptor.tx_data, descriptor.tx_data + descriptor.tx_size),
@@ -106,17 +87,17 @@ public:
             }
         };
 
-        descriptor.stat = transfer_desc::status::pending;
         this->send(e);
     }
 private:
+    osSemaphoreId_t semaphore;
+
     void dispatch(const event &e) override
     {
         std::visit([this](const auto &e) { this->event_handler(e); }, e.data);
     }
 
-    /* Event handlers */
-    void event_handler(const transfer_evt_t &e)
+    void event_handler(const schedule_transfer_evt_t &e)
     {
         this->driver.set_address(e.address);
         this->driver.set_no_stop(e.rx.size() > 0);
@@ -133,11 +114,23 @@ private:
                 bytes_written,
                 const_cast<std::byte*>(e.rx.data()),
                 bytes_read,
-                (bytes_written != e.tx.size()) || (bytes_read != e.rx.size()) ? transfer_desc::status::error : transfer_desc::status::ok,
+                (bytes_written != e.tx.size()) || (bytes_read != e.rx.size()) ?
+                transfer_desc::status::error : transfer_desc::status::ok,
             };
 
             e.callback(descriptor);
         }
+    }
+
+    void event_handler(const perform_transfer_evt_t &e)
+    {
+        this->driver.set_address(e.xfer_desc.address);
+        this->driver.set_no_stop(e.xfer_desc.rx_size > 0);
+
+        e.xfer_desc.tx_size = this->driver.write(e.xfer_desc.tx_data, e.xfer_desc.tx_size);
+        e.xfer_desc.rx_size = this->driver.read(const_cast<std::byte*>(e.xfer_desc.rx_data), e.xfer_desc.rx_size);
+
+        osSemaphoreRelease(this->semaphore);
     }
 };
 
@@ -145,19 +138,11 @@ namespace i2c_managers
 {
     namespace main
     {
-
-        hal::interface::i2c_device & simple(void)
+        hal::interface::i2c_device & get_instance(void)
         {
-            static i2c_manager_simple i2c_main_manager { hal::i2c::main::get_instance() };
+            static i2c_manager i2c_main_manager { hal::i2c::main::get_instance() };
             return i2c_main_manager;
         }
-
-        hal::interface::i2c_device & active(void)
-        {
-            static i2c_manager_active i2c_main_manager { hal::i2c::main::get_instance() };
-            return i2c_main_manager;
-        }
-
     }
 }
 

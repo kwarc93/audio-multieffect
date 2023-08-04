@@ -56,19 +56,26 @@ namespace hal::interface
 
         struct transfer_desc
         {
-            uint8_t address;
-            const std::byte *tx_data;
-            std::size_t tx_size;
-            std::byte *rx_data;
-            std::size_t rx_size;
-            enum class status { ok, pending, error } stat;
+            uint8_t address {0};
+            const std::byte *tx_data {nullptr};
+            std::size_t tx_size {0};
+            std::byte *rx_data {nullptr};
+            std::size_t rx_size {0};
+            enum class status { ok, error, pending } stat {status::pending};
         };
 
         typedef std::function<void(const transfer_desc &transfer)> transfer_cb_t;
 
         i2c_device(i2c &drv) : driver {drv} {};
         virtual ~i2c_device() {};
-        virtual void transfer(transfer_desc &descriptor, const transfer_cb_t &callback) = 0;
+        virtual void transfer(transfer_desc &descriptor) = 0;
+        virtual void transfer(const transfer_desc &descriptor, const transfer_cb_t &callback)
+        {
+            transfer_desc desc {descriptor};
+            this->transfer(desc);
+            if (callback)
+                callback(desc);
+        };
     protected:
         i2c &driver;
     };

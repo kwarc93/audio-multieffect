@@ -37,10 +37,11 @@ std::byte i2c_sw::read(void)
     this->send_start();
     this->write_byte(std::byte((this->address << 1) | (1 << 0)));
 
+    std::byte byte { 0 };
+
     if (!this->detect_ack())
         goto cleanup;
 
-    std::byte byte;
     byte = this->read_byte();
     this->send_ack(true);
 
@@ -61,6 +62,7 @@ void i2c_sw::write(std::byte byte)
         goto cleanup;
 
     this->write_byte(byte);
+
     if (!this->detect_ack())
         goto cleanup;
 
@@ -86,7 +88,7 @@ std::size_t i2c_sw::read(std::byte *data, std::size_t size)
     if (data == nullptr || size == 0)
         return 0;
 
-   uint32_t bytes_read = 0;
+    std::size_t bytes_read = 0;
 
    this->send_start();
    this->write_byte(std::byte((this->address << 1) | (1 << 0)));
@@ -94,11 +96,9 @@ std::size_t i2c_sw::read(std::byte *data, std::size_t size)
    if (!this->detect_ack())
        goto cleanup;
 
-   std::byte *bytes_to_read;
-   bytes_to_read = data;
    do
    {
-       bytes_to_read[bytes_read++] = this->read_byte();
+       data[bytes_read++] = this->read_byte();
        this->send_ack(size == 1);
    }
    while (--size);
@@ -122,11 +122,9 @@ std::size_t i2c_sw::write(const std::byte *data, std::size_t size)
     if (!this->detect_ack())
         goto cleanup;
 
-    const std::byte *bytes_to_write;
-    bytes_to_write = data;
     do
     {
-        this->write_byte(bytes_to_write[bytes_written++]);
+        this->write_byte(data[bytes_written++]);
         if (!this->detect_ack())
             goto cleanup;
     }

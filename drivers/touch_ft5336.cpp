@@ -8,6 +8,8 @@
 
 #include "touch_ft5336.hpp"
 
+#include <cassert>
+
 using namespace drivers;
 
 //-----------------------------------------------------------------------------
@@ -170,11 +172,11 @@ using namespace drivers;
 
 uint8_t touch_ft5336::read_reg(uint8_t reg_addr)
 {
-    using xfer_desc = hal::interface::i2c_device::transfer_desc;
+    using transfer_desc = hal::interface::i2c_device::transfer_desc;
 
-    uint8_t reg_val { 0 };
+    uint8_t reg_val {0};
 
-    xfer_desc desc
+    transfer_desc desc
     {
         this->address,
         reinterpret_cast<const std::byte*>(&reg_addr),
@@ -183,35 +185,27 @@ uint8_t touch_ft5336::read_reg(uint8_t reg_addr)
         sizeof(reg_val)
     };
 
-    this->device.transfer(desc, [&desc](const xfer_desc &d)
-                                {
-                                    desc.stat = d.stat;
-                                    *desc.rx_data = *d.rx_data;
-                                    desc.rx_size = d.rx_size;
-                                });
-
-    /* FIXME: Solve this blocking somehow... */
-    while (desc.stat == xfer_desc::status::pending);
+    this->device.transfer(desc);
+    assert(desc.stat == transfer_desc::status::ok);
 
     return reg_val;
 }
 
 void touch_ft5336::write_reg(uint8_t reg_addr, uint8_t reg_val)
 {
-    using xfer_desc = hal::interface::i2c_device::transfer_desc;
+    using transfr_desc = hal::interface::i2c_device::transfer_desc;
 
-    std::array<std::byte, 2> tx {{ std::byte { reg_addr }, std::byte { reg_val } }};
+    std::array<std::byte, 2> tx {{ std::byte{reg_addr}, std::byte{reg_val} }};
 
-    xfer_desc desc
+    transfr_desc desc
     {
         this->address,
         tx.data(),
         sizeof(tx),
-        nullptr,
-        0
     };
 
-    this->device.transfer(desc, {});
+    this->device.transfer(desc);
+    assert(desc.stat == transfr_desc::status::ok);
 }
 
 //-----------------------------------------------------------------------------
