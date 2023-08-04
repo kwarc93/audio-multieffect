@@ -16,7 +16,7 @@ using namespace drivers;
 //-----------------------------------------------------------------------------
 /* public */
 
-button_gpio::button_gpio(gpio::io io, bool inverted) : io {io}, inverted {inverted}
+button_gpio::button_gpio(const gpio::io &io, bool inverted) : io {io}, inverted {inverted}
 {
     gpio::configure(this->io, gpio::mode::input, gpio::af::af0, gpio::pupd::pd);
 }

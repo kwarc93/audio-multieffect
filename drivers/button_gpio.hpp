@@ -17,7 +17,7 @@ namespace drivers
     class button_gpio : public hal::interface::button
     {
     public:
-        button_gpio(drivers::gpio::io io, bool inverted = false);
+        button_gpio(const drivers::gpio::io &io, bool inverted = false);
         bool is_pressed(void);
     private:
         drivers::gpio::io io;

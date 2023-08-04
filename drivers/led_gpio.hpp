@@ -17,7 +17,7 @@ namespace drivers
     class led_gpio : public hal::interface::led
     {
     public:
-        led_gpio(drivers::gpio::io io);
+        led_gpio(const drivers::gpio::io &io);
         void set(uint8_t brightness) override;
         uint8_t get(void) override;
 

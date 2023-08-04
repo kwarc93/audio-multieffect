@@ -10,3 +10,224 @@
 
 using namespace drivers;
 
+//-----------------------------------------------------------------------------
+/* helpers */
+
+/* Current mode register of the FT5336 (R/W) */
+#define FT5336_DEV_MODE_REG         0x00
+
+/* Gesture ID register */
+#define FT5336_GEST_ID_REG          0x01
+
+/* Touch Data Status register : gives number of active touch points (0..2) */
+#define FT5336_TD_STAT_REG          0x02
+
+/* P1 X, Y coordinates, weight and misc registers */
+#define FT5336_P1_XH_REG            0x03U
+#define FT5336_P1_XL_REG            0x04U
+#define FT5336_P1_YH_REG            0x05U
+#define FT5336_P1_YL_REG            0x06U
+#define FT5336_P1_WEIGHT_REG        0x07U
+#define FT5336_P1_MISC_REG          0x08U
+
+/* P2 X, Y coordinates, weight and misc registers */
+#define FT5336_P2_XH_REG            0x09U
+#define FT5336_P2_XL_REG            0x0AU
+#define FT5336_P2_YH_REG            0x0BU
+#define FT5336_P2_YL_REG            0x0CU
+#define FT5336_P2_WEIGHT_REG        0x0DU
+#define FT5336_P2_MISC_REG          0x0EU
+
+/* P3 X, Y coordinates, weight and misc registers */
+#define FT5336_P3_XH_REG            0x0FU
+#define FT5336_P3_XL_REG            0x10U
+#define FT5336_P3_YH_REG            0x11U
+#define FT5336_P3_YL_REG            0x12U
+#define FT5336_P3_WEIGHT_REG        0x13U
+#define FT5336_P3_MISC_REG          0x14U
+
+/* P4 X, Y coordinates, weight and misc registers */
+#define FT5336_P4_XH_REG            0x15U
+#define FT5336_P4_XL_REG            0x16U
+#define FT5336_P4_YH_REG            0x17U
+#define FT5336_P4_YL_REG            0x18U
+#define FT5336_P4_WEIGHT_REG        0x19U
+#define FT5336_P4_MISC_REG          0x1AU
+
+/* P5 X, Y coordinates, weight and misc registers */
+#define FT5336_P5_XH_REG            0x1BU
+#define FT5336_P5_XL_REG            0x1CU
+#define FT5336_P5_YH_REG            0x1DU
+#define FT5336_P5_YL_REG            0x1EU
+#define FT5336_P5_WEIGHT_REG        0x1FU
+#define FT5336_P5_MISC_REG          0x20U
+
+/* P6 X, Y coordinates, weight and misc registers */
+#define FT5336_P6_XH_REG            0x21U
+#define FT5336_P6_XL_REG            0x22U
+#define FT5336_P6_YH_REG            0x23U
+#define FT5336_P6_YL_REG            0x24U
+#define FT5336_P6_WEIGHT_REG        0x25U
+#define FT5336_P6_MISC_REG          0x26U
+
+/* P7 X, Y coordinates, weight and misc registers */
+#define FT5336_P7_XH_REG            0x27U
+#define FT5336_P7_XL_REG            0x28U
+#define FT5336_P7_YH_REG            0x29U
+#define FT5336_P7_YL_REG            0x2AU
+#define FT5336_P7_WEIGHT_REG        0x2BU
+#define FT5336_P7_MISC_REG          0x2CU
+
+/* P8 X, Y coordinates, weight and misc registers */
+#define FT5336_P8_XH_REG            0x2DU
+#define FT5336_P8_XL_REG            0x2EU
+#define FT5336_P8_YH_REG            0x2FU
+#define FT5336_P8_YL_REG            0x30U
+#define FT5336_P8_WEIGHT_REG        0x31U
+#define FT5336_P8_MISC_REG          0x32U
+
+/* P9 X, Y coordinates, weight and misc registers */
+#define FT5336_P9_XH_REG            0x33U
+#define FT5336_P9_XL_REG            0x34U
+#define FT5336_P9_YH_REG            0x35U
+#define FT5336_P9_YL_REG            0x36U
+#define FT5336_P9_WEIGHT_REG        0x37U
+#define FT5336_P9_MISC_REG          0x38U
+
+/* P10 X, Y coordinates, weight and misc registers */
+#define FT5336_P10_XH_REG           0x39U
+#define FT5336_P10_XL_REG           0x3AU
+#define FT5336_P10_YH_REG           0x3BU
+#define FT5336_P10_YL_REG           0x3CU
+#define FT5336_P10_WEIGHT_REG       0x3DU
+#define FT5336_P10_MISC_REG         0x3EU
+
+/* Threshold for touch detection */
+#define FT5336_TH_GROUP_REG         0x80
+
+/* Filter function coefficients */
+#define FT5336_TH_DIFF_REG          0x85
+
+/* Control register */
+#define FT5336_CTRL_REG             0x86
+
+/* The time period of switching from Active mode to Monitor mode when there is no touching */
+#define FT5336_TIMEENTERMONITOR_REG 0x87
+
+/* Report rate in Active mode */
+#define FT5336_PERIODACTIVE_REG     0x88
+
+/* Report rate in Monitor mode */
+#define FT5336_PERIODMONITOR_REG    0x89
+
+/* The value of the minimum allowed angle while Rotating gesture mode */
+#define FT5336_RADIAN_VALUE_REG     0x91
+
+/* Maximum offset while Moving Left and Moving Right gesture */
+#define FT5336_OFFSET_LR_REG        0x92
+
+/* Maximum offset while Moving Up and Moving Down gesture */
+#define FT5336_OFFSET_UD_REG        0x93
+
+/* Minimum distance while Moving Left and Moving Right gesture */
+#define FT5336_DISTANCE_LR_REG      0x94
+
+/* Minimum distance while Moving Up and Moving Down gesture */
+#define FT5336_DISTANCE_UD_REG      0x95
+
+/* Maximum distance while Zoom In and Zoom Out gesture */
+#define FT5336_DISTANCE_ZOOM_REG    0x96
+
+/* High 8-bit of LIB Version info */
+#define FT5336_LIB_VER_H_REG        0xA1
+
+/* Low 8-bit of LIB Version info */
+#define FT5336_LIB_VER_L_REG        0xA2
+
+/* Chip Selecting */
+#define FT5336_CIPHER_REG           0xA3
+
+/* Interrupt mode register (used when in interrupt mode) */
+#define FT5336_GMODE_REG            0xA4
+
+/* Current power mode the FT5336 system is in (R) */
+#define FT5336_PWR_MODE_REG         0xA5
+
+/* FT5336 firmware version */
+#define FT5336_FIRMID_REG           0xA6
+
+/* FT5336 Chip identification register */
+#define FT5336_CHIP_ID_REG          0xA8
+
+/* Release code version */
+#define FT5336_RELEASE_CODE_ID_REG  0xAF
+
+/* Current operating mode the FT5336 system is in (R) */
+#define FT5336_STATE_REG            0xBC
+
+//-----------------------------------------------------------------------------
+/* private */
+
+uint8_t touch_ft5336::read_reg(uint8_t reg_addr)
+{
+    using xfer_desc = hal::interface::i2c_device::transfer_desc;
+
+    uint8_t reg_val { 0 };
+
+    xfer_desc desc
+    {
+        this->address,
+        reinterpret_cast<const std::byte*>(&reg_addr),
+        sizeof(reg_addr),
+        reinterpret_cast<std::byte*>(&reg_val),
+        sizeof(reg_val)
+    };
+
+    this->device.transfer(desc, [&desc](const xfer_desc &d)
+                                {
+                                    desc.stat = d.stat;
+                                    *desc.rx_data = *d.rx_data;
+                                    desc.rx_size = d.rx_size;
+                                });
+
+    /* FIXME: Solve this blocking somehow... */
+    while (desc.stat == xfer_desc::status::pending);
+
+    return reg_val;
+}
+
+void touch_ft5336::write_reg(uint8_t reg_addr, uint8_t reg_val)
+{
+    using xfer_desc = hal::interface::i2c_device::transfer_desc;
+
+    std::array<std::byte, 2> tx {{ std::byte { reg_addr }, std::byte { reg_val } }};
+
+    xfer_desc desc
+    {
+        this->address,
+        tx.data(),
+        sizeof(tx),
+        nullptr,
+        0
+    };
+
+    this->device.transfer(desc, {});
+}
+
+//-----------------------------------------------------------------------------
+/* public */
+
+touch_ft5336::touch_ft5336(hal::interface::i2c_device &dev, uint8_t addr) : device {dev}, address {addr}
+{
+
+}
+
+touch_ft5336::~touch_ft5336()
+{
+
+}
+
+uint8_t touch_ft5336::read_id(void)
+{
+    return this->read_reg(FT5336_CHIP_ID_REG);
+}

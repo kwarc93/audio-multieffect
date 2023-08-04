@@ -10,6 +10,8 @@
 #include <cassert>
 #include <cstdio>
 
+#include <drivers/touch_ft5336.hpp>
+
 #include <hal/hal_system.hpp>
 #include <hal/hal_delay.hpp>
 #include <hal/hal_led.hpp>
@@ -39,21 +41,19 @@ void init_thread(void *arg)
     printf("SDRAM memtest %s! Duration: %lu ms\n", result ? "failed" : "passed", test_time);
     assert(result == 0);
 
-    /* Create and test active objects */
-
     /* Test of 'i2c_manager' */
-    auto &i2c_man = middlewares::i2c_managers::main::active();
-    uint16_t reg;
-    hal::interface::i2c_device::transfer_desc desc
+    auto touch = drivers::touch_ft5336 { middlewares::i2c_managers::main::active() };
+    tick_start = osKernelGetTickCount();
+    uint32_t cnt = 1000;
+    while (cnt--)
     {
-        3,
-        reinterpret_cast<const std::byte*>("test"),
-        4,
-        reinterpret_cast<std::byte*>(&reg),
-        sizeof(reg)
-    };
+        uint8_t id = touch.read_id();
+        assert(id == drivers::touch_ft5336::FT5336_ID);
+    }
+    test_time = osKernelGetTickCount() - tick_start;
+    printf("I2C test %s! Duration: %lu ms\n", false ? "failed" : "passed", test_time);
 
-    i2c_man.transfer(desc, [](const hal::interface::i2c_device::transfer_desc &d) {});
+    /* Create and test active objects */
 
     /* Test of Active Object 'gui' */
     auto gui_ao = std::make_unique<gui>();
