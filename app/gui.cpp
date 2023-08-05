@@ -77,7 +77,7 @@ void gui_timer_callback(void *arg)
 /* public */
 
 gui::gui() : active_object("gui", osPriorityNormal, 4096),
-             display {middlewares::i2c_managers::main::get_instance()}
+display {middlewares::i2c_managers::main::get_instance()}
 {
     lv_init();
 
@@ -133,7 +133,7 @@ void gui::event_handler(const timer_evt_t &e)
 
 void gui::event_handler(const demo_test_evt_t &e)
 {
-    lv_demo_music();
+    lv_demo_widgets();
 }
 
 

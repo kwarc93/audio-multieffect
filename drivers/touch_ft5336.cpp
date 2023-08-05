@@ -16,13 +16,15 @@ using namespace drivers;
 /* helpers */
 
 /* Current mode register of the FT5336 (R/W) */
-#define FT5336_DEV_MODE_REG         0x00
+#define FT5336_DEV_MODE_REG         0x00U
 
 /* Gesture ID register */
-#define FT5336_GEST_ID_REG          0x01
+#define FT5336_GEST_ID_REG          0x01U
 
 /* Touch Data Status register : gives number of active touch points (0..2) */
-#define FT5336_TD_STAT_REG          0x02
+#define FT5336_TD_STAT_REG          0x02U
+#define FT5336_TD_STAT_MASK         0x0FU
+#define FT5336_TD_STAT_SHIFT        0x00U
 
 /* P1 X, Y coordinates, weight and misc registers */
 #define FT5336_P1_XH_REG            0x03U
@@ -103,6 +105,13 @@ using namespace drivers;
 #define FT5336_P10_YL_REG           0x3CU
 #define FT5336_P10_WEIGHT_REG       0x3DU
 #define FT5336_P10_MISC_REG         0x3EU
+
+/* Values Pn_XL and Pn_YL related */
+#define FT5336_TOUCH_POS_MSB_MASK   0x0FU
+#define FT5336_TOUCH_POS_MSB_SHIFT  0x00U
+
+#define FT5336_TOUCH_POS_LSB_MASK   0xFFU
+#define FT5336_TOUCH_POS_LSB_SHIFT  0x00U
 
 /* Threshold for touch detection */
 #define FT5336_TH_GROUP_REG         0x80
@@ -239,18 +248,61 @@ void touch_ft5336::write_reg(uint8_t reg_addr, uint8_t reg_val)
     assert(desc.stat == transfr_desc::status::ok);
 }
 
+void touch_ft5336::read_reg_burst(uint8_t reg_addr, std::byte *reg_val, std::size_t size)
+{
+    using transfer_desc = hal::interface::i2c_device::transfer_desc;
+
+    transfer_desc desc
+    {
+        this->address,
+        reinterpret_cast<const std::byte*>(&reg_addr),
+        sizeof(reg_addr),
+        reg_val,
+        size
+    };
+
+    this->device.transfer(desc);
+    assert(desc.stat == transfer_desc::status::ok);
+}
+
 uint8_t touch_ft5336::read_id(void)
 {
     return this->read_reg(FT5336_CHIP_ID_REG);
 }
 
+uint8_t touch_ft5336::detect_touch(void)
+{
+    /* TODO: Add support for multi-touch */
+
+    uint8_t touch_number = this->read_reg(FT5336_TD_STAT_REG) & FT5336_TD_STAT_MASK;
+
+    /* If invalid number of touch detected, set it to zero */
+    return touch_number > FT5336_MAX_NB_TOUCH ? 0 : touch_number;
+}
+
+void touch_ft5336::get_xy(uint16_t &x, uint16_t &y)
+{
+    /* TODO: Add support for multi-touch */
+
+    struct xy
+    {
+        uint8_t xh, xl, yh, yl;
+    };
+
+    xy regs {0, 0, 0, 0};
+    this->read_reg_burst(FT5336_P1_XH_REG, reinterpret_cast<std::byte*>(&regs), sizeof(regs));
+    x = (regs.xh & FT5336_TOUCH_POS_MSB_MASK) << 8 | (regs.xl & FT5336_TOUCH_POS_LSB_MASK);
+    y = (regs.yh & FT5336_TOUCH_POS_MSB_MASK) << 8 | (regs.yl & FT5336_TOUCH_POS_LSB_MASK);
+}
+
 //-----------------------------------------------------------------------------
 /* public */
 
-touch_ft5336::touch_ft5336(hal::interface::i2c_device &dev, uint8_t addr = default_i2c_address) :
-device {dev}, address {addr}, x_size {0}, y_size {0}, orientation {orient::normal}
+touch_ft5336::touch_ft5336(hal::interface::i2c_device &dev, uint8_t addr = default_i2c_address, touch_ft5336::orientation ori = orientation::mirror_xy) :
+device {dev}, address {addr}, orient {ori}
 {
-
+    uint8_t id = this->read_id();
+    assert(id == FT5336_ID);
 }
 
 touch_ft5336::~touch_ft5336()
@@ -258,14 +310,32 @@ touch_ft5336::~touch_ft5336()
 
 }
 
-void touch_ft5336::configure(uint16_t x_size, uint16_t y_size, orient orientation)
-{
-    this->x_size = x_size;
-    this->y_size = y_size;
-    this->orientation = orientation;
-}
-
 bool touch_ft5336::get_touch(int16_t &x, int16_t &y)
 {
-    return false;
+    if (this->detect_touch() == 0)
+        return false;
+
+    uint16_t raw_x, raw_y;
+    this->get_xy(raw_x, raw_y);
+
+    switch (this->orient)
+    {
+    case orientation::normal:
+    default:
+        x = raw_x;
+        y = raw_y;
+        break;
+    case orientation::mirror_x:
+        x = 480 - raw_x;
+        break;
+    case orientation::mirror_y:
+        y = 272 - raw_y;
+        break;
+    case orientation::mirror_xy:
+        y = raw_x;
+        x = raw_y;
+        break;
+    }
+
+    return true;
 }
