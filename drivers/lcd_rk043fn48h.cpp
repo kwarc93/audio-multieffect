@@ -33,8 +33,6 @@ using namespace drivers;
 //-----------------------------------------------------------------------------
 /* private */
 
-#define LCD_RK043FN48H_USE_DMA2D        (1)
-#define LCD_RK043FN48H_USE_VSYNC_IRQ    (0)
 
 //-----------------------------------------------------------------------------
 /* public */
@@ -102,7 +100,7 @@ glcd_rk043fn48h::glcd_rk043fn48h(const std::array<const drivers::gpio::io, 29> &
         },
 
         /* IRQ enable */
-        LCD_RK043FN48H_USE_VSYNC_IRQ
+        use_vsync_irq
     };
 
     ltdc::configure(cfg);
@@ -126,9 +124,7 @@ glcd_rk043fn48h::glcd_rk043fn48h(const std::array<const drivers::gpio::io, 29> &
     ltdc::layer::configure(ltdc_layer, layer_cfg);
     ltdc::layer::enable(ltdc_layer, true, false, false);
     ltdc::enable(true);
-#if LCD_RK043FN48H_USE_DMA2D
-    dma2d::enable(true);
-#endif
+    dma2d::enable(use_dma2d);
 }
 
 glcd_rk043fn48h::~glcd_rk043fn48h()
@@ -153,41 +149,45 @@ void glcd_rk043fn48h::draw_data(int16_t x0, int16_t y0, int16_t x1, int16_t y1, 
 {
     this->wait_for_vsync();
 
-#if LCD_RK043FN48H_USE_DMA2D
-    const dma2d::transfer_cfg cfg
+    if constexpr (use_dma2d)
     {
-        this->draw_callback,
-        dma2d::mode::mem_to_mem,
-        dma2d::color::RGB565,
-        255,
-        data,
-        this->frame_buffer,
-        this->width(), this->height(),
-        x0, y0, x1, y1,
-        this->portrait_mode
-    };
-
-    dma2d::transfer(cfg);
-#else
-    if (!this->portrait_mode)
-    {
-        const int16_t w = x1 - x0 + 1;
-        for (int16_t y = y0; y <= y1 && y < static_cast<int16_t>(this->height()); y++)
+        const dma2d::transfer_cfg cfg
         {
-            memcpy(&this->frame_buffer[y * this->width() + x0], data, w * sizeof(pixel_t));
-            data += w;
-        }
+            this->draw_callback,
+            dma2d::mode::mem_to_mem,
+            dma2d::color::RGB565,
+            255,
+            data,
+            this->frame_buffer,
+            this->width(), this->height(),
+            x0, y0, x1, y1,
+            this->portrait_mode
+        };
+
+        dma2d::transfer(cfg);
     }
     else
     {
-        for (int16_t y = y0; y <= y1 && y < static_cast<int16_t>(this->height()); y++)
-            for (int16_t x = x0; x <= x1 && x < static_cast<int16_t>(this->width()); x++)
-                this->draw_pixel(x, y, *data++);
+        if (!this->portrait_mode)
+        {
+            const int16_t w = x1 - x0 + 1;
+            for (int16_t y = y0; y <= y1 && y < static_cast<int16_t>(this->height()); y++)
+            {
+                memcpy(&this->frame_buffer[y * this->width() + x0], data, w * sizeof(pixel_t));
+                data += w;
+            }
+        }
+        else
+        {
+            for (int16_t y = y0; y <= y1 && y < static_cast<int16_t>(this->height()); y++)
+                for (int16_t x = x0; x <= x1 && x < static_cast<int16_t>(this->width()); x++)
+                    this->draw_pixel(x, y, *data++);
+        }
+
+        if (this->draw_callback)
+            this->draw_callback();
     }
 
-    if (this->draw_callback)
-        this->draw_callback();
-#endif
 }
 
 void glcd_rk043fn48h::set_draw_callback(const draw_cb_t &callback)
@@ -202,14 +202,17 @@ void glcd_rk043fn48h::enable_vsync(bool state)
 
 void glcd_rk043fn48h::wait_for_vsync(void)
 {
-    if (this->vsync_enabled)
+    if (!this->vsync_enabled)
+        return;
+
+    if constexpr (use_vsync_irq)
     {
-#if LCD_RK043FN48H_USE_VSYNC_IRQ
         while(!this->vsync);
         this->vsync = false;
-#else
+    }
+    else
+    {
         ltdc::wait_for_vsync();
-#endif
     }
 }
 

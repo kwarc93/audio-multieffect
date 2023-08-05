@@ -12,6 +12,8 @@
 
 namespace hal::i2c
 {
+    constexpr bool use_software_i2c = false;
+
     namespace main
     {
         hal::interface::i2c & get_instance(void);

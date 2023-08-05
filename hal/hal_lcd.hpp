@@ -8,10 +8,9 @@
 #ifndef HAL_LCD_HPP_
 #define HAL_LCD_HPP_
 
+#include <utility>
 #include <drivers/lcd_rk043fn48h.hpp>
 #include <drivers/led_gpio.hpp>
-
-#define HAL_LCD_USE_DOUBLE_FRAMEBUF (0)
 
 namespace hal
 {
@@ -48,16 +47,13 @@ namespace hal
 
 namespace displays
 {
-    /* Full frame buffer for glcd driver */
-    __attribute__((section(".sdram"))) static drivers::glcd_rk043fn48h::framebuffer_t frame_buffer;
-#if HAL_LCD_USE_DOUBLE_FRAMEBUF
-    __attribute__((section(".sdram"))) static drivers::glcd_rk043fn48h::framebuffer_t frame_buffer2;
-#endif
-
     class main : public glcd<drivers::glcd_rk043fn48h::pixel_t>
     {
     public:
         using pixel_t = drivers::glcd_rk043fn48h::pixel_t;
+        using fb_t = drivers::glcd_rk043fn48h::framebuffer_t;
+
+        static constexpr bool use_double_framebuf = false;
 
         main() : glcd{ &lcd_drv, &backlight_drv } {};
 
@@ -65,6 +61,22 @@ namespace displays
         void set_frame_buffer(pixel_t *addr) { this->lcd_drv.set_frame_buffer(addr); };
         void set_draw_callback(const drivers::glcd_rk043fn48h::draw_cb_t &callback) { this->lcd_drv.set_draw_callback(callback); };
 
+        static inline const std::pair<fb_t&, fb_t&> & get_frame_buffers(void)
+        {
+            __attribute__((section(".sdram"))) static fb_t frame_buffer;
+
+            if constexpr (!use_double_framebuf)
+            {
+                static constexpr std::pair<fb_t&, fb_t&> fb {frame_buffer, frame_buffer};
+                return fb;
+            }
+            else
+            {
+                __attribute__((section(".sdram"))) static fb_t frame_buffer2;
+                static constexpr std::pair<fb_t&, fb_t&> fb {frame_buffer, frame_buffer2};
+                return fb;
+            }
+        }
     private:
         static constexpr std::array<const drivers::gpio::io, 29> lcd_ios =
         {{
@@ -106,7 +118,7 @@ namespace displays
             {drivers::gpio::port::porti, drivers::gpio::pin::pin12}, // LCD_EN
         }};
 
-        drivers::glcd_rk043fn48h lcd_drv { lcd_ios, frame_buffer };
+        drivers::glcd_rk043fn48h lcd_drv { lcd_ios, get_frame_buffers().first };
 
         const drivers::gpio::io backlight_io = { drivers::gpio::port::portk, drivers::gpio::pin::pin3 };
         drivers::led_gpio backlight_drv { backlight_io };
