@@ -10,6 +10,8 @@
 #include "libs/lvgl/lvgl.h"
 #include "libs/lvgl/demos/lv_demos.h"
 
+#include "middlewares/i2c_manager.hpp"
+
 //-----------------------------------------------------------------------------
 /* helpers */
 
@@ -55,7 +57,8 @@ void gui_timer_callback(void *arg)
 //-----------------------------------------------------------------------------
 /* public */
 
-gui::gui() : active_object("gui", osPriorityNormal, 4096)
+gui::gui() : active_object("gui", osPriorityNormal, 4096),
+display {middlewares::i2c_managers::main::get_instance()}
 {
     lv_init();
 
@@ -81,7 +84,7 @@ gui::gui() : active_object("gui", osPriorityNormal, 4096)
     lvgl_disp_drv.full_refresh = display.use_double_framebuf;
     lv_disp_drv_register(&lvgl_disp_drv);
 
-    display.enable_vsync(display.use_double_framebuf);
+    display.vsync(display.use_double_framebuf);
     display.set_draw_callback([](){ lv_disp_flush_ready(&lvgl_disp_drv); });
     display.backlight(true);
 

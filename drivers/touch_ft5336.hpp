@@ -8,52 +8,37 @@
 #ifndef TOUCH_FT5336_HPP_
 #define TOUCH_FT5336_HPP_
 
+#include <bitset>
+
 #include <hal/hal_interface.hpp>
 
 namespace drivers
 {
 
-class touch_ft5336
+class touch_ft5336 : public hal::interface::touch_panel
 {
 public:
-    /* Max detectable simultaneous touches */
-    static constexpr uint8_t FT5336_MAX_NB_TOUCH = 5;
+    static constexpr uint8_t default_i2c_address = 0b00111000;
 
-    /* Touch FT5336 IDs */
-    static constexpr uint8_t FT5336_ID = 0x51;
+    enum class orient { normal, swap_x, swap_y, swap_xy };
 
-    /* Possible values of FT5336_DEV_MODE_REG */
-    static constexpr uint8_t FT5336_DEV_MODE_WORKING = 0x00;
-    static constexpr uint8_t FT5336_DEV_MODE_FACTORY = 0x04;
-
-    /* Possible values of FT5336_GEST_ID_REG */
-    static constexpr uint8_t FT5336_GEST_ID_NO_GESTURE = 0x00;
-    static constexpr uint8_t FT5336_GEST_ID_MOVE_UP = 0x10;
-    static constexpr uint8_t FT5336_GEST_ID_MOVE_RIGHT = 0x14;
-    static constexpr uint8_t FT5336_GEST_ID_MOVE_DOWN = 0x18;
-    static constexpr uint8_t FT5336_GEST_ID_MOVE_LEFT = 0x1C;
-    static constexpr uint8_t FT5336_GEST_ID_ZOOM_IN = 0x48;
-    static constexpr uint8_t FT5336_GEST_ID_ZOOM_OUT = 0x49;
-
-    /* Values Pn_XH and Pn_YH related */
-    static constexpr uint8_t FT5336_TOUCH_EVT_FLAG_PRESS_DOWN = 0x00;
-    static constexpr uint8_t FT5336_TOUCH_EVT_FLAG_LIFT_UP = 0x01;
-    static constexpr uint8_t FT5336_TOUCH_EVT_FLAG_CONTACT = 0x02;
-    static constexpr uint8_t FT5336_TOUCH_EVT_FLAG_NO_EVENT = 0x03;
-
-    /* Possible values of FT5336_GMODE_REG */
-    static constexpr uint8_t FT5336_G_MODE_INTERRUPT_POLLING = 0x00;
-    static constexpr uint8_t FT5336_G_MODE_INTERRUPT_TRIGGER = 0x01;
-
-    touch_ft5336(hal::interface::i2c_device &dev, uint8_t addr = 0b00111000);
+    touch_ft5336(hal::interface::i2c_device &dev, uint8_t addr);
     ~touch_ft5336();
-    uint8_t read_id(void);
+
+    void configure(uint16_t x_size, uint16_t y_size, orient orientation);
+    bool get_touch(int16_t &x, int16_t &y);
 private:
     hal::interface::i2c_device &device;
-    uint8_t address;
+
+    const uint8_t address;
+    uint16_t x_size;
+    uint16_t y_size;
+    orient orientation;
 
     uint8_t read_reg(uint8_t reg_addr);
     void write_reg(uint8_t reg_addr, uint8_t reg_val);
+
+    uint8_t read_id(void);
 };
 
 }

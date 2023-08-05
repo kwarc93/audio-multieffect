@@ -53,17 +53,21 @@ i2c::i2c(id id, mode mode, speed speed) : hw {i2cx.at(id)}, operating_mode {mode
     uint32_t timing = I2C_GetTiming(rcc::get_bus_freq(this->hw.pbus.bus), speed == speed::standard ? 100000 : 400000);
     this->hw.reg->TIMINGR = timing;
 
-    /* Enable peripheral */
     this->hw.reg->CR1 |= I2C_CR1_PE;
 }
 
 i2c::~i2c()
 {
-
+    this->hw.reg->CR1 &= ~I2C_CR1_PE;
+    rcc::enable_periph_clock(this->hw.pbus, false);
+    gpio::configure(this->hw.io_sda, gpio::mode::analog);
+    gpio::configure(this->hw.io_scl, gpio::mode::analog);
 }
 
 void i2c::reset(void)
 {
+    while (this->hw.reg->ISR & I2C_ISR_BUSY);
+
     this->hw.reg->CR1 &= ~I2C_CR1_PE;
     while (this->hw.reg->CR1 & I2C_CR1_PE);
     this->hw.reg->CR1 |= I2C_CR1_PE;
@@ -90,6 +94,7 @@ void i2c::write(std::byte byte)
     {
         this->hw.reg->ICR |= I2C_ICR_NACKCF;
         this->hw.reg->CR2 |= I2C_CR2_STOP;
+        this->reset();
         return;
     }
 
@@ -116,6 +121,7 @@ std::size_t i2c::read(std::byte *data, std::size_t size)
         {
             this->hw.reg->ICR |= I2C_ICR_NACKCF;
             this->hw.reg->CR2 |= I2C_CR2_STOP;
+            this->reset();
             return bytes_to_read - size;
         }
 
@@ -147,6 +153,8 @@ std::size_t i2c::write(const std::byte *data, std::size_t size)
         if (this->hw.reg->ISR & I2C_ISR_NACKF)
         {
             this->hw.reg->ICR |= I2C_ICR_NACKCF;
+            this->hw.reg->CR2 |= I2C_CR2_STOP;
+            this->reset();
             return bytes_to_write - size;
         }
 

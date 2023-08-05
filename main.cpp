@@ -10,14 +10,7 @@
 #include <cassert>
 #include <cstdio>
 
-#include <drivers/touch_ft5336.hpp>
-
 #include <hal/hal_system.hpp>
-#include <hal/hal_delay.hpp>
-#include <hal/hal_led.hpp>
-#include <hal/hal_button.hpp>
-#include <hal/hal_sdram.hpp>
-#include <hal/hal_lcd.hpp>
 
 #include "cmsis_os2.h"
 
@@ -27,32 +20,8 @@
 #include "app/effects/effect_manager.hpp"
 #include "app/controller/controller.hpp"
 
-#include "middlewares/i2c_manager.hpp"
-
-#include "libs/memtest/memtest.h"
-
-
 void init_thread(void *arg)
 {
-    /* Test SDRAM */
-    uint32_t tick_start = osKernelGetTickCount();
-    int result  = memTestAll((datum*)hal::sdram::start_addr(), hal::sdram::size());
-    uint32_t test_time = osKernelGetTickCount() - tick_start;
-    printf("SDRAM memtest %s! Duration: %lu ms\n", result ? "failed" : "passed", test_time);
-    assert(result == 0);
-
-    /* Test of 'i2c_manager' */
-    auto touch = drivers::touch_ft5336 { middlewares::i2c_managers::main::get_instance() };
-    tick_start = osKernelGetTickCount();
-    uint32_t cnt = 1000;
-    while (cnt--)
-    {
-        uint8_t id = touch.read_id();
-        assert(id == drivers::touch_ft5336::FT5336_ID);
-    }
-    test_time = osKernelGetTickCount() - tick_start;
-    printf("I2C test %s! Duration: %lu ms\n", false ? "failed" : "passed", test_time);
-
     /* Create and test active objects */
 
     /* Test of Active Object 'gui' */

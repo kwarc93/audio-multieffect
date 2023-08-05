@@ -168,6 +168,37 @@ using namespace drivers;
 #define FT5336_STATE_REG            0xBC
 
 //-----------------------------------------------------------------------------
+
+/* Max detectable simultaneous touches */
+#define FT5336_MAX_NB_TOUCH              5U
+
+/* Touch FT5336 IDs */
+#define FT5336_ID                        0x51U
+
+/* Possible values of FT5336_DEV_MODE_REG */
+#define FT5336_DEV_MODE_WORKING          0x00U
+#define FT5336_DEV_MODE_FACTORY          0x04U
+
+/* Possible values of FT5336_GEST_ID_REG */
+#define FT5336_GEST_ID_NO_GESTURE        0x00U
+#define FT5336_GEST_ID_MOVE_UP           0x10U
+#define FT5336_GEST_ID_MOVE_RIGHT        0x14U
+#define FT5336_GEST_ID_MOVE_DOWN         0x18U
+#define FT5336_GEST_ID_MOVE_LEFT         0x1CU
+#define FT5336_GEST_ID_ZOOM_IN           0x48U
+#define FT5336_GEST_ID_ZOOM_OUT          0x49U
+
+/* Values Pn_XH and Pn_YH related */
+#define FT5336_TOUCH_EVT_FLAG_PRESS_DOWN 0x00U
+#define FT5336_TOUCH_EVT_FLAG_LIFT_UP    0x01U
+#define FT5336_TOUCH_EVT_FLAG_CONTACT    0x02U
+#define FT5336_TOUCH_EVT_FLAG_NO_EVENT   0x03U
+
+/* Possible values of FT5336_GMODE_REG */
+#define FT5336_G_MODE_INTERRUPT_POLLING  0x00U
+#define FT5336_G_MODE_INTERRUPT_TRIGGER  0x01U
+
+//-----------------------------------------------------------------------------
 /* private */
 
 uint8_t touch_ft5336::read_reg(uint8_t reg_addr)
@@ -208,10 +239,16 @@ void touch_ft5336::write_reg(uint8_t reg_addr, uint8_t reg_val)
     assert(desc.stat == transfr_desc::status::ok);
 }
 
+uint8_t touch_ft5336::read_id(void)
+{
+    return this->read_reg(FT5336_CHIP_ID_REG);
+}
+
 //-----------------------------------------------------------------------------
 /* public */
 
-touch_ft5336::touch_ft5336(hal::interface::i2c_device &dev, uint8_t addr) : device {dev}, address {addr}
+touch_ft5336::touch_ft5336(hal::interface::i2c_device &dev, uint8_t addr = default_i2c_address) :
+device {dev}, address {addr}, x_size {0}, y_size {0}, orientation {orient::normal}
 {
 
 }
@@ -221,7 +258,14 @@ touch_ft5336::~touch_ft5336()
 
 }
 
-uint8_t touch_ft5336::read_id(void)
+void touch_ft5336::configure(uint16_t x_size, uint16_t y_size, orient orientation)
 {
-    return this->read_reg(FT5336_CHIP_ID_REG);
+    this->x_size = x_size;
+    this->y_size = y_size;
+    this->orientation = orientation;
+}
+
+bool touch_ft5336::get_touch(int16_t &x, int16_t &y)
+{
+    return false;
 }

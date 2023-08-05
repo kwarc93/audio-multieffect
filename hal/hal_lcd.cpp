@@ -13,11 +13,10 @@
 
 using namespace hal;
 
-
 //-----------------------------------------------------------------------------
 /* helpers */
 
-template class glcd<drivers::glcd_rk043fn48h::pixel_t>;
+template class display<drivers::glcd_rk043fn48h::pixel_t>;
 
 //-----------------------------------------------------------------------------
 /* private */
@@ -26,57 +25,165 @@ template class glcd<drivers::glcd_rk043fn48h::pixel_t>;
 /* public */
 
 template <typename T>
-glcd<T>::glcd(hal::interface::glcd<T> *glcd, hal::interface::led *backlight)
-{
-    this->glcd_drv = glcd;
-    this->backlight_drv = backlight;
-}
-
-template <typename T>
-glcd<T>::~glcd()
+display<T>::display(hal::interface::glcd<T> *glcd, hal::interface::led *backlight, hal::interface::touch_panel *touch) :
+glcd_drv {glcd}, backlight_drv {backlight}, touch_drv {touch}
 {
 
 }
 
 template <typename T>
-void glcd<T>::backlight(bool state)
+display<T>::~display()
 {
-    this->backlight_drv->set(state);
+
 }
 
 template <typename T>
-uint16_t glcd<T>::width(void) const
+void display<T>::backlight(bool state)
 {
-    return this->glcd_drv->width();
+    if (this->backlight_drv)
+        this->backlight_drv->set(state);
 }
 
 template <typename T>
-uint16_t glcd<T>::height(void) const
+void display<T>::vsync(bool state)
 {
-    return this->glcd_drv->height();
+    if (this->glcd_drv)
+        this->glcd_drv->enable_vsync(state);
+}
+
+
+template <typename T>
+uint16_t display<T>::width(void) const
+{
+    if (this->glcd_drv)
+        return this->glcd_drv->width();
+    else
+        return 0;
 }
 
 template <typename T>
-uint8_t glcd<T>::bpp(void) const
+uint16_t display<T>::height(void) const
 {
-    return this->glcd_drv->bpp();
+    if (this->glcd_drv)
+        return this->glcd_drv->height();
+    else
+        return 0;
 }
 
 template <typename T>
-void glcd<T>::draw_pixel(int16_t x, int16_t y, pixel_t pixel)
+uint8_t display<T>::bpp(void) const
 {
-    this->glcd_drv->draw_pixel(x, y, pixel);
+    if (this->glcd_drv)
+        return this->glcd_drv->bpp();
+    else
+        return 0;
 }
 
 template <typename T>
-void glcd<T>::draw_data(int16_t x0, int16_t y0, int16_t x1, int16_t y1, pixel_t *data)
+void display<T>::draw_pixel(int16_t x, int16_t y, pixel_t pixel)
 {
-    this->glcd_drv->draw_data(x0, y0, x1, y1, data);
+    if (this->glcd_drv)
+        this->glcd_drv->draw_pixel(x, y, pixel);
 }
 
 template <typename T>
-void glcd<T>::enable_vsync(bool state)
+void display<T>::draw_data(int16_t x0, int16_t y0, int16_t x1, int16_t y1, pixel_t *data)
 {
-    this->glcd_drv->enable_vsync(state);
+    if (this->glcd_drv)
+        this->glcd_drv->draw_data(x0, y0, x1, y1, data);
+}
+
+template <typename T>
+bool display<T>::get_touch(int16_t &x, int16_t &y)
+{
+    if (this->touch_drv)
+        return this->touch_drv->get_touch(x, y);
+    else
+        return false;
+}
+
+//--------------------------------------------------------------------------
+/* main display */
+
+using namespace hal::displays;
+
+static constexpr std::array<const drivers::gpio::io, 29> main_lcd_ios =
+{{
+    /* R [0:7] */
+    {drivers::gpio::port::portj, drivers::gpio::pin::pin15},
+    {drivers::gpio::port::portj, drivers::gpio::pin::pin0},
+    {drivers::gpio::port::portj, drivers::gpio::pin::pin1},
+    {drivers::gpio::port::portj, drivers::gpio::pin::pin2},
+    {drivers::gpio::port::portj, drivers::gpio::pin::pin3},
+    {drivers::gpio::port::portj, drivers::gpio::pin::pin4},
+    {drivers::gpio::port::portj, drivers::gpio::pin::pin5},
+    {drivers::gpio::port::portj, drivers::gpio::pin::pin6},
+
+    /* G [0:7] */
+    {drivers::gpio::port::portj, drivers::gpio::pin::pin7},
+    {drivers::gpio::port::portj, drivers::gpio::pin::pin8},
+    {drivers::gpio::port::portj, drivers::gpio::pin::pin9},
+    {drivers::gpio::port::portj, drivers::gpio::pin::pin10},
+    {drivers::gpio::port::portj, drivers::gpio::pin::pin11},
+    {drivers::gpio::port::portk, drivers::gpio::pin::pin0},
+    {drivers::gpio::port::portk, drivers::gpio::pin::pin1},
+    {drivers::gpio::port::portk, drivers::gpio::pin::pin2},
+
+    /* B [0:7] */
+    {drivers::gpio::port::porte, drivers::gpio::pin::pin4},
+    {drivers::gpio::port::portj, drivers::gpio::pin::pin13},
+    {drivers::gpio::port::portj, drivers::gpio::pin::pin14},
+    {drivers::gpio::port::portj, drivers::gpio::pin::pin15},
+    {drivers::gpio::port::portg, drivers::gpio::pin::pin12},
+    {drivers::gpio::port::portk, drivers::gpio::pin::pin4},
+    {drivers::gpio::port::portk, drivers::gpio::pin::pin5},
+    {drivers::gpio::port::portk, drivers::gpio::pin::pin6},
+
+    /* Control lines */
+    {drivers::gpio::port::porti, drivers::gpio::pin::pin10}, // HSYNC
+    {drivers::gpio::port::porti, drivers::gpio::pin::pin9},  // VSYNC
+    {drivers::gpio::port::porti, drivers::gpio::pin::pin14}, // LCD_CLK
+    {drivers::gpio::port::portk, drivers::gpio::pin::pin7},  // LCD_DE
+    {drivers::gpio::port::porti, drivers::gpio::pin::pin12}, // LCD_EN
+}};
+
+main::main(hal::interface::i2c_device &i2c_dev) : display {&lcd_drv, &backlight_drv , &touch_drv},
+lcd_drv {main_lcd_ios, get_frame_buffers().first},
+backlight_drv {{drivers::gpio::port::portk, drivers::gpio::pin::pin3}},
+touch_drv {i2c_dev, drivers::touch_ft5336::default_i2c_address}
+{
+    this->touch_drv.configure(this->lcd_drv.width(), this->lcd_drv.height(), drivers::touch_ft5336::orient::normal);
+};
+
+void main::wait_for_vsync(void)
+{
+    this->lcd_drv.wait_for_vsync();
+}
+
+void main::set_frame_buffer(pixel_t *addr)
+{
+    this->lcd_drv.set_frame_buffer(addr);
+}
+
+void main::set_draw_callback(const drivers::glcd_rk043fn48h::draw_cb_t &callback)
+{
+    this->lcd_drv.set_draw_callback(callback);
+}
+
+const std::pair<main::fb_t&, main::fb_t&> & main::get_frame_buffers(void)
+{
+    __attribute__((section(".sdram"))) static fb_t frame_buffer;
+
+    if constexpr (!use_double_framebuf)
+    {
+        static constexpr std::pair<fb_t&, fb_t&> fb {frame_buffer, frame_buffer};
+        return fb;
+    }
+    else
+    {
+        __attribute__((section(".sdram"))) static fb_t frame_buffer2;
+        static constexpr std::pair<fb_t&, fb_t&> fb {frame_buffer, frame_buffer2};
+        return fb;
+    }
 }
 

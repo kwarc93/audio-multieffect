@@ -119,6 +119,19 @@ namespace hal::interface
 
         virtual void enable_vsync(bool state) = 0;
     };
+
+    class touch_panel
+    {
+    public:
+        typedef std::function<void(int16_t x, int16_t y)> touch_cb_t;
+
+        touch_panel(const touch_cb_t &callback = {}) : touch_callback {callback} {};
+        virtual ~touch_panel() {};
+
+        virtual bool get_touch(int16_t &x, int16_t &y) = 0;
+    protected:
+        touch_cb_t touch_callback;
+    };
 }
 
 #endif /* HAL_INTERFACE_HPP_ */
