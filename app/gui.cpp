@@ -19,6 +19,7 @@ namespace
 {
 
 lv_disp_drv_t lvgl_disp_drv;
+lv_indev_drv_t lvgl_indev_drv;
 lv_disp_draw_buf_t lvgl_draw_buf;
 
 void lvgl_disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p)
@@ -44,6 +45,24 @@ void lvgl_disp_render_start(struct _lv_disp_drv_t * disp_drv)
     display->wait_for_vsync();
 }
 
+void lvgl_input_read(lv_indev_drv_t * drv, lv_indev_data_t * data)
+{
+    using display_t = hal::displays::main;
+    display_t *display = static_cast<display_t*>(drv->user_data);
+
+    int16_t x,y;
+    if (display->get_touch(x, y))
+    {
+        data->point.x = x;
+        data->point.y = y;
+        data->state = LV_INDEV_STATE_PRESSED;
+    }
+    else
+    {
+        data->state = LV_INDEV_STATE_RELEASED;
+    }
+}
+
 void gui_timer_callback(void *arg)
 {
     gui *gui_ao = static_cast<gui*>(arg);
@@ -58,7 +77,7 @@ void gui_timer_callback(void *arg)
 /* public */
 
 gui::gui() : active_object("gui", osPriorityNormal, 4096),
-display {middlewares::i2c_managers::main::get_instance()}
+             display {middlewares::i2c_managers::main::get_instance()}
 {
     lv_init();
 
@@ -83,6 +102,12 @@ display {middlewares::i2c_managers::main::get_instance()}
     lvgl_disp_drv.draw_buf = &lvgl_draw_buf;
     lvgl_disp_drv.full_refresh = display.use_double_framebuf;
     lv_disp_drv_register(&lvgl_disp_drv);
+
+    lv_indev_drv_init(&lvgl_indev_drv);
+    lvgl_indev_drv.type = LV_INDEV_TYPE_POINTER;
+    lvgl_indev_drv.read_cb = lvgl_input_read;
+    lvgl_indev_drv.user_data = &this->display;
+    lv_indev_drv_register(&lvgl_indev_drv);
 
     display.vsync(display.use_double_framebuf);
     display.set_draw_callback([](){ lv_disp_flush_ready(&lvgl_disp_drv); });
