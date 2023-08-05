@@ -25,12 +25,12 @@ public:
     enum class speed { standard, fast };
 
     i2c_sw(gpio::io sda, gpio::io scl, mode mode, speed speed);
-    std::byte read(void);
-    void write(std::byte byte);
-    std::size_t read(std::byte *data, std::size_t size);
-    std::size_t write(const std::byte *data, std::size_t size);
-    void read(std::byte *data, std::size_t size, const read_cb_t &callback);
-    void write(const std::byte *data, std::size_t size, const write_cb_t &callback);
+    std::byte read(void) override;
+    void write(std::byte byte) override;
+    std::size_t read(std::byte *data, std::size_t size) override;
+    std::size_t write(const std::byte *data, std::size_t size) override;
+    void read(std::byte *data, std::size_t size, const read_cb_t &callback) override;
+    void write(const std::byte *data, std::size_t size, const write_cb_t &callback) override;
 private:
     gpio::io sda_io, scl_io;
     mode operating_mode;

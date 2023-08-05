@@ -17,15 +17,26 @@ namespace drivers
 
 class i2c : public hal::interface::i2c
 {
-/* TODO*/
 public:
-    i2c() {};
-    std::byte read(void) { return std::byte(0); };
-    void write(std::byte byte) {};
-    std::size_t read(std::byte *data, std::size_t size) { return size; };
-    std::size_t write(const std::byte *data, std::size_t size) { return size; };
-    void read(std::byte *data, std::size_t size, const read_cb_t &callback) {};
-    void write(const std::byte *data, std::size_t size, const write_cb_t &callback) {};
+    struct i2c_hw;
+
+    enum class id { i2c1, i2c2, i2c3 };
+    enum class mode { master, slave };
+    enum class speed { standard, fast };
+
+    i2c(id id, mode mode, speed speed);
+    ~i2c();
+    void reset(void);
+    std::byte read(void) override;
+    void write(std::byte byte) override;
+    std::size_t read(std::byte *data, std::size_t size) override;
+    std::size_t write(const std::byte *data, std::size_t size) override;
+    void read(std::byte *data, std::size_t size, const read_cb_t &callback) override;
+    void write(const std::byte *data, std::size_t size, const write_cb_t &callback) override;
+private:
+    const i2c_hw &hw;
+    mode operating_mode;
+    speed bus_speed;
 };
 
 }

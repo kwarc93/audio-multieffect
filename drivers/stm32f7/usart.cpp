@@ -24,9 +24,9 @@ struct usart::usart_hw
     USART_TypeDef *const reg;
     rcc::periph_bus pbus;
 
-    gpio::af pin_af;
-    gpio::io tx_pin;
-    gpio::io rx_pin;
+    gpio::af io_af;
+    gpio::io io_tx;
+    gpio::io io_rx;
 };
 
 static const std::map<usart::id, usart::usart_hw> usartx =
@@ -35,12 +35,12 @@ static const std::map<usart::id, usart::usart_hw> usartx =
                          { gpio::port::porta, gpio::pin::pin9 }, { gpio::port::portb, gpio::pin::pin7 }}},
 };
 
-usart::usart(id id, uint32_t baudrate) : hw (usartx.at(id))
+usart::usart(id id, uint32_t baudrate) : hw {usartx.at(id)}
 {
     rcc::enable_periph_clock(this->hw.pbus, true);
 
-    gpio::configure(this->hw.tx_pin, gpio::mode::af, this->hw.pin_af);
-    gpio::configure(this->hw.rx_pin, gpio::mode::af, this->hw.pin_af);
+    gpio::configure(this->hw.io_tx, gpio::mode::af, this->hw.io_af);
+    gpio::configure(this->hw.io_rx, gpio::mode::af, this->hw.io_af);
 
     uint8_t object_id = static_cast<uint8_t>(id);
     if (object_id < this->instance.size())

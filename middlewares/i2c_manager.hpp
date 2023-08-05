@@ -103,6 +103,7 @@ private:
         this->driver.set_no_stop(e.rx.size() > 0);
 
         auto bytes_written = this->driver.write(e.tx.data(), e.tx.size());
+        this->driver.set_no_stop(false);
         auto bytes_read = this->driver.read(const_cast<std::byte*>(e.rx.data()), e.rx.size());
 
         if (e.callback)
@@ -128,6 +129,7 @@ private:
         this->driver.set_no_stop(e.xfer_desc.rx_size > 0);
 
         e.xfer_desc.tx_size = this->driver.write(e.xfer_desc.tx_data, e.xfer_desc.tx_size);
+        this->driver.set_no_stop(false);
         e.xfer_desc.rx_size = this->driver.read(const_cast<std::byte*>(e.xfer_desc.rx_data), e.xfer_desc.rx_size);
 
         osSemaphoreRelease(this->semaphore);
