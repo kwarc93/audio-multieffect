@@ -66,7 +66,8 @@ void ltdc::configure(const cfg &cfg)
                | (cfg.g << LTDC_BCCR_BCGREEN_Pos)
                | (cfg.b << LTDC_BCCR_BCBLUE_Pos);
 
-    LTDC->LIPCR = (cfg.v.sync + cfg.v.back_porch + cfg.v.height - 1) << LTDC_LIPCR_LIPOS_Pos;
+
+    LTDC->LIPCR = 0; // VSYNC start
 
     if (cfg.irq_enable)
     {

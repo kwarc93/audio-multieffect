@@ -170,6 +170,11 @@ void main::set_draw_callback(const drivers::glcd_rk043fn48h::draw_cb_t &callback
     this->lcd_drv.set_draw_callback(callback);
 }
 
+void main::set_vsync_callback(const drivers::glcd_rk043fn48h::vsync_cb_t &callback)
+{
+    this->lcd_drv.set_vsync_callback(callback);
+}
+
 const std::pair<main::fb_t&, main::fb_t&> & main::get_frame_buffers(void)
 {
     __attribute__((section(".sdram"))) static fb_t frame_buffer;

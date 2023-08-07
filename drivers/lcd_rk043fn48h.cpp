@@ -39,7 +39,6 @@ using namespace drivers;
 
 glcd_rk043fn48h::glcd_rk043fn48h(const std::array<const drivers::gpio::io, 29> &ios, framebuffer_t &frame_buffer, bool portrait_mode)
 {
-    this->vsync = false;
     this->vsync_enabled = false;
     this->portrait_mode = portrait_mode;
     this->frame_buffer = frame_buffer.data();
@@ -100,11 +99,10 @@ glcd_rk043fn48h::glcd_rk043fn48h(const std::array<const drivers::gpio::io, 29> &
         },
 
         /* IRQ enable */
-        use_vsync_irq
+        use_ltdc_irq
     };
 
     ltdc::configure(cfg);
-    ltdc::set_vsync_callback([this](void){ this->vsync = true; });
 
     const auto ltdc_layer = ltdc::layer::id::layer1;
 
@@ -205,15 +203,11 @@ void glcd_rk043fn48h::wait_for_vsync(void)
     if (!this->vsync_enabled)
         return;
 
-    if constexpr (use_vsync_irq)
-    {
-        while(!this->vsync);
-        this->vsync = false;
-    }
-    else
-    {
-        ltdc::wait_for_vsync();
-    }
+    ltdc::wait_for_vsync();
+}
+void glcd_rk043fn48h::set_vsync_callback(const vsync_cb_t &callback)
+{
+    ltdc::set_vsync_callback(callback);
 }
 
 void glcd_rk043fn48h::set_frame_buffer(pixel_t *addr)

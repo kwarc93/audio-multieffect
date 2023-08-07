@@ -22,7 +22,7 @@ class glcd_rk043fn48h : public hal::interface::glcd<uint16_t>
 {
 private:
     static constexpr bool use_dma2d = true;
-    static constexpr bool use_vsync_irq = false;
+    static constexpr bool use_ltdc_irq = true;
     static constexpr uint16_t width_px = 480;
     static constexpr uint16_t height_px = 272;
     static constexpr uint8_t bits_per_px = 5 + 6 + 5; // RGB565
@@ -31,6 +31,7 @@ public:
     using pixel_t = pixel_t;
     using framebuffer_t = std::array<pixel_t, width_px * height_px>;
     using draw_cb_t = std::function<void(void)>;
+    using vsync_cb_t = std::function<void(void)>;
 
     glcd_rk043fn48h(const std::array<const gpio::io, 29> &gpios, framebuffer_t &frame_buffer, bool portrait_mode = false);
     ~glcd_rk043fn48h();
@@ -45,6 +46,7 @@ public:
 
     void enable_vsync(bool state) override;
     void wait_for_vsync(void);
+    void set_vsync_callback(const vsync_cb_t &callback);
 
     void set_frame_buffer(pixel_t *addr);
     pixel_t *get_frame_buffer(void) const;
@@ -52,7 +54,6 @@ public:
 private:
     pixel_t *frame_buffer;
     draw_cb_t draw_callback;
-    volatile bool vsync;
     bool vsync_enabled;
     bool portrait_mode;
 };

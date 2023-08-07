@@ -55,13 +55,14 @@ namespace displays
         using pixel_t = drivers::glcd_rk043fn48h::pixel_t;
         using fb_t = drivers::glcd_rk043fn48h::framebuffer_t;
 
-        static constexpr bool use_double_framebuf = false;
+        static constexpr bool use_double_framebuf = true;
 
         main(hal::interface::i2c_device &i2c_dev);
 
         void wait_for_vsync(void);
         void set_frame_buffer(pixel_t *addr);
         void set_draw_callback(const drivers::glcd_rk043fn48h::draw_cb_t &callback);
+        void set_vsync_callback(const drivers::glcd_rk043fn48h::vsync_cb_t &callback);
         static const std::pair<fb_t&, fb_t&> & get_frame_buffers(void);
     private:
         drivers::glcd_rk043fn48h lcd_drv;

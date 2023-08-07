@@ -19,9 +19,9 @@ namespace drivers
 class ltdc final
 {
 public:
-    using vsync_cb_t = std::function<void(void)>;
-
     ltdc() = delete;
+
+    using vsync_cb_t = std::function<void(void)>;
 
     struct cfg
     {

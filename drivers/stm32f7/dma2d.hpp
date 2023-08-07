@@ -19,6 +19,8 @@ namespace drivers
 class dma2d final
 {
 public:
+    dma2d() = delete;
+
     using transfer_cb_t = std::function<void(void)>;
 
     enum class mode
@@ -63,6 +65,7 @@ public:
         int16_t x1, y1, x2, y2;
         bool rotate_90_deg;
     };
+
 
     static void enable(bool state);
 

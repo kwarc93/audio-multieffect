@@ -19,6 +19,7 @@ public:
     core() = delete;
 
     static void enable_cycles_counter(void);
+    static uint32_t get_cycles_counter(void);
 };
 
 class core_critical_section
