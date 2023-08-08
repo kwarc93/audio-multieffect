@@ -34,30 +34,29 @@ struct i2c_manager_event
 
     struct perform_transfer_evt_t
     {
-        hal::interface::i2c_device::transfer_desc &xfer_desc;
+        hal::interface::i2c_device::transfer_desc &descriptor;
+        osThreadId_t caller_thread_id;
     };
 
     using holder = std::variant<schedule_transfer_evt_t, perform_transfer_evt_t>;
 };
 
-class i2c_manager : public i2c_manager_event, public active_object<i2c_manager_event::holder>, public hal::interface::i2c_device
+class i2c_manager : private i2c_manager_event, private active_object<i2c_manager_event::holder>, public hal::interface::i2c_device
 {
 public:
     i2c_manager(hal::interface::i2c &drv) : active_object("i2c_manager", osPriorityHigh, 1024), i2c_device(drv)
     {
-        this->semaphore = osSemaphoreNew(1, 0, nullptr);
-        assert(this->semaphore != nullptr);
+
     }
 
     ~i2c_manager()
     {
-        osSemaphoreDelete(this->semaphore);
-        this->semaphore = nullptr;
+
     }
 
     void transfer(transfer_desc &descriptor) override
     {
-        const event e {perform_transfer_evt_t {descriptor}};
+        const event e {perform_transfer_evt_t {descriptor, osThreadGetId()}, event::flags::static_storage};
 
         auto bytes_to_write = descriptor.tx_size;
         auto bytes_to_read = descriptor.rx_size;
@@ -66,12 +65,10 @@ public:
 
         this->send(e);
 
-        bool transfer_done = osSemaphoreAcquire(this->semaphore, osWaitForever) == osOK;
+        bool transfer_done = osThreadFlagsWait(transfer_done_flag, osFlagsWaitAny, osWaitForever) == transfer_done_flag;
+        bool transfer_error = !transfer_done || (bytes_to_write != descriptor.tx_size) || (bytes_to_read != descriptor.rx_size);
 
-        if (!transfer_done || (bytes_to_write != descriptor.tx_size) || (bytes_to_read != descriptor.rx_size))
-            descriptor.stat = transfer_desc::status::error;
-        else
-            descriptor.stat = transfer_desc::status::ok;
+        descriptor.stat = transfer_error ? transfer_desc::status::error : transfer_desc::status::ok;
     }
 
     void transfer(const transfer_desc &descriptor, const transfer_cb_t &callback) override
@@ -90,7 +87,8 @@ public:
         this->send(e);
     }
 private:
-    osSemaphoreId_t semaphore;
+
+    static constexpr uint32_t transfer_done_flag = 1 << 0;
 
     void dispatch(const event &e) override
     {
@@ -125,14 +123,14 @@ private:
 
     void event_handler(const perform_transfer_evt_t &e)
     {
-        this->driver.set_address(e.xfer_desc.address);
-        this->driver.set_no_stop(e.xfer_desc.rx_size > 0);
+        this->driver.set_address(e.descriptor.address);
+        this->driver.set_no_stop(e.descriptor.rx_size > 0);
 
-        e.xfer_desc.tx_size = this->driver.write(e.xfer_desc.tx_data, e.xfer_desc.tx_size);
+        e.descriptor.tx_size = this->driver.write(e.descriptor.tx_data, e.descriptor.tx_size);
         this->driver.set_no_stop(false);
-        e.xfer_desc.rx_size = this->driver.read(const_cast<std::byte*>(e.xfer_desc.rx_data), e.xfer_desc.rx_size);
+        e.descriptor.rx_size = this->driver.read(const_cast<std::byte*>(e.descriptor.rx_data), e.descriptor.rx_size);
 
-        osSemaphoreRelease(this->semaphore);
+        osThreadFlagsSet(e.caller_thread_id, transfer_done_flag);
     }
 };
 
@@ -140,7 +138,7 @@ namespace i2c_managers
 {
     namespace main
     {
-        hal::interface::i2c_device & get_instance(void)
+        inline hal::interface::i2c_device & get_instance(void)
         {
             static i2c_manager i2c_main_manager { hal::i2c::main::get_instance() };
             return i2c_main_manager;
