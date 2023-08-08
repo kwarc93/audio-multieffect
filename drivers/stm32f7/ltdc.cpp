@@ -66,7 +66,7 @@ void ltdc::configure(const cfg &cfg)
                | (cfg.g << LTDC_BCCR_BCGREEN_Pos)
                | (cfg.b << LTDC_BCCR_BCBLUE_Pos);
 
-    LTDC->LIPCR = (cfg.v.sync + cfg.v.back_porch + cfg.v.height - 1) << LTDC_LIPCR_LIPOS_Pos;
+    LTDC->LIPCR = 0;
 
     if (cfg.irq_enable)
     {
@@ -167,7 +167,7 @@ void ltdc::layer::configure(id layer, const layer::cfg &cfg)
                      | (cfg.frame_buf_width * pixel_size.at(cfg.pix_fmt)) << LTDC_LxCFBLR_CFBP_Pos;
     layer_reg->CFBLNR = cfg.frame_buf_height << LTDC_LxCFBLNR_CFBLNBR_Pos;
 
-    LTDC->SRCR |= LTDC_SRCR_VBR;
+    LTDC->SRCR |= LTDC_SRCR_IMR;
 }
 
 void ltdc::layer::enable(id layer, bool layer_enable, bool color_keying_enable, bool clut_enable)
@@ -178,7 +178,7 @@ void ltdc::layer::enable(id layer, bool layer_enable, bool color_keying_enable, 
                   | color_keying_enable << LTDC_LxCR_COLKEN_Pos
                   | layer_enable << LTDC_LxCR_LEN_Pos;
 
-    LTDC->SRCR |= LTDC_SRCR_VBR;
+    LTDC->SRCR |= LTDC_SRCR_IMR;
 }
 
 void ltdc::layer::set_framebuf_addr(id layer, void *addr)

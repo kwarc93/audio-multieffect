@@ -8,6 +8,8 @@
 
 #include "touch_ft5336.hpp"
 
+#include <drivers/stm32f7/delay.hpp>
+
 #include <cassert>
 
 using namespace drivers;
@@ -301,6 +303,9 @@ void touch_ft5336::get_xy(uint16_t &x, uint16_t &y)
 touch_ft5336::touch_ft5336(hal::interface::i2c_device &dev, uint8_t addr = default_i2c_address, touch_ft5336::orientation ori = orientation::mirror_xy) :
 device {dev}, address {addr}, orient {ori}
 {
+    // Wait at least 200ms after power up before accessing registers
+    // Trsi timing (Time of starting to report point after resetting) from FT5336GQQ datasheet
+    drivers::delay::ms(200);
     uint8_t id = this->read_id();
     assert(id == FT5336_ID);
 }

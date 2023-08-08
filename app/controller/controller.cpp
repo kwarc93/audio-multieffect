@@ -19,7 +19,7 @@ void button_timer_cb(void *arg)
 
     button->debounce();
 
-    static controller::event e { controller::button_evt_t {}, controller::event::flags::static_storage };
+    static controller::event e { controller::button_evt_t {}, controller::event::flags::immutable };
 
     if (button->was_pressed())
     {

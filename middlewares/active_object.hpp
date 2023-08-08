@@ -24,7 +24,7 @@ public:
     {
         T data;
         uint32_t flags;
-        enum flags { static_storage = 1 << 0 };
+        enum flags { immutable = 1 << 0 };
         event(const T &data, uint32_t flags = 0) : data {data}, flags {flags} {}
     };
 
@@ -67,7 +67,7 @@ public:
     {
         const event *evt = nullptr;
 
-        if (e.flags & event::flags::static_storage)
+        if (e.flags & event::flags::immutable)
             evt = &e;
         else
             evt = new event(e);
@@ -94,7 +94,7 @@ private:
             {
                 this_->dispatch(*evt);
 
-                if (!((*evt).flags & event::flags::static_storage))
+                if (!((*evt).flags & event::flags::immutable))
                     delete evt;
             }
         }

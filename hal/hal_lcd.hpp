@@ -30,6 +30,7 @@ namespace hal
 
         void backlight(bool state);
         void vsync(bool state);
+        void set_vsync_callback(const typename hal::interface::glcd<pixel_t>::vsync_cb_t &callback);
 
         uint16_t width(void) const;
         uint16_t height(void) const;
@@ -59,7 +60,6 @@ namespace displays
 
         main(hal::interface::i2c_device &i2c_dev);
 
-        void wait_for_vsync(void);
         void set_frame_buffer(pixel_t *addr);
         void set_draw_callback(const drivers::glcd_rk043fn48h::draw_cb_t &callback);
         static const std::pair<fb_t&, fb_t&> & get_frame_buffers(void);

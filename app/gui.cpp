@@ -22,7 +22,7 @@ lv_disp_drv_t lvgl_disp_drv;
 lv_indev_drv_t lvgl_indev_drv;
 lv_disp_draw_buf_t lvgl_draw_buf;
 
-void lvgl_disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p)
+void lvgl_disp_flush(_lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p)
 {
     using display_t = hal::displays::main;
     display_t *display = static_cast<display_t*>(disp_drv->user_data);
@@ -38,17 +38,10 @@ void lvgl_disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_
     }
 }
 
-void lvgl_disp_render_start(struct _lv_disp_drv_t * disp_drv)
-{
-    using display_t = hal::displays::main;
-    display_t *display = static_cast<display_t*>(disp_drv->user_data);
-    display->wait_for_vsync();
-}
-
 void lvgl_input_read(lv_indev_drv_t * drv, lv_indev_data_t * data)
 {
     using display_t = hal::displays::main;
-    display_t *display = static_cast<display_t*>(drv->user_data);
+    display_t *display = static_cast<hal::displays::main*>(drv->user_data);
 
     int16_t x,y;
     if (display->get_touch(x, y))
@@ -67,7 +60,7 @@ void gui_timer_callback(void *arg)
 {
     gui *gui_ao = static_cast<gui*>(arg);
 
-    static const gui::event e { gui::timer_evt_t {}, gui::event::flags::static_storage };
+    static const gui::event e { gui::timer_evt_t {}, gui::event::flags::immutable };
     gui_ao->send(e);
 }
 
@@ -97,7 +90,6 @@ display {middlewares::i2c_managers::main::get_instance()}
     lvgl_disp_drv.hor_res = display.width();
     lvgl_disp_drv.ver_res = display.height();
     lvgl_disp_drv.flush_cb = lvgl_disp_flush;
-    lvgl_disp_drv.render_start_cb = lvgl_disp_render_start;
     lvgl_disp_drv.user_data = &this->display;
     lvgl_disp_drv.draw_buf = &lvgl_draw_buf;
     lvgl_disp_drv.full_refresh = display.use_double_framebuf;

@@ -48,7 +48,7 @@ void echo::character_received_callback(const std::byte *data, std::size_t bytes_
 
     if (queue_was_empty)
     {
-        static const echo::event e { echo_event::char_queue_not_empty_evt_t{}, echo::event::flags::static_storage };
+        static const echo::event e { echo_event::char_queue_not_empty_evt_t{}, echo::event::flags::immutable };
         this->send(e, 0);
     }
 }

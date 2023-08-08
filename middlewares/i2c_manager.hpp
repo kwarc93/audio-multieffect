@@ -56,7 +56,7 @@ public:
 
     void transfer(transfer_desc &descriptor) override
     {
-        const event e {perform_transfer_evt_t {descriptor, osThreadGetId()}, event::flags::static_storage};
+        const event e {perform_transfer_evt_t {descriptor, osThreadGetId()}, event::flags::immutable};
 
         auto bytes_to_write = descriptor.tx_size;
         auto bytes_to_read = descriptor.rx_size;

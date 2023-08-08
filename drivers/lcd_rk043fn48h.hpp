@@ -22,7 +22,7 @@ class glcd_rk043fn48h : public hal::interface::glcd<uint16_t>
 {
 private:
     static constexpr bool use_dma2d = true;
-    static constexpr bool use_vsync_irq = false;
+    static constexpr bool use_ltdc_irq = true;
     static constexpr uint16_t width_px = 480;
     static constexpr uint16_t height_px = 272;
     static constexpr uint8_t bits_per_px = 5 + 6 + 5; // RGB565
@@ -44,7 +44,7 @@ public:
     void set_draw_callback(const draw_cb_t &callback);
 
     void enable_vsync(bool state) override;
-    void wait_for_vsync(void);
+    void set_vsync_callback(const vsync_cb_t &callback) override;
 
     void set_frame_buffer(pixel_t *addr);
     pixel_t *get_frame_buffer(void) const;

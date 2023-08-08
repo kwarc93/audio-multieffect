@@ -51,6 +51,13 @@ void display<T>::vsync(bool state)
         this->glcd_drv->enable_vsync(state);
 }
 
+template <typename T>
+void display<T>::set_vsync_callback(const typename hal::interface::glcd<T>::vsync_cb_t &callback)
+{
+    if (this->glcd_drv)
+        this->glcd_drv->set_vsync_callback(callback);
+}
+
 
 template <typename T>
 uint16_t display<T>::width(void) const
@@ -154,11 +161,6 @@ touch_drv {i2c_dev, drivers::touch_ft5336::default_i2c_address, drivers::touch_f
 {
 
 };
-
-void main::wait_for_vsync(void)
-{
-    this->lcd_drv.wait_for_vsync();
-}
 
 void main::set_frame_buffer(pixel_t *addr)
 {

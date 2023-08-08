@@ -100,11 +100,10 @@ glcd_rk043fn48h::glcd_rk043fn48h(const std::array<const drivers::gpio::io, 29> &
         },
 
         /* IRQ enable */
-        use_vsync_irq
+        use_ltdc_irq
     };
 
     ltdc::configure(cfg);
-    ltdc::set_vsync_callback([this](void){ this->vsync = true; });
 
     const auto ltdc_layer = ltdc::layer::id::layer1;
 
@@ -147,7 +146,8 @@ void glcd_rk043fn48h::draw_pixel(int16_t x, int16_t y, pixel_t pixel)
 
 void glcd_rk043fn48h::draw_data(int16_t x0, int16_t y0, int16_t x1, int16_t y1, pixel_t *data)
 {
-    this->wait_for_vsync();
+    if (this->vsync_enabled)
+        ltdc::wait_for_vsync();
 
     if constexpr (use_dma2d)
     {
@@ -200,24 +200,16 @@ void glcd_rk043fn48h::enable_vsync(bool state)
     this->vsync_enabled = state;
 }
 
-void glcd_rk043fn48h::wait_for_vsync(void)
+void glcd_rk043fn48h::set_vsync_callback(const vsync_cb_t &callback)
 {
-    if (!this->vsync_enabled)
-        return;
-
-    if constexpr (use_vsync_irq)
-    {
-        while(!this->vsync);
-        this->vsync = false;
-    }
-    else
-    {
-        ltdc::wait_for_vsync();
-    }
+    ltdc::set_vsync_callback(callback);
 }
 
 void glcd_rk043fn48h::set_frame_buffer(pixel_t *addr)
 {
+    if (this->vsync_enabled)
+        ltdc::wait_for_vsync();
+
     ltdc::layer::set_framebuf_addr(ltdc::layer::id::layer1, addr);
     this->frame_buffer = static_cast<pixel_t*>(addr);
 }

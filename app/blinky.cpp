@@ -19,7 +19,7 @@ void blinky_timer_callback(void *arg)
 {
     blinky *blinky_ao = static_cast<blinky*>(arg);
 
-    static const blinky::event e { blinky::timer_evt_t {}, blinky::event::flags::static_storage };
+    static const blinky::event e { blinky::timer_evt_t {}, blinky::event::flags::immutable };
     blinky_ao->send(e);
 }
 
