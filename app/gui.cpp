@@ -48,7 +48,7 @@ void lvgl_disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_
 
         drivers::dma2d::transfer_cfg cfg
         {
-            [](){ osSemaphoreRelease(dma2d_semph);},
+            [](){ osSemaphoreRelease(dma2d_semph); },
                     drivers::dma2d::mode::mem_to_mem,
                     drivers::dma2d::color::RGB565,
             255,
@@ -62,28 +62,35 @@ void lvgl_disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_
         drivers::dma2d::transfer(cfg);
         osSemaphoreAcquire(dma2d_semph, osWaitForever);
 
-//        display->draw_data(area->x1, area->y1, area->x2, area->y2, reinterpret_cast<display_t::pixel_t*>(color_p));
 
         if (lv_disp_flush_is_last(disp_drv))
         {
 //            display->wait_for_vsync();
-            if (osSemaphoreGetCount(vsync_semph))
-            {
-                /* this means that lvgl rendered frame slower than refresh rate of LCD */
-                /* we must skip this and wait for next vsync */
-                osSemaphoreAcquire(vsync_semph, 0);
-            }
-            osSemaphoreAcquire(vsync_semph, osWaitForever);
+//            if (osSemaphoreGetCount(vsync_semph))
+//            {
+//                /* this means that lvgl rendered frame slower than refresh rate of LCD */
+//                /* we must skip this and wait for next vsync */
+//                osSemaphoreAcquire(vsync_semph, 0);
+//            }
+//            osSemaphoreAcquire(vsync_semph, osWaitForever);
 
             /* Set front buffer */
             display->set_frame_buffer(back_fb);
 
             /* Copy front buffer to back buffer */
-            cfg.src = back_fb;
-            cfg.dst = front_fb;
-            cfg.x1 = 0; cfg.y1 = 0; cfg.x2 = 480-1; cfg.y2 = 272-1;
-            drivers::dma2d::transfer(cfg);
-            osSemaphoreAcquire(dma2d_semph, osWaitForever);
+            drivers::dma2d::transfer_cfg cfg2
+            {
+                [](){ },
+                        drivers::dma2d::mode::mem_to_mem,
+                        drivers::dma2d::color::RGB565,
+                255,
+                back_fb,
+                front_fb,
+                480, 272,
+                0, 0, 480-1, 272-1,
+                false
+            };
+            drivers::dma2d::transfer(cfg2);
 
             front_fb = back_fb;
         }
@@ -206,7 +213,7 @@ void gui::event_handler(const timer_evt_t &e)
 
 void gui::event_handler(const demo_test_evt_t &e)
 {
-    lv_demo_widgets();
+    lv_demo_music();
 }
 
 
