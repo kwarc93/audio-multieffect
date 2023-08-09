@@ -50,6 +50,28 @@ namespace hal::interface
         bool no_stop;
     };
 
+    template<typename T>
+    class i2s : public io_bus<T>
+    {
+    public:
+        using sample_t = T;
+
+        struct transfer_desc
+        {
+            const T *tx_data {nullptr};
+            std::size_t tx_size {0};
+            T *rx_data {nullptr};
+            std::size_t rx_size {0};
+        };
+
+        typedef std::function<void(const transfer_desc &transfer)> transfer_cb_t;
+
+        virtual ~i2s() {};
+        virtual void transfer(const transfer_desc &transfer, const transfer_cb_t &callback, bool loop) = 0;
+    protected:
+
+    };
+
     class i2c_device
     {
     public:

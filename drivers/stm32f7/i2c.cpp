@@ -9,6 +9,8 @@
 
 #include <map>
 
+#include <cmsis/stm32f7xx.h>
+
 #include <drivers/stm32f7/rcc.hpp>
 #include <drivers/stm32f7/gpio.hpp>
 #include <drivers/stm32f7/i2c_timing_utility.h>

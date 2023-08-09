@@ -20,10 +20,7 @@ class usart : public hal::interface::serial
 public:
     struct usart_hw;
 
-    enum class id
-    {
-        usart1, usart2, usart3
-    };
+    enum class id { usart1, usart2, usart3 };
 
     usart(id id, uint32_t baudrate);
     ~usart();
@@ -36,7 +33,7 @@ public:
     void read(std::byte *data, std::size_t size, const read_cb_t &callback) override;
     void write(const std::byte *data, std::size_t size, const write_cb_t &callback) override;
 
-    void irq_handler(void);
+    void irq_handler(void); /* TODO: Specify usart ID for this handler */
 
     static inline std::array<usart*, 3> instance; /* Used for global access (e.g. from interrupt) */
 private:
