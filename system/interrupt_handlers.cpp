@@ -10,6 +10,7 @@
 #include <drivers/stm32f7/usart.hpp>
 #include <drivers/stm32f7/ltdc.hpp>
 #include <drivers/stm32f7/dma2d.hpp>
+#include <drivers/stm32f7/sai.hpp>
 
 //-----------------------------------------------------------------------------
 /* Core interrupt handlers */
@@ -67,4 +68,14 @@ extern "C" void LTDC_IRQHandler(void)
 extern "C" void DMA2D_IRQHandler(void)
 {
     drivers::dma2d::irq_handler();
+}
+
+extern "C" void DMA2_Stream4_IRQHandler(void)
+{
+    drivers::sai_base::dma_irq_handler(drivers::sai_base::id::sai2, drivers::sai_base::block::id::a);
+}
+
+extern "C" void DMA2_Stream6_IRQHandler(void)
+{
+    drivers::sai_base::dma_irq_handler(drivers::sai_base::id::sai2, drivers::sai_base::block::id::b);
 }

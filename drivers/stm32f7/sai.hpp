@@ -11,6 +11,7 @@
 #include <hal/hal_interface.hpp>
 
 #include <array>
+#include <functional>
 
 namespace drivers
 {
@@ -31,6 +32,8 @@ public:
     {
     public:
         struct block_hw;
+
+        typedef std::function<void(void)> dma_cb_t;
 
         enum class id { a, b };
         enum class mode_type { master_tx, master_rx, slave_tx, slave_rx };
@@ -57,19 +60,22 @@ public:
         explicit block(id id, sai_base *base);
         void enable(bool state);
         void configure(const config &cfg);
-        void configure_dma(void *data, uint16_t data_len, std::size_t data_width, bool circular);
+        void configure_dma(void *data, uint16_t data_len, std::size_t data_width, const dma_cb_t &cb, bool circular);
+        void dma_irq_handler(void);
     private:
         const block_hw &hw;
+        dma_cb_t dma_callback;
     };
 
-    block block_a;
-    block block_b;
 
     static inline std::array<sai_base*, 2> instance; /* Used for global access (e.g. from interrupt) */
+    static void dma_irq_handler(sai_base::id sai_id, sai_base::block::id block_id);
 
 private:
     const base_hw &hw;
-
+public:
+    block block_a;
+    block block_b;
 };
 
 template<typename T>

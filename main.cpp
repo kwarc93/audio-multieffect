@@ -36,10 +36,10 @@ void init_thread(void *arg)
     auto blinky_ao = std::make_unique<blinky>();
 
     /* Test of Active Object 'controller' */
-    controller ctrl;
+    auto ctrl = std::make_unique<controller>();
 
     /* Test of Active Object 'effect_manager' */
-    effect_manager em;
+    auto em = std::make_unique<effect_manager>();
 
     static const std::array<effect_manager::event, 8> em_events =
     {{
@@ -59,7 +59,7 @@ void init_thread(void *arg)
 
         for (const auto &e : em_events)
         {
-            em.send(e);
+            em->send(e);
             osDelay(500);
         }
 

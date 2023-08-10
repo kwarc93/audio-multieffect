@@ -21,6 +21,8 @@ using namespace drivers;
 //-----------------------------------------------------------------------------
 /* helpers */
 
+template class sai<int16_t>;
+
 namespace
 {
 
@@ -60,8 +62,16 @@ DMA_Stream_TypeDef *get_dma_stream_reg(sai_base::block::id id)
 {
     if (id == sai_base::block::id::a)
         return DMA2_Stream4;
-    else
+    else // id::b
         return DMA2_Stream6;
+}
+
+IRQn_Type get_dma_stream_irq(sai_base::block::id id)
+{
+    if (id == sai_base::block::id::a)
+        return DMA2_Stream4_IRQn;
+    else // id::b
+        return DMA2_Stream6_IRQn;
 }
 
 }
@@ -95,17 +105,17 @@ static const std::map<sai_base::id, sai_base::base_hw> saix
                           // BLOCK A
                           {
                             sai_base::block::id::a, SAI2_Block_A,
-                            std::make_optional<gpio::io>({ gpio::port::porti, gpio::pin::pin4 }),
-                            std::make_optional<gpio::io>({ gpio::port::porti, gpio::pin::pin5 }),
-                            std::make_optional<gpio::io>({ gpio::port::porti, gpio::pin::pin6 }),
-                            std::make_optional<gpio::io>({ gpio::port::porti, gpio::pin::pin7 })
+                            std::optional<gpio::io>({ gpio::port::porti, gpio::pin::pin4 }),
+                            std::optional<gpio::io>({ gpio::port::porti, gpio::pin::pin5 }),
+                            std::optional<gpio::io>({ gpio::port::porti, gpio::pin::pin6 }),
+                            std::optional<gpio::io>({ gpio::port::porti, gpio::pin::pin7 })
                           },
                           // BLOCK B
                           {
                             sai_base::block::id::b, SAI2_Block_B,
                             { /* unused */ },
                             { /* unused */ },
-                            std::make_optional<gpio::io>({ gpio::port::portg, gpio::pin::pin10 }),
+                            std::optional<gpio::io>({ gpio::port::portg, gpio::pin::pin10 }),
                             { /* unused */ }}
                           }
     },
@@ -114,14 +124,31 @@ static const std::map<sai_base::id, sai_base::base_hw> saix
 //-----------------------------------------------------------------------------
 /* public */
 
-sai_base::sai_base(id id) : block_a {block::id::a, this}, block_b {block::id::a, this}, hw {saix.at(id)}
+sai_base::sai_base(id id) : hw {saix.at(id)}, block_a {block::id::a, this}, block_b {block::id::b, this}
 {
+    /*
+     * Configure clock source for SAI at 192kHz
+     * @note 1. Clock source should be set to around 256 x desired max audio frequency
+     *       2. SAI clock source is PLLI2S output Q
+     */
+    RCC->DCKCFGR1 |= RCC_DCKCFGR1_SAI2SEL_0;
+    static const rcc::sai_i2s_pll i2s_pll_cfg
+    {
+        177,
+        2,
+        3,
+        2,
+        2, // 49.1(6)MHz, close to: 192kHz x 256 = 49.152MHz
+    };
+
+    rcc::set_i2s_pll(i2s_pll_cfg);
     rcc::enable_periph_clock(this->hw.pbus, true);
     rcc::enable_periph_clock(RCC_PERIPH_BUS(AHB1, DMA2), true);
 
     uint8_t object_id = static_cast<uint8_t>(id);
     if (object_id < this->instance.size())
         this->instance[object_id] = this;
+
 }
 
 sai_base::~sai_base()
@@ -141,19 +168,53 @@ sai_base::block::block(id id, sai_base *base) : hw{id == id::a ? base->hw.block_
         gpio::configure(this->hw.io_sd.value(), gpio::mode::af, base->hw.io_af);
     if (this->hw.io_fs)
         gpio::configure(this->hw.io_fs.value(), gpio::mode::af, base->hw.io_af);
-
-    if (id == id::a)
-    {
-        /* TODO: DMA IRQ: SAI2A: DMA2 CH3 Stream4 */
-        IRQn_Type nvic_irq = DMA2_Stream4_IRQn;
-        NVIC_SetPriority(DMA2_Stream4_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 5, 0 ));
-        NVIC_EnableIRQ(nvic_irq);
-    }
 }
 
 void sai_base::sync_with(id id)
 {
     /* TODO */
+}
+
+void sai_base::dma_irq_handler(sai_base::id sai_id, sai_base::block::id block_id)
+{
+    uint8_t object_id = static_cast<uint8_t>(sai_id);
+    if (object_id >= instance.size())
+        return;
+
+    sai_base *sai = instance[object_id];
+
+    if (block_id == sai_base::block::id::a)
+    {
+        /* Transfer complete */
+        if (DMA2->HISR & DMA_HISR_TCIF4)
+        {
+            DMA2->HIFCR &= ~DMA_HIFCR_CTCIF4;
+            sai->block_a.dma_irq_handler();
+        }
+
+        /* Half-transfer complete */
+        if (DMA2->HISR & DMA_HISR_HTIF4)
+        {
+            DMA2->HIFCR &= ~DMA_HIFCR_CHTIF4;
+            sai->block_a.dma_irq_handler();
+        }
+    }
+    else // id::b
+    {
+        /* Transfer complete */
+        if (DMA2->HISR & DMA_HISR_TCIF6)
+        {
+            DMA2->HIFCR &= ~DMA_HIFCR_CTCIF6;
+            sai->block_b.dma_irq_handler();
+        }
+
+        /* Half-transfer complete */
+        if (DMA2->HISR & DMA_HISR_HTIF6)
+        {
+            DMA2->HIFCR &= ~DMA_HIFCR_CHTIF6;
+            sai->block_b.dma_irq_handler();
+        }
+    }
 }
 
 void sai_base::block::enable(bool state)
@@ -197,7 +258,7 @@ void sai_base::block::configure(const config &cfg)
     this->hw.reg->SLOTR |= (3 << SAI_xSLOTR_SLOTEN_Pos); // Enable slot 0,1
 }
 
-void sai_base::block::configure_dma(void *data, uint16_t data_len, std::size_t data_width, bool circular)
+void sai_base::block::configure_dma(void *data, uint16_t data_len, std::size_t data_width, const dma_cb_t &cb, bool circular)
 {
     /* Enable DMA requests */
     this->hw.reg->CR1 |= SAI_xCR1_DMAEN;
@@ -221,7 +282,20 @@ void sai_base::block::configure_dma(void *data, uint16_t data_len, std::size_t d
     if (mode == mode_type::master_tx || mode == mode_type::slave_tx)
         dma_stream->CR |= 0b01 << DMA_SxCR_DIR_Pos; // Memory to peripheral
 
+    this->dma_callback = cb;
+
+    /* Enable NVIC interrupt */
+    IRQn_Type nvic_irq = get_dma_stream_irq(this->hw.id);
+    NVIC_SetPriority(nvic_irq, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 5, 0 ));
+    NVIC_EnableIRQ(nvic_irq);
+
     dma_stream->CR |= DMA_SxCR_EN; // DMA enable
+}
+
+void sai_base::block::dma_irq_handler(void)
+{
+    if (this->dma_callback)
+        this->dma_callback();
 }
 
 template<typename T>
@@ -241,8 +315,18 @@ void sai<T>::transfer(const typename hal::interface::i2s<T>::transfer_desc &tran
                       const typename hal::interface::i2s<T>::transfer_cb_t &callback,
                       bool loop)
 {
-    this->block_b.configure_dma(transfer.rx_data, transfer.rx_size, sizeof(*transfer.rx_data), loop);
-    this->block_a.configure_dma(transfer.tx_data, transfer.tx_size, sizeof(*transfer.tx_data), loop);
+    this->block_b.configure_dma(transfer.rx_data, transfer.rx_size / sizeof(*transfer.rx_data), sizeof(*transfer.rx_data),
+                                [&callback]()
+                                {
+                                    callback({});
+                                }
+                                ,loop);
+    this->block_a.configure_dma((void*)transfer.tx_data, transfer.tx_size / sizeof(*transfer.tx_data), sizeof(*transfer.tx_data),
+                                [&callback]()
+                                {
+                                    callback({});
+                                }
+                                ,loop);
 
     this->block_b.enable(true);
     this->block_a.enable(true);

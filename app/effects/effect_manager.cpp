@@ -17,6 +17,11 @@
 #include "app/effects/reverb/reverb.hpp"
 #include "app/effects/compressor/compressor.hpp"
 
+#include "drivers/stm32f7/sai.hpp"
+
+static int16_t inbuf[16];
+static int16_t outbuf[16];
+
 //-----------------------------------------------------------------------------
 /* private */
 
@@ -96,9 +101,46 @@ bool effect_manager::find_effect(effect_id id, std::vector<std::unique_ptr<effec
 //-----------------------------------------------------------------------------
 /* public */
 
-effect_manager::effect_manager() : active_object("effect_manager", osPriorityHigh, 2048)
+effect_manager::effect_manager() : active_object("effect_manager", osPriorityHigh, 4096)
 {
+    // SAI2 test
+    using audio_sai = drivers::sai<int16_t>;
 
+    auto sai = std::make_unique<audio_sai>(audio_sai::id::sai2);
+
+    static const audio_sai::block::config a_cfg
+    {
+        audio_sai::block::mode_type::master_tx,
+        audio_sai::block::protocol_type::generic,
+        audio_sai::block::data_size::_16bit,
+        audio_sai::block::sync_type::none,
+        audio_sai::block::frame_type::stereo,
+        audio_sai::block::audio_freq::_48kHz,
+    };
+
+    sai->block_a.configure(a_cfg);
+
+    static const audio_sai::block::config b_cfg
+    {
+        audio_sai::block::mode_type::slave_rx,
+        audio_sai::block::protocol_type::generic,
+        audio_sai::block::data_size::_16bit,
+        audio_sai::block::sync_type::internal,
+        audio_sai::block::frame_type::stereo,
+        audio_sai::block::audio_freq::_48kHz,
+    };
+
+    sai->block_b.configure(b_cfg);
+
+    static audio_sai::transfer_desc xfer
+    {
+        outbuf,
+        sizeof(outbuf),
+        inbuf,
+        sizeof(inbuf),
+    };
+
+    sai->transfer(xfer, [](const audio_sai::transfer_desc &xfer){}, true);
 }
 
 effect_manager::~effect_manager()
