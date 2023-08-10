@@ -33,28 +33,31 @@ public:
         struct block_hw;
 
         enum class id { a, b };
-        enum class mode_type { master, slave };
-        enum class protocol_type { i2s, pcm, tdm, ac97 };
-        enum class data_size { _8bit, _10bit, _16bit, _20bit, _24bit, _32bit };
+        enum class mode_type { master_tx, master_rx, slave_tx, slave_rx };
+        enum class protocol_type { generic, spdif, ac97 };
+        enum class data_size { _8bit = 2, _10bit, _16bit, _20bit, _24bit, _32bit };
+        enum class sync_type { none, internal, external };
+        enum class frame_type { stereo, mono };
         enum class audio_freq
         {
             _8kHz = 8000, _11_025kHz = 11025, _16kHz = 16000, _22_05kHz = 22050,
             _44_1kHz = 44100, _48kHz = 48000, _96kHz = 96000, _192kHz = 192000
         };
-        enum class frame_type { stereo, mono };
 
         struct config
         {
-            audio_freq frequency;
             mode_type mode;
             protocol_type protocol;
             data_size data;
+            sync_type sync;
             frame_type frame;
+            audio_freq frequency;
         };
 
         explicit block(id id, sai_base *base);
+        void enable(bool state);
         void configure(const config &cfg);
-        void sync_with(id id);
+        void configure_dma(void *data, uint16_t data_len, std::size_t data_width, bool circular);
     private:
         const block_hw &hw;
     };
