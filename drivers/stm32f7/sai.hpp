@@ -84,8 +84,8 @@ class sai : public sai_base, public hal::interface::i2s<T>
 public:
     using sample_t = T;
 
-    sai(id id);
-    ~sai();
+    sai(id id) : sai_base {id} {};
+    ~sai() {};
 
 //-----------------------------------------------------------------------------
 /* These methods are unlikely to be used so do not implement them */
@@ -98,9 +98,25 @@ public:
 //-----------------------------------------------------------------------------
 
     void transfer(const typename hal::interface::i2s<T>::transfer_desc &transfer,
-                  const typename hal::interface::i2s<T>::transfer_cb_t &callback, bool loop) override;
+                  const typename hal::interface::i2s<T>::transfer_cb_t &callback,
+                  bool loop) override
+    {
+        this->block_b.configure_dma(transfer.rx_data, transfer.rx_size / sizeof(*transfer.rx_data), sizeof(*transfer.rx_data),
+                                    [&callback]()
+                                    {
+                                        callback({});
+                                    }
+                                    ,loop);
+        this->block_a.configure_dma((void*)transfer.tx_data, transfer.tx_size / sizeof(*transfer.tx_data), sizeof(*transfer.tx_data),
+                                    [&callback]()
+                                    {
+                                        callback({});
+                                    }
+                                    ,loop);
 
-private:
+        this->block_b.enable(true);
+        this->block_a.enable(true);
+    }
 
 };
 

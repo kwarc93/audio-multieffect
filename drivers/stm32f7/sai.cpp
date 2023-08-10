@@ -21,8 +21,6 @@ using namespace drivers;
 //-----------------------------------------------------------------------------
 /* helpers */
 
-template class sai<int16_t>;
-
 namespace
 {
 
@@ -273,7 +271,6 @@ void sai_base::block::configure_dma(void *data, uint16_t data_len, std::size_t d
     dma_stream->M0AR = reinterpret_cast<uint32_t>(data);
     dma_stream->NDTR = data_len;
     dma_stream->CR |= 3 << DMA_SxCR_CHSEL_Pos; // Channel 3
-    dma_stream->CR |= DMA_SxCR_PFCTRL; // SAI is flow controller
     dma_stream->CR |= 0b11 << DMA_SxCR_PL_Pos; // Very high priority
     dma_stream->CR |= DMA_SxCR_HTIE | DMA_SxCR_TCIE | circular << DMA_SxCR_CIRC_Pos | DMA_SxCR_MINC; // HT & TC IRQ
     dma_stream->CR |= (data_width >> 1) << DMA_SxCR_MSIZE_Pos | (data_width >> 1) << DMA_SxCR_PSIZE_Pos;
@@ -296,38 +293,4 @@ void sai_base::block::dma_irq_handler(void)
 {
     if (this->dma_callback)
         this->dma_callback();
-}
-
-template<typename T>
-sai<T>::sai(id id) : sai_base {id}
-{
-
-}
-
-template<typename T>
-sai<T>::~sai()
-{
-
-}
-
-template<typename T>
-void sai<T>::transfer(const typename hal::interface::i2s<T>::transfer_desc &transfer,
-                      const typename hal::interface::i2s<T>::transfer_cb_t &callback,
-                      bool loop)
-{
-    this->block_b.configure_dma(transfer.rx_data, transfer.rx_size / sizeof(*transfer.rx_data), sizeof(*transfer.rx_data),
-                                [&callback]()
-                                {
-                                    callback({});
-                                }
-                                ,loop);
-    this->block_a.configure_dma((void*)transfer.tx_data, transfer.tx_size / sizeof(*transfer.tx_data), sizeof(*transfer.tx_data),
-                                [&callback]()
-                                {
-                                    callback({});
-                                }
-                                ,loop);
-
-    this->block_b.enable(true);
-    this->block_a.enable(true);
 }
