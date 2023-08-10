@@ -39,7 +39,7 @@ struct timer::timer_hw
     std::array<timer_ch, 4> channels;
 };
 
-static const std::map<timer::id, timer::timer_hw> timerx =
+static const std::map<timer::id, timer::timer_hw> timerx
 {
     { timer::id::timer2,
     timer::timer_hw{ TIM2, RCC_PERIPH_BUS(APB1, TIM2), TIM2_IRQn, 15, UINT16_MAX, UINT16_MAX,

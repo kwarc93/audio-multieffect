@@ -72,15 +72,15 @@ public:
         uint32_t apb2;      /**< APB1 prescaler, use RCC_CFGR_PPRE2_DIVx from CMSIS headers */
     };
 
-    /** @brief  Structure for describing SAI PLL parameters. */
-    struct sai_pll
+    /** @brief  Structure for describing SAI/I2S PLL parameters. */
+    struct sai_i2s_pll
     {
         uint32_t n;         /**< N multiplier, allowed range: 50 - 432 */
         uint32_t p;         /**< P divider, allowed values: 2, 4, 6, 8 */
         uint32_t q;         /**< Q divider, allowed range: 2 - 15 */
         uint32_t r;         /**< R divider, allowed range: 2 - 7 */
         uint32_t div_q;     /**< After-Q divider, allowed values: 1 - 32  */
-        uint32_t div_r;     /**< After-R divider, allowed values: 2, 4, 8, 16 */
+        uint32_t div_r;     /**< After-R divider (only for SAI), allowed values: 2, 4, 8, 16 */
     };
 
 //--------------------------------------------------------------------------------
@@ -116,7 +116,14 @@ public:
      * @note    This function can be called only after set_main_pll() function call.
      * @param   pll - pointer to SAI PLL configuration
      */
-    static void set_sai_pll(const sai_pll &pll);
+    static void set_sai_pll(const sai_i2s_pll &pll);
+
+    /**
+     * @brief   Configures the I2S PLL.
+     * @note    This function can be called only after set_main_pll() function call.
+     * @param   pll - pointer to SAI PLL configuration
+     */
+    static void set_i2s_pll(const sai_i2s_pll &pll);
 
     /** @brief  Enables/disables high speed internal clock.
      *  @param  state - true enables, false disables clock.

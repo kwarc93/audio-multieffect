@@ -35,7 +35,7 @@ struct i2c::i2c_hw
     gpio::io io_scl;
 };
 
-static const std::map<i2c::id, i2c::i2c_hw> i2cx =
+static const std::map<i2c::id, i2c::i2c_hw> i2cx
 {
     { i2c::id::i2c3, { i2c::id::i2c3, I2C3, RCC_PERIPH_BUS(APB1, I2C3), gpio::af::af4,
                      { gpio::port::porth, gpio::pin::pin8 }, { gpio::port::porth, gpio::pin::pin7 }}},

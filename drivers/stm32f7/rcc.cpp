@@ -227,7 +227,7 @@ void rcc::set_main_pll(const main_pll &pll, const bus_presc &presc)
 
 //-----------------------------------------------------------------------------
 
-void rcc::set_sai_pll(const sai_pll &pll)
+void rcc::set_sai_pll(const sai_i2s_pll &pll)
 {
     /* Disable the SAI PLL */
     RCC->CR &= ~RCC_CR_PLLSAION;
@@ -245,6 +245,28 @@ void rcc::set_sai_pll(const sai_pll &pll)
     while ((RCC->CR & RCC_CR_PLLSAIRDY) == 0)
     {
         /* Wait till the SAI PLL is ready */
+    }
+}
+
+//-----------------------------------------------------------------------------
+
+void rcc::set_i2s_pll(const sai_i2s_pll &pll)
+{
+    /* Disable the I2S PLL */
+    RCC->CR &= ~RCC_CR_PLLI2SON;
+
+    /* Set dividers: after-Q */
+    RCC->DCKCFGR1 |= (pll.div_q - 1) << RCC_DCKCFGR1_PLLI2SDIVQ_Pos;
+
+    /* Configure the I2S PLL */
+    RCC->PLLI2SCFGR = (pll.n << 6) | (((pll.p >> 1) - 1) << 16) | (pll.q << 24) | (pll.r << 28);
+
+    /* Enable the I2S PLL */
+    RCC->CR |= RCC_CR_PLLI2SON;
+
+    while ((RCC->CR & RCC_CR_PLLI2SRDY) == 0)
+    {
+        /* Wait till the I2S PLL is ready */
     }
 }
 

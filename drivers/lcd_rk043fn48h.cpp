@@ -58,7 +58,7 @@ glcd_rk043fn48h::glcd_rk043fn48h(const std::array<const drivers::gpio::io, 29> &
      * @note 1. Pixel clock = LCD total width x LCD total height x refresh rate
      *       2. Pixel clock source is PLLSAI output R
      */
-    static const rcc::sai_pll sai_cfg
+    static const rcc::sai_i2s_pll sai_cfg
     {
         228,
         8,

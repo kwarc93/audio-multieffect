@@ -29,7 +29,7 @@ struct usart::usart_hw
     gpio::io io_rx;
 };
 
-static const std::map<usart::id, usart::usart_hw> usartx =
+static const std::map<usart::id, usart::usart_hw> usartx
 {
     { usart::id::usart1, { usart::id::usart1, USART1, RCC_PERIPH_BUS(APB2, USART1), gpio::af::af7,
                          { gpio::port::porta, gpio::pin::pin9 }, { gpio::port::portb, gpio::pin::pin7 }}},
