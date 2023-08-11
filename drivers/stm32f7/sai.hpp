@@ -102,15 +102,15 @@ public:
                   bool loop) override
     {
         this->block_b.configure_dma(transfer.rx_data, transfer.rx_size / sizeof(*transfer.rx_data), sizeof(*transfer.rx_data),
-                                    [&callback]()
+                                    []()
                                     {
-                                        callback({});
+                                        asm volatile("NOP");
                                     }
                                     ,loop);
         this->block_a.configure_dma((void*)transfer.tx_data, transfer.tx_size / sizeof(*transfer.tx_data), sizeof(*transfer.tx_data),
-                                    [&callback]()
+                                    []()
                                     {
-                                        callback({});
+                                        asm volatile("NOP");
                                     }
                                     ,loop);
 

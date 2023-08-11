@@ -101,13 +101,10 @@ bool effect_manager::find_effect(effect_id id, std::vector<std::unique_ptr<effec
 //-----------------------------------------------------------------------------
 /* public */
 
-effect_manager::effect_manager() : active_object("effect_manager", osPriorityHigh, 4096)
+effect_manager::effect_manager() : active_object("effect_manager", osPriorityHigh, 4096),
+sai{audio_sai::id::sai2}
 {
     // SAI2 test
-    using audio_sai = drivers::sai<int16_t>;
-
-    auto sai = std::make_unique<audio_sai>(audio_sai::id::sai2);
-
     static const audio_sai::block::config a_cfg
     {
         audio_sai::block::mode_type::master_tx,
@@ -118,7 +115,7 @@ effect_manager::effect_manager() : active_object("effect_manager", osPriorityHig
         audio_sai::block::audio_freq::_48kHz,
     };
 
-    sai->block_a.configure(a_cfg);
+    sai.block_a.configure(a_cfg);
 
     static const audio_sai::block::config b_cfg
     {
@@ -130,7 +127,7 @@ effect_manager::effect_manager() : active_object("effect_manager", osPriorityHig
         audio_sai::block::audio_freq::_48kHz,
     };
 
-    sai->block_b.configure(b_cfg);
+    sai.block_b.configure(b_cfg);
 
     static audio_sai::transfer_desc xfer
     {
@@ -140,7 +137,7 @@ effect_manager::effect_manager() : active_object("effect_manager", osPriorityHig
         sizeof(inbuf),
     };
 
-    sai->transfer(xfer, [](const audio_sai::transfer_desc &xfer){}, true);
+    sai.transfer(xfer, [](const audio_sai::transfer_desc &xfer){}, true);
 }
 
 effect_manager::~effect_manager()

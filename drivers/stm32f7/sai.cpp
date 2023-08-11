@@ -186,14 +186,14 @@ void sai_base::dma_irq_handler(sai_base::id sai_id, sai_base::block::id block_id
         /* Transfer complete */
         if (DMA2->HISR & DMA_HISR_TCIF4)
         {
-            DMA2->HIFCR &= ~DMA_HIFCR_CTCIF4;
+            DMA2->HIFCR = DMA_HIFCR_CTCIF4;
             sai->block_a.dma_irq_handler();
         }
 
         /* Half-transfer complete */
         if (DMA2->HISR & DMA_HISR_HTIF4)
         {
-            DMA2->HIFCR &= ~DMA_HIFCR_CHTIF4;
+            DMA2->HIFCR = DMA_HIFCR_CHTIF4;
             sai->block_a.dma_irq_handler();
         }
     }
@@ -202,14 +202,14 @@ void sai_base::dma_irq_handler(sai_base::id sai_id, sai_base::block::id block_id
         /* Transfer complete */
         if (DMA2->HISR & DMA_HISR_TCIF6)
         {
-            DMA2->HIFCR &= ~DMA_HIFCR_CTCIF6;
+            DMA2->HIFCR = DMA_HIFCR_CTCIF6;
             sai->block_b.dma_irq_handler();
         }
 
         /* Half-transfer complete */
         if (DMA2->HISR & DMA_HISR_HTIF6)
         {
-            DMA2->HIFCR &= ~DMA_HIFCR_CHTIF6;
+            DMA2->HIFCR = DMA_HIFCR_CHTIF6;
             sai->block_b.dma_irq_handler();
         }
     }
