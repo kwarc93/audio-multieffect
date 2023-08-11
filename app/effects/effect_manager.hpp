@@ -9,13 +9,12 @@
 #define EFFECTS_EFFECT_MANAGER_HPP_
 
 #include <middlewares/active_object.hpp>
+#include <drivers/audio_wm8994ecs.hpp>
 
 #include <variant>
 #include <memory>
 
 #include "effect_interface.hpp"
-
-#include "drivers/stm32f7/sai.hpp"
 
 struct effect_manager_event
 {
@@ -62,8 +61,8 @@ private:
     bool find_effect(effect_id id, std::vector<std::unique_ptr<effect>>::iterator &it);
 
     std::vector<std::unique_ptr<effect>> effects;
-    using audio_sai = drivers::sai<int16_t>;
-    audio_sai sai;
+
+    drivers::audio_wm8994ecs audio;
 };
 
 #endif /* EFFECTS_EFFECT_MANAGER_HPP_ */

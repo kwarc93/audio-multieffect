@@ -93,30 +93,29 @@ public:
     void write(T byte) override {  };
     std::size_t read(T *data, std::size_t size) override { return 0; };
     std::size_t write(const T *data, std::size_t size) override { return 0; };
-    void read(T *data, std::size_t size, const typename hal::interface::i2s<T>::read_cb_t &callback) override {  };
-    void write(const T *data, std::size_t size, const typename hal::interface::i2s<T>::write_cb_t &callback) override {  };
 //-----------------------------------------------------------------------------
 
-    void transfer(const typename hal::interface::i2s<T>::transfer_desc &transfer,
-                  const typename hal::interface::i2s<T>::transfer_cb_t &callback,
-                  bool loop) override
+    void read(T *data, std::size_t size, const typename hal::interface::i2s<T>::read_cb_t &callback) override
     {
-        this->block_b.configure_dma(transfer.rx_data, transfer.rx_size / sizeof(*transfer.rx_data), sizeof(*transfer.rx_data),
+        this->block_b.configure_dma(data, size / sizeof(*data), sizeof(*data),
                                     []()
                                     {
                                         asm volatile("NOP");
                                     }
-                                    ,loop);
-        this->block_a.configure_dma((void*)transfer.tx_data, transfer.tx_size / sizeof(*transfer.tx_data), sizeof(*transfer.tx_data),
-                                    []()
-                                    {
-                                        asm volatile("NOP");
-                                    }
-                                    ,loop);
-
+                                    ,this->read_loop);
         this->block_b.enable(true);
+    };
+
+    void write(const T *data, std::size_t size, const typename hal::interface::i2s<T>::write_cb_t &callback) override
+    {
+        this->block_a.configure_dma((void*)data, size / sizeof(*data), sizeof(*data),
+                                    []()
+                                    {
+                                        asm volatile("NOP");
+                                    }
+                                    ,this->write_loop);
         this->block_a.enable(true);
-    }
+    };
 
 };
 

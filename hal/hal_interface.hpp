@@ -11,6 +11,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <functional>
+#include <vector>
 
 namespace hal::interface
 {
@@ -54,21 +55,11 @@ namespace hal::interface
     class i2s : public io_bus<T>
     {
     public:
-        using sample_t = T;
-
-        struct transfer_desc
-        {
-            const T *tx_data {nullptr};
-            std::size_t tx_size {0};
-            T *rx_data {nullptr};
-            std::size_t rx_size {0};
-        };
-
-        typedef std::function<void(const transfer_desc &transfer)> transfer_cb_t;
-
         virtual ~i2s() {};
-        virtual void transfer(const transfer_desc &transfer, const transfer_cb_t &callback, bool loop) = 0;
+        virtual void loop_read(bool state) { this->read_loop = state; };
+        virtual void loop_write(bool state) { this->write_loop = state; };
     protected:
+        bool read_loop, write_loop;
 
     };
 
@@ -156,6 +147,44 @@ namespace hal::interface
     protected:
         touch_cb_t touch_callback;
     };
+
+    template<typename T>
+    class audio_input
+    {
+    public:
+        using sample_t = T;
+
+        typedef std::function<void(const sample_t *input)> capture_cb_t;
+
+        virtual ~audio_input() {};
+
+        virtual void capture(std::vector<sample_t> &input, const capture_cb_t &cb) = 0;
+        virtual void end(void) = 0;
+
+    protected:
+        capture_cb_t capture_callback;
+    };
+
+    template<typename T>
+    class audio_output
+    {
+    public:
+        using sample_t = T;
+
+        typedef std::function<void()> play_cb_t;
+
+        virtual ~audio_output() {};
+
+        virtual void play(const std::vector<sample_t> &output, const play_cb_t &cb) = 0;
+        virtual void pause(void) = 0;
+        virtual void resume(void) = 0;
+        virtual void stop(void) = 0;
+
+    protected:
+        play_cb_t play_callback;
+    };
+
+
 }
 
 #endif /* HAL_INTERFACE_HPP_ */
