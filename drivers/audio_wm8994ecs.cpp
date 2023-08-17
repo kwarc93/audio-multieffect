@@ -9,7 +9,6 @@
 #include "audio_wm8994ecs.hpp"
 
 #include <cassert>
-#include <cstring>
 
 #include <drivers/stm32f7/delay.hpp>
 
@@ -17,17 +16,6 @@ using namespace drivers;
 
 //-----------------------------------------------------------------------------
 /* helpers */
-
-namespace
-{
-    int16_t inbuf[128] {0};
-    int16_t outbuf[128] {0};
-    volatile uint16_t inbuf_idx {0};
-    volatile uint16_t outbuf_idx {64};
-
-    void read_cb(const int16_t *data, std::size_t bytes_read){ std::memcpy(&outbuf[outbuf_idx], data, bytes_read); }
-    void write_cb(std::size_t bytes_written){ outbuf_idx = (bytes_written == sizeof(outbuf)) ? 64 : 0; }
-}
 
 //-----------------------------------------------------------------------------
 
@@ -354,7 +342,7 @@ namespace
 
 //-----------------------------------------------------------------------------
 
-#define  WM8994_ID    0x8994
+#define  WM8994_ID                    (uint16_t)0x8994
 
 //-----------------------------------------------------------------------------
 /* private */
@@ -363,46 +351,56 @@ uint16_t audio_wm8994ecs::read_reg(uint16_t reg_addr)
 {
     using transfer_desc = hal::interface::i2c_device::transfer_desc;
 
-    uint16_t reg_val {0};
-
-    reg_addr = (reg_addr << 8) | (reg_addr >> 8);
+    uint8_t tx[2] {(reg_addr >> 8) & 0xFF, (reg_addr & 0xFF)};
+    uint8_t rx[2] {0};
 
     transfer_desc desc
     {
         this->i2c_addr,
-        reinterpret_cast<std::byte*>(&reg_addr),
-        sizeof(reg_addr),
-        reinterpret_cast<std::byte*>(&reg_val),
-        sizeof(reg_val)
+        reinterpret_cast<std::byte*>(tx),
+        sizeof(tx),
+        reinterpret_cast<std::byte*>(rx),
+        sizeof(rx)
     };
 
     this->i2c_dev.transfer(desc);
     assert(desc.stat == transfer_desc::status::ok);
 
-    return (reg_val << 8) | (reg_val >> 8);
+    return (rx[0] << 8) | rx[1];
 }
 
 void audio_wm8994ecs::write_reg(uint16_t reg_addr, uint16_t reg_val)
 {
     using transfr_desc = hal::interface::i2c_device::transfer_desc;
 
-    uint32_t regs = (reg_addr & 0xFF) << 24 | (reg_addr & 0xFF00) << 8
-                  | (reg_val & 0xFF) << 8 | (reg_val & 0xFF00) >> 8;
+    uint8_t tx[4] = {(reg_addr >> 8) & 0xFF, (reg_addr & 0xFF),
+                     (reg_val >> 8) & 0xFF, (reg_val & 0xFF)};
 
     transfr_desc desc
     {
         this->i2c_addr,
-        reinterpret_cast<std::byte*>(&regs),
-        sizeof(regs),
+        reinterpret_cast<std::byte*>(tx),
+        sizeof(tx),
     };
 
     this->i2c_dev.transfer(desc);
     assert(desc.stat == transfr_desc::status::ok);
+
+    if constexpr (verify_i2c_writes)
+    {
+        if (reg_addr != WM8994_SW_RESET)
+            assert(this->read_reg(reg_addr) == reg_val);
+    }
 }
 
 uint16_t audio_wm8994ecs::read_id(void)
 {
     return this->read_reg(WM8994_SW_RESET);
+}
+
+void audio_wm8994ecs::reset(void)
+{
+    return this->write_reg(WM8994_SW_RESET, 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -412,45 +410,47 @@ audio_wm8994ecs::audio_wm8994ecs(hal::interface::i2c_device &dev, uint8_t addr, 
 i2c_dev {dev}, i2c_addr {addr}, sai_drv{audio_sai::id::sai2}
 {
     const uint32_t audio_freq = 48000;
-    const uint8_t audio_vol = 100;
+    const uint8_t audio_vol = 75;
 
-    /* Initialize SAI */
-    static const audio_sai::block::config sai_a_cfg
+    if (out != output::none)
     {
-        audio_sai::block::mode_type::master_tx,
-        audio_sai::block::protocol_type::generic,
-        audio_sai::block::data_size::_16bit,
-        audio_sai::block::sync_type::none,
-        audio_sai::block::frame_type::stereo,
-        audio_sai::block::audio_freq::_48kHz,
-    };
+        static const audio_sai::block::config sai_a_cfg
+        {
+            audio_sai::block::mode_type::master_tx,
+            audio_sai::block::protocol_type::generic,
+            audio_sai::block::data_size::_16bit,
+            audio_sai::block::sync_type::none,
+            audio_sai::block::frame_type::stereo,
+            audio_sai::block::audio_freq::_48kHz,
+        };
 
-    sai_drv.block_a.configure(sai_a_cfg);
+        sai_drv.block_a.configure(sai_a_cfg);
+    }
 
-    static const audio_sai::block::config sai_b_cfg
+    if (in != input::none)
     {
-        audio_sai::block::mode_type::slave_rx,
-        audio_sai::block::protocol_type::generic,
-        audio_sai::block::data_size::_16bit,
-        audio_sai::block::sync_type::internal,
-        audio_sai::block::frame_type::stereo,
-        audio_sai::block::audio_freq::_48kHz, };
+        static const audio_sai::block::config sai_b_cfg
+        {
+            out != output::none ?
+            audio_sai::block::mode_type::slave_rx : audio_sai::block::mode_type::master_rx,
+            audio_sai::block::protocol_type::generic,
+            audio_sai::block::data_size::_16bit,
+            out != output::none ?
+            audio_sai::block::sync_type::internal : audio_sai::block::sync_type::none,
+            audio_sai::block::frame_type::stereo,
+            audio_sai::block::audio_freq::_48kHz,
+        };
 
-    sai_drv.block_b.configure(sai_b_cfg);
-
-    sai_drv.loop_read(true);
-//    static auto read_cb { [&](const int16_t *data, std::size_t bytes_read){ std::memcpy(&outbuf[outbuf_idx], data, bytes_read); } };
-    sai_drv.read(inbuf, sizeof(inbuf), read_cb);
-
-    sai_drv.loop_write(true);
-//    static auto write_cb { [&](std::size_t bytes_written){ outbuf_idx = (bytes_written == sizeof(outbuf)) ? 64 : 0; } };
-    sai_drv.write(outbuf, sizeof(outbuf), write_cb);
+        sai_drv.block_b.configure(sai_b_cfg);
+    }
 
     /* Initialize wm8994 codec */
     drivers::delay::ms(10);
 
     uint16_t id = this->read_id();
     assert(id == WM8994_ID);
+
+    this->reset();
 
     uint16_t power_mgnt_reg_1 = 0;
 
@@ -806,7 +806,7 @@ i2c_dev {dev}, i2c_addr {addr}, sai_drv{audio_sai::id::sai2}
         this->write_reg(0x23, 0x0000);
 
         /* Unmute DAC2 (Left) to Left Speaker Mixer (SPKMIXL) path,
-         Unmute DAC2 (Right) to Right Speaker Mixer (SPKMIXR) path */
+           Unmute DAC2 (Right) to Right Speaker Mixer (SPKMIXR) path */
         this->write_reg(0x36, 0x0300);
 
         /* Enable bias generator, Enable VMID, Enable SPKOUTL, Enable SPKOUTR */
@@ -948,13 +948,14 @@ audio_wm8994ecs::~audio_wm8994ecs()
 
 void audio_wm8994ecs::capture(audio_input::sample_t *input, uint16_t length, const capture_cb_t &cb, bool loop)
 {
-    sai_drv.loop_read(loop);
-    sai_drv.read(inbuf, sizeof(inbuf),
-                [&cb](const int16_t *data, std::size_t bytes_read)
-                {
-                    cb(data, bytes_read / sizeof(audio_wm8994ecs::audio_input::sample_t));
-                }
-                );
+    this->capture_callback = cb;
+    this->sai_drv.loop_read(loop);
+    this->sai_drv.read(input, length * sizeof(*input),
+    [this](const int16_t *data, std::size_t bytes_read)
+    {
+        this->capture_callback(data, bytes_read / sizeof(audio_wm8994ecs::audio_input::sample_t));
+    }
+    );
 }
 
 void audio_wm8994ecs::end(void)
@@ -964,13 +965,14 @@ void audio_wm8994ecs::end(void)
 
 void audio_wm8994ecs::play(const audio_output::sample_t *output, uint16_t length, const play_cb_t &cb, bool loop)
 {
-    sai_drv.loop_write(loop);
-    sai_drv.write(outbuf, sizeof(outbuf),
-                 [&cb](std::size_t bytes_written)
-                 {
-                     cb(bytes_written / sizeof(audio_wm8994ecs::audio_output::sample_t));
-                 }
-                 );
+    this->play_callback = cb;
+    this->sai_drv.loop_write(loop);
+    this->sai_drv.write(output, length * sizeof(*output),
+    [this](std::size_t bytes_written)
+    {
+        this->play_callback(bytes_written / sizeof(audio_wm8994ecs::audio_output::sample_t));
+    }
+    );
 }
 
 void audio_wm8994ecs::pause(void)

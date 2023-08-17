@@ -7,6 +7,7 @@
 
 #include "effect_manager.hpp"
 
+#include <cstring>
 #include <functional>
 #include <algorithm>
 #include <memory>
@@ -14,10 +15,35 @@
 #include <map>
 
 #include "middlewares/i2c_manager.hpp"
+#include "drivers/stm32f7/gpio.hpp"
 
 #include "app/effects/equalizer/equalizer.hpp"
 #include "app/effects/reverb/reverb.hpp"
 #include "app/effects/compressor/compressor.hpp"
+
+//-----------------------------------------------------------------------------
+/* helpers */
+
+namespace
+{
+    drivers::gpio::io debug_pin { drivers::gpio::port::portc, drivers::gpio::pin::pin7 };
+
+    int16_t inbuf[128] {0};
+    int16_t outbuf[128] {0};
+    volatile uint16_t inbuf_idx {0};
+    volatile uint16_t outbuf_idx {64};
+
+    void capture_cb(const int16_t *input, uint16_t length)
+    {
+        std::memcpy(&outbuf[outbuf_idx], input, length * sizeof(*input));
+    }
+
+    void play_cb(uint16_t output_sample_index)
+    {
+        drivers::gpio::toggle(debug_pin);
+        outbuf_idx = (output_sample_index == 128) ? 64 : 0;
+    }
+}
 
 //-----------------------------------------------------------------------------
 /* private */
@@ -102,7 +128,10 @@ effect_manager::effect_manager() : active_object("effect_manager", osPriorityHig
 audio{middlewares::i2c_managers::main::get_instance(), drivers::audio_wm8994ecs::i2c_address,
       drivers::audio_wm8994ecs::input::line1, drivers::audio_wm8994ecs::output::headphone}
 {
+    drivers::gpio::configure(debug_pin);
 
+    this->audio.capture(inbuf, 128, capture_cb, true);
+    this->audio.play(outbuf, 128, play_cb, true);
 }
 
 effect_manager::~effect_manager()

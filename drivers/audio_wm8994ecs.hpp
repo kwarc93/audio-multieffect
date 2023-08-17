@@ -19,6 +19,7 @@ class audio_wm8994ecs : public hal::interface::audio_input<int16_t>, public hal:
 {
 public:
     static constexpr uint8_t i2c_address = 0b00011010;
+    static constexpr bool verify_i2c_writes = false;
 
     enum class input { none, mic1, mic2, mic1_mic2, line1, line2 };
     enum class output { none, speaker, headphone, both, automatic };
@@ -40,10 +41,14 @@ private:
     typedef sai<int16_t> audio_sai;
     audio_sai sai_drv;
 
+    capture_cb_t capture_callback;
+    play_cb_t play_callback;
+
     uint16_t read_reg(uint16_t reg_addr);
     void write_reg(uint16_t reg_addr, uint16_t reg_val);
 
     uint16_t read_id(void);
+    void reset(void);
 };
 
 }

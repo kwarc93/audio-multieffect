@@ -96,16 +96,17 @@ public:
 
     void read(T *data, std::size_t size, const typename hal::interface::i2s<T>::read_cb_t &callback) override
     {
+        this->read_callback = callback;
         this->block_b.configure_dma(data, size / sizeof(*data), sizeof(*data),
-                                    [/*data, size, &callback*/](block::dma_evt e)
+                                    [this, data, size](block::dma_evt e)
                                     {
                                         switch (e)
                                         {
                                         case block::dma_evt::transfer_half:
-//                                            callback(data, size / 2);
+                                            this->read_callback(data, size / 2);
                                             break;
                                         case block::dma_evt::transfer_complete:
-//                                            callback(data + (size / 2), size / 2);
+                                            this->read_callback(data + (size / 2), size / 2);
                                             break;
                                         case block::dma_evt::transfer_error:
                                         case block::dma_evt::fifo_error:
@@ -119,16 +120,17 @@ public:
 
     void write(const T *data, std::size_t size, const typename hal::interface::i2s<T>::write_cb_t &callback) override
     {
+        this->write_callback = callback;
         this->block_a.configure_dma((void*)data, size / sizeof(*data), sizeof(*data),
-                                    [/*data, size, &callback*/](block::dma_evt e)
+                                    [this, data, size](block::dma_evt e)
                                     {
                                         switch (e)
                                         {
                                         case block::dma_evt::transfer_half:
-//                                            callback(size / 2);
+                                            this->write_callback(size / 2);
                                             break;
                                         case block::dma_evt::transfer_complete:
-//                                            callback(size);
+                                            this->write_callback(size);
                                             break;
                                         case block::dma_evt::transfer_error:
                                         case block::dma_evt::fifo_error:
@@ -139,7 +141,9 @@ public:
                                     ,this->write_loop);
         this->block_a.enable(true);
     };
-
+private:
+    typename hal::interface::i2s<T>::read_cb_t read_callback;
+    typename hal::interface::i2s<T>::write_cb_t write_callback;
 };
 
 }
