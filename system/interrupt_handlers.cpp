@@ -72,10 +72,10 @@ extern "C" void DMA2D_IRQHandler(void)
 
 extern "C" void DMA2_Stream4_IRQHandler(void)
 {
-    drivers::sai_base::dma_irq_handler(drivers::sai_base::id::sai2, drivers::sai_base::block::id::a);
+    drivers::sai_base::instance[static_cast<uint8_t>(drivers::sai_base::id::sai2)]->block_a.dma_irq_handler();
 }
 
 extern "C" void DMA2_Stream6_IRQHandler(void)
 {
-    drivers::sai_base::dma_irq_handler(drivers::sai_base::id::sai2, drivers::sai_base::block::id::b);
+    drivers::sai_base::instance[static_cast<uint8_t>(drivers::sai_base::id::sai2)]->block_b.dma_irq_handler();
 }

@@ -11,7 +11,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <functional>
-#include <vector>
 
 namespace hal::interface
 {
@@ -120,7 +119,8 @@ namespace hal::interface
     {
     public:
         using pixel_t = T;
-        using vsync_cb_t = std::function<void(void)>;
+
+        typedef std::function<void(void)> vsync_cb_t;
 
         virtual ~glcd() {};
 
@@ -148,17 +148,20 @@ namespace hal::interface
         touch_cb_t touch_callback;
     };
 
+    typedef int16_t audio_sample_t;
+
     template<typename T>
     class audio_input
     {
     public:
         using sample_t = T;
 
-        typedef std::function<void(const sample_t *input)> capture_cb_t;
+        typedef std::function<void(const sample_t *input, uint16_t length)> capture_cb_t;
 
         virtual ~audio_input() {};
 
-        virtual void capture(std::vector<sample_t> &input, const capture_cb_t &cb) = 0;
+
+        virtual void capture(sample_t *input, uint16_t length, const capture_cb_t &cb, bool loop) = 0;
         virtual void end(void) = 0;
 
     protected:
@@ -171,14 +174,15 @@ namespace hal::interface
     public:
         using sample_t = T;
 
-        typedef std::function<void()> play_cb_t;
+        typedef std::function<void(uint16_t output_sample_index)> play_cb_t;
 
         virtual ~audio_output() {};
 
-        virtual void play(const std::vector<sample_t> &output, const play_cb_t &cb) = 0;
+        virtual void play(const sample_t *output, uint16_t length, const play_cb_t &cb, bool loop) = 0;
         virtual void pause(void) = 0;
         virtual void resume(void) = 0;
         virtual void stop(void) = 0;
+        virtual void set_volume(uint8_t vol) = 0;
 
     protected:
         play_cb_t play_callback;

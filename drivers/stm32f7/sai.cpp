@@ -173,48 +173,6 @@ void sai_base::sync_with(id id)
     /* TODO */
 }
 
-void sai_base::dma_irq_handler(sai_base::id sai_id, sai_base::block::id block_id)
-{
-    uint8_t object_id = static_cast<uint8_t>(sai_id);
-    if (object_id >= instance.size())
-        return;
-
-    sai_base *sai = instance[object_id];
-
-    if (block_id == sai_base::block::id::a)
-    {
-        /* Transfer complete */
-        if (DMA2->HISR & DMA_HISR_TCIF4)
-        {
-            DMA2->HIFCR = DMA_HIFCR_CTCIF4;
-            sai->block_a.dma_irq_handler();
-        }
-
-        /* Half-transfer complete */
-        if (DMA2->HISR & DMA_HISR_HTIF4)
-        {
-            DMA2->HIFCR = DMA_HIFCR_CHTIF4;
-            sai->block_a.dma_irq_handler();
-        }
-    }
-    else // id::b
-    {
-        /* Transfer complete */
-        if (DMA2->HISR & DMA_HISR_TCIF6)
-        {
-            DMA2->HIFCR = DMA_HIFCR_CTCIF6;
-            sai->block_b.dma_irq_handler();
-        }
-
-        /* Half-transfer complete */
-        if (DMA2->HISR & DMA_HISR_HTIF6)
-        {
-            DMA2->HIFCR = DMA_HIFCR_CHTIF6;
-            sai->block_b.dma_irq_handler();
-        }
-    }
-}
-
 void sai_base::block::enable(bool state)
 {
     if (state)
@@ -246,14 +204,14 @@ void sai_base::block::configure(const config &cfg)
     /* Configure SAI_Block_x Frame */
     this->hw.reg->FRCR = 0;
     this->hw.reg->FRCR |= ((64 - 1) << SAI_xFRCR_FRL_Pos); // Frame length: 64
-    this->hw.reg->FRCR |= ((16 - 1) << SAI_xFRCR_FSALL_Pos); // Frame active Length: 16
+    this->hw.reg->FRCR |= ((32 - 1) << SAI_xFRCR_FSALL_Pos); // Frame active Length: 32
     this->hw.reg->FRCR |= SAI_xFRCR_FSDEF; // FS Definition: Start frame + Channel Side identification
     this->hw.reg->FRCR |= SAI_xFRCR_FSOFF; // FS Offset: FS asserted one bit before the first bit of slot 0
 
     /* Configure SAI Block_x Slot */
     this->hw.reg->SLOTR = 0;
-    this->hw.reg->SLOTR |= SAI_xSLOTR_NBSLOT_1; // Slot number: 2
-    this->hw.reg->SLOTR |= (3 << SAI_xSLOTR_SLOTEN_Pos); // Enable slot 0,1
+    this->hw.reg->SLOTR |= ((4 - 1) << SAI_xSLOTR_NBSLOT_Pos); // Slot number: 4
+    this->hw.reg->SLOTR |= (0b101 << SAI_xSLOTR_SLOTEN_Pos); // Enable slots: 0,2
 }
 
 void sai_base::block::configure_dma(void *data, uint16_t data_len, std::size_t data_width, const dma_cb_t &cb, bool circular)
@@ -291,6 +249,40 @@ void sai_base::block::configure_dma(void *data, uint16_t data_len, std::size_t d
 
 void sai_base::block::dma_irq_handler(void)
 {
-    if (this->dma_callback)
-        this->dma_callback();
+    if (this->hw.id == sai_base::block::id::a)
+    {
+        /* Half-transfer */
+        if (DMA2->HISR & DMA_HISR_HTIF4)
+        {
+            DMA2->HIFCR = DMA_HIFCR_CHTIF4;
+            if (this->dma_callback)
+                this->dma_callback(dma_evt::transfer_half);
+        }
+
+        /* Transfer complete */
+        if (DMA2->HISR & DMA_HISR_TCIF4)
+        {
+            DMA2->HIFCR = DMA_HIFCR_CTCIF4;
+            if (this->dma_callback)
+                this->dma_callback(dma_evt::transfer_complete);
+        }
+    }
+    else // id::b
+    {
+        /* Half-transfer */
+        if (DMA2->HISR & DMA_HISR_HTIF6)
+        {
+            DMA2->HIFCR = DMA_HIFCR_CHTIF6;
+            if (this->dma_callback)
+                this->dma_callback(dma_evt::transfer_half);
+        }
+
+        /* Transfer complete */
+        if (DMA2->HISR & DMA_HISR_TCIF6)
+        {
+            DMA2->HIFCR = DMA_HIFCR_CTCIF6;
+            if (this->dma_callback)
+                this->dma_callback(dma_evt::transfer_complete);
+        }
+    }
 }

@@ -33,7 +33,8 @@ public:
     public:
         struct block_hw;
 
-        typedef std::function<void(void)> dma_cb_t;
+        enum class dma_evt { transfer_half, transfer_complete, transfer_error, fifo_error };
+        typedef std::function<void(dma_evt e)> dma_cb_t;
 
         enum class id { a, b };
         enum class mode_type { master_tx, master_rx, slave_tx, slave_rx };
@@ -67,9 +68,7 @@ public:
         dma_cb_t dma_callback;
     };
 
-
     static inline std::array<sai_base*, 2> instance; /* Used for global access (e.g. from interrupt) */
-    static void dma_irq_handler(sai_base::id sai_id, sai_base::block::id block_id);
 
 private:
     const base_hw &hw;
@@ -98,9 +97,21 @@ public:
     void read(T *data, std::size_t size, const typename hal::interface::i2s<T>::read_cb_t &callback) override
     {
         this->block_b.configure_dma(data, size / sizeof(*data), sizeof(*data),
-                                    []()
+                                    [/*data, size, &callback*/](block::dma_evt e)
                                     {
-                                        asm volatile("NOP");
+                                        switch (e)
+                                        {
+                                        case block::dma_evt::transfer_half:
+//                                            callback(data, size / 2);
+                                            break;
+                                        case block::dma_evt::transfer_complete:
+//                                            callback(data + (size / 2), size / 2);
+                                            break;
+                                        case block::dma_evt::transfer_error:
+                                        case block::dma_evt::fifo_error:
+                                        default:
+                                            break;
+                                        }
                                     }
                                     ,this->read_loop);
         this->block_b.enable(true);
@@ -109,9 +120,21 @@ public:
     void write(const T *data, std::size_t size, const typename hal::interface::i2s<T>::write_cb_t &callback) override
     {
         this->block_a.configure_dma((void*)data, size / sizeof(*data), sizeof(*data),
-                                    []()
+                                    [/*data, size, &callback*/](block::dma_evt e)
                                     {
-                                        asm volatile("NOP");
+                                        switch (e)
+                                        {
+                                        case block::dma_evt::transfer_half:
+//                                            callback(size / 2);
+                                            break;
+                                        case block::dma_evt::transfer_complete:
+//                                            callback(size);
+                                            break;
+                                        case block::dma_evt::transfer_error:
+                                        case block::dma_evt::fifo_error:
+                                        default:
+                                            break;
+                                        }
                                     }
                                     ,this->write_loop);
         this->block_a.enable(true);

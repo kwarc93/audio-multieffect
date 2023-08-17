@@ -13,6 +13,8 @@
 #include <vector>
 #include <map>
 
+#include "middlewares/i2c_manager.hpp"
+
 #include "app/effects/equalizer/equalizer.hpp"
 #include "app/effects/reverb/reverb.hpp"
 #include "app/effects/compressor/compressor.hpp"
@@ -97,7 +99,8 @@ bool effect_manager::find_effect(effect_id id, std::vector<std::unique_ptr<effec
 /* public */
 
 effect_manager::effect_manager() : active_object("effect_manager", osPriorityHigh, 4096),
-audio{}
+audio{middlewares::i2c_managers::main::get_instance(), drivers::audio_wm8994ecs::i2c_address,
+      drivers::audio_wm8994ecs::input::line1, drivers::audio_wm8994ecs::output::headphone}
 {
 
 }

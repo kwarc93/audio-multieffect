@@ -8,8 +8,6 @@
 #ifndef TOUCH_FT5336_HPP_
 #define TOUCH_FT5336_HPP_
 
-#include <bitset>
-
 #include <hal/hal_interface.hpp>
 
 namespace drivers
@@ -18,7 +16,7 @@ namespace drivers
 class touch_ft5336 : public hal::interface::touch_panel
 {
 public:
-    static constexpr uint8_t default_i2c_address = 0b00111000;
+    static constexpr uint8_t i2c_address = 0b00111000;
 
     enum class orientation { normal, mirror_x, mirror_y, mirror_xy };
 
@@ -27,9 +25,9 @@ public:
 
     bool get_touch(int16_t &x, int16_t &y);
 private:
-    hal::interface::i2c_device &device;
+    hal::interface::i2c_device &i2c_dev;
+    const uint8_t i2c_addr;
 
-    const uint8_t address;
     orientation orient;
 
     uint8_t read_reg(uint8_t reg_addr);
