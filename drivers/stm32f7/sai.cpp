@@ -49,8 +49,8 @@ uint8_t sai_mclk_divide(af audio_freq)
         div = 0b0110;
         break;
     case af::_8kHz:
-            div = 0b1100;
-            break;
+        div = 0b1100;
+        break;
     }
 
     return div;
@@ -211,7 +211,7 @@ void sai_base::block::configure(const config &cfg)
     /* Configure SAI Block_x Slot */
     this->hw.reg->SLOTR = 0;
     this->hw.reg->SLOTR |= ((4 - 1) << SAI_xSLOTR_NBSLOT_Pos); // Slot number: 4
-    this->hw.reg->SLOTR |= (0b101 << SAI_xSLOTR_SLOTEN_Pos); // Enable slots: 0,2
+    this->hw.reg->SLOTR |= (0b0101 << SAI_xSLOTR_SLOTEN_Pos); // Enable slots: 0,2
 }
 
 void sai_base::block::configure_dma(void *data, uint16_t data_len, std::size_t data_width, const dma_cb_t &cb, bool circular)

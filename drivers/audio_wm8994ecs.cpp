@@ -373,8 +373,7 @@ void audio_wm8994ecs::write_reg(uint16_t reg_addr, uint16_t reg_val)
 {
     using transfr_desc = hal::interface::i2c_device::transfer_desc;
 
-    uint8_t tx[4] = {(reg_addr >> 8) & 0xFF, (reg_addr & 0xFF),
-                     (reg_val >> 8) & 0xFF, (reg_val & 0xFF)};
+    uint8_t tx[4] = {(reg_addr >> 8) & 0xFF, (reg_addr & 0xFF), (reg_val >> 8) & 0xFF, (reg_val & 0xFF)};
 
     transfr_desc desc
     {
@@ -410,7 +409,7 @@ audio_wm8994ecs::audio_wm8994ecs(hal::interface::i2c_device &dev, uint8_t addr, 
 i2c_dev {dev}, i2c_addr {addr}, sai_drv{audio_sai::id::sai2}
 {
     const uint32_t audio_freq = 48000;
-    const uint8_t audio_vol = 75;
+    const uint8_t audio_vol = 70;
 
     if (out != output::none)
     {
@@ -445,12 +444,11 @@ i2c_dev {dev}, i2c_addr {addr}, sai_drv{audio_sai::id::sai2}
     }
 
     /* Initialize wm8994 codec */
-    drivers::delay::ms(10);
-
     uint16_t id = this->read_id();
     assert(id == WM8994_ID);
-
     this->reset();
+
+    drivers::delay::ms(10);
 
     uint16_t power_mgnt_reg_1 = 0;
 
@@ -611,11 +609,11 @@ i2c_dev {dev}, i2c_addr {addr}, sai_drv{audio_sai::id::sai2}
             /* IN1LN_TO_IN1L, IN1LP_TO_VMID, IN1RN_TO_IN1R, IN1RP_TO_VMID */
             this->write_reg(0x28, 0x0011);
 
-            /* Disable mute on IN1L_TO_MIXINL and +30dB on IN1L PGA output */
-            this->write_reg(0x29, 0x0035);
+            /* Disable mute on IN1L_TO_MIXINL, +0dB on IN1L PGA output, mute MIXOUTL_MIXINL_VOL */
+            this->write_reg(0x29, 0x0020);
 
-            /* Disable mute on IN1R_TO_MIXINL, Gain = +30dB */
-            this->write_reg(0x2A, 0x0035);
+            /* Disable mute on IN1R_TO_MIXINL, +0dB on IN1L PGA output, mute MIXOUTR_MIXINR_VOL  */
+            this->write_reg(0x2A, 0x0020);
 
             /* Enable AIF1ADC1 (Left), Enable AIF1ADC1 (Right)
              * Enable Left ADC, Enable Right ADC */
@@ -794,6 +792,7 @@ i2c_dev {dev}, i2c_addr {addr}, sai_drv{audio_sai::id::sai2}
             /* Soft un-Mute the AIF1 Timeslot 0 DAC1 path L&R */
             this->write_reg(0x420, 0x0000);
         }
+
         /* Analog Output Configuration */
 
         /* Enable SPKRVOL PGA, Enable SPKMIXR, Enable SPKLVOL PGA, Enable SPKMIXL */
@@ -925,7 +924,7 @@ i2c_dev {dev}, i2c_addr {addr}, sai_drv{audio_sai::id::sai2}
         }
 
         /* Volume Control */
-        uint8_t convertedvol = (((audio_vol) >= 100) ? 239 : ((uint8_t) (((audio_vol) * 240) / 100)));
+        uint8_t convertedvol = (audio_vol >= 100) ? 239 : static_cast<uint8_t>((audio_vol * 240) / 100);
 
         /* Left AIF1 ADC1 volume */
         this->write_reg(0x400, convertedvol | 0x100);
@@ -992,7 +991,7 @@ void audio_wm8994ecs::stop(void)
 
 void audio_wm8994ecs::set_volume(uint8_t vol)
 {
-    uint8_t convertedvol = vol > 100 ? 100 : static_cast<uint8_t>((vol * 63) / 100);
+    uint8_t convertedvol = (vol > 100) ? 100 : static_cast<uint8_t>((vol * 63) / 100);
 
     if (convertedvol > 0x3E)
     {
