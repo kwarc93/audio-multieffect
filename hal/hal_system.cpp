@@ -60,10 +60,10 @@ void system::init(void)
 
     /* Enable I & D Caches */
 
-    SCB_InvalidateICache();
-    SCB_EnableICache();
-    SCB_InvalidateDCache();
-    SCB_EnableDCache();
+//    SCB_InvalidateICache();
+//    SCB_EnableICache();
+//    SCB_InvalidateDCache();
+//    SCB_EnableDCache();
 
     hal::sdram::init();
 }

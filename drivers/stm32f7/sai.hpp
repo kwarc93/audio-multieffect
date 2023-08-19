@@ -106,7 +106,7 @@ public:
                                             this->read_callback(data, size / 2);
                                             break;
                                         case block::dma_evt::transfer_complete:
-                                            this->read_callback(data + (size / 2), size / 2);
+                                            this->read_callback(data + (size / sizeof(*data) / 2), size / 2);
                                             break;
                                         case block::dma_evt::transfer_error:
                                         case block::dma_evt::fifo_error:

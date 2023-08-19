@@ -479,26 +479,26 @@ i2c_dev {dev}, i2c_addr {addr}, sai_drv{audio_sai::id::sai2}
         switch (out)
         {
         case output::speaker:
-            /* Enable DAC1 (Left), Enable DAC1 (Right),
-             Disable DAC2 (Left), Disable DAC2 (Right)*/
+            /* Disable DAC1 (Left), Disable DAC1 (Right),
+             Enable DAC2 (Left), Enable DAC2 (Right)*/
             this->write_reg(0x05, 0x0C0C);
 
-            /* Enable the AIF1 Timeslot 0 (Left) to DAC 1 (Left) mixer path */
+            /* Disable the AIF1 Timeslot 0 (Left) to DAC 1 (Left) mixer path */
             this->write_reg(0x601, 0x0000);
 
-            /* Enable the AIF1 Timeslot 0 (Right) to DAC 1 (Right) mixer path */
+            /* Disable the AIF1 Timeslot 0 (Right) to DAC 1 (Right) mixer path */
             this->write_reg(0x602, 0x0000);
 
-            /* Disable the AIF1 Timeslot 1 (Left) to DAC 2 (Left) mixer path */
+            /* Enable the AIF1 Timeslot 1 (Left) to DAC 2 (Left) mixer path */
             this->write_reg(0x604, 0x0002);
 
-            /* Disable the AIF1 Timeslot 1 (Right) to DAC 2 (Right) mixer path */
+            /* Enable the AIF1 Timeslot 1 (Right) to DAC 2 (Right) mixer path */
             this->write_reg(0x605, 0x0002);
             break;
 
         case output::headphone:
-            /* Disable DAC1 (Left), Disable DAC1 (Right),
-             Enable DAC2 (Left), Enable DAC2 (Right)*/
+            /* Enable DAC1 (Left), Enable DAC1 (Right),
+             Disable DAC2 (Left), Disable DAC2 (Right)*/
             this->write_reg(0x05, 0x0303);
 
             /* Enable the AIF1 Timeslot 0 (Left) to DAC 1 (Left) mixer path */
@@ -671,10 +671,10 @@ i2c_dev {dev}, i2c_addr {addr}, sai_drv{audio_sai::id::sai2}
             /* Disable IN1L, IN1R, Enable IN2L, IN2R, Thermal sensor & shutdown */
             this->write_reg(0x02, 0x63A0);
 
-            /* Enable the DMIC2(Left) to AIF1 Timeslot 0 (Left) mixer path */
+            /* Enable the DMIC1(Left) to AIF1 Timeslot 0 (Left) mixer path */
             this->write_reg(0x606, 0x0002);
 
-            /* Enable the DMIC2(Right) to AIF1 Timeslot 0 (Right) mixer path */
+            /* Enable the DMIC1(Right) to AIF1 Timeslot 0 (Right) mixer path */
             this->write_reg(0x607, 0x0002);
 
             /* Enable the DMIC2(Left) to AIF1 Timeslot 1 (Left) mixer path */

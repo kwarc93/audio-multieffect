@@ -114,7 +114,8 @@ static const std::map<sai_base::id, sai_base::base_hw> saix
                             { /* unused */ },
                             { /* unused */ },
                             std::optional<gpio::io>({ gpio::port::portg, gpio::pin::pin10 }),
-                            { /* unused */ }}
+                            { /* unused */ }
+                          }
                           }
     },
 };
@@ -176,9 +177,14 @@ void sai_base::sync_with(id id)
 void sai_base::block::enable(bool state)
 {
     if (state)
+    {
         this->hw.reg->CR1 |= SAI_xCR1_SAIEN;
+    }
     else
+    {
         this->hw.reg->CR1 &= ~SAI_xCR1_SAIEN;
+        while (this->hw.reg->CR1 & SAI_xCR1_SAIEN);
+    }
 }
 
 void sai_base::block::configure(const config &cfg)
@@ -187,7 +193,7 @@ void sai_base::block::configure(const config &cfg)
         assert(!"SAI block must be in slave mode when sync is enabled");
 
     /* Configure SAI_Block_x */
-    this->hw.reg->CR1 &= ~SAI_xCR1_SAIEN; // SAI disable
+    this->enable(false);
 
     this->hw.reg->CR1 = 0;
     this->hw.reg->CR1 |= static_cast<uint8_t>(cfg.mode) << SAI_xCR1_MODE_Pos;
@@ -212,6 +218,8 @@ void sai_base::block::configure(const config &cfg)
     this->hw.reg->SLOTR = 0;
     this->hw.reg->SLOTR |= ((4 - 1) << SAI_xSLOTR_NBSLOT_Pos); // Slot number: 4
     this->hw.reg->SLOTR |= (0b0101 << SAI_xSLOTR_SLOTEN_Pos); // Enable slots: 0,2
+
+    this->enable(true);
 }
 
 void sai_base::block::configure_dma(void *data, uint16_t data_len, std::size_t data_width, const dma_cb_t &cb, bool circular)
@@ -222,7 +230,7 @@ void sai_base::block::configure_dma(void *data, uint16_t data_len, std::size_t d
     /* Configure DMA */
     auto dma_stream = get_dma_stream_reg(this->hw.id);
 
-    dma_stream->CR &= ~DMA_SxCR_EN;
+    dma_stream->CR = 0;
     while (dma_stream->CR & DMA_SxCR_EN);
 
     dma_stream->PAR = reinterpret_cast<uint32_t>(&this->hw.reg->DR);
@@ -230,12 +238,14 @@ void sai_base::block::configure_dma(void *data, uint16_t data_len, std::size_t d
     dma_stream->NDTR = data_len;
     dma_stream->CR |= 3 << DMA_SxCR_CHSEL_Pos; // Channel 3
     dma_stream->CR |= 0b11 << DMA_SxCR_PL_Pos; // Very high priority
-    dma_stream->CR |= DMA_SxCR_HTIE | DMA_SxCR_TCIE | circular << DMA_SxCR_CIRC_Pos | DMA_SxCR_MINC; // HT & TC IRQ
+    dma_stream->CR |= DMA_SxCR_DMEIE | DMA_SxCR_HTIE | DMA_SxCR_TCIE | circular << DMA_SxCR_CIRC_Pos | DMA_SxCR_MINC;
     dma_stream->CR |= (data_width >> 1) << DMA_SxCR_MSIZE_Pos | (data_width >> 1) << DMA_SxCR_PSIZE_Pos;
 
     mode_type mode = static_cast<mode_type>((this->hw.reg->CR1 & SAI_xCR1_MODE_Msk) >> SAI_xCR1_MODE_Pos);
     if (mode == mode_type::master_tx || mode == mode_type::slave_tx)
+    {
         dma_stream->CR |= 0b01 << DMA_SxCR_DIR_Pos; // Memory to peripheral
+    }
 
     this->dma_callback = cb;
 
@@ -266,6 +276,13 @@ void sai_base::block::dma_irq_handler(void)
             if (this->dma_callback)
                 this->dma_callback(dma_evt::transfer_complete);
         }
+
+        /* Direct mode error */
+        if (DMA2->HISR & DMA_HISR_DMEIF4)
+        {
+            DMA2->HIFCR = DMA_HIFCR_CDMEIF4;
+            asm volatile ("BKPT 0");
+        }
     }
     else // id::b
     {
@@ -283,6 +300,13 @@ void sai_base::block::dma_irq_handler(void)
             DMA2->HIFCR = DMA_HIFCR_CTCIF6;
             if (this->dma_callback)
                 this->dma_callback(dma_evt::transfer_complete);
+        }
+
+        /* Direct mode error */
+        if (DMA2->HISR & DMA_HISR_DMEIF6)
+        {
+            DMA2->HIFCR = DMA_HIFCR_CDMEIF6;
+            asm volatile ("BKPT 0");
         }
     }
 }
