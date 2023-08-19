@@ -408,8 +408,10 @@ void audio_wm8994ecs::reset(void)
 audio_wm8994ecs::audio_wm8994ecs(hal::interface::i2c_device &dev, uint8_t addr, input in, output out) :
 i2c_dev {dev}, i2c_addr {addr}, sai_drv{audio_sai::id::sai2}
 {
-    const uint32_t audio_freq = 48000;
-    const uint8_t audio_vol = 70;
+    constexpr uint32_t audio_freq = 48000;
+
+    constexpr uint8_t output_vol = 57; // 0dB
+    constexpr uint8_t input_vol = 192; // 0dB
 
     if (out != output::none)
     {
@@ -420,10 +422,12 @@ i2c_dev {dev}, i2c_addr {addr}, sai_drv{audio_sai::id::sai2}
             audio_sai::block::data_size::_16bit,
             audio_sai::block::sync_type::none,
             audio_sai::block::frame_type::stereo,
+            audio_sai::block::active_slots::slots_0_2,
             audio_sai::block::audio_freq::_48kHz,
         };
 
         sai_drv.block_a.configure(sai_a_cfg);
+        sai_drv.block_a.enable(true);
     }
 
     if (in != input::none)
@@ -437,15 +441,17 @@ i2c_dev {dev}, i2c_addr {addr}, sai_drv{audio_sai::id::sai2}
             out != output::none ?
             audio_sai::block::sync_type::internal : audio_sai::block::sync_type::none,
             audio_sai::block::frame_type::stereo,
+            in == input::mic2 || in == input::line2 ?
+            audio_sai::block::active_slots::slots_1_3 : audio_sai::block::active_slots::slots_0_2,
             audio_sai::block::audio_freq::_48kHz,
         };
 
         sai_drv.block_b.configure(sai_b_cfg);
+        sai_drv.block_b.enable(true);
     }
 
     /* Initialize wm8994 codec */
-    uint16_t id = this->read_id();
-    assert(id == WM8994_ID);
+    assert(this->read_id() == WM8994_ID);
     this->reset();
 
     drivers::delay::ms(10);
@@ -647,10 +653,10 @@ i2c_dev {dev}, i2c_addr {addr}, sai_drv{audio_sai::id::sai2}
             /* Disable IN1L, IN1R, IN2L, IN2R, Enable Thermal sensor & shutdown */
             this->write_reg(0x02, 0x6350);
 
-            /* Enable the DMIC2(Left) to AIF1 Timeslot 0 (Left) mixer path */
+            /* Enable the DMIC1(Left) to AIF1 Timeslot 0 (Left) mixer path */
             this->write_reg(0x606, 0x0002);
 
-            /* Enable the DMIC2(Right) to AIF1 Timeslot 0 (Right) mixer path */
+            /* Enable the DMIC1(Right) to AIF1 Timeslot 0 (Right) mixer path */
             this->write_reg(0x607, 0x0002);
 
             /* GPIO1 pin configuration GP1_DIR = output, GP1_FN = AIF1 DRC1 signal detect */
@@ -878,7 +884,7 @@ i2c_dev {dev}, i2c_addr {addr}, sai_drv{audio_sai::id::sai2}
         this->write_reg(0x422, 0x0010);
 
         /* Volume Control */
-        this->set_volume(audio_vol);
+        this->set_volume(output_vol);
     }
 
     if (in != input::none) /* Audio input selected */
@@ -924,7 +930,7 @@ i2c_dev {dev}, i2c_addr {addr}, sai_drv{audio_sai::id::sai2}
         }
 
         /* Volume Control */
-        uint8_t convertedvol = (audio_vol >= 100) ? 239 : static_cast<uint8_t>((audio_vol * 240) / 100);
+        uint8_t convertedvol = (input_vol >= 100) ? 239 : static_cast<uint8_t>((input_vol * 240) / 100);
 
         /* Left AIF1 ADC1 volume */
         this->write_reg(0x400, convertedvol | 0x100);

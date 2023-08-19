@@ -42,6 +42,7 @@ public:
         enum class data_size { _8bit = 2, _10bit, _16bit, _20bit, _24bit, _32bit };
         enum class sync_type { none, internal, external };
         enum class frame_type { stereo, mono };
+        enum class active_slots { slots_0_2 = 0b0101, slots_1_3 = 0b1010, slots_all = 0b1111 };
         enum class audio_freq
         {
             _8kHz = 8000, _11_025kHz = 11025, _16kHz = 16000, _22_05kHz = 22050,
@@ -55,6 +56,7 @@ public:
             data_size data;
             sync_type sync;
             frame_type frame;
+            active_slots slots;
             audio_freq frequency;
         };
 
@@ -115,7 +117,6 @@ public:
                                         }
                                     }
                                     ,this->read_loop);
-        this->block_b.enable(true);
     };
 
     void write(const T *data, std::size_t size, const typename hal::interface::i2s<T>::write_cb_t &callback) override
@@ -139,7 +140,6 @@ public:
                                         }
                                     }
                                     ,this->write_loop);
-        this->block_a.enable(true);
     };
 private:
     typename hal::interface::i2s<T>::read_cb_t read_callback;
