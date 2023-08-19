@@ -9,7 +9,8 @@
 #define EFFECTS_EFFECT_MANAGER_HPP_
 
 #include <middlewares/active_object.hpp>
-#include <drivers/audio_wm8994ecs.hpp>
+
+#include <hal/hal_audio.hpp>
 
 #include <variant>
 #include <memory>
@@ -62,7 +63,7 @@ private:
 
     std::vector<std::unique_ptr<effect>> effects;
 
-    drivers::audio_wm8994ecs audio;
+    hal::audio_devices::codec audio;
 };
 
 #endif /* EFFECTS_EFFECT_MANAGER_HPP_ */

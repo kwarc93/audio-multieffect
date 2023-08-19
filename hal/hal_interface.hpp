@@ -160,9 +160,8 @@ namespace hal::interface
 
         virtual ~audio_input() {};
 
-
         virtual void capture(sample_t *input, uint16_t length, const capture_cb_t &cb, bool loop) = 0;
-        virtual void end(void) = 0;
+        virtual void stop_capture(void) = 0;
 
     protected:
         capture_cb_t capture_callback;

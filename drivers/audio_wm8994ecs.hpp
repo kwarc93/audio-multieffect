@@ -28,7 +28,7 @@ public:
     ~audio_wm8994ecs();
 
     void capture(audio_input::sample_t *input, uint16_t length, const capture_cb_t &cb, bool loop) override;
-    void end(void) override;
+    void stop_capture(void) override;
 
     void play(const audio_output::sample_t *output, uint16_t length, const play_cb_t &cb, bool loop) override;
     void pause(void) override;

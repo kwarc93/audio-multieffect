@@ -132,8 +132,7 @@ bool effect_manager::find_effect(effect_id id, std::vector<std::unique_ptr<effec
 /* public */
 
 effect_manager::effect_manager() : active_object("effect_manager", osPriorityHigh, 4096),
-audio{middlewares::i2c_managers::main::get_instance(), drivers::audio_wm8994ecs::i2c_address,
-      drivers::audio_wm8994ecs::input::line1, drivers::audio_wm8994ecs::output::headphone}
+audio{middlewares::i2c_managers::main::get_instance()}
 {
     this->audio.capture(inbuf, inbuf_samples, capture_cb, true);
     this->audio.play(outbuf, outbuf_samples, play_cb, true);

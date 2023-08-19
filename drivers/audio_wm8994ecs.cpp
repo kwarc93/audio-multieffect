@@ -963,7 +963,7 @@ void audio_wm8994ecs::capture(audio_input::sample_t *input, uint16_t length, con
     );
 }
 
-void audio_wm8994ecs::end(void)
+void audio_wm8994ecs::stop_capture(void)
 {
     /* TODO */
 }

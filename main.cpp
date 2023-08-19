@@ -24,16 +24,16 @@ void init_thread(void *arg)
 {
     /* Create and test active objects */
 
-    /* Test of Active Object 'gui' */
-    auto gui_ao = std::make_unique<gui>();
-    const gui::event e { gui::demo_test_evt_t {} };
-    gui_ao->send(e);
-
     /* Test of Active Object 'echo' */
     auto echo_ao = std::make_unique<echo>();
 
     /* Test of Active Object 'blinky' */
     auto blinky_ao = std::make_unique<blinky>();
+
+    /* Test of Active Object 'gui' */
+    auto gui_ao = std::make_unique<gui>();
+    const gui::event e { gui::demo_test_evt_t {} };
+    gui_ao->send(e);
 
     /* Test of Active Object 'controller' */
     auto ctrl = std::make_unique<controller>();
