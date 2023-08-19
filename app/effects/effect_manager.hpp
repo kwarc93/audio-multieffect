@@ -14,6 +14,7 @@
 
 #include <variant>
 #include <memory>
+#include <array>
 
 #include "effect_interface.hpp"
 
@@ -61,9 +62,20 @@ private:
     std::unique_ptr<effect> create_new(effect_id id);
     bool find_effect(effect_id id, std::vector<std::unique_ptr<effect>>::iterator &it);
 
+    void audio_capture_cb(const hal::audio_devices::codec::audio::input_sample_t *input, uint16_t length);
+    void audio_play_cb(uint16_t output_sample_index);
+
     std::vector<std::unique_ptr<effect>> effects;
 
     hal::audio_devices::codec audio;
+
+    alignas(32) std::array<hal::audio_devices::codec::audio::input_sample_t, input_samples> audio_input_buf;
+    alignas(32) std::array<hal::audio_devices::codec::audio::output_sample_t, output_samples> audio_output_buf;
+    volatile uint16_t inbuf_idx;
+    volatile uint16_t outbuf_idx;
+
+    input_t dsp_input_buf;
+    output_t dsp_output_buf;
 };
 
 #endif /* EFFECTS_EFFECT_MANAGER_HPP_ */

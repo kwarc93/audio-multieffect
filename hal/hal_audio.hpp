@@ -21,6 +21,9 @@ namespace hal
     class audio
     {
     public:
+        using input_sample_t = T1;
+        using output_sample_t = T2;
+
         audio(hal::interface::audio_input<T1> *in_interface, hal::interface::audio_output<T2> *out_interface);
         virtual ~audio();
 

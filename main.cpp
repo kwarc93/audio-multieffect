@@ -41,15 +41,13 @@ void init_thread(void *arg)
     /* Test of Active Object 'effect_manager' */
     auto em = std::make_unique<effect_manager>();
 
-    static const std::array<effect_manager::event, 8> em_events =
+    static const std::array<effect_manager::event, 6> em_events =
     {{
         { effect_manager::add_effect_evt_t {effect_id::compressor} },
         { effect_manager::add_effect_evt_t {effect_id::equalizer} },
         { effect_manager::add_effect_evt_t {effect_id::reverb} },
-        { effect_manager::process_data_evt_t {} },
         { effect_manager::bypass_evt_t {effect_id::reverb, true} },
         { effect_manager::remove_effect_evt_t {effect_id::compressor} },
-        { effect_manager::process_data_evt_t {} },
         { effect_manager::bypass_evt_t {effect_id::reverb, false} }
     }};
 
