@@ -20,22 +20,30 @@
 #include "app/effects/reverb/reverb.hpp"
 #include "app/effects/compressor/compressor.hpp"
 
+#include <stm32f7xx.h>
+
 //-----------------------------------------------------------------------------
 /* helpers */
 
 namespace
 {
-    constexpr uint16_t inbuf_samples = 128;
+    constexpr uint16_t inbuf_samples = 256;
     constexpr uint16_t outbuf_samples = inbuf_samples;
-    int16_t inbuf[inbuf_samples] {0};
-    int16_t outbuf[outbuf_samples] {0};
+    __attribute__((aligned(32))) int16_t inbuf[inbuf_samples] {0};
+    __attribute__((aligned(32))) int16_t outbuf[outbuf_samples] {0};
     volatile uint16_t inbuf_idx {0};
     volatile uint16_t outbuf_idx {0};
 
     /* Simple pass through */
     void capture_cb(const int16_t *input, uint16_t length)
     {
-        std::memcpy(&outbuf[outbuf_idx], input, length * sizeof(*input));
+        // If D-Cache is enabled, it must be cleaned/invalidated for buffers used by DMA.
+        // Moreover, functions 'SCB_*_by_Addr()' require address alignment of 32 bytes.
+
+        std::size_t bytes = length * sizeof(*input);
+        SCB_InvalidateDCache_by_Addr(const_cast<int16_t*>(input), bytes);
+        std::memcpy(&outbuf[outbuf_idx], input, bytes);
+        SCB_CleanDCache_by_Addr(&outbuf[outbuf_idx], bytes);
     }
 
     void play_cb(uint16_t output_sample_index)
