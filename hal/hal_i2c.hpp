@@ -12,7 +12,7 @@
 
 namespace hal::i2c
 {
-    constexpr bool use_software_i2c = true;
+    constexpr bool use_software_i2c = false;
 
     namespace main
     {

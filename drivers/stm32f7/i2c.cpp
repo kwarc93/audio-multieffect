@@ -109,6 +109,9 @@ void i2c::write(std::byte byte)
 
 std::size_t i2c::read(std::byte *data, std::size_t size)
 {
+    if (data == nullptr || size == 0)
+        return 0;
+
     /* Limited to 255 bytes */
     if (size > 255)
         size = 255;
@@ -142,6 +145,9 @@ std::size_t i2c::read(std::byte *data, std::size_t size)
 
 std::size_t i2c::write(const std::byte *data, std::size_t size)
 {
+    if (data == nullptr || size == 0)
+        return 0;
+
     /* Limited to 255 bytes */
     if (size > 255)
         size = 255;
