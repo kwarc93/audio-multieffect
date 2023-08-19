@@ -69,13 +69,8 @@ private:
 
     hal::audio_devices::codec audio;
 
-    alignas(32) std::array<hal::audio_devices::codec::audio::input_sample_t, input_samples> audio_input_buf;
-    alignas(32) std::array<hal::audio_devices::codec::audio::output_sample_t, output_samples> audio_output_buf;
-    volatile uint16_t inbuf_idx;
-    volatile uint16_t outbuf_idx;
-
-    input_t dsp_input_buf;
-    output_t dsp_output_buf;
+    input_buffer_t audio_input;
+    output_buffer_t audio_output;
 };
 
 #endif /* EFFECTS_EFFECT_MANAGER_HPP_ */

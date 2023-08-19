@@ -16,7 +16,7 @@ public:
     compressor();
     virtual ~compressor();
 
-    void process(const input_t &in, output_t &out) override;
+    void process(const dsp_input_t &in, dsp_output_t &out) override;
 };
 
 #endif /* EFFECTS_COMPRESSOR_COMPRESSOR_HPP_ */

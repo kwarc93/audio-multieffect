@@ -25,6 +25,9 @@
 //-----------------------------------------------------------------------------
 /* helpers */
 
+static_assert( std::is_same_v<input_buffer_t::raw_sample_t, hal::audio_devices::codec::audio::input_sample_t> == true );
+static_assert( std::is_same_v<output_buffer_t::raw_sample_t, hal::audio_devices::codec::audio::output_sample_t> == true );
+
 
 //-----------------------------------------------------------------------------
 /* private */
@@ -73,8 +76,8 @@ void effect_manager::event_handler(const bypass_evt_t &e)
 
 void effect_manager::event_handler(const process_data_evt_t &e)
 {
-    input_t *current_input {&this->dsp_input_buf};
-    output_t *current_output {&this->dsp_output_buf};
+    dsp_input_t *current_input {&this->audio_input.dsp};
+    dsp_output_t *current_output {&this->audio_output.dsp};
 
     for (auto &effect : this->effects)
     {
@@ -82,8 +85,8 @@ void effect_manager::event_handler(const process_data_evt_t &e)
         {
             effect->process(*current_input, *current_output);
 
-            /* Swap current buffers pointers after each effect process */
-            input_t *tmp = current_input;
+            /* Swap current buffers pointers after each effect process so that old output is new input */
+            dsp_input_t *tmp = current_input;
             current_input = current_output;
             current_output = tmp;
         }
@@ -93,7 +96,7 @@ void effect_manager::event_handler(const process_data_evt_t &e)
     current_output = current_input;
 
     /* Copy processed samples to output buffer */
-    std::transform(current_output->begin(), current_output->end(), this->audio_output_buf.begin() + this->outbuf_idx,
+    std::transform(current_output->begin(), current_output->end(), this->audio_output.raw.begin() + this->audio_output.raw_idx,
     [](auto x)
     {
         return static_cast<hal::audio_devices::codec::audio::output_sample_t>(x);
@@ -102,7 +105,7 @@ void effect_manager::event_handler(const process_data_evt_t &e)
 
     // If D-Cache is enabled, it must be cleaned/invalidated for buffers used by DMA.
     // Moreover, functions 'SCB_*_by_Addr()' require address alignment of 32 bytes.
-    SCB_CleanDCache_by_Addr(&this->audio_output_buf[this->outbuf_idx], sizeof(this->audio_output_buf) / 2);
+    SCB_CleanDCache_by_Addr(&this->audio_output.raw[this->audio_output.raw_idx], sizeof(this->audio_output.raw) / 2);
 }
 
 std::unique_ptr<effect> effect_manager::create_new(effect_id id)
@@ -133,20 +136,20 @@ void effect_manager::audio_capture_cb(const hal::audio_devices::codec::audio::in
 
     // If D-Cache is enabled, it must be cleaned/invalidated for buffers used by DMA.
     // Moreover, functions 'SCB_*_by_Addr()' require address alignment of 32 bytes.
-
     SCB_InvalidateDCache_by_Addr(const_cast<int16_t*>(input), length * sizeof(*input));
 
     /* Copy new samples to DSP input buffer */
-    this->inbuf_idx = (input == &this->audio_input_buf[0]) ? 0 : this->audio_input_buf.size() / 2;
-    auto audio_input_begin {this->audio_input_buf.begin() + this->inbuf_idx};
-    auto audio_input_end {this->audio_input_buf.begin() + this->inbuf_idx + this->audio_input_buf.size() / 2};
-    std::transform(audio_input_begin, audio_input_end, this->dsp_input_buf.begin(),
+    this->audio_input.raw_idx = (input == &this->audio_input.raw[0]) ? 0 : this->audio_input.raw.size() / 2;
+    auto audio_input_begin {this->audio_input.raw.begin() + this->audio_input.raw_idx};
+    auto audio_input_end {this->audio_input.raw.begin() + this->audio_input.raw_idx + this->audio_input.raw.size() / 2};
+    std::transform(audio_input_begin, audio_input_end, this->audio_input.dsp.begin(),
     [](auto x)
     {
         return static_cast<float>(x);
     }
     );
 
+    /* Send event to process data */
     static const event e{ process_data_evt_t {}, event::immutable };
     this->send(e, 0);
 }
@@ -155,7 +158,7 @@ void effect_manager::audio_play_cb(uint16_t output_sample_index)
 {
     /* WARINING: This method may be called from interrupt */
 
-    this->outbuf_idx = (output_sample_index == this->audio_output_buf.size()) ? this->audio_output_buf.size() / 2 : 0;
+    this->audio_output.raw_idx = (output_sample_index == this->audio_output.raw.size()) ? this->audio_output.raw.size() / 2 : 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -164,14 +167,16 @@ void effect_manager::audio_play_cb(uint16_t output_sample_index)
 effect_manager::effect_manager() : active_object("effect_manager", osPriorityHigh, 4096),
 audio{middlewares::i2c_managers::main::get_instance()}
 {
-    this->audio.capture(this->audio_input_buf.data(), this->audio_input_buf.size(),
+    /* Start audio capture */
+    this->audio.capture(this->audio_input.raw.data(), this->audio_input.raw.size(),
     [this](auto... params)
     {
         this->audio_capture_cb(params...);
     },
     true);
 
-    this->audio.play(this->audio_output_buf.data(), this->audio_output_buf.size(),
+    /* Start audio playback */
+    this->audio.play(this->audio_output.raw.data(), this->audio_output.raw.size(),
     [this](auto... params)
     {
         this->audio_play_cb(params...);

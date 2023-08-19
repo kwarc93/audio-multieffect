@@ -24,7 +24,7 @@ equalizer::~equalizer()
 
 }
 
-void equalizer::process(const input_t& in, output_t& out)
+void equalizer::process(const dsp_input_t& in, dsp_output_t& out)
 {
 //    printf("Effect '%s'(id:%u) processing data\n", this->name.data(), static_cast<unsigned>(this->id));
     out = in;
