@@ -20,7 +20,7 @@ struct audio_buffer
     using raw_sample_t = T1;
     using dsp_sample_t = T2;
     using raw_buf_t = std::array<T1, samples>; // One buffer acts as two for double-buffering
-    using dsp_buf_t = std::array<T2, samples/2>;
+    using dsp_buf_t = std::array<T2, samples/2>; // DSP buffer receives always only half of RAW buffer
 
     volatile uint16_t raw_idx;
     alignas(32) raw_buf_t raw; // Alignment at 32-byte boundary needed for DMA & CPU D-Cache

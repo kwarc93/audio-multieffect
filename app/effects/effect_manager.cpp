@@ -8,6 +8,7 @@
 #include "effect_manager.hpp"
 
 #include <cstring>
+#include <cmath>
 #include <functional>
 #include <algorithm>
 #include <memory>
@@ -99,7 +100,7 @@ void effect_manager::event_handler(const process_data_evt_t &e)
     std::transform(current_output->begin(), current_output->end(), this->audio_output.raw.begin() + this->audio_output.raw_idx,
     [](auto x)
     {
-        return static_cast<hal::audio_devices::codec::audio::output_sample_t>(x);
+        return std::lround(x);
     }
     );
 
