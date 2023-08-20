@@ -83,8 +83,6 @@ template<typename T>
 class sai : public sai_base, public hal::interface::i2s<T>
 {
 public:
-    using sample_t = T;
-
     sai(id id) : sai_base {id} {};
     ~sai() {};
 
@@ -123,7 +121,7 @@ public:
     {
         this->write_callback = callback;
         this->block_a.configure_dma((void*)data, size / sizeof(*data), sizeof(*data),
-                                    [this, data, size](block::dma_evt e)
+                                    [this, size](block::dma_evt e)
                                     {
                                         switch (e)
                                         {

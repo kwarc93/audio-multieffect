@@ -62,15 +62,17 @@ private:
     std::unique_ptr<effect> create_new(effect_id id);
     bool find_effect(effect_id id, std::vector<std::unique_ptr<effect>>::iterator &it);
 
-    void audio_capture_cb(const hal::audio_devices::codec::audio::input_sample_t *input, uint16_t length);
-    void audio_play_cb(uint16_t output_sample_index);
+    void audio_capture_cb(const hal::audio_devices::codec::input_sample_t *input, uint16_t length);
+    void audio_play_cb(uint16_t sample_index);
 
     std::vector<std::unique_ptr<effect>> effects;
 
     hal::audio_devices::codec audio;
+    hal::audio_devices::codec::input_buffer_t<256> audio_input;
+    hal::audio_devices::codec::output_buffer_t<256> audio_output;
 
-    input_buffer_t audio_input;
-    output_buffer_t audio_output;
+    dsp_input_t dsp_input;
+    dsp_output_t dsp_output;
 };
 
 #endif /* EFFECTS_EFFECT_MANAGER_HPP_ */

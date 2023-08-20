@@ -38,8 +38,8 @@ public:
 private:
     hal::interface::i2c_device &i2c_dev;
     const uint8_t i2c_addr;
-    typedef sai<int16_t> audio_sai;
-    audio_sai sai_drv;
+    typedef sai<int16_t> sai_16bit;
+    sai_16bit sai_drv;
 
     capture_cb_t capture_callback;
     play_cb_t play_callback;

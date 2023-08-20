@@ -406,7 +406,7 @@ void audio_wm8994ecs::reset(void)
 /* public */
 
 audio_wm8994ecs::audio_wm8994ecs(hal::interface::i2c_device &dev, uint8_t addr, input in, output out) :
-i2c_dev {dev}, i2c_addr {addr}, sai_drv{audio_sai::id::sai2}
+i2c_dev {dev}, i2c_addr {addr}, sai_drv{sai_16bit::id::sai2}
 {
     constexpr uint32_t audio_freq = 48000;
 
@@ -415,15 +415,15 @@ i2c_dev {dev}, i2c_addr {addr}, sai_drv{audio_sai::id::sai2}
 
     if (out != output::none)
     {
-        static const audio_sai::block::config sai_a_cfg
+        static const sai_16bit::block::config sai_a_cfg
         {
-            audio_sai::block::mode_type::master_tx,
-            audio_sai::block::protocol_type::generic,
-            audio_sai::block::data_size::_16bit,
-            audio_sai::block::sync_type::none,
-            audio_sai::block::frame_type::stereo,
-            audio_sai::block::active_slots::slots_0_2,
-            audio_sai::block::audio_freq::_48kHz,
+            sai_16bit::block::mode_type::master_tx,
+            sai_16bit::block::protocol_type::generic,
+            sai_16bit::block::data_size::_16bit,
+            sai_16bit::block::sync_type::none,
+            sai_16bit::block::frame_type::stereo,
+            sai_16bit::block::active_slots::slots_0_2,
+            sai_16bit::block::audio_freq::_48kHz,
         };
 
         sai_drv.block_a.configure(sai_a_cfg);
@@ -432,18 +432,18 @@ i2c_dev {dev}, i2c_addr {addr}, sai_drv{audio_sai::id::sai2}
 
     if (in != input::none)
     {
-        static const audio_sai::block::config sai_b_cfg
+        static const sai_16bit::block::config sai_b_cfg
         {
             out != output::none ?
-            audio_sai::block::mode_type::slave_rx : audio_sai::block::mode_type::master_rx,
-            audio_sai::block::protocol_type::generic,
-            audio_sai::block::data_size::_16bit,
+            sai_16bit::block::mode_type::slave_rx : sai_16bit::block::mode_type::master_rx,
+            sai_16bit::block::protocol_type::generic,
+            sai_16bit::block::data_size::_16bit,
             out != output::none ?
-            audio_sai::block::sync_type::internal : audio_sai::block::sync_type::none,
-            audio_sai::block::frame_type::stereo,
+            sai_16bit::block::sync_type::internal : sai_16bit::block::sync_type::none,
+            sai_16bit::block::frame_type::stereo,
             in == input::mic2 || in == input::line2 ?
-            audio_sai::block::active_slots::slots_1_3 : audio_sai::block::active_slots::slots_0_2,
-            audio_sai::block::audio_freq::_48kHz,
+            sai_16bit::block::active_slots::slots_1_3 : sai_16bit::block::active_slots::slots_0_2,
+            sai_16bit::block::audio_freq::_48kHz,
         };
 
         sai_drv.block_b.configure(sai_b_cfg);

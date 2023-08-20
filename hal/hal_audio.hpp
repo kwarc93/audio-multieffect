@@ -24,6 +24,12 @@ namespace hal
         using input_sample_t = T1;
         using output_sample_t = T2;
 
+        template <uint16_t N>
+        using input_buffer_t = hal::interface::audio_buffer<input_sample_t, N, 2, 16>;
+
+        template <uint16_t N>
+        using output_buffer_t = hal::interface::audio_buffer<output_sample_t, N, 2, 16>;
+
         audio(hal::interface::audio_input<T1> *in_interface, hal::interface::audio_output<T2> *out_interface);
         virtual ~audio();
 

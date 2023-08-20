@@ -148,8 +148,6 @@ namespace hal::interface
         touch_cb_t touch_callback;
     };
 
-    typedef int16_t audio_sample_t;
-
     template<typename T>
     class audio_input
     {
@@ -187,6 +185,16 @@ namespace hal::interface
         play_cb_t play_callback;
     };
 
+    template <typename T, uint16_t S, uint8_t CH, uint8_t B>
+    struct audio_buffer
+    {
+        static constexpr uint16_t samples = S;
+        static constexpr uint8_t channels = CH;
+        static constexpr uint8_t bps = B;
+
+        volatile uint16_t sample_index;
+        alignas(32) std::array<T, samples*channels> buffer; // Alignment at 32-byte boundary needed for DMA & CPU D-Cache
+    };
 
 }
 
