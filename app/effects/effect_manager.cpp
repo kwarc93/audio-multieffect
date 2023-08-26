@@ -174,8 +174,8 @@ void effect_manager::audio_play_cb(uint16_t sample_index)
 effect_manager::effect_manager() : active_object("effect_manager", osPriorityHigh, 4096),
 audio{middlewares::i2c_managers::main::get_instance()}
 {
-    this->dsp_input.reserve(this->audio_input.samples / 2);
-    this->dsp_output.reserve(this->audio_output.samples / 2);
+    this->dsp_input.resize(this->audio_input.samples * this->audio_input.channels / 2);
+    this->dsp_output.resize(this->audio_output.samples * this->audio_input.channels / 2);
 
     /* Start audio capture */
     this->audio.capture(this->audio_input.buffer.data(), this->audio_input.buffer.size(),
