@@ -9,7 +9,7 @@
 
 #include "libs/lvgl/lvgl.h"
 
-#include "effects/tremolo/ui.h"
+#include "ui.h"
 
 #include "middlewares/i2c_manager.hpp"
 
@@ -109,6 +109,8 @@ display {middlewares::i2c_managers::main::get_instance()}
     this->timer = osTimerNew(gui_timer_callback, osTimerPeriodic, this, NULL);
     assert(this->timer != nullptr);
     osTimerStart(this->timer, 10);
+
+    ui_init();
 };
 
 //-----------------------------------------------------------------------------
@@ -126,7 +128,7 @@ void gui::event_handler(const timer_evt_t &e)
 
 void gui::event_handler(const demo_test_evt_t &e)
 {
-    gui_tremolo_init();
+
 }
 
 
