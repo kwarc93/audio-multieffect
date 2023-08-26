@@ -51,7 +51,7 @@ LV_IMG_DECLARE(ui_img_btn_1_act_png);    // assets/btn_1_act.png
 LV_FONT_DECLARE(ui_font_14_bold);
 LV_FONT_DECLARE(ui_font_mos_semibold_16);
 
-void ui_tremolo_init(void);
+void gui_tremolo_init(void);
 
 #ifdef __cplusplus
 } /*extern "C"*/

@@ -44,5 +44,4 @@ private:
     osTimerId_t timer;
 };
 
-
 #endif /* GUI_HPP_ */

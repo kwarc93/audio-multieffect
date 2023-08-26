@@ -12,9 +12,9 @@
 
 #include "app/effects/effect_types.hpp"
 
-#include "app/effects/equalizer/data_types.hpp"
-#include "app/effects/compressor/data_types.hpp"
-#include "app/effects/reverb/data_types.hpp"
+#include "app/effects/equalizer/equalizer.hpp"
+#include "app/effects/noise_gate/noise_gate.hpp"
+#include "app/effects/tremolo/tremolo.hpp"
 
 struct controller_event
 {
@@ -25,7 +25,7 @@ struct controller_event
 
     struct effect_controls_evt_t
     {
-        std::variant<equalizer::controls_t, reverb::controls_t, compressor::controls_t> controls;
+        std::variant<equalizer::controls, noise_gate::controls, tremolo::controls_t> controls;
     };
 
     using holder = std::variant<button_evt_t, effect_controls_evt_t>;

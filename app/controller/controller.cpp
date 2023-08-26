@@ -66,15 +66,15 @@ void controller::event_handler(const effect_controls_evt_t &e)
     std::visit([](auto &&controls)
     {
         using T = std::decay_t<decltype(controls)>;
-        if constexpr (std::is_same_v<T, equalizer::controls_t>)
+        if constexpr (std::is_same_v<T, equalizer::controls>)
         {
             /* TODO */
         }
-        else if constexpr (std::is_same_v<T, reverb::controls_t>)
+        else if constexpr (std::is_same_v<T, noise_gate::controls>)
         {
             /* TODO */
         }
-        else if constexpr (std::is_same_v<T, compressor::controls_t>)
+        else if constexpr (std::is_same_v<T, tremolo::controls_t>)
         {
             /* TODO */
         }

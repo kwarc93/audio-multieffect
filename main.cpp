@@ -16,7 +16,7 @@
 
 #include "app/blinky.hpp"
 #include "app/echo.hpp"
-#include "app/gui.hpp"
+#include "app/gui/gui.hpp"
 #include "app/effects/effect_manager.hpp"
 #include "app/controller/controller.hpp"
 
@@ -43,12 +43,12 @@ void init_thread(void *arg)
 
     static const std::array<effect_manager::event, 6> em_events =
     {{
-        { effect_manager::add_effect_evt_t {effect_id::compressor} },
+        { effect_manager::add_effect_evt_t {effect_id::noise_gate} },
         { effect_manager::add_effect_evt_t {effect_id::equalizer} },
-        { effect_manager::add_effect_evt_t {effect_id::reverb} },
-        { effect_manager::bypass_evt_t {effect_id::reverb, true} },
-        { effect_manager::remove_effect_evt_t {effect_id::compressor} },
-        { effect_manager::bypass_evt_t {effect_id::reverb, false} }
+        { effect_manager::add_effect_evt_t {effect_id::tremolo} },
+        { effect_manager::bypass_evt_t {effect_id::equalizer, true} },
+        { effect_manager::remove_effect_evt_t {effect_id::noise_gate} },
+        { effect_manager::bypass_evt_t {effect_id::equalizer, false} }
     }};
 
     while (true)

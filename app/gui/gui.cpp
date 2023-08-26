@@ -7,7 +7,9 @@
 
 #include "gui.hpp"
 
-#include "gui/effects/tremolo/ui.h"
+#include "libs/lvgl/lvgl.h"
+
+#include "effects/tremolo/ui.h"
 
 #include "middlewares/i2c_manager.hpp"
 
@@ -124,7 +126,7 @@ void gui::event_handler(const timer_evt_t &e)
 
 void gui::event_handler(const demo_test_evt_t &e)
 {
-    ui_tremolo_init();
+    gui_tremolo_init();
 }
 
 

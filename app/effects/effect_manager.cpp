@@ -18,8 +18,8 @@
 #include "middlewares/i2c_manager.hpp"
 
 #include "app/effects/equalizer/equalizer.hpp"
-#include "app/effects/reverb/reverb.hpp"
-#include "app/effects/compressor/compressor.hpp"
+#include "app/effects/noise_gate/noise_gate.hpp"
+#include "app/effects/tremolo/tremolo.hpp"
 
 #include <stm32f7xx.h> // For managing D-Cache & I-Cache
 
@@ -111,8 +111,8 @@ std::unique_ptr<effect> effect_manager::create_new(effect_id id)
     static const std::map<effect_id, std::function<std::unique_ptr<effect>()>> effect_factory =
     {
         { effect_id::equalizer,     []() { return std::make_unique<equalizer>(); } },
-        { effect_id::reverb,        []() { return std::make_unique<reverb>(); } },
-        { effect_id::compressor,    []() { return std::make_unique<compressor>(); } },
+        { effect_id::noise_gate,    []() { return std::make_unique<noise_gate>(); } },
+        { effect_id::tremolo,       []() { return std::make_unique<tremolo>(); } },
     };
 
     return effect_factory.at(id)();

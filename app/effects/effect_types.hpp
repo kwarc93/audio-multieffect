@@ -10,7 +10,7 @@
 
 #include <vector>
 
-enum class effect_id { equalizer, reverb, compressor };
+enum class effect_id { equalizer, noise_gate, tremolo };
 
 typedef std::vector<float> dsp_input_t;
 typedef std::vector<float> dsp_output_t;

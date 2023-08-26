@@ -128,7 +128,7 @@ void ui_event_Label_Cut_3(lv_event_t * e)
 
 ///////////////////// SCREENS ////////////////////
 
-void ui_tremolo_init(void)
+void gui_tremolo_init(void)
 {
     lv_disp_t * dispp = lv_disp_get_default();
     lv_theme_t * theme = lv_theme_default_init(dispp, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_RED),

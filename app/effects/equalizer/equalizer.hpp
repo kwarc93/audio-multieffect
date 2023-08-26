@@ -13,6 +13,24 @@
 class equalizer : public effect
 {
 public:
+    /* 3-band parametric equalizer */
+    struct controls
+    {
+        struct section_params
+        {
+            float gain, q_factor, freq;
+        };
+
+        section_params low;
+        section_params mid;
+        section_params hi;
+    };
+
+    struct state
+    {
+        int error_code;
+    };
+
     equalizer();
     virtual ~equalizer();
 

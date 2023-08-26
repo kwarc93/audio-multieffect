@@ -1,11 +1,11 @@
 /*
- * compressor.cpp
+ * noise_gate.cpp
  *
  *  Created on: 4 sty 2023
  *      Author: kwarc
  */
 
-#include "compressor.hpp"
+#include "noise_gate.hpp"
 
 //-----------------------------------------------------------------------------
 /* private */
@@ -13,17 +13,17 @@
 //-----------------------------------------------------------------------------
 /* public */
 
-compressor::compressor() : effect { effect_id::compressor, "compressor" }
+noise_gate::noise_gate() : effect { effect_id::noise_gate, "noise_gate" }
 {
 
 }
 
-compressor::~compressor()
+noise_gate::~noise_gate()
 {
 
 }
 
-void compressor::process(const dsp_input_t& in, dsp_output_t& out)
+void noise_gate::process(const dsp_input_t& in, dsp_output_t& out)
 {
 //    printf("Effect '%s' (id:%u) processing data\n", this->name.data(), static_cast<unsigned>(this->id));
     out = in;
