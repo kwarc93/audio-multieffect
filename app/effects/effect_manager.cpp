@@ -94,12 +94,14 @@ void effect_manager::event_handler(const process_data_evt_t &e)
     current_output = current_input;
 
     /* Transform DSP samples to RAW buffer */
-    std::transform(current_output->begin(), current_output->end(), this->audio_output.buffer.begin() + this->audio_output.sample_index,
-    [](auto x)
+    for (unsigned i = 0; i < current_output->size(); i++)
     {
-        return std::lround(x);
+        auto sample = std::lround(current_output->at(i));
+        /* Left */
+        this->audio_output.buffer[this->audio_output.sample_index + 2 * i] = sample;
+        /* Right */
+        this->audio_output.buffer[this->audio_output.sample_index + 2 * i + 1] = sample;
     }
-    );
 
     // If D-Cache is enabled, it must be cleaned/invalidated for buffers used by DMA.
     // Moreover, functions 'SCB_*_by_Addr()' require address alignment of 32 bytes.
@@ -143,14 +145,11 @@ void effect_manager::audio_capture_cb(const hal::audio_devices::codec::input_sam
         this->audio_input.sample_index = this->audio_input.buffer.size() / 2;
 
     /* Transform RAW samples to DSP buffer */
-    auto audio_input_begin {this->audio_input.buffer.begin() + this->audio_input.sample_index};
-    auto audio_input_end {this->audio_input.buffer.begin() + this->audio_input.sample_index + this->audio_input.buffer.size() / 2};
-    std::transform(audio_input_begin, audio_input_end, this->dsp_input.begin(),
-    [](auto x)
+    for (unsigned i = this->audio_input.sample_index, j = 0; i < this->audio_input.sample_index + this->audio_input.buffer.size() / 2; i+=2, j++)
     {
-        return static_cast<float>(x);
+        /* Copy only left channel */
+        this->dsp_input.at(j) = this->audio_input.buffer.at(i);
     }
-    );
 
     /* Send event to process data */
     static const event e{ process_data_evt_t {}, event::immutable };
@@ -174,8 +173,9 @@ void effect_manager::audio_play_cb(uint16_t sample_index)
 effect_manager::effect_manager() : active_object("effect_manager", osPriorityHigh, 4096),
 audio{middlewares::i2c_managers::main::get_instance()}
 {
-    this->dsp_input.resize(this->audio_input.samples * this->audio_input.channels / 2);
-    this->dsp_output.resize(this->audio_output.samples * this->audio_input.channels / 2);
+    /* DSP buffers have only one channel */
+    this->dsp_input.resize(this->audio_input.samples / 2);
+    this->dsp_output.resize(this->audio_output.samples / 2);
 
     /* Start audio capture */
     this->audio.capture(this->audio_input.buffer.data(), this->audio_input.buffer.size(),

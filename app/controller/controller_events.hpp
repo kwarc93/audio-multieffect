@@ -25,7 +25,7 @@ struct controller_event
 
     struct effect_controls_evt_t
     {
-        std::variant<equalizer::controls, noise_gate::controls, tremolo::controls_t> controls;
+        std::variant<equalizer::controls, noise_gate::controls, tremolo::controls> controls;
     };
 
     using holder = std::variant<button_evt_t, effect_controls_evt_t>;

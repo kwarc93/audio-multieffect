@@ -11,7 +11,6 @@
 #include <vector>
 #include <string_view>
 #include <cstdint>
-#include <cstdio> // TODO: Remove after tests
 
 #include "effect_types.hpp"
 

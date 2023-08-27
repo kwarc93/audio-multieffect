@@ -74,7 +74,7 @@ void controller::event_handler(const effect_controls_evt_t &e)
         {
             /* TODO */
         }
-        else if constexpr (std::is_same_v<T, tremolo::controls_t>)
+        else if constexpr (std::is_same_v<T, tremolo::controls>)
         {
             /* TODO */
         }
