@@ -27,7 +27,7 @@ public:
         int error_code;
     };
 
-    tremolo(float rate = 8, float depth = 0.5f, shape_type shape = shape_type::triangle);
+    tremolo(float rate = 8, float depth = 0.5f, shape_type shape = shape_type::sine);
     virtual ~tremolo();
 
     void process(const dsp_input_t &in, dsp_output_t &out) override;
@@ -36,10 +36,13 @@ public:
     void set_rate(float rate);
     void set_shape(shape_type shape);
 private:
+    float lfo(void);
+
     float depth;
 
-    float lfo_dir;
+    float lfo_freq;
     float lfo_counter;
+    float lfo_counter_dir;
     float lfo_counter_limit;
     shape_type lfo_shape;
 };
