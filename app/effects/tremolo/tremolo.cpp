@@ -44,10 +44,10 @@ float tremolo::lfo(void)
     {
         out = arm_sin_f32(this->lfo_counter);
 
-        this->lfo_counter += 2 * pi * this->lfo_freq / sampling_frequency_hz;
-
-        if (this->lfo_counter > pi)
+        if (this->lfo_counter >= pi)
             this->lfo_counter -= 2 * pi;
+
+        this->lfo_counter += 2 * pi * this->lfo_freq / sampling_frequency_hz;
     }
 
     return out;
@@ -58,9 +58,6 @@ float tremolo::lfo(void)
 
 tremolo::tremolo(float rate, float depth, shape_type shape) : effect { effect_id::tremolo, "tremolo" }
 {
-    this->lfo_counter = 0;
-    this->lfo_counter_dir = 1;
-
     this->set_shape(shape);
     this->set_depth(depth);
     this->set_rate(rate);
@@ -104,5 +101,10 @@ void tremolo::set_rate(float rate)
 void tremolo::set_shape(shape_type shape)
 {
     this->lfo_shape = shape;
+
+    /* Reset lfo */
+    this->lfo_counter = 0;
+    this->lfo_counter_dir = 1;
+    this->lfo_counter_limit = 0.25f * (sampling_frequency_hz / this->lfo_freq);
 }
 

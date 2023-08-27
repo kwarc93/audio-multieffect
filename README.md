@@ -1,2 +1,8 @@
-# audio-multieffect
-Concept of a real-time audio processing device running on STM32F746-DISCO board
+# Digital Multi Effect
+
+A concept of digital multi-effect for guitar running on STM32F746-DISCO board
+
+
+## Overview
+
+[PROJECT UNDER DEVELOPMENT]
