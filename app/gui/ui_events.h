@@ -10,12 +10,12 @@
 extern "C" {
 #endif
 
+void ui_tremolo_bypass(lv_event_t * e);
+void ui_tremolo_rate_changed(lv_event_t * e);
+void ui_tremolo_depth_changed(lv_event_t * e);
+void ui_tremolo_shape_changed(lv_event_t * e);
 void ui_equalizer_bypass(lv_event_t * e);
 void ui_noise_gate_bypass(lv_event_t * e);
-void ui_tremolo_rate_changed(lv_event_t * e);
-void ui_tremolo_shape_changed(lv_event_t * e);
-void ui_tremolo_depth_changed(lv_event_t * e);
-void ui_tremolo_bypass(lv_event_t * e);
 
 #ifdef __cplusplus
 } /*extern "C"*/

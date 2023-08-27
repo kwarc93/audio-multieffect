@@ -7,52 +7,57 @@
 #include "ui_helpers.h"
 
 ///////////////////// VARIABLES ////////////////////
+void splashfadein_Animation(lv_obj_t * TargetObject, int delay);
 
-// SCREEN: ui_fx_equalizer
-void ui_fx_equalizer_screen_init(void);
-void ui_event_fx_equalizer(lv_event_t * e);
-lv_obj_t * ui_fx_equalizer;
-lv_obj_t * ui_lbl_fx_name_1;
-void ui_event_btn_eq_bypass(lv_event_t * e);
-lv_obj_t * ui_btn_eq_bypass;
-lv_obj_t * ui_lbl_eq_bypass_btn;
-
-// SCREEN: ui_fx_noise_gate
-void ui_fx_noise_gate_screen_init(void);
-void ui_event_fx_noise_gate(lv_event_t * e);
-lv_obj_t * ui_fx_noise_gate;
-lv_obj_t * ui_lbl_fx_name_2;
-void ui_event_btn_noise_gate_bypass(lv_event_t * e);
-lv_obj_t * ui_btn_noise_gate_bypass;
-lv_obj_t * ui_lbl_noise_gate_bypass_btn;
+// SCREEN: ui_splash
+void ui_splash_screen_init(void);
+void ui_event_splash(lv_event_t * e);
+lv_obj_t * ui_splash;
+lv_obj_t * ui_lbl_splash;
 
 // SCREEN: ui_fx_tremolo
 void ui_fx_tremolo_screen_init(void);
 void ui_event_fx_tremolo(lv_event_t * e);
 lv_obj_t * ui_fx_tremolo;
-lv_obj_t * ui_background;
-lv_obj_t * ui_content_group;
-lv_obj_t * ui_controls_group;
-lv_obj_t * ui_rate_group;
-lv_obj_t * ui_Image2;
-void ui_event_Arc1(lv_event_t * e);
-lv_obj_t * ui_Arc1;
-lv_obj_t * ui_lbl_rate;
-lv_obj_t * ui_shape_group;
-lv_obj_t * ui_lbl_shape;
-void ui_event_sw_shape(lv_event_t * e);
-lv_obj_t * ui_sw_shape;
-lv_obj_t * ui_lbl_triangle;
-lv_obj_t * ui_lbl_sine;
-lv_obj_t * ui_depth_group;
-lv_obj_t * ui_Image4;
-void ui_event_Arc3(lv_event_t * e);
-lv_obj_t * ui_Arc3;
-lv_obj_t * ui_lbl_depth;
-lv_obj_t * ui_lbl_fx_name3;
-void ui_event_btn_tremolo_bypass(lv_event_t * e);
-lv_obj_t * ui_btn_tremolo_bypass;
-lv_obj_t * ui_lbl_tremolo_bypass_btn;
+lv_obj_t * ui_lbl_trem_fx_name;
+void ui_event_btn_trem_bypass(lv_event_t * e);
+lv_obj_t * ui_btn_trem_bypass;
+lv_obj_t * ui_lbl_btn_trem_bypass_;
+lv_obj_t * ui_pnl_trem_controls;
+lv_obj_t * ui_pnl_trem_rate;
+lv_obj_t * ui_img_trem_rate;
+void ui_event_arc_trem_rate(lv_event_t * e);
+lv_obj_t * ui_arc_trem_rate;
+lv_obj_t * ui_lbl_trem_rate;
+lv_obj_t * ui_pnl_trem_depth;
+lv_obj_t * ui_img_trem_depth;
+void ui_event_arc_trem_depth(lv_event_t * e);
+lv_obj_t * ui_arc_trem_depth;
+lv_obj_t * ui_lbl_trem_depth;
+lv_obj_t * ui_pnl_trem_shape;
+lv_obj_t * ui_lbl_trem_shape;
+void ui_event_sw_tremolo_shape(lv_event_t * e);
+lv_obj_t * ui_sw_tremolo_shape;
+lv_obj_t * ui_lbl_trem_triangle;
+lv_obj_t * ui_lbl_trem_sine;
+
+// SCREEN: ui_fx_equalizer
+void ui_fx_equalizer_screen_init(void);
+void ui_event_fx_equalizer(lv_event_t * e);
+lv_obj_t * ui_fx_equalizer;
+lv_obj_t * ui_lbl_eq_fx_name;
+void ui_event_btn_eq_bypass(lv_event_t * e);
+lv_obj_t * ui_btn_eq_bypass;
+lv_obj_t * ui_lbl_btn_eq_bypass;
+
+// SCREEN: ui_fx_noise_gate
+void ui_fx_noise_gate_screen_init(void);
+void ui_event_fx_noise_gate(lv_event_t * e);
+lv_obj_t * ui_fx_noise_gate;
+lv_obj_t * ui_lbl_ng_fx_name;
+void ui_event_btn_ng_bypass(lv_event_t * e);
+lv_obj_t * ui_btn_ng_bypass;
+lv_obj_t * ui_lbl_btn_ng_bypass;
 lv_obj_t * ui____initial_actions0;
 
 ///////////////////// TEST LVGL SETTINGS ////////////////////
@@ -64,8 +69,83 @@ lv_obj_t * ui____initial_actions0;
 #endif
 
 ///////////////////// ANIMATIONS ////////////////////
+void splashfadein_Animation(lv_obj_t * TargetObject, int delay)
+{
+    ui_anim_user_data_t * PropertyAnimation_0_user_data = lv_mem_alloc(sizeof(ui_anim_user_data_t));
+    PropertyAnimation_0_user_data->target = TargetObject;
+    PropertyAnimation_0_user_data->val = -1;
+    lv_anim_t PropertyAnimation_0;
+    lv_anim_init(&PropertyAnimation_0);
+    lv_anim_set_time(&PropertyAnimation_0, 1000);
+    lv_anim_set_user_data(&PropertyAnimation_0, PropertyAnimation_0_user_data);
+    lv_anim_set_custom_exec_cb(&PropertyAnimation_0, _ui_anim_callback_set_opacity);
+    lv_anim_set_values(&PropertyAnimation_0, 0, 255);
+    lv_anim_set_path_cb(&PropertyAnimation_0, lv_anim_path_linear);
+    lv_anim_set_delay(&PropertyAnimation_0, delay + 0);
+    lv_anim_set_deleted_cb(&PropertyAnimation_0, _ui_anim_callback_free_user_data);
+    lv_anim_set_playback_time(&PropertyAnimation_0, 0);
+    lv_anim_set_playback_delay(&PropertyAnimation_0, 0);
+    lv_anim_set_repeat_count(&PropertyAnimation_0, 0);
+    lv_anim_set_repeat_delay(&PropertyAnimation_0, 0);
+    lv_anim_set_early_apply(&PropertyAnimation_0, false);
+    lv_anim_set_get_value_cb(&PropertyAnimation_0, &_ui_anim_callback_get_opacity);
+    lv_anim_start(&PropertyAnimation_0);
+
+}
 
 ///////////////////// FUNCTIONS ////////////////////
+void ui_event_splash(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    if(event_code == LV_EVENT_SCREEN_LOAD_START) {
+        splashfadein_Animation(ui_lbl_splash, 0);
+    }
+    if(event_code == LV_EVENT_SCREEN_LOADED) {
+        _ui_screen_change(&ui_fx_tremolo, LV_SCR_LOAD_ANIM_FADE_ON, 500, 2000, &ui_fx_tremolo_screen_init);
+    }
+}
+void ui_event_fx_tremolo(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_LEFT) {
+        lv_indev_wait_release(lv_indev_get_act());
+        _ui_screen_change(&ui_fx_equalizer, LV_SCR_LOAD_ANIM_MOVE_LEFT, 250, 0, &ui_fx_equalizer_screen_init);
+    }
+}
+void ui_event_btn_trem_bypass(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    if(event_code == LV_EVENT_CLICKED) {
+        ui_tremolo_bypass(e);
+    }
+}
+void ui_event_arc_trem_rate(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_tremolo_rate_changed(e);
+    }
+}
+void ui_event_arc_trem_depth(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_tremolo_depth_changed(e);
+    }
+}
+void ui_event_sw_tremolo_shape(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_tremolo_shape_changed(e);
+    }
+}
 void ui_event_fx_equalizer(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
@@ -73,6 +153,10 @@ void ui_event_fx_equalizer(lv_event_t * e)
     if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_LEFT) {
         lv_indev_wait_release(lv_indev_get_act());
         _ui_screen_change(&ui_fx_noise_gate, LV_SCR_LOAD_ANIM_MOVE_LEFT, 250, 0, &ui_fx_noise_gate_screen_init);
+    }
+    if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_RIGHT) {
+        lv_indev_wait_release(lv_indev_get_act());
+        _ui_screen_change(&ui_fx_tremolo, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 250, 0, &ui_fx_tremolo_screen_init);
     }
 }
 void ui_event_btn_eq_bypass(lv_event_t * e)
@@ -87,62 +171,17 @@ void ui_event_fx_noise_gate(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * target = lv_event_get_target(e);
-    if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_LEFT) {
-        lv_indev_wait_release(lv_indev_get_act());
-        _ui_screen_change(&ui_fx_tremolo, LV_SCR_LOAD_ANIM_MOVE_LEFT, 250, 0, &ui_fx_tremolo_screen_init);
-    }
     if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_RIGHT) {
         lv_indev_wait_release(lv_indev_get_act());
         _ui_screen_change(&ui_fx_equalizer, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 250, 0, &ui_fx_equalizer_screen_init);
     }
 }
-void ui_event_btn_noise_gate_bypass(lv_event_t * e)
+void ui_event_btn_ng_bypass(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * target = lv_event_get_target(e);
     if(event_code == LV_EVENT_CLICKED) {
         ui_noise_gate_bypass(e);
-    }
-}
-void ui_event_fx_tremolo(lv_event_t * e)
-{
-    lv_event_code_t event_code = lv_event_get_code(e);
-    lv_obj_t * target = lv_event_get_target(e);
-    if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_RIGHT) {
-        lv_indev_wait_release(lv_indev_get_act());
-        _ui_screen_change(&ui_fx_noise_gate, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 250, 0, &ui_fx_noise_gate_screen_init);
-    }
-}
-void ui_event_Arc1(lv_event_t * e)
-{
-    lv_event_code_t event_code = lv_event_get_code(e);
-    lv_obj_t * target = lv_event_get_target(e);
-    if(event_code == LV_EVENT_VALUE_CHANGED) {
-        ui_tremolo_rate_changed(e);
-    }
-}
-void ui_event_sw_shape(lv_event_t * e)
-{
-    lv_event_code_t event_code = lv_event_get_code(e);
-    lv_obj_t * target = lv_event_get_target(e);
-    if(event_code == LV_EVENT_VALUE_CHANGED) {
-        ui_tremolo_shape_changed(e);
-    }
-}
-void ui_event_Arc3(lv_event_t * e)
-{
-    lv_event_code_t event_code = lv_event_get_code(e);
-    lv_obj_t * target = lv_event_get_target(e);
-    if(event_code == LV_EVENT_VALUE_CHANGED) {
-        ui_tremolo_depth_changed(e);
-    }
-}
-void ui_event_btn_tremolo_bypass(lv_event_t * e)
-{
-    lv_event_code_t event_code = lv_event_get_code(e);
-    lv_obj_t * target = lv_event_get_target(e);
-    if(event_code == LV_EVENT_CLICKED) {
-        ui_tremolo_bypass(e);
     }
 }
 
@@ -154,9 +193,10 @@ void ui_init(void)
     lv_theme_t * theme = lv_theme_default_init(dispp, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_RED),
                                                false, LV_FONT_DEFAULT);
     lv_disp_set_theme(dispp, theme);
+    ui_splash_screen_init();
+    ui_fx_tremolo_screen_init();
     ui_fx_equalizer_screen_init();
     ui_fx_noise_gate_screen_init();
-    ui_fx_tremolo_screen_init();
     ui____initial_actions0 = lv_obj_create(NULL);
-    lv_disp_load_scr(ui_fx_tremolo);
+    lv_disp_load_scr(ui_splash);
 }

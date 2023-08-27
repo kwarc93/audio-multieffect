@@ -14,49 +14,53 @@ extern "C" {
 
 #include "ui_helpers.h"
 #include "ui_events.h"
-// SCREEN: ui_fx_equalizer
-void ui_fx_equalizer_screen_init(void);
-void ui_event_fx_equalizer(lv_event_t * e);
-extern lv_obj_t * ui_fx_equalizer;
-extern lv_obj_t * ui_lbl_fx_name_1;
-void ui_event_btn_eq_bypass(lv_event_t * e);
-extern lv_obj_t * ui_btn_eq_bypass;
-extern lv_obj_t * ui_lbl_eq_bypass_btn;
-// SCREEN: ui_fx_noise_gate
-void ui_fx_noise_gate_screen_init(void);
-void ui_event_fx_noise_gate(lv_event_t * e);
-extern lv_obj_t * ui_fx_noise_gate;
-extern lv_obj_t * ui_lbl_fx_name_2;
-void ui_event_btn_noise_gate_bypass(lv_event_t * e);
-extern lv_obj_t * ui_btn_noise_gate_bypass;
-extern lv_obj_t * ui_lbl_noise_gate_bypass_btn;
+void splashfadein_Animation(lv_obj_t * TargetObject, int delay);
+// SCREEN: ui_splash
+void ui_splash_screen_init(void);
+void ui_event_splash(lv_event_t * e);
+extern lv_obj_t * ui_splash;
+extern lv_obj_t * ui_lbl_splash;
 // SCREEN: ui_fx_tremolo
 void ui_fx_tremolo_screen_init(void);
 void ui_event_fx_tremolo(lv_event_t * e);
 extern lv_obj_t * ui_fx_tremolo;
-extern lv_obj_t * ui_background;
-extern lv_obj_t * ui_content_group;
-extern lv_obj_t * ui_controls_group;
-extern lv_obj_t * ui_rate_group;
-extern lv_obj_t * ui_Image2;
-void ui_event_Arc1(lv_event_t * e);
-extern lv_obj_t * ui_Arc1;
-extern lv_obj_t * ui_lbl_rate;
-extern lv_obj_t * ui_shape_group;
-extern lv_obj_t * ui_lbl_shape;
-void ui_event_sw_shape(lv_event_t * e);
-extern lv_obj_t * ui_sw_shape;
-extern lv_obj_t * ui_lbl_triangle;
-extern lv_obj_t * ui_lbl_sine;
-extern lv_obj_t * ui_depth_group;
-extern lv_obj_t * ui_Image4;
-void ui_event_Arc3(lv_event_t * e);
-extern lv_obj_t * ui_Arc3;
-extern lv_obj_t * ui_lbl_depth;
-extern lv_obj_t * ui_lbl_fx_name3;
-void ui_event_btn_tremolo_bypass(lv_event_t * e);
-extern lv_obj_t * ui_btn_tremolo_bypass;
-extern lv_obj_t * ui_lbl_tremolo_bypass_btn;
+extern lv_obj_t * ui_lbl_trem_fx_name;
+void ui_event_btn_trem_bypass(lv_event_t * e);
+extern lv_obj_t * ui_btn_trem_bypass;
+extern lv_obj_t * ui_lbl_btn_trem_bypass_;
+extern lv_obj_t * ui_pnl_trem_controls;
+extern lv_obj_t * ui_pnl_trem_rate;
+extern lv_obj_t * ui_img_trem_rate;
+void ui_event_arc_trem_rate(lv_event_t * e);
+extern lv_obj_t * ui_arc_trem_rate;
+extern lv_obj_t * ui_lbl_trem_rate;
+extern lv_obj_t * ui_pnl_trem_depth;
+extern lv_obj_t * ui_img_trem_depth;
+void ui_event_arc_trem_depth(lv_event_t * e);
+extern lv_obj_t * ui_arc_trem_depth;
+extern lv_obj_t * ui_lbl_trem_depth;
+extern lv_obj_t * ui_pnl_trem_shape;
+extern lv_obj_t * ui_lbl_trem_shape;
+void ui_event_sw_tremolo_shape(lv_event_t * e);
+extern lv_obj_t * ui_sw_tremolo_shape;
+extern lv_obj_t * ui_lbl_trem_triangle;
+extern lv_obj_t * ui_lbl_trem_sine;
+// SCREEN: ui_fx_equalizer
+void ui_fx_equalizer_screen_init(void);
+void ui_event_fx_equalizer(lv_event_t * e);
+extern lv_obj_t * ui_fx_equalizer;
+extern lv_obj_t * ui_lbl_eq_fx_name;
+void ui_event_btn_eq_bypass(lv_event_t * e);
+extern lv_obj_t * ui_btn_eq_bypass;
+extern lv_obj_t * ui_lbl_btn_eq_bypass;
+// SCREEN: ui_fx_noise_gate
+void ui_fx_noise_gate_screen_init(void);
+void ui_event_fx_noise_gate(lv_event_t * e);
+extern lv_obj_t * ui_fx_noise_gate;
+extern lv_obj_t * ui_lbl_ng_fx_name;
+void ui_event_btn_ng_bypass(lv_event_t * e);
+extern lv_obj_t * ui_btn_ng_bypass;
+extern lv_obj_t * ui_lbl_btn_ng_bypass;
 extern lv_obj_t * ui____initial_actions0;
 
 LV_IMG_DECLARE(ui_img_btn_1_inact_png);    // assets/btn_1_inact.png
@@ -64,7 +68,6 @@ LV_IMG_DECLARE(ui_img_btn_1_act_png);    // assets/btn_1_act.png
 LV_IMG_DECLARE(ui_img_btn_knob_png);    // assets/btn_knob.png
 
 LV_FONT_DECLARE(ui_font_14_bold);
-LV_FONT_DECLARE(ui_font_mos_semibold_16);
 
 void ui_init(void);
 

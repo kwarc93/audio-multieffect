@@ -9,19 +9,21 @@ void ui_fx_equalizer_screen_init(void)
 {
     ui_fx_equalizer = lv_obj_create(NULL);
     lv_obj_clear_flag(ui_fx_equalizer, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_color(ui_fx_equalizer, lv_color_hex(0x2D2F36), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_fx_equalizer, lv_color_hex(0x4C4E5B), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_fx_equalizer, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_color(ui_fx_equalizer, lv_color_hex(0x393B46), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_dir(ui_fx_equalizer, LV_GRAD_DIR_VER, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_lbl_fx_name_1 = lv_label_create(ui_fx_equalizer);
-    lv_obj_set_width(ui_lbl_fx_name_1, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_lbl_fx_name_1, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_lbl_fx_name_1, 0);
-    lv_obj_set_y(ui_lbl_fx_name_1, 10);
-    lv_obj_set_align(ui_lbl_fx_name_1, LV_ALIGN_TOP_MID);
-    lv_label_set_text(ui_lbl_fx_name_1, "EQUALIZER");
-    lv_obj_set_style_text_color(ui_lbl_fx_name_1, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_lbl_fx_name_1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_lbl_fx_name_1, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_lbl_eq_fx_name = lv_label_create(ui_fx_equalizer);
+    lv_obj_set_width(ui_lbl_eq_fx_name, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_lbl_eq_fx_name, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_lbl_eq_fx_name, 0);
+    lv_obj_set_y(ui_lbl_eq_fx_name, 10);
+    lv_obj_set_align(ui_lbl_eq_fx_name, LV_ALIGN_TOP_MID);
+    lv_label_set_text(ui_lbl_eq_fx_name, "EQUALIZER");
+    lv_obj_set_style_text_color(ui_lbl_eq_fx_name, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_lbl_eq_fx_name, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_lbl_eq_fx_name, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_btn_eq_bypass = lv_imgbtn_create(ui_fx_equalizer);
     lv_imgbtn_set_src(ui_btn_eq_bypass, LV_IMGBTN_STATE_RELEASED, NULL, &ui_img_btn_1_inact_png, NULL);
@@ -30,22 +32,20 @@ void ui_fx_equalizer_screen_init(void)
     lv_imgbtn_set_src(ui_btn_eq_bypass, LV_IMGBTN_STATE_CHECKED_PRESSED, NULL, &ui_img_btn_1_act_png, NULL);
     lv_imgbtn_set_src(ui_btn_eq_bypass, LV_IMGBTN_STATE_CHECKED_RELEASED, NULL, &ui_img_btn_1_act_png, NULL);
     lv_imgbtn_set_src(ui_btn_eq_bypass, LV_IMGBTN_STATE_CHECKED_DISABLED, NULL, &ui_img_btn_1_inact_png, NULL);
-    lv_obj_set_width(ui_btn_eq_bypass, 125);
-    lv_obj_set_height(ui_btn_eq_bypass, 94);
-    lv_obj_set_x(ui_btn_eq_bypass, 0);
-    lv_obj_set_y(ui_btn_eq_bypass, 5);
+    lv_obj_set_height(ui_btn_eq_bypass, 70);
+    lv_obj_set_width(ui_btn_eq_bypass, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_align(ui_btn_eq_bypass, LV_ALIGN_BOTTOM_MID);
     lv_obj_add_flag(ui_btn_eq_bypass, LV_OBJ_FLAG_CHECKABLE);     /// Flags
+    lv_obj_clear_flag(ui_btn_eq_bypass, LV_OBJ_FLAG_GESTURE_BUBBLE);      /// Flags
 
-    ui_lbl_eq_bypass_btn = lv_label_create(ui_btn_eq_bypass);
-    lv_obj_set_width(ui_lbl_eq_bypass_btn, 68);
-    lv_obj_set_height(ui_lbl_eq_bypass_btn, 19);
-    lv_obj_set_align(ui_lbl_eq_bypass_btn, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_lbl_eq_bypass_btn, "BYPASS");
-    lv_obj_set_style_text_color(ui_lbl_eq_bypass_btn, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_lbl_eq_bypass_btn, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_align(ui_lbl_eq_bypass_btn, LV_TEXT_ALIGN_AUTO, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_lbl_eq_bypass_btn, &ui_font_mos_semibold_16, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_lbl_btn_eq_bypass = lv_label_create(ui_btn_eq_bypass);
+    lv_obj_set_width(ui_lbl_btn_eq_bypass, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_lbl_btn_eq_bypass, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_lbl_btn_eq_bypass, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_lbl_btn_eq_bypass, "BYP");
+    lv_obj_set_style_text_color(ui_lbl_btn_eq_bypass, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_lbl_btn_eq_bypass, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_lbl_btn_eq_bypass, &ui_font_14_bold, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     lv_obj_add_event_cb(ui_btn_eq_bypass, ui_event_btn_eq_bypass, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_fx_equalizer, ui_event_fx_equalizer, LV_EVENT_ALL, NULL);
