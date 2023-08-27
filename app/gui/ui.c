@@ -76,19 +76,18 @@ void splashfadein_Animation(lv_obj_t * TargetObject, int delay)
     PropertyAnimation_0_user_data->val = -1;
     lv_anim_t PropertyAnimation_0;
     lv_anim_init(&PropertyAnimation_0);
-    lv_anim_set_time(&PropertyAnimation_0, 1000);
+    lv_anim_set_time(&PropertyAnimation_0, 1500);
     lv_anim_set_user_data(&PropertyAnimation_0, PropertyAnimation_0_user_data);
     lv_anim_set_custom_exec_cb(&PropertyAnimation_0, _ui_anim_callback_set_opacity);
     lv_anim_set_values(&PropertyAnimation_0, 0, 255);
     lv_anim_set_path_cb(&PropertyAnimation_0, lv_anim_path_linear);
-    lv_anim_set_delay(&PropertyAnimation_0, delay + 0);
+    lv_anim_set_delay(&PropertyAnimation_0, delay + 100);
     lv_anim_set_deleted_cb(&PropertyAnimation_0, _ui_anim_callback_free_user_data);
     lv_anim_set_playback_time(&PropertyAnimation_0, 0);
     lv_anim_set_playback_delay(&PropertyAnimation_0, 0);
     lv_anim_set_repeat_count(&PropertyAnimation_0, 0);
     lv_anim_set_repeat_delay(&PropertyAnimation_0, 0);
     lv_anim_set_early_apply(&PropertyAnimation_0, false);
-    lv_anim_set_get_value_cb(&PropertyAnimation_0, &_ui_anim_callback_get_opacity);
     lv_anim_start(&PropertyAnimation_0);
 
 }
@@ -102,7 +101,7 @@ void ui_event_splash(lv_event_t * e)
         splashfadein_Animation(ui_lbl_splash, 0);
     }
     if(event_code == LV_EVENT_SCREEN_LOADED) {
-        _ui_screen_change(&ui_fx_tremolo, LV_SCR_LOAD_ANIM_FADE_ON, 500, 2000, &ui_fx_tremolo_screen_init);
+        _ui_screen_change(&ui_fx_tremolo, LV_SCR_LOAD_ANIM_FADE_ON, 500, 2600, &ui_fx_tremolo_screen_init);
     }
 }
 void ui_event_fx_tremolo(lv_event_t * e)
