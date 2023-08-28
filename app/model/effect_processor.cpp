@@ -1,11 +1,11 @@
 /*
- * effect_manager.cpp
+ * effect_processor.cpp
  *
  *  Created on: 4 sty 2023
  *      Author: kwarc
  */
 
-#include "effect_manager.hpp"
+#include "effect_processor.hpp"
 
 #include <cstring>
 #include <cmath>
@@ -17,9 +17,9 @@
 
 #include "middlewares/i2c_manager.hpp"
 
-#include "app/effects/equalizer/equalizer.hpp"
-#include "app/effects/noise_gate/noise_gate.hpp"
-#include "app/effects/tremolo/tremolo.hpp"
+#include "app/model/equalizer/equalizer.hpp"
+#include "app/model/noise_gate/noise_gate.hpp"
+#include "app/model/tremolo/tremolo.hpp"
 
 #include <stm32f7xx.h> // For managing D-Cache & I-Cache
 
@@ -30,12 +30,12 @@
 //-----------------------------------------------------------------------------
 /* private */
 
-void effect_manager::dispatch(const event &e)
+void effect_processor::dispatch(const event &e)
 {
     std::visit([this](const auto &e) { this->event_handler(e); }, e.data);
 }
 
-void effect_manager::event_handler(const add_effect_evt_t &e)
+void effect_processor::event_handler(const add_effect_evt_t &e)
 {
     std::vector<std::unique_ptr<effect>>::iterator it;
 
@@ -47,7 +47,7 @@ void effect_manager::event_handler(const add_effect_evt_t &e)
     }
 }
 
-void effect_manager::event_handler(const remove_effect_evt_t &e)
+void effect_processor::event_handler(const remove_effect_evt_t &e)
 {
     std::vector<std::unique_ptr<effect>>::iterator it;
 
@@ -59,7 +59,7 @@ void effect_manager::event_handler(const remove_effect_evt_t &e)
     }
 }
 
-void effect_manager::event_handler(const bypass_evt_t &e)
+void effect_processor::event_handler(const bypass_evt_t &e)
 {
     std::vector<std::unique_ptr<effect>>::iterator it;
 
@@ -72,7 +72,7 @@ void effect_manager::event_handler(const bypass_evt_t &e)
     }
 }
 
-void effect_manager::event_handler(const process_data_evt_t &e)
+void effect_processor::event_handler(const process_data_evt_t &e)
 {
     dsp_input_t *current_input {&this->dsp_input};
     dsp_output_t *current_output {&this->dsp_output};
@@ -108,7 +108,7 @@ void effect_manager::event_handler(const process_data_evt_t &e)
     SCB_CleanDCache_by_Addr(&this->audio_output.buffer[this->audio_output.sample_index], sizeof(this->audio_output.buffer) / 2);
 }
 
-std::unique_ptr<effect> effect_manager::create_new(effect_id id)
+std::unique_ptr<effect> effect_processor::create_new(effect_id id)
 {
     static const std::map<effect_id, std::function<std::unique_ptr<effect>()>> effect_factory =
     {
@@ -120,7 +120,7 @@ std::unique_ptr<effect> effect_manager::create_new(effect_id id)
     return effect_factory.at(id)();
 }
 
-bool effect_manager::find_effect(effect_id id, std::vector<std::unique_ptr<effect>>::iterator &it)
+bool effect_processor::find_effect(effect_id id, std::vector<std::unique_ptr<effect>>::iterator &it)
 {
     auto effect_it = std::find_if(begin(this->effects), end(this->effects),
                                   [id](const auto &effect) { return effect->get_id() == id; });
@@ -130,7 +130,7 @@ bool effect_manager::find_effect(effect_id id, std::vector<std::unique_ptr<effec
     return effect_it != std::end(this->effects);
 }
 
-void effect_manager::audio_capture_cb(const hal::audio_devices::codec::input_sample_t *input, uint16_t length)
+void effect_processor::audio_capture_cb(const hal::audio_devices::codec::input_sample_t *input, uint16_t length)
 {
     /* WARINING: This method may be called from interrupt */
 
@@ -156,7 +156,7 @@ void effect_manager::audio_capture_cb(const hal::audio_devices::codec::input_sam
     this->send(e, 0);
 }
 
-void effect_manager::audio_play_cb(uint16_t sample_index)
+void effect_processor::audio_play_cb(uint16_t sample_index)
 {
     /* WARINING: This method may be called from interrupt */
 
@@ -170,7 +170,7 @@ void effect_manager::audio_play_cb(uint16_t sample_index)
 //-----------------------------------------------------------------------------
 /* public */
 
-effect_manager::effect_manager() : active_object("effect_manager", osPriorityHigh, 4096),
+effect_processor::effect_processor() : active_object("effect_processor", osPriorityHigh, 4096),
 audio{middlewares::i2c_managers::main::get_instance()}
 {
     /* DSP buffers have only one channel */
@@ -194,7 +194,7 @@ audio{middlewares::i2c_managers::main::get_instance()}
     true);
 }
 
-effect_manager::~effect_manager()
+effect_processor::~effect_processor()
 {
 
 }

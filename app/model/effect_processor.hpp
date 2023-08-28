@@ -1,12 +1,12 @@
 /*
- * effect_manager.hpp
+ * effect_processor.hpp
  *
  *  Created on: 4 sty 2023
  *      Author: kwarc
  */
 
-#ifndef EFFECTS_EFFECT_MANAGER_HPP_
-#define EFFECTS_EFFECT_MANAGER_HPP_
+#ifndef EFFECTS_EFFECT_PROCESSOR_HPP_
+#define EFFECTS_EFFECT_PROCESSOR_HPP_
 
 #include <middlewares/active_object.hpp>
 
@@ -18,7 +18,7 @@
 
 #include "effect_interface.hpp"
 
-struct effect_manager_event
+struct effect_processor_event
 {
     struct process_data_evt_t
     {
@@ -44,11 +44,11 @@ struct effect_manager_event
     using holder = std::variant<process_data_evt_t, add_effect_evt_t, remove_effect_evt_t, bypass_evt_t>;
 };
 
-class effect_manager : public effect_manager_event, public middlewares::active_object<effect_manager_event::holder>
+class effect_processor : public effect_processor_event, public middlewares::active_object<effect_processor_event::holder>
 {
 public:
-    effect_manager();
-    ~effect_manager();
+    effect_processor();
+    ~effect_processor();
 
 private:
     void dispatch(const event &e) override;
@@ -75,4 +75,4 @@ private:
     dsp_output_t dsp_output;
 };
 
-#endif /* EFFECTS_EFFECT_MANAGER_HPP_ */
+#endif /* EFFECTS_EFFECT_PROCESSOR_HPP_ */

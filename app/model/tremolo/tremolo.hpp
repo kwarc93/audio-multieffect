@@ -8,7 +8,7 @@
 #ifndef EFFECTS_TREMOLO_TREMOLO_HPP_
 #define EFFECTS_TREMOLO_TREMOLO_HPP_
 
-#include "app/effects/effect_interface.hpp"
+#include "app/model/effect_interface.hpp"
 
 class tremolo : public effect
 {

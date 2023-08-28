@@ -8,7 +8,7 @@
 #ifndef EFFECTS_EQUALIZER_EQUALIZER_HPP_
 #define EFFECTS_EQUALIZER_EQUALIZER_HPP_
 
-#include "app/effects/effect_interface.hpp"
+#include "app/model/effect_interface.hpp"
 
 class equalizer : public effect
 {

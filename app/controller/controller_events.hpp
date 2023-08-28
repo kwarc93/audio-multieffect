@@ -10,11 +10,11 @@
 
 #include <variant>
 
-#include "app/effects/effect_types.hpp"
+#include "app/model/effect_types.hpp"
 
-#include "app/effects/equalizer/equalizer.hpp"
-#include "app/effects/noise_gate/noise_gate.hpp"
-#include "app/effects/tremolo/tremolo.hpp"
+#include "app/model/equalizer/equalizer.hpp"
+#include "app/model/noise_gate/noise_gate.hpp"
+#include "app/model/tremolo/tremolo.hpp"
 
 struct controller_event
 {

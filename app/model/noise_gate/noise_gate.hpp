@@ -8,7 +8,7 @@
 #ifndef EFFECTS_NOISE_GATE_NOISE_GATE_HPP_
 #define EFFECTS_NOISE_GATE_NOISE_GATE_HPP_
 
-#include "app/effects/effect_interface.hpp"
+#include "app/model/effect_interface.hpp"
 
 class noise_gate : public effect
 {

@@ -16,8 +16,8 @@
 
 #include "app/blinky.hpp"
 #include "app/echo.hpp"
-#include "app/gui/gui.hpp"
-#include "app/effects/effect_manager.hpp"
+#include "app/view/lcd_view/gui.hpp"
+#include "app/model/effect_processor.hpp"
 #include "app/controller/controller.hpp"
 
 void init_thread(void *arg)
@@ -38,14 +38,14 @@ void init_thread(void *arg)
     /* Active Object 'controller' */
     auto ctrl = std::make_unique<controller>();
 
-    /* Active Object 'effect_manager' */
-    auto em = std::make_unique<effect_manager>();
+    /* Active Object 'effect_processor' */
+    auto em = std::make_unique<effect_processor>();
 
-    static const std::array<effect_manager::event, 3> em_events =
+    static const std::array<effect_processor::event, 3> em_events =
     {{
-        { effect_manager::add_effect_evt_t {effect_id::tremolo} },
-        { effect_manager::add_effect_evt_t {effect_id::equalizer} },
-        { effect_manager::add_effect_evt_t {effect_id::noise_gate} },
+        { effect_processor::add_effect_evt_t {effect_id::tremolo} },
+        { effect_processor::add_effect_evt_t {effect_id::equalizer} },
+        { effect_processor::add_effect_evt_t {effect_id::noise_gate} },
     }};
 
     /* Add some effects */
