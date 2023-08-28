@@ -58,6 +58,7 @@ lv_obj_t * ui_lbl_ng_fx_name;
 void ui_event_btn_ng_bypass(lv_event_t * e);
 lv_obj_t * ui_btn_ng_bypass;
 lv_obj_t * ui_lbl_btn_ng_bypass;
+void ui_event____initial_actions0(lv_event_t * e);
 lv_obj_t * ui____initial_actions0;
 
 ///////////////////// TEST LVGL SETTINGS ////////////////////
@@ -143,6 +144,8 @@ void ui_event_sw_tremolo_shape(lv_event_t * e)
     lv_obj_t * target = lv_event_get_target(e);
     if(event_code == LV_EVENT_VALUE_CHANGED) {
         ui_tremolo_shape_changed(e);
+        _ui_state_modify(ui_lbl_trem_sine, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
+        _ui_state_modify(ui_lbl_trem_triangle, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
     }
 }
 void ui_event_fx_equalizer(lv_event_t * e)
@@ -183,6 +186,14 @@ void ui_event_btn_ng_bypass(lv_event_t * e)
         ui_noise_gate_bypass(e);
     }
 }
+void ui_event____initial_actions0(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    if(event_code == LV_EVENT_SCREEN_LOAD_START) {
+        _ui_state_modify(ui_lbl_trem_triangle, LV_STATE_CHECKED, _UI_MODIFY_STATE_ADD);
+    }
+}
 
 ///////////////////// SCREENS ////////////////////
 
@@ -197,5 +208,8 @@ void ui_init(void)
     ui_fx_equalizer_screen_init();
     ui_fx_noise_gate_screen_init();
     ui____initial_actions0 = lv_obj_create(NULL);
+    lv_obj_add_event_cb(ui____initial_actions0, ui_event____initial_actions0, LV_EVENT_ALL, NULL);
+
+    lv_disp_load_scr(ui____initial_actions0);
     lv_disp_load_scr(ui_splash);
 }

@@ -61,6 +61,7 @@ extern lv_obj_t * ui_lbl_ng_fx_name;
 void ui_event_btn_ng_bypass(lv_event_t * e);
 extern lv_obj_t * ui_btn_ng_bypass;
 extern lv_obj_t * ui_lbl_btn_ng_bypass;
+void ui_event____initial_actions0(lv_event_t * e);
 extern lv_obj_t * ui____initial_actions0;
 
 LV_IMG_DECLARE(ui_img_btn_1_inact_png);    // assets/btn_1_inact.png
