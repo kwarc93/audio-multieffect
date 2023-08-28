@@ -7,6 +7,8 @@
 
 #include "controller.hpp"
 
+#include <array>
+
 using namespace mfx;
 
 //-----------------------------------------------------------------------------
@@ -68,6 +70,17 @@ views {views}
     this->led_timer = osTimerNew(led_timer_cb, osTimerPeriodic, this, NULL);
     assert(this->button_timer != nullptr);
     osTimerStart(this->button_timer, 500);
+
+    /* Add some effects */
+    static const std::array<effect_processor::event, 3> model_events =
+    {{
+        { effect_processor::add_effect_evt_t {effect_id::tremolo} },
+        { effect_processor::add_effect_evt_t {effect_id::equalizer} },
+        { effect_processor::add_effect_evt_t {effect_id::noise_gate} },
+    }};
+
+    for (const auto &e : model_events)
+        this->model->send(e);
 }
 
 controller::~controller()

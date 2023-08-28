@@ -38,17 +38,6 @@ void init_thread(void *arg)
     /* Active Object 'controller' */
     auto ctrl = std::make_unique<mfx::controller>(model.get(), views);
 
-    /* Add some effects */
-//    static const std::array<mfx::effect_processor::event, 3> em_events =
-//    {{
-//        { mfx::effect_processor::add_effect_evt_t {mfx::effect_id::tremolo} },
-//        { mfx::effect_processor::add_effect_evt_t {mfx::effect_id::equalizer} },
-//        { mfx::effect_processor::add_effect_evt_t {mfx::effect_id::noise_gate} },
-//    }};
-//
-//    for (const auto &e : em_events)
-//        em->send(e);
-
     osThreadSuspend(osThreadGetId());
 }
 
