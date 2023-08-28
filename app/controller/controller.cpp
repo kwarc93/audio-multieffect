@@ -12,7 +12,7 @@
 using namespace mfx;
 
 //-----------------------------------------------------------------------------
-/* private */
+/* helpers */
 
 namespace
 {
@@ -54,12 +54,55 @@ void led_timer_cb(void *arg)
 }
 
 //-----------------------------------------------------------------------------
+/* private */
+
+void controller::dispatch(const event& e)
+{
+    std::visit([this](const auto &e) { this->event_handler(e); }, e.data);
+}
+
+void controller::event_handler(const led_evt_t &e)
+{
+    this->led.set(!this->led.get());
+}
+
+void controller::event_handler(const button_evt_t &e)
+{
+    printf("Button %s\n", e.state ? "pressed" : "released");
+}
+
+void controller::event_handler(const effect_controls_evt_t &e)
+{
+    std::visit([this](auto &&controls)
+    {
+        using T = std::decay_t<decltype(controls)>;
+        if constexpr (std::is_same_v<T, equalizer::controls>)
+        {
+            /* Do something specific to this effect */
+        }
+        else if constexpr (std::is_same_v<T, noise_gate::controls>)
+        {
+            /* Do something specific to this effect */
+        }
+        else if constexpr (std::is_same_v<T, tremolo::controls>)
+        {
+            /* Do something specific to this effect */
+        }
+
+        const effect_processor::event evt {effect_processor::effect_controls_evt_t {controls}};
+        this->model->send(evt);
+
+    }, e.controls);
+}
+
+//-----------------------------------------------------------------------------
 /* public */
 
-controller::controller(effect_processor *model, std::vector<view_interface*> &views) : active_object("controller", osPriorityNormal, 2048),
+controller::controller(std::unique_ptr<effect_processor> model, std::unique_ptr<view_interface> view) :
+active_object("controller", osPriorityNormal, 2048),
 error_code{0},
-model {model},
-views {views}
+model {std::move(model)},
+view {std::move(view)}
 {
     /* Create timer for button debouncing */
     this->button_timer = osTimerNew(button_timer_cb, osTimerPeriodic, &this->button, NULL);
@@ -86,40 +129,4 @@ views {views}
 controller::~controller()
 {
 
-}
-
-void controller::dispatch(const event& e)
-{
-    std::visit([this](const auto &e) { this->event_handler(e); }, e.data);
-}
-
-void controller::event_handler(const led_evt_t &e)
-{
-    this->led.set(!this->led.get());
-}
-
-void controller::event_handler(const button_evt_t &e)
-{
-    printf("Button %s\n", e.state ? "pressed" : "released");
-}
-
-void controller::event_handler(const effect_controls_evt_t &e)
-{
-    std::visit([this](auto &&controls)
-    {
-        using T = std::decay_t<decltype(controls)>;
-        if constexpr (std::is_same_v<T, equalizer::controls>)
-        {
-            /* TODO */
-        }
-        else if constexpr (std::is_same_v<T, noise_gate::controls>)
-        {
-            /* TODO */
-        }
-        else if constexpr (std::is_same_v<T, tremolo::controls>)
-        {
-            effect_processor::event evt {effect_processor::effect_controls_evt_t {controls}};
-            this->model->send(evt);
-        }
-    }, e.controls);
 }

@@ -6,7 +6,6 @@
  */
 
 #include <memory>
-#include <vector>
 #include <cassert>
 #include <cstdio>
 
@@ -23,20 +22,10 @@ void init_thread(void *arg)
 {
     /* Create active objects */
 
-    /* Active Object 'lcd_view' */
-    auto lcd_view = std::make_unique<mfx::lcd_view>();
-
-    /* Active Object 'console_view' */
-    auto console_view = std::make_unique<mfx::console_view>();
-
-    /* Available views */
-    std::vector<mfx::view_interface*> views = {lcd_view.get(), console_view.get()};
-
-    /* Active Object 'model' */
     auto model = std::make_unique<mfx::effect_processor>();
-
-    /* Active Object 'controller' */
-    auto ctrl = std::make_unique<mfx::controller>(model.get(), views);
+    auto lcd_view = std::make_unique<mfx::lcd_view>();
+    auto console_view = std::make_unique<mfx::console_view>();
+    auto ctrl = std::make_unique<mfx::controller>(std::move(model), std::move(lcd_view));
 
     osThreadSuspend(osThreadGetId());
 }

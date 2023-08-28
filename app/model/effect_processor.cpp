@@ -113,11 +113,11 @@ void effect_processor::event_handler(const effect_controls_evt_t &e)
         using T = std::decay_t<decltype(controls)>;
         if constexpr (std::is_same_v<T, equalizer::controls>)
         {
-            /* TODO */
+            /* Do something specific to this effect */
         }
         else if constexpr (std::is_same_v<T, noise_gate::controls>)
         {
-            /* TODO */
+            /* Do something specific to this effect */
         }
         else if constexpr (std::is_same_v<T, tremolo::controls>)
         {

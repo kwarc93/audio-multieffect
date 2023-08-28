@@ -17,6 +17,9 @@
 using namespace mfx;
 
 //-----------------------------------------------------------------------------
+/* helpers */
+
+//-----------------------------------------------------------------------------
 /* private */
 
 void console_view::character_received_callback(const std::byte *data, std::size_t bytes_read)
@@ -44,7 +47,7 @@ void console_view::dispatch(const event &e)
 
 void console_view::event_handler(const char_queue_not_empty_evt_t &e)
 {
-    /* TODO */
+    /* TODO: Add command line parser */
 }
 
 //-----------------------------------------------------------------------------

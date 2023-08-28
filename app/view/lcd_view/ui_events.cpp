@@ -5,7 +5,8 @@
 
 #include "ui.h"
 
-#include "app/controller/controller.hpp"
+/* FIXME: This is temporary 'glue' between view and model */
+#include "app/model/effect_processor.hpp"
 
 namespace
 {
@@ -24,8 +25,15 @@ void ui_tremolo_controls_changed(void)
         mfx::tremolo::shape_type::sine : mfx::tremolo::shape_type::triangle
     };
 
-    mfx::controller::event evt {mfx::controller::effect_controls_evt_t {controls}};
-    mfx::controller::instance->send(evt);
+    mfx::effect_processor::event evt {mfx::effect_processor::effect_controls_evt_t {controls}};
+    mfx::effect_processor::instance->send(evt);
+}
+
+void ui_effect_bypass_changed(lv_obj_t *btn, mfx::effect_id effect)
+{
+    bool state = lv_obj_has_state(btn, LV_STATE_CHECKED);
+    mfx::effect_processor::event evt {mfx::effect_processor::bypass_evt_t {effect, state}};
+    mfx::effect_processor::instance->send(evt);
 }
 
 }
@@ -33,7 +41,7 @@ void ui_tremolo_controls_changed(void)
 
 void ui_tremolo_bypass(lv_event_t * e)
 {
-	// Your code here
+    ui_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::tremolo);
 }
 
 void ui_tremolo_rate_changed(lv_event_t * e)
@@ -53,10 +61,10 @@ void ui_tremolo_shape_changed(lv_event_t * e)
 
 void ui_equalizer_bypass(lv_event_t * e)
 {
-	// Your code here
+    ui_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::equalizer);
 }
 
 void ui_noise_gate_bypass(lv_event_t * e)
 {
-	// Your code here
+    ui_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::noise_gate);
 }

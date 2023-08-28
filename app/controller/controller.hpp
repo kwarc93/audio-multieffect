@@ -9,7 +9,6 @@
 #define CONTROLLER_CONTROLLER_HPP_
 
 #include <memory>
-#include <vector>
 
 #include <hal/hal_led.hpp>
 #include <hal/hal_button.hpp>
@@ -27,7 +26,7 @@ namespace mfx
 class controller : public controller_event, public middlewares::active_object<controller_event::holder>
 {
 public:
-    controller(effect_processor *model, std::vector<view_interface*> &views);
+    controller(std::unique_ptr<effect_processor> model, std::unique_ptr<view_interface> view);
     ~controller();
 
 private:
@@ -40,8 +39,8 @@ private:
 
     int error_code;
 
-    effect_processor *model;
-    std::vector<view_interface*> views;
+    std::unique_ptr<effect_processor> model;
+    std::unique_ptr<view_interface> view;
 
     hal::buttons::blue_btn button;
     osTimerId_t button_timer;
