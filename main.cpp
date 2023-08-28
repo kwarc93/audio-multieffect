@@ -29,7 +29,7 @@ void init_thread(void *arg)
     gui_ao->send(e);
 
     /* Active Object 'controller' */
-    auto ctrl = std::make_unique<controller>();
+    auto ctrl = std::make_unique<mfx::controller>();
 
     /* Active Object 'effect_processor' */
     auto em = std::make_unique<mfx::effect_processor>();

@@ -17,6 +17,9 @@
 
 #include "controller_events.hpp"
 
+namespace mfx
+{
+
 class controller : public controller_event, public middlewares::active_object<controller_event::holder>
 {
 public:
@@ -37,5 +40,7 @@ private:
     hal::leds::debug led;
     osTimerId_t led_timer;
 };
+
+}
 
 #endif /* CONTROLLER_CONTROLLER_HPP_ */

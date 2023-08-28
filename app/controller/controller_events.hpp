@@ -16,6 +16,9 @@
 #include "app/model/noise_gate/noise_gate.hpp"
 #include "app/model/tremolo/tremolo.hpp"
 
+namespace mfx
+{
+
 struct controller_event
 {
     struct led_evt_t
@@ -30,10 +33,12 @@ struct controller_event
 
     struct effect_controls_evt_t
     {
-        std::variant<mfx::equalizer::controls, mfx::noise_gate::controls, mfx::tremolo::controls> controls;
+        std::variant<equalizer::controls, noise_gate::controls, tremolo::controls> controls;
     };
 
     using holder = std::variant<button_evt_t, led_evt_t, effect_controls_evt_t>;
 };
+
+}
 
 #endif /* CONTROLLER_CONTROLLER_EVENTS_HPP_ */
