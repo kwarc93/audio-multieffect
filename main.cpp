@@ -6,7 +6,7 @@
  */
 
 #include <memory>
-#include <array>
+#include <vector>
 #include <cassert>
 #include <cstdio>
 
@@ -14,8 +14,8 @@
 
 #include "cmsis_os2.h"
 
-#include "app/echo.hpp"
-#include "app/view/lcd_view/gui.hpp"
+#include "app/view/lcd_view/lcd_view.hpp"
+#include "app/view/console_view/console_view.hpp"
 #include "app/model/effect_processor.hpp"
 #include "app/controller/controller.hpp"
 
@@ -23,27 +23,31 @@ void init_thread(void *arg)
 {
     /* Create active objects */
 
-    /* Active Object 'gui' */
-    auto gui_ao = std::make_unique<gui>();
-    const gui::event e { gui::demo_test_evt_t {} };
-    gui_ao->send(e);
+    /* Active Object 'lcd_view' */
+    auto lcd_view = std::make_unique<mfx::lcd_view>();
+
+    /* Active Object 'console_view' */
+    auto console_view = std::make_unique<mfx::console_view>();
+
+    /* Available views */
+    std::vector<mfx::view_interface*> views = {lcd_view.get(), console_view.get()};
+
+    /* Active Object 'model' */
+    auto model = std::make_unique<mfx::effect_processor>();
 
     /* Active Object 'controller' */
-    auto ctrl = std::make_unique<mfx::controller>();
-
-    /* Active Object 'effect_processor' */
-    auto em = std::make_unique<mfx::effect_processor>();
+    auto ctrl = std::make_unique<mfx::controller>(model.get(), views);
 
     /* Add some effects */
-    static const std::array<mfx::effect_processor::event, 3> em_events =
-    {{
-        { mfx::effect_processor::add_effect_evt_t {mfx::effect_id::tremolo} },
-        { mfx::effect_processor::add_effect_evt_t {mfx::effect_id::equalizer} },
-        { mfx::effect_processor::add_effect_evt_t {mfx::effect_id::noise_gate} },
-    }};
-
-    for (const auto &e : em_events)
-        em->send(e);
+//    static const std::array<mfx::effect_processor::event, 3> em_events =
+//    {{
+//        { mfx::effect_processor::add_effect_evt_t {mfx::effect_id::tremolo} },
+//        { mfx::effect_processor::add_effect_evt_t {mfx::effect_id::equalizer} },
+//        { mfx::effect_processor::add_effect_evt_t {mfx::effect_id::noise_gate} },
+//    }};
+//
+//    for (const auto &e : em_events)
+//        em->send(e);
 
     osThreadSuspend(osThreadGetId());
 }

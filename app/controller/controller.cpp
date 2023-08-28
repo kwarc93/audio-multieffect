@@ -54,7 +54,10 @@ void led_timer_cb(void *arg)
 //-----------------------------------------------------------------------------
 /* public */
 
-controller::controller() : active_object("controller", osPriorityNormal, 2048)
+controller::controller(effect_processor *model, std::vector<view_interface*> &views) : active_object("controller", osPriorityNormal, 2048),
+error_code{0},
+model {model},
+views {views}
 {
     /* Create timer for button debouncing */
     this->button_timer = osTimerNew(button_timer_cb, osTimerPeriodic, &this->button, NULL);

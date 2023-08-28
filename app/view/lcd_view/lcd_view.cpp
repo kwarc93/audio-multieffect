@@ -1,17 +1,19 @@
 /*
- * gui.cpp
+ * lcd_view.cpp
  *
  *  Created on: 21 lip 2023
  *      Author: kwarc
  */
 
-#include "gui.hpp"
+#include "lcd_view.hpp"
 
 #include "libs/lvgl/lvgl.h"
 
 #include "ui.h"
 
 #include "middlewares/i2c_manager.hpp"
+
+using namespace mfx;
 
 //-----------------------------------------------------------------------------
 /* helpers */
@@ -57,12 +59,12 @@ void lvgl_input_read(lv_indev_drv_t * drv, lv_indev_data_t * data)
     }
 }
 
-void gui_timer_callback(void *arg)
+void lcd_view_timer_callback(void *arg)
 {
-    gui *gui_ao = static_cast<gui*>(arg);
+    lcd_view *lcd_view_ao = static_cast<lcd_view*>(arg);
 
-    static const gui::event e { gui::timer_evt_t {}, gui::event::flags::immutable };
-    gui_ao->send(e);
+    static const lcd_view::event e { lcd_view::timer_evt_t {}, lcd_view::event::flags::immutable };
+    lcd_view_ao->send(e);
 }
 
 }
@@ -70,7 +72,7 @@ void gui_timer_callback(void *arg)
 //-----------------------------------------------------------------------------
 /* public */
 
-gui::gui() : active_object("gui", osPriorityNormal, 8192),
+lcd_view::lcd_view() : active_object("lcd_view", osPriorityNormal, 8192),
 display {middlewares::i2c_managers::main::get_instance()}
 {
     lv_init();
@@ -106,7 +108,7 @@ display {middlewares::i2c_managers::main::get_instance()}
     display.set_draw_callback([](){ lv_disp_flush_ready(&lvgl_disp_drv); });
     display.backlight(true);
 
-    this->timer = osTimerNew(gui_timer_callback, osTimerPeriodic, this, NULL);
+    this->timer = osTimerNew(lcd_view_timer_callback, osTimerPeriodic, this, NULL);
     assert(this->timer != nullptr);
     osTimerStart(this->timer, 10);
 
@@ -116,17 +118,22 @@ display {middlewares::i2c_managers::main::get_instance()}
 //-----------------------------------------------------------------------------
 /* private */
 
-void gui::dispatch(const event &e)
+void lcd_view::update(const data_holder &data)
+{
+
+}
+
+void lcd_view::dispatch(const event &e)
 {
     std::visit([this](const auto &e) { this->event_handler(e); }, e.data);
 }
 
-void gui::event_handler(const timer_evt_t &e)
+void lcd_view::event_handler(const timer_evt_t &e)
 {
     lv_timer_handler();
 }
 
-void gui::event_handler(const demo_test_evt_t &e)
+void lcd_view::event_handler(const demo_test_evt_t &e)
 {
 
 }
