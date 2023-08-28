@@ -5,10 +5,13 @@
  *      Author: kwarc
  */
 
-#ifndef EFFECTS_NOISE_GATE_NOISE_GATE_HPP_
-#define EFFECTS_NOISE_GATE_NOISE_GATE_HPP_
+#ifndef MODEL_NOISE_GATE_NOISE_GATE_HPP_
+#define MODEL_NOISE_GATE_NOISE_GATE_HPP_
 
 #include "app/model/effect_interface.hpp"
+
+namespace mfx
+{
 
 class noise_gate : public effect
 {
@@ -32,4 +35,6 @@ public:
     void process(const dsp_input_t &in, dsp_output_t &out) override;
 };
 
-#endif /* EFFECTS_NOISE_GATE_NOISE_GATE_HPP_ */
+}
+
+#endif /* MODEL_NOISE_GATE_NOISE_GATE_HPP_ */

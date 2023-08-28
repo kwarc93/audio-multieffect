@@ -5,10 +5,13 @@
  *      Author: kwarc
  */
 
-#ifndef EFFECTS_TREMOLO_TREMOLO_HPP_
-#define EFFECTS_TREMOLO_TREMOLO_HPP_
+#ifndef MODEL_TREMOLO_TREMOLO_HPP_
+#define MODEL_TREMOLO_TREMOLO_HPP_
 
 #include "app/model/effect_interface.hpp"
+
+namespace mfx
+{
 
 class tremolo : public effect
 {
@@ -47,4 +50,6 @@ private:
     shape_type lfo_shape;
 };
 
-#endif /* EFFECTS_TREMOLO_TREMOLO_HPP_ */
+}
+
+#endif /* MODEL_TREMOLO_TREMOLO_HPP_ */

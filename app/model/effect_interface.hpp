@@ -5,14 +5,17 @@
  *      Author: kwarc
  */
 
-#ifndef EFFECTS_EFFECT_INTERFACE_HPP_
-#define EFFECTS_EFFECT_INTERFACE_HPP_
+#ifndef MODEL_EFFECT_INTERFACE_HPP_
+#define MODEL_EFFECT_INTERFACE_HPP_
 
 #include <vector>
 #include <string_view>
 #include <cstdint>
 
-#include "effect_types.hpp"
+#include "data_types.hpp"
+
+namespace mfx
+{
 
 class effect
 {
@@ -32,4 +35,6 @@ protected:
     bool bypassed;
 };
 
-#endif /* EFFECTS_EFFECT_INTERFACE_HPP_ */
+}
+
+#endif /* MODEL_EFFECT_INTERFACE_HPP_ */

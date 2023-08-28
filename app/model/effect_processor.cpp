@@ -23,6 +23,8 @@
 
 #include <stm32f7xx.h> // For managing D-Cache & I-Cache
 
+using namespace mfx;
+
 //-----------------------------------------------------------------------------
 /* helpers */
 

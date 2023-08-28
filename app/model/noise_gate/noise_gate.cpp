@@ -7,11 +7,14 @@
 
 #include "noise_gate.hpp"
 
+using namespace mfx;
+
 //-----------------------------------------------------------------------------
 /* private */
 
 //-----------------------------------------------------------------------------
 /* public */
+
 
 noise_gate::noise_gate() : effect { effect_id::noise_gate, "noise_gate" }
 {

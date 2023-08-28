@@ -10,7 +10,7 @@
 
 #include <variant>
 
-#include "app/model/effect_types.hpp"
+#include "app/model/data_types.hpp"
 
 #include "app/model/equalizer/equalizer.hpp"
 #include "app/model/noise_gate/noise_gate.hpp"
@@ -18,6 +18,11 @@
 
 struct controller_event
 {
+    struct led_evt_t
+    {
+
+    };
+
     struct button_evt_t
     {
         bool state;
@@ -25,10 +30,10 @@ struct controller_event
 
     struct effect_controls_evt_t
     {
-        std::variant<equalizer::controls, noise_gate::controls, tremolo::controls> controls;
+        std::variant<mfx::equalizer::controls, mfx::noise_gate::controls, mfx::tremolo::controls> controls;
     };
 
-    using holder = std::variant<button_evt_t, effect_controls_evt_t>;
+    using holder = std::variant<button_evt_t, led_evt_t, effect_controls_evt_t>;
 };
 
 #endif /* CONTROLLER_CONTROLLER_EVENTS_HPP_ */

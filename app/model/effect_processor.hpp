@@ -5,8 +5,8 @@
  *      Author: kwarc
  */
 
-#ifndef EFFECTS_EFFECT_PROCESSOR_HPP_
-#define EFFECTS_EFFECT_PROCESSOR_HPP_
+#ifndef MODEL_EFFECT_PROCESSOR_HPP_
+#define MODEL_EFFECT_PROCESSOR_HPP_
 
 #include <middlewares/active_object.hpp>
 
@@ -17,6 +17,9 @@
 #include <array>
 
 #include "effect_interface.hpp"
+
+namespace mfx
+{
 
 struct effect_processor_event
 {
@@ -75,4 +78,6 @@ private:
     dsp_output_t dsp_output;
 };
 
-#endif /* EFFECTS_EFFECT_PROCESSOR_HPP_ */
+}
+
+#endif /* MODEL_EFFECT_PROCESSOR_HPP_ */

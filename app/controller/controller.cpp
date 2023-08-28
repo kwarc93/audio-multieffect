@@ -15,6 +15,9 @@ namespace
 
 void button_timer_cb(void *arg)
 {
+    if (arg == nullptr)
+        return;
+
     hal::button *button = static_cast<hal::button*>(arg);
 
     button->debounce();
@@ -33,6 +36,17 @@ void button_timer_cb(void *arg)
     }
 }
 
+void led_timer_cb(void *arg)
+{
+    if (arg == nullptr)
+        return;
+
+    auto *ctrl = static_cast<controller*>(arg);
+
+    static const controller::event e { controller::led_evt_t {}, controller::event::flags::immutable };
+    ctrl->send(e);
+}
+
 }
 
 //-----------------------------------------------------------------------------
@@ -44,6 +58,11 @@ controller::controller() : active_object("controller", osPriorityNormal, 2048)
     this->button_timer = osTimerNew(button_timer_cb, osTimerPeriodic, &this->button, NULL);
     assert(this->button_timer != nullptr);
     osTimerStart(this->button_timer, 20);
+
+    /* Create timer for LED blink */
+    this->led_timer = osTimerNew(led_timer_cb, osTimerPeriodic, this, NULL);
+    assert(this->button_timer != nullptr);
+    osTimerStart(this->button_timer, 500);
 }
 
 controller::~controller()
@@ -56,6 +75,11 @@ void controller::dispatch(const event& e)
     std::visit([this](const auto &e) { this->event_handler(e); }, e.data);
 }
 
+void controller::event_handler(const led_evt_t &e)
+{
+    this->led.set(!this->led.get());
+}
+
 void controller::event_handler(const button_evt_t &e)
 {
     printf("Button %s\n", e.state ? "pressed" : "released");
@@ -66,15 +90,15 @@ void controller::event_handler(const effect_controls_evt_t &e)
     std::visit([](auto &&controls)
     {
         using T = std::decay_t<decltype(controls)>;
-        if constexpr (std::is_same_v<T, equalizer::controls>)
+        if constexpr (std::is_same_v<T, mfx::equalizer::controls>)
         {
             /* TODO */
         }
-        else if constexpr (std::is_same_v<T, noise_gate::controls>)
+        else if constexpr (std::is_same_v<T, mfx::noise_gate::controls>)
         {
             /* TODO */
         }
-        else if constexpr (std::is_same_v<T, tremolo::controls>)
+        else if constexpr (std::is_same_v<T, mfx::tremolo::controls>)
         {
             /* TODO */
         }

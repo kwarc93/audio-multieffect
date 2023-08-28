@@ -14,7 +14,6 @@
 
 #include "cmsis_os2.h"
 
-#include "app/blinky.hpp"
 #include "app/echo.hpp"
 #include "app/view/lcd_view/gui.hpp"
 #include "app/model/effect_processor.hpp"
@@ -22,13 +21,7 @@
 
 void init_thread(void *arg)
 {
-    /* Create and test active objects */
-
-    /* Test of Active Object 'echo' */
-    auto echo_ao = std::make_unique<echo>();
-
-    /* Test of Active Object 'blinky' */
-    auto blinky_ao = std::make_unique<blinky>();
+    /* Create active objects */
 
     /* Active Object 'gui' */
     auto gui_ao = std::make_unique<gui>();
@@ -39,16 +32,16 @@ void init_thread(void *arg)
     auto ctrl = std::make_unique<controller>();
 
     /* Active Object 'effect_processor' */
-    auto em = std::make_unique<effect_processor>();
-
-    static const std::array<effect_processor::event, 3> em_events =
-    {{
-        { effect_processor::add_effect_evt_t {effect_id::tremolo} },
-        { effect_processor::add_effect_evt_t {effect_id::equalizer} },
-        { effect_processor::add_effect_evt_t {effect_id::noise_gate} },
-    }};
+    auto em = std::make_unique<mfx::effect_processor>();
 
     /* Add some effects */
+    static const std::array<mfx::effect_processor::event, 3> em_events =
+    {{
+        { mfx::effect_processor::add_effect_evt_t {mfx::effect_id::tremolo} },
+        { mfx::effect_processor::add_effect_evt_t {mfx::effect_id::equalizer} },
+        { mfx::effect_processor::add_effect_evt_t {mfx::effect_id::noise_gate} },
+    }};
+
     for (const auto &e : em_events)
         em->send(e);
 

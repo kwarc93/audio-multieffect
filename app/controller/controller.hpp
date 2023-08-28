@@ -12,6 +12,7 @@
 
 #include <memory>
 
+#include <hal/hal_led.hpp>
 #include <hal/hal_button.hpp>
 
 #include "controller_events.hpp"
@@ -26,11 +27,15 @@ private:
     void dispatch(const event &e) override;
 
     /* Event handlers */
+    void event_handler(const led_evt_t &e);
     void event_handler(const button_evt_t &e);
     void event_handler(const effect_controls_evt_t &e);
 
     hal::buttons::blue_btn button;
     osTimerId_t button_timer;
+
+    hal::leds::debug led;
+    osTimerId_t led_timer;
 };
 
 #endif /* CONTROLLER_CONTROLLER_HPP_ */

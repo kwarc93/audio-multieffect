@@ -8,11 +8,14 @@
 
 #include "equalizer.hpp"
 
+using namespace mfx;
+
 //-----------------------------------------------------------------------------
 /* private */
 
 //-----------------------------------------------------------------------------
 /* public */
+
 
 equalizer::equalizer() : effect { effect_id::equalizer, "equalizer" }
 {

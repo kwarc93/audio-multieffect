@@ -12,6 +12,8 @@
 #include <cmsis/stm32f7xx.h>
 #include <cmsis/dsp/arm_math.h>
 
+using namespace mfx;
+
 //-----------------------------------------------------------------------------
 /* helpers */
 

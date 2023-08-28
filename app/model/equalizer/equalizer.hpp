@@ -5,10 +5,13 @@
  *      Author: kwarc
  */
 
-#ifndef EFFECTS_EQUALIZER_EQUALIZER_HPP_
-#define EFFECTS_EQUALIZER_EQUALIZER_HPP_
+#ifndef MODEL_EQUALIZER_EQUALIZER_HPP_
+#define MODEL_EQUALIZER_EQUALIZER_HPP_
 
 #include "app/model/effect_interface.hpp"
+
+namespace mfx
+{
 
 class equalizer : public effect
 {
@@ -37,4 +40,6 @@ public:
     void process(const dsp_input_t &in, dsp_output_t &out) override;
 };
 
-#endif /* EFFECTS_EQUALIZER_EQUALIZER_HPP_ */
+}
+
+#endif /* MODEL_EQUALIZER_EQUALIZER_HPP_ */
