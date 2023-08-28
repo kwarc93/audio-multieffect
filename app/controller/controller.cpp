@@ -105,20 +105,21 @@ void controller::event_handler(const button_evt_t &e)
 
 void controller::event_handler(const effect_controls_evt_t &e)
 {
-    std::visit([](auto &&controls)
+    std::visit([this](auto &&controls)
     {
         using T = std::decay_t<decltype(controls)>;
-        if constexpr (std::is_same_v<T, mfx::equalizer::controls>)
+        if constexpr (std::is_same_v<T, equalizer::controls>)
         {
             /* TODO */
         }
-        else if constexpr (std::is_same_v<T, mfx::noise_gate::controls>)
+        else if constexpr (std::is_same_v<T, noise_gate::controls>)
         {
             /* TODO */
         }
-        else if constexpr (std::is_same_v<T, mfx::tremolo::controls>)
+        else if constexpr (std::is_same_v<T, tremolo::controls>)
         {
-            /* TODO */
+            effect_processor::event evt {effect_processor::effect_controls_evt_t {controls}};
+            this->model->send(evt);
         }
     }, e.controls);
 }

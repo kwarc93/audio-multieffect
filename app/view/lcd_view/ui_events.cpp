@@ -5,6 +5,32 @@
 
 #include "ui.h"
 
+#include "app/controller/controller.hpp"
+
+namespace
+{
+
+void ui_tremolo_controls_changed(void)
+{
+    lv_obj_t *rate_knob = ui_arc_trem_rate;
+    lv_obj_t *depth_knob = ui_arc_trem_depth;
+    lv_obj_t *shape_sw = ui_sw_tremolo_shape;
+
+    const mfx::tremolo::controls controls
+    {
+        static_cast<float>(lv_arc_get_value(rate_knob)),
+        static_cast<float>(lv_arc_get_value(depth_knob)) * 0.01f,
+        lv_obj_has_state(shape_sw, LV_STATE_CHECKED) ?
+        mfx::tremolo::shape_type::sine : mfx::tremolo::shape_type::triangle
+    };
+
+    mfx::controller::event evt {mfx::controller::effect_controls_evt_t {controls}};
+    mfx::controller::instance->send(evt);
+}
+
+}
+
+
 void ui_tremolo_bypass(lv_event_t * e)
 {
 	// Your code here
@@ -12,17 +38,17 @@ void ui_tremolo_bypass(lv_event_t * e)
 
 void ui_tremolo_rate_changed(lv_event_t * e)
 {
-	// Your code here
+    ui_tremolo_controls_changed();
 }
 
 void ui_tremolo_depth_changed(lv_event_t * e)
 {
-	// Your code here
+    ui_tremolo_controls_changed();
 }
 
 void ui_tremolo_shape_changed(lv_event_t * e)
 {
-	// Your code here
+    ui_tremolo_controls_changed();
 }
 
 void ui_equalizer_bypass(lv_event_t * e)

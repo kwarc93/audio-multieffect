@@ -17,10 +17,6 @@
 
 #include "middlewares/i2c_manager.hpp"
 
-#include "app/model/equalizer/equalizer.hpp"
-#include "app/model/noise_gate/noise_gate.hpp"
-#include "app/model/tremolo/tremolo.hpp"
-
 #include <stm32f7xx.h> // For managing D-Cache & I-Cache
 
 using namespace mfx;
@@ -108,6 +104,35 @@ void effect_processor::event_handler(const process_data_evt_t &e)
     // If D-Cache is enabled, it must be cleaned/invalidated for buffers used by DMA.
     // Moreover, functions 'SCB_*_by_Addr()' require address alignment of 32 bytes.
     SCB_CleanDCache_by_Addr(&this->audio_output.buffer[this->audio_output.sample_index], sizeof(this->audio_output.buffer) / 2);
+}
+
+void effect_processor::event_handler(const effect_controls_evt_t &e)
+{
+    std::visit([this](auto &&controls)
+    {
+        using T = std::decay_t<decltype(controls)>;
+        if constexpr (std::is_same_v<T, equalizer::controls>)
+        {
+            /* TODO */
+        }
+        else if constexpr (std::is_same_v<T, noise_gate::controls>)
+        {
+            /* TODO */
+        }
+        else if constexpr (std::is_same_v<T, tremolo::controls>)
+        {
+            std::vector<std::unique_ptr<mfx::effect>>::iterator it;
+
+            if (this->find_effect(effect_id::tremolo, it))
+            {
+                auto &effect = *it;
+                auto tremolo = static_cast<mfx::tremolo*>(effect.get());
+                tremolo->set_rate(controls.rate);
+                tremolo->set_depth(controls.depth);
+                tremolo->set_shape(controls.shape);
+            }
+        }
+    }, e.controls);
 }
 
 std::unique_ptr<effect> effect_processor::create_new(effect_id id)

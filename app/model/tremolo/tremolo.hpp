@@ -16,12 +16,12 @@ namespace mfx
 class tremolo : public effect
 {
 public:
-    enum class shape_type {triangle, sine};
+    enum class shape_type {sine, triangle};
 
     struct controls
     {
         float rate;  // LFO frequency in Hz, range: [1, 20]
-        float depth; // Effect depth, range: [0, 1.0]
+        float depth; // Effect depth, range: [0, 0.5]
         shape_type shape; // LFO shape
     };
 
@@ -30,7 +30,7 @@ public:
         int error_code;
     };
 
-    tremolo(float rate = 8, float depth = 0.5f, shape_type shape = shape_type::sine);
+    tremolo(float rate = 8, float depth = 0.3f, shape_type shape = shape_type::triangle);
     virtual ~tremolo();
 
     void process(const dsp_input_t &in, dsp_output_t &out) override;

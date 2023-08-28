@@ -40,8 +40,6 @@ struct controller_event
     using holder = std::variant<button_evt_t, led_evt_t, effect_controls_evt_t>;
 };
 
-//typedef std::function<void(const controller_event::holder &e)> controller_event_handler;
-
 }
 
 #endif /* CONTROLLER_CONTROLLER_EVENTS_HPP_ */

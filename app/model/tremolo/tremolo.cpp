@@ -83,11 +83,17 @@ void tremolo::process(const dsp_input_t& in, dsp_output_t& out)
 
 void tremolo::set_depth(float depth)
 {
-    this->depth = std::clamp(depth, 0.0f, 1.0f);
+    if (this->depth == depth)
+        return;
+
+    this->depth = std::clamp(depth, 0.0f, 0.5f);
 }
 
 void tremolo::set_rate(float rate)
 {
+    if (this->lfo_freq == rate)
+        return;
+
     this->lfo_freq = std::clamp(rate, 1.0f, 20.0f);
 
     if (this->lfo_shape == shape_type::triangle)
@@ -102,6 +108,9 @@ void tremolo::set_rate(float rate)
 
 void tremolo::set_shape(shape_type shape)
 {
+    if (this->lfo_shape == shape)
+        return;
+
     this->lfo_shape = shape;
 
     /* Reset lfo */

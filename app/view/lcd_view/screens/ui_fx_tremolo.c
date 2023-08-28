@@ -89,8 +89,8 @@ void ui_fx_tremolo_screen_init(void)
     lv_obj_set_y(ui_arc_trem_rate, -12);
     lv_obj_set_align(ui_arc_trem_rate, LV_ALIGN_CENTER);
     lv_obj_clear_flag(ui_arc_trem_rate, LV_OBJ_FLAG_GESTURE_BUBBLE);      /// Flags
-    lv_arc_set_range(ui_arc_trem_rate, 10, 100);
-    lv_arc_set_value(ui_arc_trem_rate, 40);
+    lv_arc_set_range(ui_arc_trem_rate, 1, 20);
+    lv_arc_set_value(ui_arc_trem_rate, 10);
     lv_arc_set_bg_angles(ui_arc_trem_rate, 129, 51);
     lv_obj_set_style_pad_left(ui_arc_trem_rate, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_pad_right(ui_arc_trem_rate, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -149,8 +149,8 @@ void ui_fx_tremolo_screen_init(void)
     lv_obj_set_y(ui_arc_trem_depth, -12);
     lv_obj_set_align(ui_arc_trem_depth, LV_ALIGN_CENTER);
     lv_obj_clear_flag(ui_arc_trem_depth, LV_OBJ_FLAG_GESTURE_BUBBLE);      /// Flags
-    lv_arc_set_range(ui_arc_trem_depth, 10, 100);
-    lv_arc_set_value(ui_arc_trem_depth, 60);
+    lv_arc_set_range(ui_arc_trem_depth, 0, 50);
+    lv_arc_set_value(ui_arc_trem_depth, 30);
     lv_arc_set_bg_angles(ui_arc_trem_depth, 129, 51);
     lv_obj_set_style_pad_left(ui_arc_trem_depth, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_pad_right(ui_arc_trem_depth, 0, LV_PART_MAIN | LV_STATE_DEFAULT);

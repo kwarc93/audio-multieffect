@@ -18,6 +18,10 @@
 
 #include "effect_interface.hpp"
 
+#include "app/model/equalizer/equalizer.hpp"
+#include "app/model/noise_gate/noise_gate.hpp"
+#include "app/model/tremolo/tremolo.hpp"
+
 namespace mfx
 {
 
@@ -44,7 +48,12 @@ struct effect_processor_event
         bool bypassed;
     };
 
-    using holder = std::variant<process_data_evt_t, add_effect_evt_t, remove_effect_evt_t, bypass_evt_t>;
+    struct effect_controls_evt_t
+    {
+        std::variant<equalizer::controls, noise_gate::controls, tremolo::controls> controls;
+    };
+
+    using holder = std::variant<process_data_evt_t, add_effect_evt_t, remove_effect_evt_t, bypass_evt_t, effect_controls_evt_t>;
 };
 
 class effect_processor : public effect_processor_event, public middlewares::active_object<effect_processor_event::holder>
@@ -61,6 +70,7 @@ private:
     void event_handler(const remove_effect_evt_t& e);
     void event_handler(const bypass_evt_t &e);
     void event_handler(const process_data_evt_t &e);
+    void event_handler(const effect_controls_evt_t &e);
 
     std::unique_ptr<effect> create_new(effect_id id);
     bool find_effect(effect_id id, std::vector<std::unique_ptr<effect>>::iterator &it);
