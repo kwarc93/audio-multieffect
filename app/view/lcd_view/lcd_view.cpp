@@ -70,6 +70,29 @@ void lcd_view_timer_callback(void *arg)
 }
 
 //-----------------------------------------------------------------------------
+/* private */
+
+void lcd_view::update(const data_holder &data)
+{
+
+}
+
+void lcd_view::dispatch(const event &e)
+{
+    std::visit([this](const auto &e) { this->event_handler(e); }, e.data);
+}
+
+void lcd_view::event_handler(const timer_evt_t &e)
+{
+    lv_timer_handler();
+}
+
+void lcd_view::event_handler(const demo_test_evt_t &e)
+{
+
+}
+
+//-----------------------------------------------------------------------------
 /* public */
 
 lcd_view::lcd_view() : active_object("lcd_view", osPriorityNormal, 8192),
@@ -115,27 +138,5 @@ display {middlewares::i2c_managers::main::get_instance()}
     ui_init();
 };
 
-//-----------------------------------------------------------------------------
-/* private */
-
-void lcd_view::update(const data_holder &data)
-{
-
-}
-
-void lcd_view::dispatch(const event &e)
-{
-    std::visit([this](const auto &e) { this->event_handler(e); }, e.data);
-}
-
-void lcd_view::event_handler(const timer_evt_t &e)
-{
-    lv_timer_handler();
-}
-
-void lcd_view::event_handler(const demo_test_evt_t &e)
-{
-
-}
 
 
