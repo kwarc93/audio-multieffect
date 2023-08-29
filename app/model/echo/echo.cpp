@@ -47,7 +47,7 @@ echo::echo(float blend, float time, float feedback, mode_type mode) : effect { e
     this->delay_line_write_index = 0;
 
     if (this->delay_line_delay_samples == 0 || this->delay_line_delay_samples == delay_line.size())
-        this->delay_line_read_index = this->delay_line_write_index + this->delay_line_write_index;
+        this->delay_line_read_index = this->delay_line_write_index;
     else
         this->delay_line_read_index = this->delay_line_write_index + delay_line.size() - this->delay_line_delay_samples;
 }
@@ -94,7 +94,7 @@ void echo::set_time(float time)
     this->delay_line_delay_samples = this->time * delay_line.size();
 
     if (this->delay_line_delay_samples == 0 || this->delay_line_delay_samples == delay_line.size())
-        this->delay_line_read_index = this->delay_line_write_index + this->delay_line_write_index;
+        this->delay_line_read_index = this->delay_line_write_index;
     else
         this->delay_line_read_index = this->delay_line_write_index + delay_line.size() - this->delay_line_delay_samples;
 

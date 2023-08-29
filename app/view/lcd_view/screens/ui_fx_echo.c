@@ -152,7 +152,7 @@ void ui_fx_echo_screen_init(void)
     lv_obj_set_y(ui_arc_echo_feedb, -12);
     lv_obj_set_align(ui_arc_echo_feedb, LV_ALIGN_CENTER);
     lv_obj_clear_flag(ui_arc_echo_feedb, LV_OBJ_FLAG_GESTURE_BUBBLE);      /// Flags
-    lv_arc_set_range(ui_arc_echo_feedb, 0, 100);
+    lv_arc_set_range(ui_arc_echo_feedb, 0, 90);
     lv_arc_set_value(ui_arc_echo_feedb, 60);
     lv_arc_set_bg_angles(ui_arc_echo_feedb, 129, 51);
     lv_obj_set_style_pad_left(ui_arc_echo_feedb, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
