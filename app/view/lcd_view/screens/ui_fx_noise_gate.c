@@ -33,7 +33,9 @@ void ui_fx_noise_gate_screen_init(void)
     lv_imgbtn_set_src(ui_btn_ng_bypass, LV_IMGBTN_STATE_CHECKED_RELEASED, NULL, &ui_img_btn_1_act_png, NULL);
     lv_obj_set_height(ui_btn_ng_bypass, 70);
     lv_obj_set_width(ui_btn_ng_bypass, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_align(ui_btn_ng_bypass, LV_ALIGN_BOTTOM_MID);
+    lv_obj_set_x(ui_btn_ng_bypass, 15);
+    lv_obj_set_y(ui_btn_ng_bypass, 0);
+    lv_obj_set_align(ui_btn_ng_bypass, LV_ALIGN_BOTTOM_LEFT);
     lv_obj_add_flag(ui_btn_ng_bypass, LV_OBJ_FLAG_CHECKABLE);     /// Flags
     lv_obj_clear_flag(ui_btn_ng_bypass, LV_OBJ_FLAG_GESTURE_BUBBLE);      /// Flags
 

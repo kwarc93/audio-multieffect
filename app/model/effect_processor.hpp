@@ -21,6 +21,7 @@
 #include "app/model/equalizer/equalizer.hpp"
 #include "app/model/noise_gate/noise_gate.hpp"
 #include "app/model/tremolo/tremolo.hpp"
+#include "app/model/echo/echo.hpp"
 
 namespace mfx
 {
@@ -50,7 +51,7 @@ struct effect_processor_event
 
     struct effect_controls_evt_t
     {
-        std::variant<equalizer::controls, noise_gate::controls, tremolo::controls> controls;
+        std::variant<equalizer::controls, noise_gate::controls, tremolo::controls, echo::controls> controls;
     };
 
     using holder = std::variant<process_data_evt_t, add_effect_evt_t, remove_effect_evt_t, bypass_evt_t, effect_controls_evt_t>;

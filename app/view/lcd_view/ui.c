@@ -41,14 +41,35 @@ lv_obj_t * ui_sw_tremolo_shape;
 lv_obj_t * ui_lbl_trem_triangle;
 lv_obj_t * ui_lbl_trem_sine;
 
-// SCREEN: ui_fx_equalizer
-void ui_fx_equalizer_screen_init(void);
-void ui_event_fx_equalizer(lv_event_t * e);
-lv_obj_t * ui_fx_equalizer;
-lv_obj_t * ui_lbl_eq_fx_name;
-void ui_event_btn_eq_bypass(lv_event_t * e);
-lv_obj_t * ui_btn_eq_bypass;
-lv_obj_t * ui_lbl_btn_eq_bypass;
+// SCREEN: ui_fx_echo
+void ui_fx_echo_screen_init(void);
+void ui_event_fx_echo(lv_event_t * e);
+lv_obj_t * ui_fx_echo;
+lv_obj_t * ui_lbl_echo_fx_name;
+void ui_event_btn_echo_bypass(lv_event_t * e);
+lv_obj_t * ui_btn_echo_bypass;
+lv_obj_t * ui_lbl_btn_echo_bypass;
+lv_obj_t * ui_pnl_echo_controls;
+lv_obj_t * ui_pnl_echo_blend;
+lv_obj_t * ui_img_echo_blend;
+void ui_event_arc_echo_blend(lv_event_t * e);
+lv_obj_t * ui_arc_echo_blend;
+lv_obj_t * ui_lbl_echo_blend;
+lv_obj_t * ui_pnl_echo_feedb;
+lv_obj_t * ui_img_echo_feedb;
+void ui_event_arc_echo_feedb(lv_event_t * e);
+lv_obj_t * ui_arc_echo_feedb;
+lv_obj_t * ui_lbl_echo_feedb;
+lv_obj_t * ui_pnl_echo_time;
+lv_obj_t * ui_img_echo_time;
+void ui_event_arc_echo_time(lv_event_t * e);
+lv_obj_t * ui_arc_echo_time;
+lv_obj_t * ui_lbl_echo_time;
+lv_obj_t * ui_pnl_echo_mode;
+void ui_event_sw_echo_mode(lv_event_t * e);
+lv_obj_t * ui_sw_echo_mode;
+lv_obj_t * ui_lbl_echo_mode_echo;
+lv_obj_t * ui_lbl_echo_mode_delay;
 
 // SCREEN: ui_fx_noise_gate
 void ui_fx_noise_gate_screen_init(void);
@@ -111,7 +132,7 @@ void ui_event_fx_tremolo(lv_event_t * e)
     lv_obj_t * target = lv_event_get_target(e);
     if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_LEFT) {
         lv_indev_wait_release(lv_indev_get_act());
-        _ui_screen_change(&ui_fx_equalizer, LV_SCR_LOAD_ANIM_MOVE_LEFT, 250, 0, &ui_fx_equalizer_screen_init);
+        _ui_screen_change(&ui_fx_echo, LV_SCR_LOAD_ANIM_MOVE_LEFT, 250, 0, &ui_fx_echo_screen_init);
     }
 }
 void ui_event_btn_trem_bypass(lv_event_t * e)
@@ -148,7 +169,7 @@ void ui_event_sw_tremolo_shape(lv_event_t * e)
         _ui_state_modify(ui_lbl_trem_triangle, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
     }
 }
-void ui_event_fx_equalizer(lv_event_t * e)
+void ui_event_fx_echo(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * target = lv_event_get_target(e);
@@ -161,12 +182,46 @@ void ui_event_fx_equalizer(lv_event_t * e)
         _ui_screen_change(&ui_fx_tremolo, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 250, 0, &ui_fx_tremolo_screen_init);
     }
 }
-void ui_event_btn_eq_bypass(lv_event_t * e)
+void ui_event_btn_echo_bypass(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * target = lv_event_get_target(e);
     if(event_code == LV_EVENT_CLICKED) {
-        ui_equalizer_bypass(e);
+        ui_echo_bypass(e);
+    }
+}
+void ui_event_arc_echo_blend(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_echo_blend_changed(e);
+    }
+}
+void ui_event_arc_echo_feedb(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_echo_feedb_changed(e);
+    }
+}
+void ui_event_arc_echo_time(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_echo_time_changed(e);
+    }
+}
+void ui_event_sw_echo_mode(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_echo_mode_changed(e);
+        _ui_state_modify(ui_lbl_echo_mode_delay, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
+        _ui_state_modify(ui_lbl_echo_mode_echo, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
     }
 }
 void ui_event_fx_noise_gate(lv_event_t * e)
@@ -175,7 +230,7 @@ void ui_event_fx_noise_gate(lv_event_t * e)
     lv_obj_t * target = lv_event_get_target(e);
     if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_RIGHT) {
         lv_indev_wait_release(lv_indev_get_act());
-        _ui_screen_change(&ui_fx_equalizer, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 250, 0, &ui_fx_equalizer_screen_init);
+        _ui_screen_change(&ui_fx_echo, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 250, 0, &ui_fx_echo_screen_init);
     }
 }
 void ui_event_btn_ng_bypass(lv_event_t * e)
@@ -192,6 +247,7 @@ void ui_event____initial_actions0(lv_event_t * e)
     lv_obj_t * target = lv_event_get_target(e);
     if(event_code == LV_EVENT_SCREEN_LOAD_START) {
         _ui_state_modify(ui_lbl_trem_triangle, LV_STATE_CHECKED, _UI_MODIFY_STATE_ADD);
+        _ui_state_modify(ui_lbl_echo_mode_echo, LV_STATE_CHECKED, _UI_MODIFY_STATE_ADD);
     }
 }
 
@@ -205,7 +261,7 @@ void ui_init(void)
     lv_disp_set_theme(dispp, theme);
     ui_splash_screen_init();
     ui_fx_tremolo_screen_init();
-    ui_fx_equalizer_screen_init();
+    ui_fx_echo_screen_init();
     ui_fx_noise_gate_screen_init();
     ui____initial_actions0 = lv_obj_create(NULL);
     lv_obj_add_event_cb(ui____initial_actions0, ui_event____initial_actions0, LV_EVENT_ALL, NULL);

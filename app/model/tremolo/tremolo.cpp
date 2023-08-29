@@ -14,6 +14,8 @@
 
 using namespace mfx;
 
+/* TODO: Move LFO to separate class */
+
 //-----------------------------------------------------------------------------
 /* helpers */
 

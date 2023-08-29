@@ -11,6 +11,13 @@
 namespace
 {
 
+void ui_effect_bypass_changed(lv_obj_t *btn, mfx::effect_id effect)
+{
+    bool state = lv_obj_has_state(btn, LV_STATE_CHECKED);
+    mfx::effect_processor::event evt {mfx::effect_processor::bypass_evt_t {effect, state}};
+    mfx::effect_processor::instance->send(evt);
+}
+
 void ui_tremolo_controls_changed(void)
 {
     lv_obj_t *rate_knob = ui_arc_trem_rate;
@@ -29,15 +36,28 @@ void ui_tremolo_controls_changed(void)
     mfx::effect_processor::instance->send(evt);
 }
 
-void ui_effect_bypass_changed(lv_obj_t *btn, mfx::effect_id effect)
+void ui_echo_controls_changed(void)
 {
-    bool state = lv_obj_has_state(btn, LV_STATE_CHECKED);
-    mfx::effect_processor::event evt {mfx::effect_processor::bypass_evt_t {effect, state}};
+    lv_obj_t *blend_knob = ui_arc_echo_blend;
+    lv_obj_t *time_knob = ui_arc_echo_time;
+    lv_obj_t *feedback_knob = ui_arc_echo_feedb;
+    lv_obj_t *mode_sw = ui_sw_echo_mode;
+
+    const mfx::echo::controls controls
+    {
+        static_cast<float>(lv_arc_get_value(blend_knob)) * 0.01f,
+        static_cast<float>(lv_arc_get_value(time_knob)) * 0.01f,
+        static_cast<float>(lv_arc_get_value(feedback_knob)) * 0.01f,
+        lv_obj_has_state(mode_sw, LV_STATE_CHECKED) ?
+        mfx::echo::mode_type::delay : mfx::echo::mode_type::echo
+    };
+
+    mfx::effect_processor::event evt {mfx::effect_processor::effect_controls_evt_t {controls}};
     mfx::effect_processor::instance->send(evt);
 }
 
-}
 
+}
 
 void ui_tremolo_bypass(lv_event_t * e)
 {
@@ -59,12 +79,33 @@ void ui_tremolo_shape_changed(lv_event_t * e)
     ui_tremolo_controls_changed();
 }
 
-void ui_equalizer_bypass(lv_event_t * e)
+void ui_echo_bypass(lv_event_t * e)
 {
-    ui_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::equalizer);
+    ui_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::echo);
+}
+
+void ui_echo_blend_changed(lv_event_t * e)
+{
+    ui_echo_controls_changed();
+}
+
+void ui_echo_feedb_changed(lv_event_t * e)
+{
+    ui_echo_controls_changed();
+}
+
+void ui_echo_time_changed(lv_event_t * e)
+{
+    ui_echo_controls_changed();
+}
+
+void ui_echo_mode_changed(lv_event_t * e)
+{
+    ui_echo_controls_changed();
 }
 
 void ui_noise_gate_bypass(lv_event_t * e)
 {
     ui_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::noise_gate);
 }
+

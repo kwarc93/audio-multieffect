@@ -132,6 +132,20 @@ void effect_processor::event_handler(const effect_controls_evt_t &e)
                 tremolo->set_shape(controls.shape);
             }
         }
+        else if constexpr (std::is_same_v<T, echo::controls>)
+        {
+            std::vector<std::unique_ptr<mfx::effect>>::iterator it;
+
+            if (this->find_effect(effect_id::echo, it))
+            {
+                auto &effect = *it;
+                auto echo = static_cast<mfx::echo*>(effect.get());
+                echo->set_mode(controls.mode);
+                echo->set_blend(controls.blend);
+                echo->set_time(controls.time);
+                echo->set_feedback(controls.feedback);
+            }
+        }
     }, e.controls);
 }
 
@@ -142,6 +156,7 @@ std::unique_ptr<effect> effect_processor::create_new(effect_id id)
         { effect_id::equalizer,     []() { return std::make_unique<equalizer>(); } },
         { effect_id::noise_gate,    []() { return std::make_unique<noise_gate>(); } },
         { effect_id::tremolo,       []() { return std::make_unique<tremolo>(); } },
+        { effect_id::echo,          []() { return std::make_unique<echo>(); } },
     };
 
     return effect_factory.at(id)();

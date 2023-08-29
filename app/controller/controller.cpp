@@ -111,14 +111,15 @@ view {std::move(view)}
 
     /* Create timer for LED blink */
     this->led_timer = osTimerNew(led_timer_cb, osTimerPeriodic, this, NULL);
-    assert(this->button_timer != nullptr);
-    osTimerStart(this->button_timer, 500);
+    assert(this->led_timer != nullptr);
+    osTimerStart(this->led_timer, 500);
 
     /* Add some effects */
     static const std::array<effect_processor::event, 3> model_events =
     {{
         { effect_processor::add_effect_evt_t {effect_id::tremolo} },
-        { effect_processor::add_effect_evt_t {effect_id::equalizer} },
+        { effect_processor::add_effect_evt_t {effect_id::echo} },
+//        { effect_processor::add_effect_evt_t {effect_id::equalizer} },
         { effect_processor::add_effect_evt_t {effect_id::noise_gate} },
     }};
 

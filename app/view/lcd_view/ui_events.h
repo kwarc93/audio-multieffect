@@ -14,7 +14,11 @@ void ui_tremolo_bypass(lv_event_t * e);
 void ui_tremolo_rate_changed(lv_event_t * e);
 void ui_tremolo_depth_changed(lv_event_t * e);
 void ui_tremolo_shape_changed(lv_event_t * e);
-void ui_equalizer_bypass(lv_event_t * e);
+void ui_echo_bypass(lv_event_t * e);
+void ui_echo_blend_changed(lv_event_t * e);
+void ui_echo_feedb_changed(lv_event_t * e);
+void ui_echo_time_changed(lv_event_t * e);
+void ui_echo_mode_changed(lv_event_t * e);
 void ui_noise_gate_bypass(lv_event_t * e);
 
 #ifdef __cplusplus

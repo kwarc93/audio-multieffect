@@ -15,7 +15,7 @@ namespace mfx
 
 static constexpr uint32_t sampling_frequency_hz = 48000;
 
-enum class effect_id { equalizer, noise_gate, tremolo };
+enum class effect_id { equalizer, noise_gate, tremolo, echo };
 
 typedef float dsp_sample_t;
 typedef std::vector<dsp_sample_t> dsp_input_t;
