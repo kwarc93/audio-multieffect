@@ -40,7 +40,6 @@ void effect_processor::event_handler(const add_effect_evt_t &e)
     if (!this->find_effect(e.id, it))
     {
         auto effect = this->create_new(e.id);
-//        printf("Effect '%s' added\n", effect->get_name().data());
         this->effects.push_back(std::move(effect));
     }
 }
@@ -51,8 +50,6 @@ void effect_processor::event_handler(const remove_effect_evt_t &e)
 
     if (this->find_effect(e.id, it))
     {
-//        auto &effect = *it;
-//        printf("Effect '%s' removed\n", effect->get_name().data());
         this->effects.erase(it);
     }
 }
@@ -65,8 +62,6 @@ void effect_processor::event_handler(const bypass_evt_t &e)
     {
         auto &effect = *it;
         effect->bypass(e.bypassed);
-
-//        printf("Effect '%s' bypass state: %s\n", effect->get_name().data(), effect->is_bypassed() ? "on" : "off");
     }
 }
 
@@ -146,6 +141,21 @@ void effect_processor::event_handler(const effect_controls_evt_t &e)
                 echo->set_feedback(controls.feedback);
             }
         }
+        else if constexpr (std::is_same_v<T, overdrive::controls>)
+        {
+            std::vector<std::unique_ptr<mfx::effect>>::iterator it;
+
+            if (this->find_effect(effect_id::overdrive, it))
+            {
+                auto &effect = *it;
+                auto overdrive = static_cast<mfx::overdrive*>(effect.get());
+                overdrive->set_mode(controls.mode);
+                overdrive->set_high(controls.high);
+                overdrive->set_low(controls.low);
+                overdrive->set_gain(controls.gain);
+                overdrive->set_mix(controls.mix);
+            }
+        }
     }, e.controls);
 }
 
@@ -157,6 +167,7 @@ std::unique_ptr<effect> effect_processor::create_new(effect_id id)
         { effect_id::noise_gate,    []() { return std::make_unique<noise_gate>(); } },
         { effect_id::tremolo,       []() { return std::make_unique<tremolo>(); } },
         { effect_id::echo,          []() { return std::make_unique<echo>(); } },
+        { effect_id::overdrive,     []() { return std::make_unique<overdrive>(); } },
     };
 
     return effect_factory.at(id)();
@@ -215,7 +226,7 @@ void effect_processor::audio_play_cb(uint16_t sample_index)
 effect_processor::effect_processor() : active_object("effect_processor", osPriorityHigh, 4096),
 audio{middlewares::i2c_managers::main::get_instance()}
 {
-    /* DSP buffers have only one channel */
+    /* DSP buffers contain only one channel (left) */
     this->dsp_input.resize(this->audio_input.samples / 2);
     this->dsp_output.resize(this->audio_output.samples / 2);
 

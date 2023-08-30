@@ -10,8 +10,6 @@
 
 #include "app/model/effect_interface.hpp"
 
-#include <array>
-
 namespace mfx
 {
 
@@ -54,6 +52,7 @@ private:
     float feedforward;
     mode_type mode;
 };
+
 }
 
 #endif /* MODEL_ECHO_ECHO_HPP_ */

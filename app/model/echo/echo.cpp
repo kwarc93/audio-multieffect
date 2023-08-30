@@ -7,7 +7,7 @@
 
 #include "echo.hpp"
 
-#include <cstring>
+#include <array>
 #include <algorithm>
 
 #include <cmsis/stm32f7xx.h>

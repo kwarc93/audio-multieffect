@@ -119,8 +119,7 @@ view {std::move(view)}
     {{
         { effect_processor::add_effect_evt_t {effect_id::tremolo} },
         { effect_processor::add_effect_evt_t {effect_id::echo} },
-//        { effect_processor::add_effect_evt_t {effect_id::equalizer} },
-        { effect_processor::add_effect_evt_t {effect_id::noise_gate} },
+        { effect_processor::add_effect_evt_t {effect_id::overdrive} },
     }};
 
     for (const auto &e : model_events)
