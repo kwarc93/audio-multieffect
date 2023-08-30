@@ -110,7 +110,11 @@ void overdrive::process(const dsp_input_t& in, dsp_output_t& out)
         output = 0.5f * (input - ap_y);
 
         /* 3. Apply gain, clip & mix */
-        output = this->soft_clip(input * this->gain);
+        if (this->mode == mode_type::overdrive)
+            output = this->soft_clip(input * this->gain);
+        else
+            output = this->hard_clip(input * this->gain);
+
         output = this->mix * output + (1.0f - this->mix) * input;
 
         /* 4. Apply 1-st order high-shelf IIR filter */
@@ -129,8 +133,8 @@ void overdrive::set_high(float high)
     if (this->high == high)
         return;
 
-    /* Calculate coefficient for 1-st order high-shelf IIR (6kHz - 12kHz range) */
-    const float fc = 6000 + high * 6000;
+    /* Calculate coefficient for 1-st order high-shelf IIR (4kHz - 8kHz range) */
+    const float fc = 4000 + high * 4000;
     const float wc = 2 * fc / sampling_frequency_hz;
 
     const float g = -12;
@@ -149,7 +153,7 @@ void overdrive::set_low(float low)
         return;
 
     /* Calculate coefficient for 1-st order high-pass IIR (50Hz - 250Hz range) */
-    const float fc = 50 + low * 200;
+    const float fc = 50 + (1.0f - low) * 200;
     const float wc = 2 * fc / sampling_frequency_hz;
 
     this->hp_c = (std::tan(pi * wc / 2) - 1) / (std::tan(pi * wc / 2) + 1);
@@ -161,8 +165,6 @@ void overdrive::set_gain(float gain)
 {
     if (this->gain == gain)
         return;
-
-    /* TODO */
 
     this->gain = gain;
 }
@@ -181,8 +183,6 @@ void overdrive::set_mode(mode_type mode)
 {
     if (this->mode == mode)
         return;
-
-    /* TODO */
 
     this->mode = mode;
 }

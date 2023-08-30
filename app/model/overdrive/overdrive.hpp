@@ -25,9 +25,9 @@ public:
 
     struct controls
     {
-        float high;
         float low;
         float gain;
+        float high;
         float mix;
         mode_type mode;
     };
@@ -43,8 +43,8 @@ public:
     void process(const dsp_input_t &in, dsp_output_t &out) override;
 
     void set_high(float high);
-    void set_low(float low);
     void set_gain(float gain);
+    void set_low(float low);
     void set_mix(float mix);
     void set_mode(mode_type mode);
 

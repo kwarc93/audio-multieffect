@@ -56,6 +56,26 @@ void ui_echo_controls_changed(void)
     mfx::effect_processor::instance->send(evt);
 }
 
+void ui_overdrive_controls_changed(void)
+{
+    lv_obj_t *low_knob = ui_arc_od_low;
+    lv_obj_t *gain_knob = ui_arc_od_gain;
+    lv_obj_t *high_knob = ui_arc_od_high;
+    lv_obj_t *mode_sw = ui_sw_od_mode;
+
+    const mfx::overdrive::controls controls
+    {
+        static_cast<float>(lv_arc_get_value(low_knob)) * 0.01f,
+        static_cast<float>(lv_arc_get_value(gain_knob)) * 0.01f,
+        static_cast<float>(lv_arc_get_value(high_knob)) * 0.01f,
+        1.0f,
+        lv_obj_has_state(mode_sw, LV_STATE_CHECKED) ?
+        mfx::overdrive::mode_type::distortion : mfx::overdrive::mode_type::overdrive
+    };
+
+    mfx::effect_processor::event evt {mfx::effect_processor::effect_controls_evt_t {controls}};
+    mfx::effect_processor::instance->send(evt);
+}
 
 }
 
@@ -108,4 +128,25 @@ void ui_overdrive_bypass(lv_event_t * e)
 {
     ui_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::overdrive);
 }
+
+void ui_overdrive_low_changed(lv_event_t * e)
+{
+    ui_overdrive_controls_changed();
+}
+
+void ui_overdrive_gain_changed(lv_event_t * e)
+{
+    ui_overdrive_controls_changed();
+}
+
+void ui_overdrive_high_changed(lv_event_t * e)
+{
+    ui_overdrive_controls_changed();
+}
+
+void ui_overdrive_mode_changed(lv_event_t * e)
+{
+    ui_overdrive_controls_changed();
+}
+
 

@@ -20,6 +20,10 @@ void ui_echo_feedb_changed(lv_event_t * e);
 void ui_echo_time_changed(lv_event_t * e);
 void ui_echo_mode_changed(lv_event_t * e);
 void ui_overdrive_bypass(lv_event_t * e);
+void ui_overdrive_low_changed(lv_event_t * e);
+void ui_overdrive_gain_changed(lv_event_t * e);
+void ui_overdrive_high_changed(lv_event_t * e);
+void ui_overdrive_mode_changed(lv_event_t * e);
 
 #ifdef __cplusplus
 } /*extern "C"*/
