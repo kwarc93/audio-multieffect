@@ -10,9 +10,6 @@
 #include <array>
 #include <algorithm>
 
-#include <cmsis/stm32f7xx.h>
-#include <cmsis/dsp/arm_math.h>
-
 using namespace mfx;
 
 //-----------------------------------------------------------------------------
@@ -37,6 +34,12 @@ overdrive::overdrive(float high, float low, float gain, float mix, mode_type mod
     this->set_low(low);
     this->set_high(high);
 
+    arm_fir_init_f32(
+        &this->fir,
+        this->fir_coeffs.size(),
+        const_cast<float32_t*>(this->fir_coeffs.data()),
+        this->fir_state.data(), this->fir_block_size
+    );
     /* TODO */
 }
 
