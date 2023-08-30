@@ -14,6 +14,7 @@ namespace mfx
 {
 
 static constexpr uint32_t sampling_frequency_hz = 48000;
+static constexpr float pi = 3.14159265359f;
 
 enum class effect_id { equalizer, noise_gate, tremolo, echo, overdrive };
 

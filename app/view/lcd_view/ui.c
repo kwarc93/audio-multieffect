@@ -238,7 +238,7 @@ void ui_event_btn_ng_bypass(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * target = lv_event_get_target(e);
     if(event_code == LV_EVENT_CLICKED) {
-        ui_noise_gate_bypass(e);
+        ui_overdrive_bypass(e);
     }
 }
 void ui_event____initial_actions0(lv_event_t * e)

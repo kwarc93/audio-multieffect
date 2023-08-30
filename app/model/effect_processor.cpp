@@ -9,6 +9,7 @@
 
 #include <cstring>
 #include <cmath>
+#include <limits>
 #include <functional>
 #include <algorithm>
 #include <memory>
@@ -87,9 +88,11 @@ void effect_processor::event_handler(const process_data_evt_t &e)
     current_output = current_input;
 
     /* Transform DSP samples to RAW buffer */
+    constexpr float scale = std::numeric_limits<hal::audio_devices::codec::output_sample_t>::max();
     for (unsigned i = 0; i < current_output->size(); i++)
     {
-        auto sample = std::lround(current_output->at(i));
+        auto sample = std::lround(std::clamp(current_output->at(i), -1.0f, 1.0f) * scale);
+
         /* Left */
         this->audio_output.buffer[this->audio_output.sample_index + 2 * i] = sample;
         /* Right */
@@ -198,10 +201,11 @@ void effect_processor::audio_capture_cb(const hal::audio_devices::codec::input_s
         this->audio_input.sample_index = this->audio_input.buffer.size() / 2;
 
     /* Transform RAW samples to DSP buffer */
+    constexpr float scale = 1.0f / std::numeric_limits<hal::audio_devices::codec::input_sample_t>::max();
     for (unsigned i = this->audio_input.sample_index, j = 0; i < this->audio_input.sample_index + this->audio_input.buffer.size() / 2; i+=2, j++)
     {
         /* Copy only left channel */
-        this->dsp_input.at(j) = this->audio_input.buffer.at(i);
+        this->dsp_input.at(j) = this->audio_input.buffer.at(i) * scale;
     }
 
     /* Send event to process data */

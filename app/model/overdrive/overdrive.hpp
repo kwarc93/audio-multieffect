@@ -37,7 +37,7 @@ public:
         int error_code;
     };
 
-    overdrive(float high = 0.5f, float low = 0.5f, float gain = 0.5f, float mix = 0.5f, mode_type mode = mode_type::overdrive);
+    overdrive(float low = 0.5f, float high = 0.3f, float gain = 4.0f, float mix = 1.0f, mode_type mode = mode_type::overdrive);
     virtual ~overdrive();
 
     void process(const dsp_input_t &in, dsp_output_t &out) override;
@@ -49,14 +49,19 @@ public:
     void set_mode(mode_type mode);
 
 private:
-    float high;
+
+    dsp_sample_t soft_clip(dsp_sample_t in);
+    dsp_sample_t hard_clip(dsp_sample_t in);
+
     float low;
+    float high;
     float gain;
     float mix;
     mode_type mode;
 
+    /* FIR */
     constexpr static unsigned fir_block_size {128};
-    constexpr static inline std::array<float32_t, 97> fir_coeffs
+    constexpr static inline std::array<float, 97> fir_coeffs
     {{
         -0.00007726, -0.00054562, -0.00006974, 0.00060528, 0.00026125,
         -0.00066688, -0.00053010, 0.00069328, 0.00089668, -0.00062799,
@@ -81,7 +86,16 @@ private:
     }};
 
     arm_fir_instance_f32 fir;
-    std::array<float32_t, fir_block_size + fir_coeffs.size() - 1> fir_state;
+    std::array<float, fir_block_size + fir_coeffs.size() - 1> fir_state;
+
+    /* Tunable high-pass 1-st order IIR filter */
+    float hp_c;
+    dsp_sample_t hp_h;
+
+    /* Tunable high-shelf 1-st order IIR filter */
+    float hs_cc;
+    float hs_h0;
+    dsp_sample_t hs_h;
 
 };
 

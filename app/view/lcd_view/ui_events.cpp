@@ -104,8 +104,8 @@ void ui_echo_mode_changed(lv_event_t * e)
     ui_echo_controls_changed();
 }
 
-void ui_noise_gate_bypass(lv_event_t * e)
+void ui_overdrive_bypass(lv_event_t * e)
 {
-    ui_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::noise_gate);
+    ui_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::overdrive);
 }
 

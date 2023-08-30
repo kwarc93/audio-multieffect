@@ -19,7 +19,7 @@ void ui_echo_blend_changed(lv_event_t * e);
 void ui_echo_feedb_changed(lv_event_t * e);
 void ui_echo_time_changed(lv_event_t * e);
 void ui_echo_mode_changed(lv_event_t * e);
-void ui_noise_gate_bypass(lv_event_t * e);
+void ui_overdrive_bypass(lv_event_t * e);
 
 #ifdef __cplusplus
 } /*extern "C"*/
