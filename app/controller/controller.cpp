@@ -117,9 +117,9 @@ view {std::move(view)}
     /* Add some effects */
     static const std::array<effect_processor::event, 3> model_events =
     {{
+        { effect_processor::add_effect_evt_t {effect_id::overdrive} },
         { effect_processor::add_effect_evt_t {effect_id::tremolo} },
         { effect_processor::add_effect_evt_t {effect_id::echo} },
-        { effect_processor::add_effect_evt_t {effect_id::overdrive} },
     }};
 
     for (const auto &e : model_events)
