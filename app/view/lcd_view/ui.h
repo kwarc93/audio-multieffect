@@ -23,6 +23,7 @@ extern lv_obj_t * ui_lbl_splash;
 // SCREEN: ui_settings
 void ui_settings_screen_init(void);
 void ui_event_settings(lv_event_t * e);
+extern lv_obj_t * ui_prev_screen;
 extern lv_obj_t * ui_settings;
 extern lv_obj_t * ui_lbl_sett_name;
 extern lv_obj_t * ui_pnl_in_vol;
