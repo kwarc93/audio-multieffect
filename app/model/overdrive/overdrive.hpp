@@ -49,7 +49,6 @@ public:
     void set_mode(mode_type mode);
 
 private:
-
     dsp_sample_t soft_clip(dsp_sample_t in);
     dsp_sample_t hard_clip(dsp_sample_t in);
 
@@ -57,9 +56,9 @@ private:
     float high;
     float gain;
     float mix;
-    mode_type mode {mode_type::soft};
+    mode_type mode;
 
-    /* FIR */
+    /* Low-pass FIR filter */
     constexpr static unsigned fir_block_size {128};
     constexpr static inline std::array<float, 97> fir_coeffs
     {{
@@ -88,15 +87,19 @@ private:
     arm_fir_instance_f32 fir;
     std::array<float, fir_block_size + fir_coeffs.size() - 1> fir_state;
 
-    /* Tunable high-pass 1-st order IIR filter */
-    float hp_c;
-    dsp_sample_t hp_h;
+    /* Tunable high-pass 2nd order IIR filter */
+    arm_biquad_casd_df1_inst_f32 iir_hp;
+    constexpr static unsigned iir_hp_biquad_stages = 1;
+    std::array<float, 5 * iir_hp_biquad_stages> iir_hp_coeffs;
+    std::array<float, 4 * iir_hp_biquad_stages> iir_hp_state;
+    void iir_biquad_hp_calc_coeffs(float fs, float fc);
 
-    /* Tunable high-shelf 1-st order IIR filter */
-    float hs_cc;
-    float hs_h0;
-    dsp_sample_t hs_h;
-
+    /* Tunable low-pass 2-nd order IIR filter */
+    arm_biquad_casd_df1_inst_f32 iir_lp;
+    constexpr static unsigned iir_lp_biquad_stages = 1;
+    std::array<float, 5 * iir_lp_biquad_stages> iir_lp_coeffs;
+    std::array<float, 4 * iir_lp_biquad_stages> iir_lp_state;
+    void iir_biquad_lp_calc_coeffs(float fs, float fc);
 };
 
 }

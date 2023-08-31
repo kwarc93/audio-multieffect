@@ -55,6 +55,40 @@ dsp_sample_t overdrive::soft_clip(dsp_sample_t in)
     return sgn(in) * (1 - std::exp(-std::abs(in)));
 }
 
+void overdrive::iir_biquad_lp_calc_coeffs(float fs, float fc)
+{
+    const float wc = fc / fs;
+    const float k = std::tan(pi * wc);
+    const float q = 1.0f / std::sqrt(2.0f);
+
+    const float k2q = k * k * q;
+    const float denum = 1.0f / (k2q + k + q);
+
+    /* 2-nd order */
+    this->iir_lp_coeffs[0] = k2q * denum; // b0
+    this->iir_lp_coeffs[1] = 2 * this->iir_lp_coeffs[0]; // b1
+    this->iir_lp_coeffs[2] = this->iir_lp_coeffs[0]; // b2
+    this->iir_lp_coeffs[3] = -2 * q * (k * k - 1) * denum; // -a1
+    this->iir_lp_coeffs[4] = -(k2q - k + q) * denum; // -a2
+}
+
+void overdrive::iir_biquad_hp_calc_coeffs(float fs, float fc)
+{
+    const float wc = fc / fs;
+    const float k = std::tan(pi * wc);
+    const float q = 1.0f / std::sqrt(2.0f);
+
+    const float k2q = k * k * q;
+    const float denum = 1.0f / (k2q + k + q);
+
+    /* 2-nd order */
+    this->iir_hp_coeffs[0] = q * denum; // b0
+    this->iir_hp_coeffs[1] = -2 * this->iir_hp_coeffs[0]; // b1
+    this->iir_hp_coeffs[2] = this->iir_hp_coeffs[0]; // b2
+    this->iir_hp_coeffs[3] = -2 * q * (k * k - 1) * denum; // -a1
+    this->iir_hp_coeffs[4] = -(k2q - k + q) * denum; // -a2
+}
+
 //-----------------------------------------------------------------------------
 /* public */
 
@@ -70,9 +104,23 @@ overdrive::overdrive(float low, float high, float gain, float mix, mode_type mod
     arm_fir_init_f32(
         &this->fir,
         this->fir_coeffs.size(),
-        const_cast<float32_t*>(this->fir_coeffs.data()),
+        const_cast<float*>(this->fir_coeffs.data()),
         this->fir_state.data(),
         this->fir_block_size
+    );
+
+    arm_biquad_cascade_df1_init_f32(
+        &this->iir_lp,
+        this->iir_lp_biquad_stages,
+        this->iir_lp_coeffs.data(),
+        this->iir_lp_state.data()
+    );
+
+    arm_biquad_cascade_df1_init_f32(
+        &this->iir_hp,
+        this->iir_hp_biquad_stages,
+        this->iir_hp_coeffs.data(),
+        this->iir_hp_state.data()
     );
 }
 
@@ -87,16 +135,13 @@ void overdrive::process(const dsp_input_t& in, dsp_output_t& out)
     float32_t *ptr = const_cast<float32_t*>(in.data());
     arm_fir_f32(&this->fir, ptr, ptr, this->fir_block_size);
 
+    /* 2. Apply 1-st order high-pass IIR filter (in-place) */
+    arm_biquad_cascade_df1_f32(&this->iir_hp, ptr, ptr, in.size());
+
     std::transform(in.begin(), in.end(), out.begin(),
     [this](auto input)
     {
-        dsp_sample_t output;
-
-        /* 2. Apply 1-st order high-pass IIR filter */
-        dsp_sample_t xh_new = input - this->hp_c * this->hp_h;
-        dsp_sample_t ap_y = this->hp_c * xh_new + this->hp_h;
-        this->hp_h = xh_new;
-        output = 0.5f * (input - ap_y);
+        dsp_sample_t output = input;
 
         /* 3. Apply gain, clip & mix */
         if (this->mode == mode_type::hard)
@@ -104,17 +149,12 @@ void overdrive::process(const dsp_input_t& in, dsp_output_t& out)
         else
             output = this->soft_clip(output * this->gain);
 
-        output = this->mix * output + (1.0f - this->mix) * input;
-
-        /* 4. Apply 1-st order high-shelf IIR filter */
-        xh_new = output - this->hs_cc * this->hs_h;
-        ap_y = this->hs_cc * xh_new + this->hs_h;
-        this->hs_h = xh_new;
-        output = 0.5f * this->hs_h0 * (output - ap_y) + output;
-
-        return output;
+        return this->mix * output + (1.0f - this->mix) * input;
     }
     );
+
+    /* 4. Apply 2-nd order low-pass IIR filter */
+    arm_biquad_cascade_df1_f32(&this->iir_lp, out.data(), out.data(), out.size());
 }
 
 void overdrive::set_high(float high)
@@ -122,16 +162,10 @@ void overdrive::set_high(float high)
     if (this->high == high)
         return;
 
-    /* Calculate coefficient for 1-st order high-shelf IIR (4kHz - 10kHz range) */
-    const float fc = 4000 + high * 6000;
-    const float wc = 2 * fc / sampling_frequency_hz;
+    /* Calculate coefficient for 2-nd order low-pass IIR (2kHz - 6kHz range) */
+    const float fc = 2000 + high * 4000;
 
-    const float g = -18;
-    const float v0 = std::pow(10, g / 20);
-    this->hs_h0 = v0 - 1.0f;
-
-    /* Calculate coef for cut (g < 0) */
-    this->hs_cc = (v0 * std::tan(pi * wc / 2) - 1) / (v0 * std::tan(pi * wc / 2) + 1);
+    iir_biquad_lp_calc_coeffs(sampling_frequency_hz, fc);
 
     this->high = high;
 }
@@ -141,11 +175,10 @@ void overdrive::set_low(float low)
     if (this->low == low)
         return;
 
-    /* Calculate coefficient for 1-st order high-pass IIR (50Hz - 250Hz range) */
+    /* Calculate coefficient for 2-nd order high-pass IIR (50Hz - 250Hz range) */
     const float fc = 50 + (1.0f - low) * 200;
-    const float wc = 2 * fc / sampling_frequency_hz;
 
-    this->hp_c = (std::tan(pi * wc / 2) - 1) / (std::tan(pi * wc / 2) + 1);
+    iir_biquad_hp_calc_coeffs(sampling_frequency_hz, fc);
 
     this->low = low;
 }
