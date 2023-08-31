@@ -122,11 +122,11 @@ void overdrive::set_high(float high)
     if (this->high == high)
         return;
 
-    /* Calculate coefficient for 1-st order high-shelf IIR (4kHz - 8kHz range) */
-    const float fc = 4000 + high * 4000;
+    /* Calculate coefficient for 1-st order high-shelf IIR (4kHz - 10kHz range) */
+    const float fc = 4000 + high * 6000;
     const float wc = 2 * fc / sampling_frequency_hz;
 
-    const float g = -12;
+    const float g = -18;
     const float v0 = std::pow(10, g / 20);
     this->hs_h0 = v0 - 1.0f;
 
