@@ -29,12 +29,14 @@ public:
 
     void capture(audio_input::sample_t *input, uint16_t length, const capture_cb_t &cb, bool loop) override;
     void stop_capture(void) override;
+    void set_input_volume(uint8_t vol) override;
 
     void play(const audio_output::sample_t *output, uint16_t length, const play_cb_t &cb, bool loop) override;
     void pause(void) override;
     void resume(void) override;
     void stop(void) override;
-    void set_volume(uint8_t vol) override;
+    void set_output_volume(uint8_t vol) override;
+
 private:
     hal::interface::i2c_device &i2c_dev;
     const uint8_t i2c_addr;

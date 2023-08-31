@@ -9,6 +9,7 @@
 #include "audio_wm8994ecs.hpp"
 
 #include <cassert>
+#include <algorithm>
 
 #include <drivers/stm32f7/delay.hpp>
 
@@ -410,7 +411,7 @@ i2c_dev {dev}, i2c_addr {addr}, sai_drv{sai_16bit::id::sai2}
 {
     constexpr uint32_t audio_freq = 48000;
 
-    constexpr uint8_t output_vol = 57; // 0dB
+    constexpr uint8_t output_vol = 192; // 0dB
     constexpr uint8_t input_vol = 192; // 0dB
 
     if (out != output::none)
@@ -884,7 +885,7 @@ i2c_dev {dev}, i2c_addr {addr}, sai_drv{sai_16bit::id::sai2}
         this->write_reg(0x422, 0x0010);
 
         /* Volume Control */
-        this->set_volume(output_vol);
+        this->set_output_volume(output_vol);
     }
 
     if (in != input::none) /* Audio input selected */
@@ -930,19 +931,7 @@ i2c_dev {dev}, i2c_addr {addr}, sai_drv{sai_16bit::id::sai2}
         }
 
         /* Volume Control */
-        uint8_t convertedvol = (input_vol >= 100) ? 239 : static_cast<uint8_t>((input_vol * 240) / 100);
-
-        /* Left AIF1 ADC1 volume */
-        this->write_reg(0x400, convertedvol | 0x100);
-
-        /* Right AIF1 ADC1 volume */
-        this->write_reg(0x401, convertedvol | 0x100);
-
-        /* Left AIF1 ADC2 volume */
-        this->write_reg(0x404, convertedvol | 0x100);
-
-        /* Right AIF1 ADC2 volume */
-        this->write_reg(0x405, convertedvol | 0x100);
+        this->set_input_volume(input_vol);
     }
 }
 
@@ -966,6 +955,25 @@ void audio_wm8994ecs::capture(audio_input::sample_t *input, uint16_t length, con
 void audio_wm8994ecs::stop_capture(void)
 {
     /* TODO */
+}
+
+void audio_wm8994ecs::set_input_volume(uint8_t vol)
+{
+    constexpr uint8_t vol_mute = 0;
+    constexpr uint8_t vol_0db = 192;
+    vol = std::clamp(vol, vol_mute, vol_0db);
+
+    /* Left AIF1 ADC1 volume */
+    this->write_reg(0x400, vol | 0x100);
+
+    /* Right AIF1 ADC1 volume */
+    this->write_reg(0x401, vol | 0x100);
+
+    /* Left AIF1 ADC2 volume */
+    this->write_reg(0x404, vol | 0x100);
+
+    /* Right AIF1 ADC2 volume */
+    this->write_reg(0x405, vol | 0x100);
 }
 
 void audio_wm8994ecs::play(const audio_output::sample_t *output, uint16_t length, const play_cb_t &cb, bool loop)
@@ -995,63 +1003,22 @@ void audio_wm8994ecs::stop(void)
     /* TODO */
 }
 
-void audio_wm8994ecs::set_volume(uint8_t vol)
+void audio_wm8994ecs::set_output_volume(uint8_t vol)
 {
-    uint8_t convertedvol = (vol > 100) ? 100 : static_cast<uint8_t>((vol * 63) / 100);
+    constexpr uint8_t vol_mute = 0;
+    constexpr uint8_t vol_0db = 192;
+    vol = std::clamp(vol, vol_mute, vol_0db);
 
-    if (convertedvol > 0x3E)
-    {
-        /* Unmute audio codec */
+    /* Left Headphone Volume */
+    this->write_reg(0x1C, vol | 0x140);
 
-        /* Unmute the AIF1 Timeslot 0 DAC1 path L&R */
-        this->write_reg(0x420, 0x0010);
+    /* Right Headphone Volume */
+    this->write_reg(0x1D, vol | 0x140);
 
-        /* Unmute the AIF1 Timeslot 1 DAC2 path L&R */
-        this->write_reg(0x422, 0x0010);
+    /* Left Speaker Volume */
+    this->write_reg(0x26, vol | 0x140);
 
-        /* Left Headphone Volume */
-        this->write_reg(0x1C, 0x3F | 0x140);
-
-        /* Right Headphone Volume */
-        this->write_reg(0x1D, 0x3F | 0x140);
-
-        /* Left Speaker Volume */
-        this->write_reg(0x26, 0x3F | 0x140);
-
-        /* Right Speaker Volume */
-        this->write_reg(0x27, 0x3F | 0x140);
-    }
-    else if (vol == 0)
-    {
-        /* Mute audio codec */
-
-        /* Soft Mute the AIF1 Timeslot 0 DAC1 path L&R */
-        this->write_reg(0x420, 0x0200);
-
-        /* Soft Mute the AIF1 Timeslot 1 DAC2 path L&R */
-        this->write_reg(0x422, 0x0200);
-    }
-    else
-    {
-        /* Unmute audio codec */
-
-        /* Unmute the AIF1 Timeslot 0 DAC1 path L&R */
-        this->write_reg(0x420, 0x0010);
-
-        /* Unmute the AIF1 Timeslot 1 DAC2 path L&R */
-        this->write_reg(0x422, 0x0010);
-
-        /* Left Headphone Volume */
-        this->write_reg(0x1C, convertedvol | 0x140);
-
-        /* Right Headphone Volume */
-        this->write_reg(0x1D, convertedvol | 0x140);
-
-        /* Left Speaker Volume */
-        this->write_reg(0x26, convertedvol | 0x140);
-
-        /* Right Speaker Volume */
-        this->write_reg(0x27, convertedvol | 0x140);
-    }
+    /* Right Speaker Volume */
+    this->write_reg(0x27, vol | 0x140);
 }
 

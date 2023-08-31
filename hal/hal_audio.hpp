@@ -36,13 +36,15 @@ namespace hal
         /* Input related methods */
         void capture(T1 *input, uint16_t length, const typename hal::interface::audio_input<T1>::capture_cb_t &cb, bool loop);
         void stop_capture(void);
+        void set_input_volume(uint8_t vol);
 
         /* Output related methods */
         void play(const T2 *output, uint16_t length, const typename hal::interface::audio_output<T2>::play_cb_t &cb, bool loop);
         void pause(void);
         void resume(void);
         void stop(void);
-        void set_volume(uint8_t vol);
+        void set_output_volume(uint8_t vol);
+
     protected:
         hal::interface::audio_input<T1> *input_drv;
         hal::interface::audio_output<T2> *output_drv;

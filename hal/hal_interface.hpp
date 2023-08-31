@@ -160,6 +160,7 @@ namespace hal::interface
 
         virtual void capture(sample_t *input, uint16_t length, const capture_cb_t &cb, bool loop) = 0;
         virtual void stop_capture(void) = 0;
+        virtual void set_input_volume(uint8_t vol) = 0;
 
     protected:
         capture_cb_t capture_callback;
@@ -179,7 +180,7 @@ namespace hal::interface
         virtual void pause(void) = 0;
         virtual void resume(void) = 0;
         virtual void stop(void) = 0;
-        virtual void set_volume(uint8_t vol) = 0;
+        virtual void set_output_volume(uint8_t vol) = 0;
 
     protected:
         play_cb_t play_callback;
