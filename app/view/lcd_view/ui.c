@@ -15,6 +15,22 @@ void ui_event_splash(lv_event_t * e);
 lv_obj_t * ui_splash;
 lv_obj_t * ui_lbl_splash;
 
+// SCREEN: ui_settings
+void ui_settings_screen_init(void);
+void ui_event_settings(lv_event_t * e);
+lv_obj_t * ui_settings;
+lv_obj_t * ui_lbl_sett_name;
+lv_obj_t * ui_pnl_in_vol;
+void ui_event_sld_in_vol(lv_event_t * e);
+lv_obj_t * ui_sld_in_vol;
+lv_obj_t * ui_lbl_in_vol_dbmax;
+lv_obj_t * ui_lbl_in_vol;
+lv_obj_t * ui_pnl_out_vol;
+void ui_event_sld_out_vol(lv_event_t * e);
+lv_obj_t * ui_sld_out_vol;
+lv_obj_t * ui_lbl_out_vol_dbmax;
+lv_obj_t * ui_lbl_out_vol;
+
 // SCREEN: ui_fx_tremolo
 void ui_fx_tremolo_screen_init(void);
 void ui_event_fx_tremolo(lv_event_t * e);
@@ -149,6 +165,31 @@ void ui_event_splash(lv_event_t * e)
         _ui_screen_change(&ui_fx_tremolo, LV_SCR_LOAD_ANIM_FADE_ON, 500, 2600, &ui_fx_tremolo_screen_init);
     }
 }
+void ui_event_settings(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_TOP) {
+        lv_indev_wait_release(lv_indev_get_act());
+        _ui_screen_change(&ui_fx_tremolo, LV_SCR_LOAD_ANIM_MOVE_TOP, 250, 0, &ui_fx_tremolo_screen_init);
+    }
+}
+void ui_event_sld_in_vol(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_settings_in_vol_changed(e);
+    }
+}
+void ui_event_sld_out_vol(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_settings_out_vol_changed(e);
+    }
+}
 void ui_event_fx_tremolo(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
@@ -156,6 +197,10 @@ void ui_event_fx_tremolo(lv_event_t * e)
     if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_LEFT) {
         lv_indev_wait_release(lv_indev_get_act());
         _ui_screen_change(&ui_fx_echo, LV_SCR_LOAD_ANIM_MOVE_LEFT, 250, 0, &ui_fx_echo_screen_init);
+    }
+    if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_BOTTOM) {
+        lv_indev_wait_release(lv_indev_get_act());
+        _ui_screen_change(&ui_settings, LV_SCR_LOAD_ANIM_MOVE_BOTTOM, 250, 0, &ui_settings_screen_init);
     }
 }
 void ui_event_btn_trem_bypass(lv_event_t * e)
@@ -318,6 +363,7 @@ void ui_init(void)
                                                false, LV_FONT_DEFAULT);
     lv_disp_set_theme(dispp, theme);
     ui_splash_screen_init();
+    ui_settings_screen_init();
     ui_fx_tremolo_screen_init();
     ui_fx_echo_screen_init();
     ui_fx_overdrive_screen_init();

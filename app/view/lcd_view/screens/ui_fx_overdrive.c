@@ -43,7 +43,7 @@ void ui_fx_overdrive_screen_init(void)
     lv_obj_set_width(ui_lbl_btn_od_bypass, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_lbl_btn_od_bypass, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_lbl_btn_od_bypass, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_lbl_btn_od_bypass, "BYP");
+    lv_label_set_text(ui_lbl_btn_od_bypass, "ON");
     lv_obj_set_style_text_color(ui_lbl_btn_od_bypass, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_lbl_btn_od_bypass, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_lbl_btn_od_bypass, &ui_font_14_bold, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -210,8 +210,8 @@ void ui_fx_overdrive_screen_init(void)
     lv_obj_set_y(ui_arc_od_gain, -12);
     lv_obj_set_align(ui_arc_od_gain, LV_ALIGN_CENTER);
     lv_obj_clear_flag(ui_arc_od_gain, LV_OBJ_FLAG_GESTURE_BUBBLE);      /// Flags
-    lv_arc_set_range(ui_arc_od_gain, 100, 500);
-    lv_arc_set_value(ui_arc_od_gain, 400);
+    lv_arc_set_range(ui_arc_od_gain, 10, 70);
+    lv_arc_set_value(ui_arc_od_gain, 40);
     lv_arc_set_bg_angles(ui_arc_od_gain, 129, 51);
     lv_obj_set_style_pad_left(ui_arc_od_gain, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_pad_right(ui_arc_od_gain, 0, LV_PART_MAIN | LV_STATE_DEFAULT);

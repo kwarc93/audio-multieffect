@@ -13,8 +13,8 @@ namespace
 
 void ui_effect_bypass_changed(lv_obj_t *btn, mfx::effect_id effect)
 {
-    bool state = lv_obj_has_state(btn, LV_STATE_CHECKED);
-    mfx::effect_processor::event evt {mfx::effect_processor::bypass_evt_t {effect, state}};
+    bool bypassed = !lv_obj_has_state(btn, LV_STATE_CHECKED);
+    mfx::effect_processor::event evt {mfx::effect_processor::bypass_evt_t {effect, bypassed}};
     mfx::effect_processor::instance->send(evt);
 }
 
@@ -66,17 +66,41 @@ void ui_overdrive_controls_changed(void)
     const mfx::overdrive::controls controls
     {
         static_cast<float>(lv_arc_get_value(low_knob)) * 0.01f,
-        static_cast<float>(lv_arc_get_value(gain_knob)) * 0.01f,
+        static_cast<float>(lv_arc_get_value(gain_knob)),
         static_cast<float>(lv_arc_get_value(high_knob)) * 0.01f,
         1.0f,
         lv_obj_has_state(mode_sw, LV_STATE_CHECKED) ?
-        mfx::overdrive::mode_type::distortion : mfx::overdrive::mode_type::overdrive
+        mfx::overdrive::mode_type::hard : mfx::overdrive::mode_type::soft
     };
 
     mfx::effect_processor::event evt {mfx::effect_processor::effect_controls_evt_t {controls}};
     mfx::effect_processor::instance->send(evt);
 }
 
+}
+
+void ui_settings_in_vol_changed(lv_event_t * e)
+{
+    lv_obj_t *in_slider = ui_sld_in_vol;
+    lv_obj_t *out_slider = ui_sld_out_vol;
+
+    uint8_t in_vol = lv_slider_get_value(in_slider);
+    uint8_t out_vol = lv_slider_get_value(out_slider);
+
+    mfx::effect_processor::event evt {mfx::effect_processor::volume_evt_t {in_vol, out_vol}};
+    mfx::effect_processor::instance->send(evt);
+}
+
+void ui_settings_out_vol_changed(lv_event_t * e)
+{
+    lv_obj_t *in_slider = ui_sld_in_vol;
+    lv_obj_t *out_slider = ui_sld_out_vol;
+
+    uint8_t in_vol = lv_slider_get_value(in_slider);
+    uint8_t out_vol = lv_slider_get_value(out_slider);
+
+    mfx::effect_processor::event evt {mfx::effect_processor::volume_evt_t {in_vol, out_vol}};
+    mfx::effect_processor::instance->send(evt);
 }
 
 void ui_tremolo_bypass(lv_event_t * e)

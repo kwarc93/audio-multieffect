@@ -20,7 +20,7 @@ namespace mfx
 class effect
 {
 public:
-    effect(const effect_id &id, const std::string_view &name) : id {id}, name {name}, bypassed {false} {};
+    effect(const effect_id &id, const std::string_view &name) : id {id}, name {name}, bypassed {true} {};
     virtual ~effect() {};
 
     virtual void process(const dsp_input_t &in, dsp_output_t &out) = 0;

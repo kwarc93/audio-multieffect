@@ -29,7 +29,7 @@ int sgn(T val)
 //-----------------------------------------------------------------------------
 /* private */
 
-dsp_sample_t overdrive::soft_clip(dsp_sample_t in)
+dsp_sample_t overdrive::hard_clip(dsp_sample_t in)
 {
     dsp_sample_t out = in;
 
@@ -37,30 +37,20 @@ dsp_sample_t overdrive::soft_clip(dsp_sample_t in)
     constexpr dsp_sample_t th = 1.0f/3.0f;
 
     const dsp_sample_t in_abs = std::abs(in);
+    const dsp_sample_t sign = sgn(in);
+
     if (in_abs < th)
-    {
         out = 2 * in;
-    }
     else
-    {
-        if (in > 0)
-            out = (3 - ((2 - 3 * in) * (2 - 3 * in))) / 3;
-        if (in < 0)
-            out = -(3 - ((2 - 3 * in_abs) * (2 - 3 * in_abs))) / 3;
-    }
+        out = sign * (3 - ((2 - 3 * in * sign) * (2 - 3 * in * sign))) / 3;
 
     if (in_abs > 2 * th)
-    {
-        if (in > 0)
-            out = 1;
-        if (in < 0)
-            out = -1;
-    }
+        out = sign;
 
     return out;
 }
 
-dsp_sample_t overdrive::hard_clip(dsp_sample_t in)
+dsp_sample_t overdrive::soft_clip(dsp_sample_t in)
 {
     return sgn(in) * (1 - std::exp(-std::abs(in)));
 }
@@ -72,9 +62,10 @@ dsp_sample_t overdrive::hard_clip(dsp_sample_t in)
 overdrive::overdrive(float low, float high, float gain, float mix, mode_type mode) : effect { effect_id::overdrive, "overdrive" }
 {
     this->set_mode(mode);
-    this->set_gain(gain);
     this->set_low(low);
     this->set_high(high);
+    this->set_gain(gain);
+    this->set_mix(mix);
 
     arm_fir_init_f32(
         &this->fir,
@@ -83,8 +74,6 @@ overdrive::overdrive(float low, float high, float gain, float mix, mode_type mod
         this->fir_state.data(),
         this->fir_block_size
     );
-
-    /* TODO */
 }
 
 overdrive::~overdrive()
@@ -110,10 +99,10 @@ void overdrive::process(const dsp_input_t& in, dsp_output_t& out)
         output = 0.5f * (input - ap_y);
 
         /* 3. Apply gain, clip & mix */
-        if (this->mode == mode_type::overdrive)
-            output = this->soft_clip(input * this->gain);
+        if (this->mode == mode_type::hard)
+            output = this->hard_clip(output * this->gain);
         else
-            output = this->hard_clip(input * this->gain);
+            output = this->soft_clip(output * this->gain);
 
         output = this->mix * output + (1.0f - this->mix) * input;
 

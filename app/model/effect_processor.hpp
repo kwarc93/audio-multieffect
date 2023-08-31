@@ -50,12 +50,18 @@ struct effect_processor_event
         bool bypassed;
     };
 
+    struct volume_evt_t
+    {
+        uint8_t input_vol;
+        uint8_t output_vol;
+    };
+
     struct effect_controls_evt_t
     {
         std::variant<equalizer::controls, noise_gate::controls, tremolo::controls, echo::controls, overdrive::controls> controls;
     };
 
-    using holder = std::variant<process_data_evt_t, add_effect_evt_t, remove_effect_evt_t, bypass_evt_t, effect_controls_evt_t>;
+    using holder = std::variant<process_data_evt_t, add_effect_evt_t, remove_effect_evt_t, bypass_evt_t, volume_evt_t, effect_controls_evt_t>;
 };
 
 class effect_processor : public effect_processor_event, public middlewares::active_object<effect_processor_event::holder>
@@ -71,6 +77,7 @@ private:
     void event_handler(const add_effect_evt_t &e);
     void event_handler(const remove_effect_evt_t& e);
     void event_handler(const bypass_evt_t &e);
+    void event_handler(const volume_evt_t &e);
     void event_handler(const process_data_evt_t &e);
     void event_handler(const effect_controls_evt_t &e);
 

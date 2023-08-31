@@ -20,6 +20,21 @@ void ui_splash_screen_init(void);
 void ui_event_splash(lv_event_t * e);
 extern lv_obj_t * ui_splash;
 extern lv_obj_t * ui_lbl_splash;
+// SCREEN: ui_settings
+void ui_settings_screen_init(void);
+void ui_event_settings(lv_event_t * e);
+extern lv_obj_t * ui_settings;
+extern lv_obj_t * ui_lbl_sett_name;
+extern lv_obj_t * ui_pnl_in_vol;
+void ui_event_sld_in_vol(lv_event_t * e);
+extern lv_obj_t * ui_sld_in_vol;
+extern lv_obj_t * ui_lbl_in_vol_dbmax;
+extern lv_obj_t * ui_lbl_in_vol;
+extern lv_obj_t * ui_pnl_out_vol;
+void ui_event_sld_out_vol(lv_event_t * e);
+extern lv_obj_t * ui_sld_out_vol;
+extern lv_obj_t * ui_lbl_out_vol_dbmax;
+extern lv_obj_t * ui_lbl_out_vol;
 // SCREEN: ui_fx_tremolo
 void ui_fx_tremolo_screen_init(void);
 void ui_event_fx_tremolo(lv_event_t * e);
@@ -106,6 +121,8 @@ extern lv_obj_t * ui_lbl_od_mode_distortion;
 void ui_event____initial_actions0(lv_event_t * e);
 extern lv_obj_t * ui____initial_actions0;
 
+LV_IMG_DECLARE(ui_img_pot_ver_line_png);    // assets/pot_ver_line.png
+LV_IMG_DECLARE(ui_img_pot_ver_knob_png);    // assets/pot_ver_knob.png
 LV_IMG_DECLARE(ui_img_btn_1_inact_png);    // assets/btn_1_inact.png
 LV_IMG_DECLARE(ui_img_btn_1_act_png);    // assets/btn_1_act.png
 LV_IMG_DECLARE(ui_img_btn_knob_png);    // assets/btn_knob.png

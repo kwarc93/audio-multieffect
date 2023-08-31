@@ -21,7 +21,7 @@ namespace mfx
 class overdrive : public effect
 {
 public:
-    enum class mode_type {distortion, overdrive};
+    enum class mode_type {soft, hard};
 
     struct controls
     {
@@ -37,7 +37,7 @@ public:
         int error_code;
     };
 
-    overdrive(float low = 0.5f, float high = 0.3f, float gain = 4.0f, float mix = 1.0f, mode_type mode = mode_type::overdrive);
+    overdrive(float low = 0.5f, float high = 0.5f, float gain = 40.0f, float mix = 1.0f, mode_type mode = mode_type::soft);
     virtual ~overdrive();
 
     void process(const dsp_input_t &in, dsp_output_t &out) override;
@@ -57,7 +57,7 @@ private:
     float high;
     float gain;
     float mix;
-    mode_type mode;
+    mode_type mode {mode_type::soft};
 
     /* FIR */
     constexpr static unsigned fir_block_size {128};

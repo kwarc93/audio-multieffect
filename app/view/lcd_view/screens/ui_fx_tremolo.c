@@ -44,7 +44,7 @@ void ui_fx_tremolo_screen_init(void)
     lv_obj_set_width(ui_lbl_btn_trem_bypass_, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_lbl_btn_trem_bypass_, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_lbl_btn_trem_bypass_, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_lbl_btn_trem_bypass_, "BYP");
+    lv_label_set_text(ui_lbl_btn_trem_bypass_, "ON");
     lv_obj_set_style_text_color(ui_lbl_btn_trem_bypass_, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_lbl_btn_trem_bypass_, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_lbl_btn_trem_bypass_, &ui_font_14_bold, LV_PART_MAIN | LV_STATE_DEFAULT);

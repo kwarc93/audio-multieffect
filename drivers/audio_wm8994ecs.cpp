@@ -411,7 +411,7 @@ i2c_dev {dev}, i2c_addr {addr}, sai_drv{sai_16bit::id::sai2}
 {
     constexpr uint32_t audio_freq = 48000;
 
-    constexpr uint8_t output_vol = 192; // 0dB
+    constexpr uint8_t output_vol = 57; // 0dB
     constexpr uint8_t input_vol = 192; // 0dB
 
     if (out != output::none)
@@ -959,6 +959,8 @@ void audio_wm8994ecs::stop_capture(void)
 
 void audio_wm8994ecs::set_input_volume(uint8_t vol)
 {
+    /* Digital volume of DAC */
+
     constexpr uint8_t vol_mute = 0;
     constexpr uint8_t vol_0db = 192;
     vol = std::clamp(vol, vol_mute, vol_0db);
@@ -1005,8 +1007,10 @@ void audio_wm8994ecs::stop(void)
 
 void audio_wm8994ecs::set_output_volume(uint8_t vol)
 {
+    /* Analog volume of PGA */
+
     constexpr uint8_t vol_mute = 0;
-    constexpr uint8_t vol_0db = 192;
+    constexpr uint8_t vol_0db = 57;
     vol = std::clamp(vol, vol_mute, vol_0db);
 
     /* Left Headphone Volume */
