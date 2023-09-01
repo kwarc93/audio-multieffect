@@ -59,7 +59,7 @@ private:
     mode_type mode;
 
     /* Low-pass FIR filter for anti-aliasing */
-    constexpr static unsigned fir_block_size {128};
+    constexpr static unsigned fir_block_size {dsp_vector_size};
     constexpr static inline std::array<float, 97> fir_coeffs
     {{
         -0.00007726, -0.00054562, -0.00006974, 0.00060528, 0.00026125,

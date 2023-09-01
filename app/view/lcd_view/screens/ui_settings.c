@@ -35,8 +35,8 @@ void ui_settings_screen_init(void)
     lv_obj_set_style_border_width(ui_pnl_in_vol, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_sld_in_vol = lv_slider_create(ui_pnl_in_vol);
-    lv_slider_set_range(ui_sld_in_vol, 0, 192);
-    lv_slider_set_value(ui_sld_in_vol, 192, LV_ANIM_OFF);
+    lv_slider_set_range(ui_sld_in_vol, 0, 31);
+    lv_slider_set_value(ui_sld_in_vol, 11, LV_ANIM_OFF);
     if(lv_slider_get_mode(ui_sld_in_vol) == LV_SLIDER_MODE_RANGE) lv_slider_set_left_value(ui_sld_in_vol, 0, LV_ANIM_OFF);
     lv_obj_set_width(ui_sld_in_vol, 40);
     lv_obj_set_height(ui_sld_in_vol, 180);
@@ -67,7 +67,7 @@ void ui_settings_screen_init(void)
     lv_obj_set_x(ui_lbl_in_vol_dbmax, 0);
     lv_obj_set_y(ui_lbl_in_vol_dbmax, -10);
     lv_obj_set_align(ui_lbl_in_vol_dbmax, LV_ALIGN_TOP_MID);
-    lv_label_set_text(ui_lbl_in_vol_dbmax, "0 dB");
+    lv_label_set_text(ui_lbl_in_vol_dbmax, "30 dB");
     lv_obj_set_style_text_color(ui_lbl_in_vol_dbmax, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_lbl_in_vol_dbmax, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_lbl_in_vol_dbmax, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -95,7 +95,7 @@ void ui_settings_screen_init(void)
     lv_obj_set_style_border_width(ui_pnl_out_vol, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_sld_out_vol = lv_slider_create(ui_pnl_out_vol);
-    lv_slider_set_range(ui_sld_out_vol, 0, 57);
+    lv_slider_set_range(ui_sld_out_vol, 0, 63);
     lv_slider_set_value(ui_sld_out_vol, 57, LV_ANIM_OFF);
     if(lv_slider_get_mode(ui_sld_out_vol) == LV_SLIDER_MODE_RANGE) lv_slider_set_left_value(ui_sld_out_vol, 0, LV_ANIM_OFF);
     lv_obj_set_width(ui_sld_out_vol, 40);
@@ -127,7 +127,7 @@ void ui_settings_screen_init(void)
     lv_obj_set_x(ui_lbl_out_vol_dbmax, 0);
     lv_obj_set_y(ui_lbl_out_vol_dbmax, -10);
     lv_obj_set_align(ui_lbl_out_vol_dbmax, LV_ALIGN_TOP_MID);
-    lv_label_set_text(ui_lbl_out_vol_dbmax, "0 dB");
+    lv_label_set_text(ui_lbl_out_vol_dbmax, "6 dB");
     lv_obj_set_style_text_color(ui_lbl_out_vol_dbmax, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_lbl_out_vol_dbmax, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_lbl_out_vol_dbmax, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_DEFAULT);

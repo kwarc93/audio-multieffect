@@ -25,6 +25,10 @@ using namespace mfx;
 //-----------------------------------------------------------------------------
 /* helpers */
 
+namespace
+{
+
+}
 
 //-----------------------------------------------------------------------------
 /* private */
@@ -218,7 +222,7 @@ void effect_processor::audio_capture_cb(const hal::audio_devices::codec::input_s
     for (unsigned i = this->audio_input.sample_index, j = 0; i < this->audio_input.sample_index + this->audio_input.buffer.size() / 2; i+=2, j++)
     {
         /* Copy only left channel */
-        this->dsp_input.at(j) = this->audio_input.buffer.at(i) * scale;
+        this->dsp_input[j] = this->audio_input.buffer[i] * scale;
     }
 
     /* Send event to process data */
@@ -244,8 +248,8 @@ effect_processor::effect_processor() : active_object("effect_processor", osPrior
 audio{middlewares::i2c_managers::main::get_instance()}
 {
     /* DSP buffers contain only one channel (left) */
-    this->dsp_input.resize(this->audio_input.samples / 2);
-    this->dsp_output.resize(this->audio_output.samples / 2);
+    this->dsp_input.resize(dsp_vector_size);
+    this->dsp_output.resize(dsp_vector_size);
 
     /* Start audio capture */
     this->audio.capture(this->audio_input.buffer.data(), this->audio_input.buffer.size(),

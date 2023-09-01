@@ -108,8 +108,8 @@ private:
     std::vector<std::unique_ptr<effect>> effects;
 
     hal::audio_devices::codec audio;
-    hal::audio_devices::codec::input_buffer_t<256> audio_input;
-    hal::audio_devices::codec::output_buffer_t<256> audio_output;
+    hal::audio_devices::codec::input_buffer_t<2 * dsp_vector_size> audio_input;
+    hal::audio_devices::codec::output_buffer_t<2 * dsp_vector_size> audio_output;
 
     dsp_input_t dsp_input;
     dsp_output_t dsp_output;

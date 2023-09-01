@@ -410,9 +410,8 @@ audio_wm8994ecs::audio_wm8994ecs(hal::interface::i2c_device &dev, uint8_t addr, 
 i2c_dev {dev}, i2c_addr {addr}, sai_drv{sai_16bit::id::sai2}
 {
     constexpr uint32_t audio_freq = 48000;
-
     constexpr uint8_t output_vol = 57; // 0dB
-    constexpr uint8_t input_vol = 192; // 0dB
+    constexpr uint8_t input_vol = 11; // 0dB
 
     if (out != output::none)
     {
@@ -959,23 +958,16 @@ void audio_wm8994ecs::stop_capture(void)
 
 void audio_wm8994ecs::set_input_volume(uint8_t vol)
 {
-    /* Digital volume of DAC */
+    /* Analog volume of PGA (-16.5dB to 30dB) */
 
-    constexpr uint8_t vol_mute = 0;
-    constexpr uint8_t vol_0db = 192;
-    vol = std::clamp(vol, vol_mute, vol_0db);
+    constexpr uint8_t vol_m16_5db = 0;
+    constexpr uint8_t vol_30db = 31;
+    vol = std::clamp(vol, vol_m16_5db, vol_30db);
 
-    /* Left AIF1 ADC1 volume */
-    this->write_reg(0x400, vol | 0x100);
-
-    /* Right AIF1 ADC1 volume */
-    this->write_reg(0x401, vol | 0x100);
-
-    /* Left AIF1 ADC2 volume */
-    this->write_reg(0x404, vol | 0x100);
-
-    /* Right AIF1 ADC2 volume */
-    this->write_reg(0x405, vol | 0x100);
+    this->write_reg(WM8994_LEFT_LINE_IN12_VOL, vol | 0x140);
+    this->write_reg(WM8994_LEFT_LINE_IN34_VOL, vol | 0x140);
+    this->write_reg(WM8994_RIGHT_LINE_IN12_VOL, vol | 0x140);
+    this->write_reg(WM8994_RIGHT_LINE_IN34_VOL, vol | 0x140);
 }
 
 void audio_wm8994ecs::play(const audio_output::sample_t *output, uint16_t length, const play_cb_t &cb, bool loop)
@@ -1007,22 +999,15 @@ void audio_wm8994ecs::stop(void)
 
 void audio_wm8994ecs::set_output_volume(uint8_t vol)
 {
-    /* Analog volume of PGA */
+    /* Analog volume of PGA (-57dB to 6dB) */
 
-    constexpr uint8_t vol_mute = 0;
-    constexpr uint8_t vol_0db = 57;
-    vol = std::clamp(vol, vol_mute, vol_0db);
+    constexpr uint8_t vol_m57db = 0;
+    constexpr uint8_t vol_6db = 63;
+    vol = std::clamp(vol, vol_m57db, vol_6db);
 
-    /* Left Headphone Volume */
-    this->write_reg(0x1C, vol | 0x140);
-
-    /* Right Headphone Volume */
-    this->write_reg(0x1D, vol | 0x140);
-
-    /* Left Speaker Volume */
-    this->write_reg(0x26, vol | 0x140);
-
-    /* Right Speaker Volume */
-    this->write_reg(0x27, vol | 0x140);
+    this->write_reg(WM8994_LEFT_OUTPUT_VOL, vol | 0x140);
+    this->write_reg(WM8994_RIGHT_OUTPUT_VOL, vol | 0x140);
+    this->write_reg(WM8994_SPK_LEFT_VOL, vol | 0x140);
+    this->write_reg(WM8994_SPK_RIGHT_VOL, vol | 0x140);
 }
 
