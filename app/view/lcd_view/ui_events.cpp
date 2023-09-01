@@ -58,17 +58,17 @@ void ui_echo_controls_changed(void)
 
 void ui_overdrive_controls_changed(void)
 {
-    lv_obj_t *low_knob = ui_arc_od_mix;
+    lv_obj_t *mix_knob = ui_arc_od_mix;
     lv_obj_t *gain_knob = ui_arc_od_gain;
-    lv_obj_t *high_knob = ui_arc_od_tone;
+    lv_obj_t *tone_knob = ui_arc_od_tone;
     lv_obj_t *mode_sw = ui_sw_od_mode;
 
     const mfx::overdrive::controls controls
     {
-        1.0f - (static_cast<float>(lv_arc_get_value(high_knob)) * 0.01f),
+        1.0f - (static_cast<float>(lv_arc_get_value(tone_knob)) * 0.01f),
         static_cast<float>(lv_arc_get_value(gain_knob)),
-        static_cast<float>(lv_arc_get_value(high_knob)) * 0.01f,
-        static_cast<float>(lv_arc_get_value(low_knob)) * 0.01f,
+        static_cast<float>(lv_arc_get_value(tone_knob)) * 0.01f,
+        static_cast<float>(lv_arc_get_value(mix_knob)) * 0.01f,
         lv_obj_has_state(mode_sw, LV_STATE_CHECKED) ?
         mfx::overdrive::mode_type::hard : mfx::overdrive::mode_type::soft
     };
