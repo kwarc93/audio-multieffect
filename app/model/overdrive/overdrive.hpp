@@ -37,7 +37,7 @@ public:
         int error_code;
     };
 
-    overdrive(float low = 0.5f, float high = 0.5f, float gain = 40.0f, float mix = 1.0f, mode_type mode = mode_type::soft);
+    overdrive(float low = 0.5f, float high = 0.5f, float gain = 40.0f, float mix = 0.5f, mode_type mode = mode_type::soft);
     virtual ~overdrive();
 
     void process(const dsp_input_t &in, dsp_output_t &out) override;
@@ -58,7 +58,7 @@ private:
     float mix;
     mode_type mode;
 
-    /* Low-pass FIR filter */
+    /* Low-pass FIR filter for anti-aliasing */
     constexpr static unsigned fir_block_size {128};
     constexpr static inline std::array<float, 97> fir_coeffs
     {{
@@ -90,15 +90,15 @@ private:
     /* Tunable high-pass 2nd order IIR filter */
     arm_biquad_casd_df1_inst_f32 iir_hp;
     constexpr static unsigned iir_hp_biquad_stages = 1;
-    std::array<float, 5 * iir_hp_biquad_stages> iir_hp_coeffs;
     std::array<float, 4 * iir_hp_biquad_stages> iir_hp_state;
+    std::array<float, 5 * iir_hp_biquad_stages> iir_hp_coeffs;
     void iir_biquad_hp_calc_coeffs(float fs, float fc);
 
     /* Tunable low-pass 2-nd order IIR filter */
     arm_biquad_casd_df1_inst_f32 iir_lp;
     constexpr static unsigned iir_lp_biquad_stages = 1;
-    std::array<float, 5 * iir_lp_biquad_stages> iir_lp_coeffs;
     std::array<float, 4 * iir_lp_biquad_stages> iir_lp_state;
+    std::array<float, 5 * iir_lp_biquad_stages> iir_lp_coeffs;
     void iir_biquad_lp_calc_coeffs(float fs, float fc);
 };
 

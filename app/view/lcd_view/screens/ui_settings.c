@@ -143,8 +143,33 @@ void ui_settings_screen_init(void)
     lv_obj_set_style_text_opa(ui_lbl_out_vol, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_lbl_out_vol, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+    ui_btn_cab_sim_bypass = lv_imgbtn_create(ui_settings);
+    lv_imgbtn_set_src(ui_btn_cab_sim_bypass, LV_IMGBTN_STATE_RELEASED, NULL, &ui_img_btn_1_inact_png, NULL);
+    lv_imgbtn_set_src(ui_btn_cab_sim_bypass, LV_IMGBTN_STATE_PRESSED, NULL, &ui_img_btn_1_act_png, NULL);
+    lv_imgbtn_set_src(ui_btn_cab_sim_bypass, LV_IMGBTN_STATE_DISABLED, NULL, &ui_img_btn_1_inact_png, NULL);
+    lv_imgbtn_set_src(ui_btn_cab_sim_bypass, LV_IMGBTN_STATE_CHECKED_PRESSED, NULL, &ui_img_btn_1_act_png, NULL);
+    lv_imgbtn_set_src(ui_btn_cab_sim_bypass, LV_IMGBTN_STATE_CHECKED_RELEASED, NULL, &ui_img_btn_1_act_png, NULL);
+    lv_imgbtn_set_src(ui_btn_cab_sim_bypass, LV_IMGBTN_STATE_CHECKED_DISABLED, NULL, &ui_img_btn_1_inact_png, NULL);
+    lv_obj_set_height(ui_btn_cab_sim_bypass, 70);
+    lv_obj_set_width(ui_btn_cab_sim_bypass, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_x(ui_btn_cab_sim_bypass, 0);
+    lv_obj_set_y(ui_btn_cab_sim_bypass, 0);
+    lv_obj_set_align(ui_btn_cab_sim_bypass, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_btn_cab_sim_bypass, LV_OBJ_FLAG_CHECKABLE);     /// Flags
+    lv_obj_clear_flag(ui_btn_cab_sim_bypass, LV_OBJ_FLAG_GESTURE_BUBBLE);      /// Flags
+
+    ui_lbl_btn_cab_sim_bypass = lv_label_create(ui_btn_cab_sim_bypass);
+    lv_obj_set_width(ui_lbl_btn_cab_sim_bypass, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_lbl_btn_cab_sim_bypass, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_lbl_btn_cab_sim_bypass, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_lbl_btn_cab_sim_bypass, "CAB\nSIM");
+    lv_obj_set_style_text_color(ui_lbl_btn_cab_sim_bypass, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_lbl_btn_cab_sim_bypass, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_lbl_btn_cab_sim_bypass, &ui_font_14_bold, LV_PART_MAIN | LV_STATE_DEFAULT);
+
     lv_obj_add_event_cb(ui_sld_in_vol, ui_event_sld_in_vol, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_sld_out_vol, ui_event_sld_out_vol, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_btn_cab_sim_bypass, ui_event_btn_cab_sim_bypass, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_settings, ui_event_settings, LV_EVENT_ALL, NULL);
 
 }

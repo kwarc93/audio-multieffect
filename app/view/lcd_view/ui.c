@@ -31,6 +31,9 @@ void ui_event_sld_out_vol(lv_event_t * e);
 lv_obj_t * ui_sld_out_vol;
 lv_obj_t * ui_lbl_out_vol_dbmax;
 lv_obj_t * ui_lbl_out_vol;
+void ui_event_btn_cab_sim_bypass(lv_event_t * e);
+lv_obj_t * ui_btn_cab_sim_bypass;
+lv_obj_t * ui_lbl_btn_cab_sim_bypass;
 
 // SCREEN: ui_fx_tremolo
 void ui_fx_tremolo_screen_init(void);
@@ -39,7 +42,7 @@ lv_obj_t * ui_fx_tremolo;
 lv_obj_t * ui_lbl_trem_fx_name;
 void ui_event_btn_trem_bypass(lv_event_t * e);
 lv_obj_t * ui_btn_trem_bypass;
-lv_obj_t * ui_lbl_btn_trem_bypass_;
+lv_obj_t * ui_lbl_btn_trem_bypass;
 lv_obj_t * ui_pnl_trem_controls;
 lv_obj_t * ui_pnl_trem_rate;
 lv_obj_t * ui_img_trem_rate;
@@ -98,19 +101,19 @@ lv_obj_t * ui_btn_od_bypass;
 lv_obj_t * ui_lbl_btn_od_bypass;
 
 lv_obj_t * ui_pnl_od_controls;
-lv_obj_t * ui_pnl_od_low;
-lv_obj_t * ui_img_od_low;
-void ui_event_arc_overdrive_low(lv_event_t * e);
-lv_obj_t * ui_arc_od_low;
-lv_obj_t * ui_lbl_od_low;
-lv_obj_t * ui_pnl_od_high;
-lv_obj_t * ui_img_od_high;
+lv_obj_t * ui_pnl_od_mix;
+lv_obj_t * ui_img_od_mix;
+void ui_event_arc_overdrive_mix(lv_event_t * e);
+lv_obj_t * ui_arc_od_mix;
+lv_obj_t * ui_lbl_od_mix;
+lv_obj_t * ui_pnl_od_tone;
+lv_obj_t * ui_img_od_tone;
 void ui_event_arc_overdrive_gain(lv_event_t * e);
-lv_obj_t * ui_arc_od_high;
-lv_obj_t * ui_lbl_od_high;
+lv_obj_t * ui_arc_od_tone;
+lv_obj_t * ui_lbl_od_tone;
 lv_obj_t * ui_pnl_od_gain;
 lv_obj_t * ui_img_od_gain;
-void ui_event_arc_overdrive_high(lv_event_t * e);
+void ui_event_arc_overdrive_tone(lv_event_t * e);
 lv_obj_t * ui_arc_od_gain;
 lv_obj_t * ui_lbl_od_gain;
 lv_obj_t * ui_pnl_od_mode;
@@ -186,6 +189,13 @@ void ui_event_sld_out_vol(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
     if(event_code == LV_EVENT_VALUE_CHANGED) {
         ui_settings_out_vol_changed(e);
+    }
+}
+void ui_event_btn_cab_sim_bypass(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_cab_sim_bypass(e);
     }
 }
 void ui_event_fx_tremolo(lv_event_t * e)
@@ -318,7 +328,7 @@ void ui_event_btn_overdrive_bypass(lv_event_t * e)
         ui_overdrive_bypass(e);
     }
 }
-void ui_event_arc_overdrive_low(lv_event_t * e)
+void ui_event_arc_overdrive_mix(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
@@ -334,7 +344,7 @@ void ui_event_arc_overdrive_gain(lv_event_t * e)
         ui_overdrive_high_changed(e);
     }
 }
-void ui_event_arc_overdrive_high(lv_event_t * e)
+void ui_event_arc_overdrive_tone(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 

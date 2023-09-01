@@ -23,6 +23,7 @@
 #include "app/model/tremolo/tremolo.hpp"
 #include "app/model/echo/echo.hpp"
 #include "app/model/overdrive/overdrive.hpp"
+#include "app/model/cabinet_sim/cabinet_sim.hpp"
 
 namespace mfx
 {
@@ -58,10 +59,27 @@ struct effect_processor_event
 
     struct effect_controls_evt_t
     {
-        std::variant<equalizer::controls, noise_gate::controls, tremolo::controls, echo::controls, overdrive::controls> controls;
+        std::variant
+        <
+            equalizer::controls,
+            noise_gate::controls,
+            tremolo::controls,
+            echo::controls,
+            overdrive::controls,
+            cabinet_sim::controls
+        >
+        controls;
     };
 
-    using holder = std::variant<process_data_evt_t, add_effect_evt_t, remove_effect_evt_t, bypass_evt_t, volume_evt_t, effect_controls_evt_t>;
+    using holder = std::variant
+    <
+        process_data_evt_t,
+        add_effect_evt_t,
+        remove_effect_evt_t,
+        bypass_evt_t,
+        volume_evt_t,
+        effect_controls_evt_t
+    >;
 };
 
 class effect_processor : public effect_processor_event, public middlewares::active_object<effect_processor_event::holder>

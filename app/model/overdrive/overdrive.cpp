@@ -101,7 +101,8 @@ overdrive::overdrive(float low, float high, float gain, float mix, mode_type mod
     this->set_gain(gain);
     this->set_mix(mix);
 
-    arm_fir_init_f32(
+    arm_fir_init_f32
+    (
         &this->fir,
         this->fir_coeffs.size(),
         const_cast<float*>(this->fir_coeffs.data()),
@@ -109,14 +110,16 @@ overdrive::overdrive(float low, float high, float gain, float mix, mode_type mod
         this->fir_block_size
     );
 
-    arm_biquad_cascade_df1_init_f32(
+    arm_biquad_cascade_df1_init_f32
+    (
         &this->iir_lp,
         this->iir_lp_biquad_stages,
         this->iir_lp_coeffs.data(),
         this->iir_lp_state.data()
     );
 
-    arm_biquad_cascade_df1_init_f32(
+    arm_biquad_cascade_df1_init_f32
+    (
         &this->iir_hp,
         this->iir_hp_biquad_stages,
         this->iir_hp_coeffs.data(),
@@ -131,29 +134,30 @@ overdrive::~overdrive()
 
 void overdrive::process(const dsp_input_t& in, dsp_output_t& out)
 {
-    /* 1. Low-pass filter for anti-aliasing. Filter whole block using FIR in-place. */
-    float32_t *ptr = const_cast<float32_t*>(in.data());
-    arm_fir_f32(&this->fir, ptr, ptr, this->fir_block_size);
+    auto &ccin = const_cast<dsp_input_t&>(in);
+
+    /* 1. Low-pass filter for anti-aliasing. Filter whole block using FIR filter. */
+    arm_fir_f32(&this->fir, ccin.data(), out.data(), out.size());
 
     /* 2. Apply 1-st order high-pass IIR filter (in-place) */
-    arm_biquad_cascade_df1_f32(&this->iir_hp, ptr, ptr, in.size());
+    arm_biquad_cascade_df1_f32(&this->iir_hp, out.data(), out.data(), out.size());
 
-    std::transform(in.begin(), in.end(), out.begin(),
-    [this](auto input)
+    std::transform(ccin.begin(), ccin.end(), out.begin(), out.begin(),
+    [this](auto input, auto output)
     {
-        dsp_sample_t output = input;
+        auto sample = output;
 
         /* 3. Apply gain, clip & mix */
         if (this->mode == mode_type::hard)
-            output = this->hard_clip(output * this->gain);
+            sample = this->hard_clip(sample * this->gain);
         else
-            output = this->soft_clip(output * this->gain);
+            sample = this->soft_clip(sample * this->gain);
 
-        return this->mix * output + (1.0f - this->mix) * input;
+        return this->mix * sample + (1.0f - this->mix) * input;
     }
     );
 
-    /* 4. Apply 2-nd order low-pass IIR filter */
+    /* 4. Apply 2-nd order low-pass IIR filter (in-place) */
     arm_biquad_cascade_df1_f32(&this->iir_lp, out.data(), out.data(), out.size());
 }
 
@@ -195,8 +199,6 @@ void overdrive::set_mix(float mix)
 {
     if (this->mix == mix)
         return;
-
-    /* TODO */
 
     this->mix = mix;
 }

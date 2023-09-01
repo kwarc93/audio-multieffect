@@ -167,6 +167,10 @@ void effect_processor::event_handler(const effect_controls_evt_t &e)
                 overdrive->set_mix(controls.mix);
             }
         }
+        else if constexpr (std::is_same_v<T, cabinet_sim::controls>)
+        {
+            /* Do something specific to this effect */
+        }
     }, e.controls);
 }
 
@@ -179,6 +183,7 @@ std::unique_ptr<effect> effect_processor::create_new(effect_id id)
         { effect_id::tremolo,       []() { return std::make_unique<tremolo>(); } },
         { effect_id::echo,          []() { return std::make_unique<echo>(); } },
         { effect_id::overdrive,     []() { return std::make_unique<overdrive>(); } },
+        { effect_id::cabinet_sim,   []() { return std::make_unique<cabinet_sim>(); } }
     };
 
     return effect_factory.at(id)();

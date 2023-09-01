@@ -58,17 +58,17 @@ void ui_echo_controls_changed(void)
 
 void ui_overdrive_controls_changed(void)
 {
-    lv_obj_t *low_knob = ui_arc_od_low;
+    lv_obj_t *low_knob = ui_arc_od_mix;
     lv_obj_t *gain_knob = ui_arc_od_gain;
-    lv_obj_t *high_knob = ui_arc_od_high;
+    lv_obj_t *high_knob = ui_arc_od_tone;
     lv_obj_t *mode_sw = ui_sw_od_mode;
 
     const mfx::overdrive::controls controls
     {
-        static_cast<float>(lv_arc_get_value(low_knob)) * 0.01f,
+        1.0f - (static_cast<float>(lv_arc_get_value(high_knob)) * 0.01f),
         static_cast<float>(lv_arc_get_value(gain_knob)),
         static_cast<float>(lv_arc_get_value(high_knob)) * 0.01f,
-        1.0f,
+        static_cast<float>(lv_arc_get_value(low_knob)) * 0.01f,
         lv_obj_has_state(mode_sw, LV_STATE_CHECKED) ?
         mfx::overdrive::mode_type::hard : mfx::overdrive::mode_type::soft
     };
@@ -101,6 +101,11 @@ void ui_settings_out_vol_changed(lv_event_t * e)
 
     mfx::effect_processor::event evt {mfx::effect_processor::volume_evt_t {in_vol, out_vol}};
     mfx::effect_processor::instance->send(evt);
+}
+
+void ui_cab_sim_bypass(lv_event_t * e)
+{
+    ui_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::cabinet_sim);
 }
 
 void ui_tremolo_bypass(lv_event_t * e)

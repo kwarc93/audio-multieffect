@@ -75,20 +75,7 @@ void controller::event_handler(const effect_controls_evt_t &e)
 {
     std::visit([this](auto &&controls)
     {
-        using T = std::decay_t<decltype(controls)>;
-        if constexpr (std::is_same_v<T, equalizer::controls>)
-        {
-            /* Do something specific to this effect */
-        }
-        else if constexpr (std::is_same_v<T, noise_gate::controls>)
-        {
-            /* Do something specific to this effect */
-        }
-        else if constexpr (std::is_same_v<T, tremolo::controls>)
-        {
-            /* Do something specific to this effect */
-        }
-
+        /* TODO: Try to avoid duplicating & forwarding events to model */
         const effect_processor::event evt {effect_processor::effect_controls_evt_t {controls}};
         this->model->send(evt);
 
@@ -114,12 +101,13 @@ view {std::move(view)}
     assert(this->led_timer != nullptr);
     osTimerStart(this->led_timer, 500);
 
-    /* Add some effects */
-    static const std::array<effect_processor::event, 3> model_events =
+    /* Add some effects (ordering affects sound) */
+    static const std::array<effect_processor::event, 4> model_events =
     {{
         { effect_processor::add_effect_evt_t {effect_id::overdrive} },
         { effect_processor::add_effect_evt_t {effect_id::tremolo} },
         { effect_processor::add_effect_evt_t {effect_id::echo} },
+        { effect_processor::add_effect_evt_t {effect_id::cabinet_sim} },
     }};
 
     for (const auto &e : model_events)
