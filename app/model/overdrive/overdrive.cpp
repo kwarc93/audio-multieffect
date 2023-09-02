@@ -42,7 +42,7 @@ dsp_sample_t overdrive::hard_clip(dsp_sample_t in)
     if (in_abs < th)
         out = 2 * in;
     else
-        out = sign * (3 - ((2 - 3 * in * sign) * (2 - 3 * in * sign))) / 3;
+        out = sign * (3 - ((2 - 3 * in_abs) * (2 - 3 * in_abs))) / 3;
 
     if (in_abs > 2 * th)
         out = sign;
