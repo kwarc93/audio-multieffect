@@ -64,6 +64,7 @@ void controller::dispatch(const event& e)
 void controller::event_handler(const led_evt_t &e)
 {
     this->led.set(!this->led.get());
+    printf("DSP processing time: %.2fms\n", this->model.get()->get_processing_time() / 1000.0f);
 }
 
 void controller::event_handler(const button_evt_t &e)

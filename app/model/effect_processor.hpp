@@ -88,6 +88,7 @@ public:
     effect_processor();
     ~effect_processor();
 
+    uint32_t get_processing_time(void);
 private:
     void dispatch(const event &e) override;
 
@@ -113,6 +114,8 @@ private:
 
     dsp_input_t dsp_input;
     dsp_output_t dsp_output;
+
+    uint32_t processing_time_us;
 };
 
 }
