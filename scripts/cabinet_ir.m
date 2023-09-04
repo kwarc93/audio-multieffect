@@ -7,41 +7,41 @@ pkg load control
 
 output_precision(8)
 
-% Script creates FIR filter based on impulse response of speaker cabinet
-% FIR filter is used to emulate sound of speaker cabinet
+% Script generates C++ array of samples from IR wave file
 
 % Load impulse response
-wav_ir = '1960-G12M25-Starter/SM57/1960-G12M25-SM57-Cap45-0_5in.wav';
-ir = wavread(wav_ir);
-%ir = ir(1:4096);
+N = 2048;
+ir_file = '1960-G12M25-Starter/SM57/1960-G12M25-SM57-Cap45-0_5in.wav';
+[~,ir_name,~] = fileparts(ir_file);
+ir = wavread(ir_file);
+ir = ir(1:N);
 
-% Plot frequency response from impulse response
-fs = 48000;
-n_fft = 4096;
-[h,f] = freqz(ir,1,n_fft,fs);
-[h,f] = freqz(ir,max(abs(h)),n_fft,fs); % scale to not exceed 0dB
-figure(1);
-semilogx(f,mag2db(abs(h))); grid on; hold on;
-xlabel('Frequency (Hz)'); ylabel('Magnitude (dB)');
+% Scale
+ir_pow = sum(ir.*ir)/length(ir);
+ir_gain = -10.0 * log10(ir_pow / 1);
+ir = ir/ir_gain;
 
-% Design FIR filter using least squares method
-f = (f./(fs/2))';
-h = abs(h');
-fir_order = 512;
-b = firls(fir_order,f,h);
-[fir_h,fir_f] = freqz(b,1,n_fft,fs);
+% Format IR samples to C++ std::array
+type = 'float';
+filename = "impulse_response.c";
+fid = fopen(filename, "w");
+fprintf(fid, '/* Impulse response: %s */\n', ir_name);
+ir_name = ['ir_' strrep(ir_name, '-', '_')];
+fprintf(fid, 'std::array<%s, %d> %s\n{\n', type, N, ir_name);
 
-% Plot frequency response of FIR filter
-semilogx(fir_f,mag2db(abs(fir_h)), 'r-');
-xlabel('Frequency (Hz)'); ylabel('Magnitude (dB)');
-legend('Original response', 'FIR response')
+i = 1;
+rows = 6;
+while N > 2
+  R = rows;
+  if N < rows R = N; end
+  N = N - R;
+  while R > 0
+    fprintf(fid, '    %.8f,', ir(i));
+    R = R - 1;
+    i = i + 1;
+  end
+  fprintf(fid, '\n');
+end
 
-% Reverse order of coeffs (needed for CMSIS DSP)
-coeffs = fliplr(b);
-
-% Format coeffs to C++ std::array
-vname = 'fir_coeffs';
-vtype = 'float';
-N = length(coeffs);
-fmt=['std::array<%s, %d> %s{' repmat('%.8f,',1,numel(coeffs)-1) '%.8f}'];
-c_code=sprintf(fmt,vtype,N,vname,coeffs)
+fprintf(fid, '    %.8f\n};\n', ir(i));
+fclose(fid);
