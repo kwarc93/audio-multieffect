@@ -166,8 +166,8 @@ void overdrive::set_high(float high)
     if (this->high == high)
         return;
 
-    /* Calculate coefficient for 2-nd order low-pass IIR (2kHz - 6kHz range) */
-    const float fc = 2000 + high * 4000;
+    /* Calculate coefficient for 2-nd order low-pass IIR (3kHz - 9kHz range) */
+    const float fc = 3000 + high * 6000;
 
     iir_biquad_lp_calc_coeffs(sampling_frequency_hz, fc);
 

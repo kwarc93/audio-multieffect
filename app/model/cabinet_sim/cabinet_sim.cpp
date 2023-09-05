@@ -21,10 +21,10 @@ using namespace mfx;
 cabinet_sim::cabinet_sim(const ir_t &ir) : effect { effect_id::cabinet_sim, "cabinet_sim" },
 ir{ir}
 {
-    this->input_buffer.fill(0);
+    arm_fill_f32(0, this->input_buffer.data(), this->input_buffer.size());
 
     /* Precompute FFT of IR */
-    arm_fill_f32(0.0f, this->ir_fft.data(), this->ir.size());
+    arm_fill_f32(0, this->ir_fft.data(), this->ir.size());
     arm_copy_f32(const_cast<float*>(this->ir.data()), this->ir_fft.data(), this->fft_size);
     arm_rfft_fast_init_f32(&this->fft, this->fft_size);
     arm_rfft_fast_f32(&this->fft, this->ir_fft.data(), this->ir_fft.data() + this->fft_size, 0);
@@ -45,13 +45,12 @@ void cabinet_sim::process(const dsp_input_t& in, dsp_output_t& out)
     arm_copy_f32(const_cast<dsp_sample_t*>(in.data()), &this->input_buffer[move_size], block_size);
 
     /* FFT of sliding window */
-    arm_fill_f32(0.0f, this->input_buffer_fft.data(), this->input_buffer_fft.size());
     arm_copy_f32(this->input_buffer.data(), this->input_buffer_fft.data(), this->input_buffer.size());
     arm_rfft_fast_init_f32(&this->fft, this->fft_size);
     arm_rfft_fast_f32(&this->fft, this->input_buffer_fft.data(), this->input_buffer_fft.data() + this->fft_size, 0);
 
     /* Multiplication (convolution) in frequency domain */
-    arm_cmplx_mult_cmplx_f32(this->ir_fft.data() + this->fft_size, this->input_buffer_fft.data() + this->fft_size, this->convolution.data(), this->fft_size);
+    arm_cmplx_mult_cmplx_f32(this->ir_fft.data() + this->fft_size, this->input_buffer_fft.data() + this->fft_size, this->convolution.data(), this->fft_size / 2);
 
     /* Inverse FFT */
     arm_rfft_fast_init_f32(&this->fft, this->fft_size);
