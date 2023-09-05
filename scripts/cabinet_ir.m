@@ -18,11 +18,32 @@ ir = wavread(ir_file);
 N = 1024;
 ir = ir(1:N);
 
-% Apply window after cut
-w = tukeywin(2*length(ir), 0.25);
-ir = ir.*w(length(w)/2+1:end);
+% Apply window after cut (0 - rectangular ... 1 - hann)
+w = tukeywin(2*length(ir), 0.5);
+w = w(length(w)/2+1:end);
+ir_w = ir.*w;
 
-% Scale
+% Plot impulse response
+figure;
+plot(ir); grid on; hold on;
+plot(ir_w, '--r');
+plot(w, 'k');
+title('Impulse response'); xlabel('Samples'); ylabel('Amplitude');
+legend('original', 'windowed', 'window');
+
+% Plot frequency response
+fs = 48000;
+Nfft = 4096;
+[h,f] = freqz(ir,1,Nfft,fs);
+[h_w,f_w] = freqz(ir_w,1,Nfft,fs);
+figure;
+semilogx(f,mag2db(abs(h))); grid on; hold on;
+semilogx(f_w,mag2db(abs(h_w)), '--r'); 
+title('Frequency response'); xlabel('Frequency (Hz)'); ylabel('Magnitude (dB)');
+legend('original', 'windowed');
+
+% Scale to not exceed 0 dB
+ir = ir_w;
 ir_pow = sum(ir.*ir)/length(ir);
 ir_gain = -10.0 * log10(ir_pow / 1);
 ir = ir/ir_gain;

@@ -40,9 +40,10 @@ public:
     void process(const dsp_input_t &in, dsp_output_t &out) override;
 private:
 
-    constexpr static uint32_t ir_size {1024}; // Should be power of 2
+    constexpr static uint32_t ir_size {1024};
     const ir_t &ir;
 
+    /* Ceil to next power of 2 */
     constexpr static uint32_t fft_size {std::max((uint32_t)dsp_vector_size, 1UL << static_cast<uint32_t>(std::floor(std::log2(ir_size - 1)) + 1))};
 
     arm_rfft_fast_instance_f32 fft;
