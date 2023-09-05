@@ -13,14 +13,14 @@ N = length(h);
 
 if K == 0
 % Next power of 2
-K = max(B, 2^(floor(log2(N - 1)) + 1));
+K = 2^(floor(log2(N + B - 1)) + 1);
 end
 
 % Calculate the number of input blocks
 num_input_blocks = ceil(M / B) + ceil(K / B) - 1;
 
 % Pad x to an integer multiple of B
-xp = [x; zeros(mod(M,num_input_blocks * B), 1)];
+xp = [x; zeros(num_input_blocks * B - M, 1)];
 
 output_size = num_input_blocks * B + N - 1;
 ret = zeros(output_size, 1);
@@ -29,10 +29,10 @@ ret = zeros(output_size, 1);
 xw = zeros(K, 1);
 
 % Pre compute FFT of h
-H = fft([h; zeros(mod(K,length(h)), 1)]);
+H = fft([h; zeros(K - length(h), 1)]);
     
 % Convolve all blocks
-for n = 0:num_input_blocks
+for n = 0:num_input_blocks-1
     % Extract the n-th input block
     xb = xp(n * B + 1:n * B + B);
 
@@ -41,7 +41,7 @@ for n = 0:num_input_blocks
     xw(end - B + 1:end) = xb;
 
     % Calculate the fast Fourier transforms of the time-domain signal x
-    X = fft([xw; zeros(mod(K,length(xw)), 1)]);
+    X = fft(xw);
 
     % Perform circular convolution in the frequency domain
     Y = X.*H;
@@ -50,7 +50,7 @@ for n = 0:num_input_blocks
     u = real(ifft(Y));
 
     % Save the valid output samples
-    y(n * B + 1:n * B + B) = u(end - B + 1:end);
+    ret(n * B + 1:n * B + B) = u(end - B + 1:end);
 end
-ret = y(1:M + N - 1);
+ret = ret(1:M + N - 1);
 endfunction

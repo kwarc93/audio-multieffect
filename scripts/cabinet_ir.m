@@ -15,11 +15,11 @@ ir_file = '1960-G12M25-Starter/SM57/1960-G12M25-SM57-Cap45-0_5in.wav';
 ir = wavread(ir_file);
 
 % Cut to desired length
-N = 1024;
+N = 2048;
 ir = ir(1:N);
 
 % Apply window after cut (0 - rectangular ... 1 - hann)
-w = tukeywin(2*length(ir), 0.5);
+w = tukeywin(2*length(ir), 0);
 w = w(length(w)/2+1:end);
 ir_w = ir.*w;
 

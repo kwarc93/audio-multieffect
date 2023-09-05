@@ -40,11 +40,12 @@ public:
     void process(const dsp_input_t &in, dsp_output_t &out) override;
 private:
 
-    constexpr static uint32_t ir_size {1024};
+    /* IR size should not exceed 'max_ir_length - dsp_vector_size' to fit into 2048 point FFT & IFFT */
+    constexpr static uint32_t ir_size {max_ir_length - dsp_vector_size};
     const ir_t &ir;
 
-    /* Ceil to next power of 2 */
-    constexpr static uint32_t fft_size {std::max((uint32_t)dsp_vector_size, 1UL << static_cast<uint32_t>(std::floor(std::log2(ir_size - 1)) + 1))};
+    /* Ceil to next power of 2 for overlap-save fast convolution */
+    constexpr static uint32_t fft_size {1UL << static_cast<uint32_t>(std::floor(std::log2(ir_size + dsp_vector_size - 1)) + 1)};
 
     arm_rfft_fast_instance_f32 fft;
     std::array<float, 2 * fft_size> ir_fft;

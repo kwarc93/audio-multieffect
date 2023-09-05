@@ -24,8 +24,8 @@ ir{ir}
     arm_fill_f32(0, this->input_buffer.data(), this->input_buffer.size());
 
     /* Precompute FFT of IR */
-    arm_fill_f32(0, this->ir_fft.data(), this->ir.size());
-    arm_copy_f32(const_cast<float*>(this->ir.data()), this->ir_fft.data(), this->fft_size);
+    arm_fill_f32(0, this->ir_fft.data(), this->ir_fft.size());
+    arm_copy_f32(const_cast<float*>(this->ir.data()), this->ir_fft.data(), this->ir_size);
     arm_rfft_fast_init_f32(&this->fft, this->fft_size);
     arm_rfft_fast_f32(&this->fft, this->ir_fft.data(), this->ir_fft.data() + this->fft_size, 0);
 }
@@ -37,6 +37,8 @@ cabinet_sim::~cabinet_sim()
 
 void cabinet_sim::process(const dsp_input_t& in, dsp_output_t& out)
 {
+    /* Overlap-save fast convolution */
+
     const uint32_t block_size = in.size();
     const uint32_t move_size = this->input_buffer.size() - block_size;
 
@@ -49,7 +51,7 @@ void cabinet_sim::process(const dsp_input_t& in, dsp_output_t& out)
     arm_rfft_fast_init_f32(&this->fft, this->fft_size);
     arm_rfft_fast_f32(&this->fft, this->input_buffer_fft.data(), this->input_buffer_fft.data() + this->fft_size, 0);
 
-    /* Multiplication (convolution) in frequency domain */
+    /* Multiplication (circular convolution) in frequency domain */
     arm_cmplx_mult_cmplx_f32(this->ir_fft.data() + this->fft_size, this->input_buffer_fft.data() + this->fft_size, this->convolution.data(), this->fft_size / 2);
 
     /* Inverse FFT */
