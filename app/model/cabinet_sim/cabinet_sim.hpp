@@ -24,6 +24,8 @@ namespace mfx
 class cabinet_sim : public effect
 {
 public:
+    enum class mode_type {standart, high_res};
+
     struct controls
     {
 
@@ -41,6 +43,7 @@ public:
 private:
 
     /* IR size should not exceed 'max_ir_length - dsp_vector_size' to fit into 2048 point FFT & IFFT */
+    constexpr static mode_type mode {mode_type::high_res};
     constexpr static uint32_t ir_size {max_ir_length - dsp_vector_size};
     const ir_t &ir;
 

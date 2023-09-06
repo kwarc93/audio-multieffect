@@ -13,7 +13,7 @@
 namespace mfx
 {
 
-/* IR length of 2048 samples at 48kHz gives around 42.6ms */
+/* IR length of 2048 samples at 48kHz is around 42.6ms */
 constexpr uint32_t max_ir_length = 2048;
 typedef std::array<float, max_ir_length> ir_t;
 

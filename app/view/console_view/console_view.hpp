@@ -13,7 +13,7 @@
 #include <variant>
 
 #include <middlewares/active_object.hpp>
-#include <libs/spsc_queue.hpp>
+#include <libs/fast_queue.hpp>
 
 #include <hal/hal_interface.hpp>
 
@@ -48,7 +48,7 @@ private:
     void character_received_callback(const std::byte *data, std::size_t bytes_read);
 
     char received_char;
-    spsc_queue<char, 16> char_queue;
+    libs::fast_queue<char, 16> char_queue;
     hal::interface::serial &stdio_serial;
 };
 

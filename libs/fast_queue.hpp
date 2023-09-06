@@ -1,23 +1,26 @@
 /*
- * spsc_queue.hpp
+ * fast_queue.hpp
  *
  *
  *  Created on: 7 sty 2023
  *      Author: kwarc
  */
 
-#ifndef SPSC_QUEUE_HPP_
-#define SPSC_QUEUE_HPP_
+#ifndef FAST_QUEUE_HPP_
+#define FAST_QUEUE_HPP_
 
 #include <array>
 
+namespace libs
+{
+
 /* Single Producer - Single Consumer queue with no locks */
 template<typename T, size_t N>
-class spsc_queue
+class fast_queue
 {
 public:
-    spsc_queue() : read_idx {0}, write_idx {0} {}
-    ~spsc_queue() {}
+    fast_queue() : read_idx {0}, write_idx {0} {}
+    ~fast_queue() {}
 
     bool empty() const
     {
@@ -61,6 +64,6 @@ private:
     static constexpr size_t maximum_size = N - 1;
 };
 
+}
 
-
-#endif /* SPSC_QUEUE_HPP_ */
+#endif /* FAST_QUEUE_HPP_ */

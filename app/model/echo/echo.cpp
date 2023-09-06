@@ -23,7 +23,7 @@ using namespace mfx;
 namespace
 {
 __attribute__((section(".sdram")))
-std::array<dsp_sample_t, 1 * sampling_frequency_hz> delay_line; // Maximum delay time: 1s
+std::array<dsp_sample_t, 1 * sampling_frequency_hz> delay_line_memory; // Maximum delay time: 1s
 }
 
 //-----------------------------------------------------------------------------
@@ -33,23 +33,13 @@ std::array<dsp_sample_t, 1 * sampling_frequency_hz> delay_line; // Maximum delay
 /* public */
 
 
-echo::echo(float blend, float time, float feedback, mode_type mode) : effect { effect_id::echo, "echo" }
+echo::echo(float blend, float time, float feedback, mode_type mode) : effect { effect_id::echo, "echo" },
+delay_line{delay_line_memory.data(), delay_line_memory.size(), sampling_frequency_hz}
 {
     this->set_mode(mode);
     this->set_feedback(feedback);
     this->set_time(time);
     this->set_blend(blend);
-
-    /* Initialize delay line */
-    delay_line.fill(0);
-
-    this->delay_line_delay_samples = this->time * delay_line.size();
-    this->delay_line_write_index = 0;
-
-    if (this->delay_line_delay_samples == 0 || this->delay_line_delay_samples == delay_line.size())
-        this->delay_line_read_index = this->delay_line_write_index;
-    else
-        this->delay_line_read_index = this->delay_line_write_index + delay_line.size() - this->delay_line_delay_samples;
 }
 
 echo::~echo()
@@ -63,14 +53,9 @@ void echo::process(const dsp_input_t& in, dsp_output_t& out)
     [this](auto input)
     {
         /* Universal comb filter */
-        dsp_sample_t in_d = delay_line[this->delay_line_read_index % delay_line.size()];
-        this->delay_line_read_index++;
-
+        dsp_sample_t in_d = this->delay_line.get();
         dsp_sample_t in_h = input + this->feedback * in_d;
-
-        delay_line[this->delay_line_write_index % delay_line.size()] = in_h;
-        this->delay_line_write_index++;
-
+        this->delay_line.put(in_h);
         return this->feedforward * in_d + this->blend * in_h;
     }
     );
@@ -90,14 +75,7 @@ void echo::set_time(float time)
         return;
 
     this->time = std::clamp(time, 0.1f, 1.0f);
-
-    this->delay_line_delay_samples = this->time * delay_line.size();
-
-    if (this->delay_line_delay_samples == 0 || this->delay_line_delay_samples == delay_line.size())
-        this->delay_line_read_index = this->delay_line_write_index;
-    else
-        this->delay_line_read_index = this->delay_line_write_index + delay_line.size() - this->delay_line_delay_samples;
-
+    this->delay_line.set_delay(this->time);
 }
 
 void echo::set_feedback(float feedback)

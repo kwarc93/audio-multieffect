@@ -10,6 +10,8 @@
 
 #include "app/model/effect_interface.hpp"
 
+#include <libs/audio_dsp.hpp>
+
 namespace mfx
 {
 
@@ -39,15 +41,12 @@ public:
     void set_rate(float rate);
     void set_shape(shape_type shape);
 private:
-    float lfo(void);
-
+    float rate;
     float depth;
+    shape_type shape;
 
-    float lfo_freq;
-    float lfo_counter;
-    float lfo_counter_dir;
-    float lfo_counter_limit;
-    shape_type lfo_shape;
+    /* Low frequency oscillator */
+    libs::adsp::oscillator lfo;
 };
 
 }

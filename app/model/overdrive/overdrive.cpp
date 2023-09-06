@@ -18,12 +18,6 @@ using namespace mfx;
 namespace
 {
 
-template <typename T>
-int sgn(T val)
-{
-    return (T(0) < val) - (val < T(0));
-}
-
 }
 
 //-----------------------------------------------------------------------------
@@ -37,7 +31,7 @@ dsp_sample_t overdrive::hard_clip(dsp_sample_t in)
     constexpr dsp_sample_t th = 1.0f/3.0f;
 
     const dsp_sample_t in_abs = std::abs(in);
-    const dsp_sample_t sign = sgn(in);
+    const dsp_sample_t sign = libs::adsp::sgn(in);
 
     if (in_abs < th)
         out = 2 * in;
@@ -52,41 +46,7 @@ dsp_sample_t overdrive::hard_clip(dsp_sample_t in)
 
 dsp_sample_t overdrive::soft_clip(dsp_sample_t in)
 {
-    return sgn(in) * (1 - std::exp(-std::abs(in)));
-}
-
-void overdrive::iir_biquad_lp_calc_coeffs(float fs, float fc)
-{
-    const float wc = fc / fs;
-    const float k = std::tan(pi * wc);
-    const float q = 1.0f / std::sqrt(2.0f);
-
-    const float k2q = k * k * q;
-    const float denum = 1.0f / (k2q + k + q);
-
-    /* 2-nd order */
-    this->iir_lp_coeffs[0] = k2q * denum; // b0
-    this->iir_lp_coeffs[1] = 2 * this->iir_lp_coeffs[0]; // b1
-    this->iir_lp_coeffs[2] = this->iir_lp_coeffs[0]; // b2
-    this->iir_lp_coeffs[3] = -2 * q * (k * k - 1) * denum; // -a1
-    this->iir_lp_coeffs[4] = -(k2q - k + q) * denum; // -a2
-}
-
-void overdrive::iir_biquad_hp_calc_coeffs(float fs, float fc)
-{
-    const float wc = fc / fs;
-    const float k = std::tan(pi * wc);
-    const float q = 1.0f / std::sqrt(2.0f);
-
-    const float k2q = k * k * q;
-    const float denum = 1.0f / (k2q + k + q);
-
-    /* 2-nd order */
-    this->iir_hp_coeffs[0] = q * denum; // b0
-    this->iir_hp_coeffs[1] = -2 * this->iir_hp_coeffs[0]; // b1
-    this->iir_hp_coeffs[2] = this->iir_hp_coeffs[0]; // b2
-    this->iir_hp_coeffs[3] = -2 * q * (k * k - 1) * denum; // -a1
-    this->iir_hp_coeffs[4] = -(k2q - k + q) * denum; // -a2
+    return libs::adsp::sgn(in) * (1 - std::exp(-std::abs(in)));
 }
 
 //-----------------------------------------------------------------------------
@@ -100,31 +60,6 @@ overdrive::overdrive(float low, float high, float gain, float mix, mode_type mod
     this->set_high(high);
     this->set_gain(gain);
     this->set_mix(mix);
-
-    arm_fir_init_f32
-    (
-        &this->fir,
-        this->fir_coeffs.size(),
-        const_cast<float*>(this->fir_coeffs.data()),
-        this->fir_state.data(),
-        this->fir_block_size
-    );
-
-    arm_biquad_cascade_df1_init_f32
-    (
-        &this->iir_lp,
-        this->iir_lp_biquad_stages,
-        this->iir_lp_coeffs.data(),
-        this->iir_lp_state.data()
-    );
-
-    arm_biquad_cascade_df1_init_f32
-    (
-        &this->iir_hp,
-        this->iir_hp_biquad_stages,
-        this->iir_hp_coeffs.data(),
-        this->iir_hp_state.data()
-    );
 }
 
 overdrive::~overdrive()
@@ -134,15 +69,13 @@ overdrive::~overdrive()
 
 void overdrive::process(const dsp_input_t& in, dsp_output_t& out)
 {
-    auto &ccin = const_cast<dsp_input_t&>(in);
-
     /* 1. Low-pass filter for anti-aliasing. Filter whole block using FIR filter. */
-    arm_fir_f32(&this->fir, ccin.data(), out.data(), out.size());
+    this->fir_lp.process(in.data(), out.data());
 
     /* 2. Apply 1-st order high-pass IIR filter (in-place) */
-    arm_biquad_cascade_df1_f32(&this->iir_hp, out.data(), out.data(), out.size());
+    this->iir_hp.process(out.data(), out.data(), out.size());
 
-    std::transform(ccin.begin(), ccin.end(), out.begin(), out.begin(),
+    std::transform(in.begin(), in.end(), out.begin(), out.begin(),
     [this](auto input, auto output)
     {
         auto sample = output;
@@ -158,7 +91,7 @@ void overdrive::process(const dsp_input_t& in, dsp_output_t& out)
     );
 
     /* 4. Apply 2-nd order low-pass IIR filter (in-place) */
-    arm_biquad_cascade_df1_f32(&this->iir_lp, out.data(), out.data(), out.size());
+    this->iir_lp.process(out.data(), out.data(), out.size());
 }
 
 void overdrive::set_high(float high)
@@ -169,7 +102,7 @@ void overdrive::set_high(float high)
     /* Calculate coefficient for 2-nd order low-pass IIR (3kHz - 9kHz range) */
     const float fc = 3000 + high * 6000;
 
-    iir_biquad_lp_calc_coeffs(sampling_frequency_hz, fc);
+    this->iir_lp.calc_coeffs(libs::adsp::iir_biquad::type::lowpass, fc, sampling_frequency_hz);
 
     this->high = high;
 }
@@ -182,7 +115,7 @@ void overdrive::set_low(float low)
     /* Calculate coefficient for 2-nd order high-pass IIR (50Hz - 250Hz range) */
     const float fc = 50 + (1.0f - low) * 200;
 
-    iir_biquad_hp_calc_coeffs(sampling_frequency_hz, fc);
+    this->iir_hp.calc_coeffs(libs::adsp::iir_biquad::type::highpass, fc, sampling_frequency_hz);
 
     this->low = low;
 }

@@ -10,6 +10,8 @@
 
 #include "app/model/effect_interface.hpp"
 
+#include <libs/audio_dsp.hpp>
+
 namespace mfx
 {
 
@@ -42,15 +44,13 @@ public:
     void set_mode(mode_type mode);
 
 private:
-    uint32_t delay_line_delay_samples;
-    uint32_t delay_line_read_index;
-    uint32_t delay_line_write_index;
-
     float blend;
     float time;
     float feedback;
     float feedforward;
     mode_type mode;
+
+    libs::adsp::delay_line delay_line;
 };
 
 }

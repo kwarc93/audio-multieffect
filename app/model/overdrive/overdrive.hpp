@@ -12,8 +12,7 @@
 
 #include <array>
 
-#include <cmsis/stm32f7xx.h>
-#include <cmsis/dsp/arm_math.h>
+#include <libs/audio_dsp.hpp>
 
 namespace mfx
 {
@@ -59,7 +58,6 @@ private:
     mode_type mode;
 
     /* Low-pass FIR filter for anti-aliasing */
-    constexpr static unsigned fir_block_size {dsp_vector_size};
     constexpr static inline std::array<float, 97> fir_coeffs
     {{
         -0.00007726, -0.00054562, -0.00006974, 0.00060528, 0.00026125,
@@ -84,22 +82,13 @@ private:
         -0.00054562, -0.00007726
     }};
 
-    arm_fir_instance_f32 fir;
-    std::array<float, fir_block_size + fir_coeffs.size() - 1> fir_state;
+    libs::adsp::fir<fir_coeffs.size(), dsp_vector_size, fir_coeffs> fir_lp;
 
     /* Tunable high-pass 2nd order IIR filter */
-    arm_biquad_casd_df1_inst_f32 iir_hp;
-    constexpr static unsigned iir_hp_biquad_stages = 1;
-    std::array<float, 4 * iir_hp_biquad_stages> iir_hp_state;
-    std::array<float, 5 * iir_hp_biquad_stages> iir_hp_coeffs;
-    void iir_biquad_hp_calc_coeffs(float fs, float fc);
+    libs::adsp::iir_biquad iir_hp;
 
     /* Tunable low-pass 2-nd order IIR filter */
-    arm_biquad_casd_df1_inst_f32 iir_lp;
-    constexpr static unsigned iir_lp_biquad_stages = 1;
-    std::array<float, 4 * iir_lp_biquad_stages> iir_lp_state;
-    std::array<float, 5 * iir_lp_biquad_stages> iir_lp_coeffs;
-    void iir_biquad_lp_calc_coeffs(float fs, float fc);
+    libs::adsp::iir_biquad iir_lp;
 };
 
 }
