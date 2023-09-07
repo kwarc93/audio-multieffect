@@ -10,13 +10,9 @@
 
 #include "app/model/effect_interface.hpp"
 
+#include <libs/audio_dsp.hpp>
+
 #include "impulse_responses.hpp"
-
-#include <array>
-#include <cmath>
-
-#include <cmsis/stm32f7xx.h>
-#include <cmsis/dsp/arm_math.h>
 
 namespace mfx
 {
@@ -24,7 +20,7 @@ namespace mfx
 class cabinet_sim : public effect
 {
 public:
-    enum class mode_type {standart, high_res};
+    enum class resolution {standart, high};
 
     struct controls
     {
@@ -42,19 +38,11 @@ public:
     void process(const dsp_input_t &in, dsp_output_t &out) override;
 private:
 
-    /* IR size should not exceed 'max_ir_length - dsp_vector_size' to fit into 2048 point FFT & IFFT */
-    constexpr static mode_type mode {mode_type::high_res};
-    constexpr static uint32_t ir_size {max_ir_length - dsp_vector_size};
-    const ir_t &ir;
+    /* IR size should not exceed 'max_ir_length - dsp_vector_size' to fit into 2048 point FFT & IFFT for performance reasons */
+    constexpr static resolution res {resolution::high};
+    constexpr static uint32_t ir_size {(res == resolution::high ? 2048 : 1024) - dsp_vector_size};
 
-    /* Ceil to next power of 2 for overlap-save fast convolution */
-    constexpr static uint32_t fft_size {1UL << static_cast<uint32_t>(std::floor(std::log2(ir_size + dsp_vector_size - 1)) + 1)};
-
-    arm_rfft_fast_instance_f32 fft;
-    std::array<float, 2 * fft_size> ir_fft;
-    std::array<float, 2 * fft_size> input_buffer_fft;
-    std::array<float, 2 * fft_size> convolution;
-    std::array<float, fft_size> input_buffer;
+    libs::adsp::fast_convolution<dsp_vector_size, ir_size> fast_conv;
 };
 
 }

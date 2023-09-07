@@ -9,6 +9,7 @@
 #define AUDIO_DSP_HPP_
 
 #include <cstdint>
+#include <cmath>
 #include <algorithm>
 #include <array>
 
@@ -83,6 +84,14 @@ public:
             if (this->counter >= this->counter_limit)
                 this->counter -= 2 * this->counter_limit;
         }
+        else if (this->shape == shape_t::square)
+        {
+            /* TODO */
+        }
+        else if (this->shape == shape_t::sawtooth)
+        {
+            /* TODO */
+        }
 
         this->counter += this->counter_step;
 
@@ -92,18 +101,25 @@ public:
 private:
     void update(void)
     {
-        if (this->shape == shape_t::triangle)
-        {
-            /* One triangle slope is frequency/4 */
-            this->counter_limit = 0.25f * (this->fs / this->freq);
-            this->counter = std::clamp(this->counter, -this->counter_limit, this->counter_limit);
-
-        }
-        else if (this->shape == shape_t::sine)
+        if (this->shape == shape_t::sine)
         {
             /* Sine cycle in range [-pi : +pi] */
             this->counter_limit = pi;
             this->counter_step = 2 * this->counter_limit * this->freq / this->fs;
+        }
+        else if (this->shape == shape_t::triangle)
+        {
+            /* One triangle slope is frequency/4 */
+            this->counter_limit = 0.25f * (this->fs / this->freq);
+            this->counter = std::clamp(this->counter, -this->counter_limit, this->counter_limit);
+        }
+        else if (this->shape == shape_t::square)
+        {
+            /* TODO */
+        }
+        else if (this->shape == shape_t::sawtooth)
+        {
+            /* TODO */
         }
     }
 
@@ -150,11 +166,7 @@ public:
         uint32_t delay_samples = d * this->memory_length;
 
         delay_samples = std::clamp(delay_samples, 0UL, this->memory_length - 1);
-
-        if (delay_samples == 0)
-            this->read_idx = this->write_idx;
-        else
-            this->read_idx = this->write_idx + this->memory_length - delay_samples;
+        this->read_idx = this->write_idx + this->memory_length - delay_samples;
     }
 
     float get(void)
@@ -178,7 +190,7 @@ private:
 
 //-----------------------------------------------------------------------------
 
-template<uint16_t taps, uint32_t block_size, const std::array<float, taps> &coeffs>
+template<uint16_t taps, const std::array<float, taps> &coeffs, uint32_t block_size>
 class fir
 {
 public:
@@ -187,7 +199,7 @@ public:
         arm_fir_init_f32
         (
             &this->instance,
-            coeffs.size(),
+            taps,
             const_cast<float*>(coeffs.data()),
             this->state.data(),
             block_size
@@ -264,6 +276,61 @@ private:
     arm_biquad_casd_df1_inst_f32 instance;
     std::array<float, 4 * biquad_stages> state;
     std::array<float, 5 * biquad_stages> coeffs;
+};
+
+template<uint16_t block_size, uint16_t ir_size>
+class fast_convolution
+{
+public:
+    fast_convolution()
+    {
+        arm_rfft_fast_init_f32(&this->fft, this->fft_size);
+        arm_fill_f32(0, this->ir_fft.data(), this->ir_fft.size());
+        arm_fill_f32(0, this->input.data(), this->input.size());
+    }
+
+    void set_ir(const float *ir)
+    {
+        /* Precompute FFT of IR */
+        arm_fill_f32(0, this->ir_fft.data(), this->ir_fft.size());
+        arm_copy_f32(const_cast<float*>(ir), this->ir_fft.data(), ir_size);
+        arm_rfft_fast_f32(&this->fft, this->ir_fft.data(), this->ir_fft.data() + this->fft_size, 0);
+    }
+
+    void process(const float *in, float *out)
+    {
+        /* Overlap-save fast convolution */
+
+        const uint32_t move_size = this->input.size() - block_size;
+
+        /* Sliding window of input blocks */
+        arm_copy_f32(&this->input[block_size], &this->input[0], move_size);
+        arm_copy_f32(const_cast<float*>(in), &this->input[move_size], block_size);
+
+        /* FFT of sliding window */
+        arm_copy_f32(this->input.data(), this->input_fft.data(), this->input.size());
+        arm_rfft_fast_f32(&this->fft, this->input_fft.data(), this->input_fft.data() + this->fft_size, 0);
+
+        /* Multiplication (circular convolution) in frequency domain */
+        arm_cmplx_mult_cmplx_f32(this->ir_fft.data() + this->fft_size, this->input_fft.data() + this->fft_size, this->input_fft.data(), this->fft_size / 2);
+
+        /* Inverse FFT */
+        arm_rfft_fast_f32(&this->fft, this->input_fft.data(), this->input_fft.data() + this->fft_size, 1);
+
+        /* Copy result to output */
+        arm_copy_f32(this->input_fft.data() + this->input_fft.size() - block_size, out, block_size);
+    }
+private:
+    /* Max supported FFT size is 4096 */
+    static_assert((block_size + ir_size - 1) < 4096);
+
+    /* Ceil FFT size to next power of 2 for overlap-save fast convolution */
+    constexpr static uint32_t fft_size {1UL << static_cast<uint32_t>(std::floor(std::log2(block_size + ir_size - 1)) + 1)};
+
+    arm_rfft_fast_instance_f32 fft;
+    std::array<float, 2 * fft_size> ir_fft;
+    std::array<float, 2 * fft_size> input_fft;
+    std::array<float, fft_size> input;
 };
 
 }
