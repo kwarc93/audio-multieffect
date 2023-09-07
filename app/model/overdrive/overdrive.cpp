@@ -102,7 +102,7 @@ void overdrive::set_high(float high)
     /* Calculate coefficient for 2-nd order low-pass IIR (3kHz - 9kHz range) */
     const float fc = 3000 + high * 6000;
 
-    this->iir_lp.calc_coeffs(libs::adsp::iir_biquad::type::lowpass, fc, sampling_frequency_hz);
+    this->iir_lp.calc_coeffs(fc, sampling_frequency_hz);
 
     this->high = high;
 }
@@ -115,7 +115,7 @@ void overdrive::set_low(float low)
     /* Calculate coefficient for 2-nd order high-pass IIR (50Hz - 250Hz range) */
     const float fc = 50 + (1.0f - low) * 200;
 
-    this->iir_hp.calc_coeffs(libs::adsp::iir_biquad::type::highpass, fc, sampling_frequency_hz);
+    this->iir_hp.calc_coeffs(fc, sampling_frequency_hz);
 
     this->low = low;
 }

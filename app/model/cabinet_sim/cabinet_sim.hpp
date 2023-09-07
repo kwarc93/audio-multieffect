@@ -38,7 +38,6 @@ public:
     void process(const dsp_input_t &in, dsp_output_t &out) override;
 private:
 
-    /* IR size should not exceed 'max_ir_length - dsp_vector_size' to fit into 2048 point FFT & IFFT for performance reasons */
     constexpr static resolution res {resolution::high};
     constexpr static uint32_t ir_size {(res == resolution::high ? 2048 : 1024) - dsp_vector_size};
 

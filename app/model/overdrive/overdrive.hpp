@@ -85,10 +85,10 @@ private:
     libs::adsp::fir<fir_coeffs.size(), fir_coeffs, dsp_vector_size> fir_lp;
 
     /* Tunable high-pass 2nd order IIR filter */
-    libs::adsp::iir_biquad iir_hp;
+    libs::adsp::iir_highpass iir_hp;
 
     /* Tunable low-pass 2-nd order IIR filter */
-    libs::adsp::iir_biquad iir_lp;
+    libs::adsp::iir_lowpass iir_lp;
 };
 
 }

@@ -29,7 +29,7 @@ namespace
 /* public */
 
 tremolo::tremolo(float rate, float depth, shape_type shape) : effect { effect_id::tremolo, "tremolo" },
-lfo { libs::adsp::oscillator::shape_t::sine, sampling_frequency_hz }
+lfo { libs::adsp::oscillator::shape::sine, sampling_frequency_hz }
 {
     this->set_shape(shape);
     this->set_depth(depth);
@@ -79,10 +79,10 @@ void tremolo::set_shape(shape_type shape)
     switch (this->shape)
     {
     case shape_type::sine:
-        this->lfo.set_shape(libs::adsp::oscillator::shape_t::sine);
+        this->lfo.set_shape(libs::adsp::oscillator::shape::sine);
         break;
     case shape_type::triangle:
-        this->lfo.set_shape(libs::adsp::oscillator::shape_t::triangle);
+        this->lfo.set_shape(libs::adsp::oscillator::shape::triangle);
         break;
     default:
         break;
