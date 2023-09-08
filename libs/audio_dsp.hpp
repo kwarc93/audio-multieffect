@@ -135,28 +135,28 @@ private:
 
 //-----------------------------------------------------------------------------
 
+enum class delay_line_intrpl {none, linear, allpass};
+
+template<delay_line_intrpl intrpl = delay_line_intrpl::none>
 class delay_line
 {
 public:
-    enum class interpolation {none, linear, allpass};
 
-    delay_line(float max_delay, uint32_t fs, interpolation i = interpolation::none) : fs{fs}, allocated{true}
+    delay_line(float max_delay, uint32_t fs) : fs{fs}, allocated{true}
     {
         this->memory_length = std::ceil(fs * max_delay);
         this->memory = new float [this->memory_length];
         this->write_idx = this->read_idx = 0;
-        this->intrpl = i;
         this->frac = 0;
 
         arm_fill_f32(0, this->memory, this->memory_length);
     }
 
-    delay_line(float *samples_memory, uint32_t memory_length, uint32_t fs, interpolation i = interpolation::none) : fs{fs}, allocated{false}
+    delay_line(float *samples_memory, uint32_t memory_length, uint32_t fs) : fs{fs}, allocated{false}
     {
         this->memory_length = memory_length;
         this->memory = samples_memory;
         this->write_idx = this->read_idx = 0;
-        this->intrpl = i;
         this->frac = 0;
 
         arm_fill_f32(0, this->memory, this->memory_length);
@@ -180,17 +180,12 @@ public:
         this->frac = delay_samples - std::floor(delay_samples);
     }
 
-    void set_interpolation(interpolation i)
-    {
-        this->intrpl = i;
-    }
-
     float get(void)
     {
-        if (this->intrpl == interpolation::linear)
+        if constexpr (intrpl == delay_line_intrpl::linear)
             return linear_interpolation();
-        else if (this->intrpl == interpolation::allpass)
-            return allpas_interpolation();
+        else if constexpr (intrpl == delay_line_intrpl::allpass)
+            return allpass_interpolation();
         else
             return this->memory[this->read_idx++ % this->memory_length];
     }
@@ -207,14 +202,15 @@ private:
         return s0 + this->frac * (s1 - s0);
     }
 
-    float allpas_interpolation(void)
+    float allpass_interpolation(void)
     {
-        static float sap = 0;
+        /* Allpass sample hold */
+        static float aph = 0;
 
-        /* TODO: Verify this */
         const float s0 = this->memory[this->read_idx++ % this->memory_length];
         const float s1 = this->memory[this->read_idx % this->memory_length];
-        return sap = s1 + (1 - this->frac) * s0 - (1 - this->frac) * sap;
+        const float d = (1 - this->frac) / (1 + this->frac); // Or just '(1 - this->frac)'
+        return aph = s1 + d * (s0 - aph);
     }
 
     const uint32_t fs;
@@ -223,7 +219,6 @@ private:
     float *memory;
     uint32_t memory_length;
     uint32_t write_idx, read_idx;
-    interpolation intrpl;
     float frac;
 
 };
@@ -257,11 +252,10 @@ private:
 
 //-----------------------------------------------------------------------------
 
+template<uint8_t biquad_stages>
 class iir_biquad
 {
 public:
-    constexpr static unsigned biquad_stages = 1;
-
     iir_biquad()
     {
         arm_biquad_cascade_df1_init_f32
@@ -288,7 +282,7 @@ protected:
     std::array<float, 5 * biquad_stages> coeffs;
 };
 
-class iir_lowpass : public iir_biquad
+class iir_lowpass : public iir_biquad<1>
 {
 public:
     void calc_coeffs(float fc, float fs, bool first_order = false)
@@ -309,7 +303,7 @@ public:
     }
 };
 
-class iir_highpass : public iir_biquad
+class iir_highpass : public iir_biquad<1>
 {
 public:
     void calc_coeffs(float fc, float fs, bool first_order = false)

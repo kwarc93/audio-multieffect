@@ -50,7 +50,7 @@ private:
     float feedforward;
     mode_type mode;
 
-    libs::adsp::delay_line delay_line;
+    libs::adsp::delay_line<libs::adsp::delay_line_intrpl::none> delay_line;
 };
 
 }
