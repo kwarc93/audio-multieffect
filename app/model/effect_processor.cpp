@@ -289,7 +289,7 @@ effect_processor::~effect_processor()
 
 uint8_t effect_processor::get_processing_load(void)
 {
-    constexpr uint32_t max_processing_time_us = 10e6 * 2 * dsp_vector_size / sampling_frequency_hz;
+    constexpr uint32_t max_processing_time_us = 1e6 * 2 * dsp_vector_size / sampling_frequency_hz;
     return 100 * this->processing_time_us / max_processing_time_us;
 }
 

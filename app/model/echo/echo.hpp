@@ -33,7 +33,7 @@ public:
         int error_code;
     };
 
-    echo(float decay = 0.5f, float time = 0.3f, float feedback = 0.5f, mode_type mode = mode_type::echo);
+    echo(float decay = 0.5f, float time = 0.3f, float feedback = 0.6f, mode_type mode = mode_type::echo);
     virtual ~echo();
 
     void process(const dsp_input_t &in, dsp_output_t &out) override;
