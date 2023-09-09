@@ -27,6 +27,7 @@ using namespace drivers;
  * | CODEC_SLOT0 Left | CODEC_SLOT1 Left | CODEC_SLOT0 Right  | CODEC_SLOT1 Right |
  * +------------------------------------------------------------------------------+
  */
+#define WM8994_SLOTS_NUMBER           4
 
 //-----------------------------------------------------------------------------
 
@@ -422,8 +423,9 @@ i2c_dev {dev}, i2c_addr {addr}, sai_drv{sai_16bit::id::sai2}
             sai_16bit::block::data_size::_16bit,
             sai_16bit::block::sync_type::none,
             sai_16bit::block::frame_type::stereo,
-            sai_16bit::block::active_slots::slots_0_2,
             sai_16bit::block::audio_freq::_48kHz,
+            WM8994_SLOTS_NUMBER, // 4 slots
+            0b0101 // active slots: 0 & 2
         };
 
         sai_drv.block_a.configure(sai_a_cfg);
@@ -441,9 +443,10 @@ i2c_dev {dev}, i2c_addr {addr}, sai_drv{sai_16bit::id::sai2}
             out != output::none ?
             sai_16bit::block::sync_type::internal : sai_16bit::block::sync_type::none,
             sai_16bit::block::frame_type::stereo,
-            in == input::mic2 || in == input::line2 ?
-            sai_16bit::block::active_slots::slots_1_3 : sai_16bit::block::active_slots::slots_0_2,
             sai_16bit::block::audio_freq::_48kHz,
+            WM8994_SLOTS_NUMBER,
+            in == input::mic2 || in == input::line2 ?
+            0b1010 : 0b0101,
         };
 
         sai_drv.block_b.configure(sai_b_cfg);

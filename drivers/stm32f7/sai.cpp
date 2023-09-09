@@ -216,8 +216,8 @@ void sai_base::block::configure(const config &cfg)
 
     /* Configure SAI Block_x Slot */
     this->hw.reg->SLOTR = 0;
-    this->hw.reg->SLOTR |= ((4 - 1) << SAI_xSLOTR_NBSLOT_Pos); // Slot number: 4
-    this->hw.reg->SLOTR |= (static_cast<uint16_t>(cfg.slots) << SAI_xSLOTR_SLOTEN_Pos); // Active slots
+    this->hw.reg->SLOTR |= ((cfg.slots - 1) << SAI_xSLOTR_NBSLOT_Pos); // Slot number
+    this->hw.reg->SLOTR |= (cfg.active_slots << SAI_xSLOTR_SLOTEN_Pos); // Active slots
 }
 
 void sai_base::block::configure_dma(void *data, uint16_t data_len, std::size_t data_width, const dma_cb_t &cb, bool circular)
