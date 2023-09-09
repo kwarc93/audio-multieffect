@@ -292,14 +292,29 @@ public:
         const float q = 1.0f / std::sqrt(2.0f);
 
         const float k2q = k * k * q;
-        const float denum = 1.0f / (k2q + k + q);
 
-        /* 2-nd order */
-        this->coeffs[0] = k2q * denum; // b0
-        this->coeffs[1] = 2 * this->coeffs[0]; // b1
-        this->coeffs[2] = this->coeffs[0]; // b2
-        this->coeffs[3] = -2 * q * (k * k - 1) * denum; // -a1
-        this->coeffs[4] = -(k2q - k + q) * denum; // -a2
+        if (first_order)
+        {
+            /* 1-st order */
+            const float denum = 1.0f / (k + 1);
+
+            this->coeffs[0] = k * denum; // b0
+            this->coeffs[1] = this->coeffs[0]; // b1
+            this->coeffs[2] = 0; //b2
+            this->coeffs[3] = -(k - 1) * denum; // -a1
+            this->coeffs[4] = 0; // -a2
+        }
+        else
+        {
+            /* 2-nd order */
+            const float denum = 1.0f / (k2q + k + q);
+
+            this->coeffs[0] = k2q * denum; // b0
+            this->coeffs[1] = 2 * this->coeffs[0]; // b1
+            this->coeffs[2] = this->coeffs[0]; // b2
+            this->coeffs[3] = -2 * q * (k * k - 1) * denum; // -a1
+            this->coeffs[4] = -(k2q - k + q) * denum; // -a2
+        }
     }
 };
 
@@ -313,14 +328,29 @@ public:
         const float q = 1.0f / std::sqrt(2.0f);
 
         const float k2q = k * k * q;
-        const float denum = 1.0f / (k2q + k + q);
 
-        /* 2-nd order */
-        this->coeffs[0] = q * denum; // b0
-        this->coeffs[1] = -2 * this->coeffs[0]; // b1
-        this->coeffs[2] = this->coeffs[0]; // b2
-        this->coeffs[3] = -2 * q * (k * k - 1) * denum; // -a1
-        this->coeffs[4] = -(k2q - k + q) * denum; // -a2
+        if (first_order)
+        {
+            /* 1-st order */
+            const float denum = 1.0f / (k + 1);
+
+            this->coeffs[0] = denum; // b0
+            this->coeffs[1] = -this->coeffs[0]; // b1
+            this->coeffs[2] = 0; //b2
+            this->coeffs[3] = -(k - 1) * denum; // -a1
+            this->coeffs[4] = 0; // -a2
+        }
+        else
+        {
+            /* 2-nd order */
+            const float denum = 1.0f / (k2q + k + q);
+
+            this->coeffs[0] = q * denum; // b0
+            this->coeffs[1] = -2 * this->coeffs[0]; // b1
+            this->coeffs[2] = this->coeffs[0]; // b2
+            this->coeffs[3] = -2 * q * (k * k - 1) * denum; // -a1
+            this->coeffs[4] = -(k2q - k + q) * denum; // -a2
+        }
     }
 };
 
