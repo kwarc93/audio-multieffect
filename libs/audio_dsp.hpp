@@ -400,7 +400,7 @@ public:
     }
 private:
     /* Max supported FFT size is 4096 */
-    static_assert((block_size + ir_size - 1) < 4096);
+    static_assert((block_size + ir_size) <= 4096);
 
     /* Ceil FFT size to next power of 2 for overlap-save fast convolution */
     constexpr static uint32_t fft_size {1UL << static_cast<uint32_t>(std::floor(std::log2(block_size + ir_size - 1)) + 1)};

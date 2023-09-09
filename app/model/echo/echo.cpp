@@ -34,10 +34,10 @@ std::array<dsp_sample_t, 1 * sampling_frequency_hz> delay_line_memory; // Maximu
 echo::echo(float decay, float time, float feedback, mode_type mode) : effect { effect_id::echo, "echo" },
 delay_line{delay_line_memory.data(), delay_line_memory.size(), sampling_frequency_hz}
 {
+    this->set_feedback(feedback);
     this->set_mode(mode);
     this->set_decay(decay);
     this->set_time(time);
-    this->set_feedback(feedback);
 }
 
 echo::~echo()

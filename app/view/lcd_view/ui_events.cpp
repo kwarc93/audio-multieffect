@@ -11,9 +11,9 @@
 namespace
 {
 
-void ui_effect_bypass_changed(lv_obj_t *btn, mfx::effect_id effect)
+void ui_effect_bypass_changed(lv_obj_t *obj, mfx::effect_id effect)
 {
-    bool bypassed = !lv_obj_has_state(btn, LV_STATE_CHECKED);
+    bool bypassed = !lv_obj_has_state(obj, LV_STATE_CHECKED);
     mfx::effect_processor::event evt {mfx::effect_processor::bypass_evt_t {effect, bypassed}};
     mfx::effect_processor::instance->send(evt);
 }
@@ -103,7 +103,7 @@ void ui_settings_out_vol_changed(lv_event_t * e)
     mfx::effect_processor::instance->send(evt);
 }
 
-void ui_cab_sim_bypass(lv_event_t * e)
+void ui_settings_cab_sim_bypass(lv_event_t * e)
 {
     ui_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::cabinet_sim);
 }

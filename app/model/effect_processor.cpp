@@ -17,7 +17,8 @@
 #include <map>
 
 #include <hal/hal_system.hpp>
-#include "middlewares/i2c_manager.hpp"
+
+#include <middlewares/i2c_manager.hpp>
 
 #include <stm32f7xx.h> // For managing D-Cache & I-Cache
 
@@ -28,7 +29,12 @@ using namespace mfx;
 
 namespace
 {
-
+    uint32_t cpu_cycles_to_us(uint32_t start, uint32_t end)
+    {
+        constexpr uint32_t cycles_per_us = hal::system::system_clock / 1000000ul;
+        uint32_t total_cycles = end - start;
+        return total_cycles / cycles_per_us;
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -79,7 +85,7 @@ void effect_processor::event_handler(const volume_evt_t &e)
 
 void effect_processor::event_handler(const process_data_evt_t &e)
 {
-    uint32_t cycles_start = DWT->CYCCNT;
+    const uint32_t cycles_start = hal::system::clock::cycles();
 
     dsp_input_t *current_input {&this->dsp_input};
     dsp_output_t *current_output {&this->dsp_output};
@@ -118,9 +124,8 @@ void effect_processor::event_handler(const process_data_evt_t &e)
     // Moreover, functions 'SCB_*_by_Addr()' require address alignment of 32 bytes.
     SCB_CleanDCache_by_Addr(&this->audio_output.buffer[this->audio_output.sample_index], sizeof(this->audio_output.buffer) / 2);
 
-    constexpr uint32_t cycles_per_us = hal::system::system_clock / 1000000ul;
-    uint32_t total_cycles = DWT->CYCCNT - cycles_start;
-    this->processing_time_us = total_cycles / cycles_per_us;
+    const uint32_t cycles_end = hal::system::clock::cycles();
+    this->processing_time_us = cpu_cycles_to_us(cycles_start, cycles_end);
 }
 
 void effect_processor::event_handler(const effect_controls_evt_t &e)
@@ -282,9 +287,10 @@ effect_processor::~effect_processor()
 
 }
 
-uint32_t effect_processor::get_processing_time(void)
+uint8_t effect_processor::get_processing_load(void)
 {
-    return this->processing_time_us;
+    constexpr uint32_t max_processing_time_us = 10e6 * 2 * dsp_vector_size / sampling_frequency_hz;
+    return 100 * this->processing_time_us / max_processing_time_us;
 }
 
 

@@ -20,6 +20,11 @@ void core::enable_cycles_counter(void)
     DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
 }
 
+uint32_t core::get_cycles_counter(void)
+{
+    return DWT->CYCCNT;
+}
+
 core_critical_section::core_critical_section(void)
 {
     this->primask = __get_PRIMASK();

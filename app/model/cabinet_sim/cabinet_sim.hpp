@@ -20,7 +20,7 @@ namespace mfx
 class cabinet_sim : public effect
 {
 public:
-    enum class resolution {standart, high};
+    enum class resolution {standart = 1024, high = 2048};
 
     struct controls
     {
@@ -37,9 +37,8 @@ public:
 
     void process(const dsp_input_t &in, dsp_output_t &out) override;
 private:
-
-    constexpr static resolution res {resolution::high};
-    constexpr static uint32_t ir_size {(res == resolution::high ? 2048 : 1024) - dsp_vector_size};
+    constexpr static resolution ir_res {resolution::standart};
+    constexpr static uint32_t ir_size {static_cast<uint32_t>(ir_res) - dsp_vector_size};
 
     libs::adsp::fast_convolution<dsp_vector_size, ir_size> fast_conv;
 };

@@ -11,7 +11,7 @@
 
 #include "ui.h"
 
-#include "middlewares/i2c_manager.hpp"
+#include <middlewares/i2c_manager.hpp>
 
 using namespace mfx;
 

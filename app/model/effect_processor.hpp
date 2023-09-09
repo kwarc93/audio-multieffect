@@ -88,7 +88,7 @@ public:
     effect_processor();
     ~effect_processor();
 
-    uint32_t get_processing_time(void);
+    uint8_t get_processing_load(void);
 private:
     void dispatch(const event &e) override;
 

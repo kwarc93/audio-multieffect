@@ -36,9 +36,8 @@ void ui_event_sld_out_vol(lv_event_t * e);
 extern lv_obj_t * ui_sld_out_vol;
 extern lv_obj_t * ui_lbl_out_vol_dbmax;
 extern lv_obj_t * ui_lbl_out_vol;
-void ui_event_btn_cab_sim_bypass(lv_event_t * e);
-extern lv_obj_t * ui_btn_cab_sim_bypass;
-extern lv_obj_t * ui_lbl_btn_cab_sim_bypass;
+void ui_event_cb_cab_sim(lv_event_t * e);
+extern lv_obj_t * ui_cb_cab_sim;
 // SCREEN: ui_fx_tremolo
 void ui_fx_tremolo_screen_init(void);
 void ui_event_fx_tremolo(lv_event_t * e);

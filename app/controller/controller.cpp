@@ -64,7 +64,7 @@ void controller::dispatch(const event& e)
 void controller::event_handler(const led_evt_t &e)
 {
     this->led.set(!this->led.get());
-    printf("DSP processing time: %.2fms\n", this->model.get()->get_processing_time() / 1000.0f);
+    printf("Effect processor load: %u%%\n", this->model.get()->get_processing_load());
 }
 
 void controller::event_handler(const button_evt_t &e)
@@ -102,7 +102,7 @@ view {std::move(view)}
     assert(this->led_timer != nullptr);
     osTimerStart(this->led_timer, 500);
 
-    /* Add some effects (ordering affects sound) */
+    /* Add some effects (order is important!) */
     static const std::array<effect_processor::event, 4> model_events =
     {{
         { effect_processor::add_effect_evt_t {effect_id::overdrive} },

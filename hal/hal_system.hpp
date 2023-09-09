@@ -12,6 +12,8 @@
 
 #include <cmsis/stm32f7xx.h>
 
+#include <drivers/stm32f7/core.hpp>
+
 #define HAL_SYSTEM_RTOS_ENABLED
 
 namespace hal::system
@@ -31,6 +33,11 @@ namespace hal::system
         typedef std::chrono::time_point<clock, duration> time_point;
 
         static constexpr bool is_steady = true;
+
+        static uint32_t cycles(void)
+        {
+            return drivers::core::get_cycles_counter();
+        }
 
         static time_point now(void) noexcept
         {
