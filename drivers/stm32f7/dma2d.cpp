@@ -12,6 +12,7 @@
 
 #include <array>
 #include <cstring>
+#include <cassert>
 
 using namespace drivers;
 
@@ -89,8 +90,7 @@ void dma2d::set_ahb_dead_time(uint8_t dead_time)
 void dma2d::transfer(const transfer_cfg &cfg)
 {
     /* Only 'mem_to_mem' and 'reg_to_mem' is currently supported */
-    if (cfg.transfer_mode != mode::mem_to_mem && cfg.transfer_mode != mode::reg_to_mem)
-        asm volatile ("BKPT 0");
+    assert(cfg.transfer_mode == mode::mem_to_mem || cfg.transfer_mode == mode::reg_to_mem);
 
     /* Wait for DMA2D to be ready */
     while (DMA2D->CR & DMA2D_CR_START);
@@ -167,11 +167,12 @@ void dma2d::irq_handler(void)
             transfer_callback();
     }
 
+    /* Configuration error */
     if (DMA2D->ISR & DMA2D_ISR_CEIF)
     {
         DMA2D->IFCR = DMA2D_IFCR_CCEIF;
-        /* Configuration error */
-        asm volatile ("BKPT 0");
+
+        assert(!"DMA2D configuration error");
     }
 }
 

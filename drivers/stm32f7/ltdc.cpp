@@ -7,6 +7,8 @@
 
 #include "ltdc.hpp"
 
+#include <cassert>
+
 #include <cmsis/stm32f7xx.h>
 #include <drivers/stm32f7/rcc.hpp>
 
@@ -130,7 +132,7 @@ void ltdc::irq_handler(void)
     {
         LTDC->ICR |= LTDC_ICR_CFUIF;
 
-        asm volatile ("BKPT 0");
+        assert(!"LTDC FIFO underrun");
     }
 
     /* Transfer error */
@@ -138,7 +140,7 @@ void ltdc::irq_handler(void)
     {
         LTDC->ICR |= LTDC_ICR_CTERRIF;
 
-        asm volatile ("BKPT 0");
+        assert(!"LTDC transfer error");
     }
 }
 

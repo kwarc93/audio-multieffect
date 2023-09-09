@@ -279,7 +279,8 @@ void sai_base::block::dma_irq_handler(void)
         if (DMA2->HISR & DMA_HISR_DMEIF4)
         {
             DMA2->HIFCR = DMA_HIFCR_CDMEIF4;
-            asm volatile ("BKPT 0");
+
+            assert(!"SAI_A DMA direct mode error");
         }
     }
     else // id::b
@@ -304,7 +305,8 @@ void sai_base::block::dma_irq_handler(void)
         if (DMA2->HISR & DMA_HISR_DMEIF6)
         {
             DMA2->HIFCR = DMA_HIFCR_CDMEIF6;
-            asm volatile ("BKPT 0");
+
+            assert(!"SAI_B DMA direct mode error");
         }
     }
 }

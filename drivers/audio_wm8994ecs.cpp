@@ -445,7 +445,7 @@ i2c_dev {dev}, i2c_addr {addr}, sai_drv{sai_16bit::id::sai2}
             sai_16bit::block::frame_type::stereo,
             sai_16bit::block::audio_freq::_48kHz,
             WM8994_SLOTS_NUMBER,
-            in == input::mic2 || in == input::line2 ?
+            (in == input::mic2 || in == input::line2) ?
             0b1010 : 0b0101,
         };
 
