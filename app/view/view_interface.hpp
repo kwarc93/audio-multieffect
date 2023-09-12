@@ -16,6 +16,7 @@
 namespace mfx
 {
 
+/* Events sent by view */
 namespace view_interface_events
 {
     struct settings_volume_changed

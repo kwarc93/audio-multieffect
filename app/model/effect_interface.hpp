@@ -8,9 +8,10 @@
 #ifndef MODEL_EFFECT_INTERFACE_HPP_
 #define MODEL_EFFECT_INTERFACE_HPP_
 
-#include <vector>
-#include <string_view>
 #include <cstdint>
+#include <vector>
+#include <functional>
+#include <string_view>
 
 #include "effect_features.hpp"
 
@@ -20,6 +21,8 @@ namespace mfx
 class effect
 {
 public:
+    typedef std::function<void(void)> state_changed_cb_t;
+
     effect(const effect_id &id, const std::string_view &name) : id {id}, name {name}, bypassed {true} {};
     virtual ~effect() {};
 
@@ -29,10 +32,12 @@ public:
     const std::string_view& get_name() const { return this->name; };
     bool is_bypassed() const { return this->bypassed; };
     void bypass(bool state) { this->bypassed = state; };
+    void set_state_changed_callback(const state_changed_cb_t &cb) { this->state_changed = cb; };
 protected:
     const effect_id id;
     const std::string_view name;
     bool bypassed;
+    state_changed_cb_t state_changed;
 };
 
 }

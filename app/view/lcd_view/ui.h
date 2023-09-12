@@ -132,7 +132,7 @@ LV_IMG_DECLARE(ui_img_btn_knob_png);    // assets/btn_knob.png
 
 LV_FONT_DECLARE(ui_font_14_bold);
 
-void ui_init(void);
+void ui_init(void * user_data);
 
 #ifdef __cplusplus
 } /*extern "C"*/
