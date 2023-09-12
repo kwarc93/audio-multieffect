@@ -18,8 +18,6 @@
 
 #include "effect_interface.hpp"
 
-#include "app/model/equalizer/equalizer.hpp"
-#include "app/model/noise_gate/noise_gate.hpp"
 #include "app/model/tremolo/tremolo.hpp"
 #include "app/model/echo/echo.hpp"
 #include "app/model/overdrive/overdrive.hpp"
@@ -28,41 +26,39 @@
 namespace mfx
 {
 
-struct effect_processor_event
+namespace effect_processor_events
 {
-    struct process_data_evt_t
+    struct process_data
     {
 
     };
 
-    struct add_effect_evt_t
-    {
-        effect_id id;
-    };
-
-    struct remove_effect_evt_t
+    struct add_effect
     {
         effect_id id;
     };
 
-    struct bypass_evt_t
+    struct remove_effect
+    {
+        effect_id id;
+    };
+
+    struct bypass
     {
         effect_id id;
         bool bypassed;
     };
 
-    struct volume_evt_t
+    struct volume
     {
         uint8_t input_vol;
         uint8_t output_vol;
     };
 
-    struct effect_controls_evt_t
+    struct effect_controls
     {
         std::variant
         <
-            equalizer::controls,
-            noise_gate::controls,
             tremolo::controls,
             echo::controls,
             overdrive::controls,
@@ -73,16 +69,16 @@ struct effect_processor_event
 
     using holder = std::variant
     <
-        process_data_evt_t,
-        add_effect_evt_t,
-        remove_effect_evt_t,
-        bypass_evt_t,
-        volume_evt_t,
-        effect_controls_evt_t
+        process_data,
+        add_effect,
+        remove_effect,
+        bypass,
+        volume,
+        effect_controls
     >;
-};
+}
 
-class effect_processor : public effect_processor_event, public middlewares::active_object<effect_processor_event::holder>
+class effect_processor : public middlewares::active_object<effect_processor_events::holder>
 {
 public:
     effect_processor();
@@ -93,12 +89,12 @@ private:
     void dispatch(const event &e) override;
 
     /* Event handlers */
-    void event_handler(const add_effect_evt_t &e);
-    void event_handler(const remove_effect_evt_t& e);
-    void event_handler(const bypass_evt_t &e);
-    void event_handler(const volume_evt_t &e);
-    void event_handler(const process_data_evt_t &e);
-    void event_handler(const effect_controls_evt_t &e);
+    void event_handler(const effect_processor_events::add_effect &e);
+    void event_handler(const effect_processor_events::remove_effect& e);
+    void event_handler(const effect_processor_events::bypass &e);
+    void event_handler(const effect_processor_events::volume &e);
+    void event_handler(const effect_processor_events::process_data &e);
+    void event_handler(const effect_processor_events::effect_controls &e);
 
     std::unique_ptr<effect> create_new(effect_id id);
     bool find_effect(effect_id id, std::vector<std::unique_ptr<effect>>::iterator &it);

@@ -26,16 +26,16 @@ void button_timer_cb(void *arg)
 
     button->debounce();
 
-    static controller::event e { controller::button_evt_t {}, controller::event::flags::immutable };
+    static controller::event e { controller_events::button {}, controller::event::flags::immutable };
 
     if (button->was_pressed())
     {
-        std::get<controller::button_evt_t>(e.data).state = true;
+        std::get<controller_events::button>(e.data).state = true;
         controller::instance->send(e);
     }
     else if (button->was_released())
     {
-        std::get<controller::button_evt_t>(e.data).state = false;
+        std::get<controller_events::button>(e.data).state = false;
         controller::instance->send(e);
     }
 }
@@ -47,7 +47,7 @@ void led_timer_cb(void *arg)
 
     auto *ctrl = static_cast<controller*>(arg);
 
-    static const controller::event e { controller::led_evt_t {}, controller::event::flags::immutable };
+    static const controller::event e { controller_events::led {}, controller::event::flags::immutable };
     ctrl->send(e);
 }
 
@@ -61,23 +61,23 @@ void controller::dispatch(const event& e)
     std::visit([this](const auto &e) { this->event_handler(e); }, e.data);
 }
 
-void controller::event_handler(const led_evt_t &e)
+void controller::event_handler(const controller_events::led &e)
 {
     this->led.set(!this->led.get());
     printf("Effect processor load: %u%%\n", this->model.get()->get_processing_load());
 }
 
-void controller::event_handler(const button_evt_t &e)
+void controller::event_handler(const controller_events::button &e)
 {
     printf("Button %s\n", e.state ? "pressed" : "released");
 }
 
-void controller::event_handler(const effect_controls_evt_t &e)
+void controller::event_handler(const controller_events::effect_controls &e)
 {
     std::visit([this](auto &&controls)
     {
         /* TODO: Try to avoid duplicating & forwarding events to model */
-        const effect_processor::event evt {effect_processor::effect_controls_evt_t {controls}};
+        const effect_processor::event evt {effect_processor_events::effect_controls {controls}};
         this->model->send(evt);
 
     }, e.controls);
@@ -102,13 +102,21 @@ view {std::move(view)}
     assert(this->led_timer != nullptr);
     osTimerStart(this->led_timer, 500);
 
+    /* Register event handler for view */
+    this->view.get()->set_event_handler(
+    [this](const view_interface_events::holder &e)
+    {
+        /* TODO */
+    }
+    );
+
     /* Add some effects (order is important!) */
     static const std::array<effect_processor::event, 4> model_events =
     {{
-        { effect_processor::add_effect_evt_t {effect_id::overdrive} },
-        { effect_processor::add_effect_evt_t {effect_id::tremolo} },
-        { effect_processor::add_effect_evt_t {effect_id::echo} },
-        { effect_processor::add_effect_evt_t {effect_id::cabinet_sim} },
+        { effect_processor_events::add_effect {effect_id::overdrive} },
+        { effect_processor_events::add_effect {effect_id::tremolo} },
+        { effect_processor_events::add_effect {effect_id::echo} },
+        { effect_processor_events::add_effect {effect_id::cabinet_sim} },
     }};
 
     for (const auto &e : model_events)

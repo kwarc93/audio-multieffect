@@ -14,7 +14,7 @@ namespace
 void ui_effect_bypass_changed(lv_obj_t *obj, mfx::effect_id effect)
 {
     bool bypassed = !lv_obj_has_state(obj, LV_STATE_CHECKED);
-    mfx::effect_processor::event evt {mfx::effect_processor::bypass_evt_t {effect, bypassed}};
+    mfx::effect_processor::event evt {mfx::effect_processor_events::bypass {effect, bypassed}};
     mfx::effect_processor::instance->send(evt);
 }
 
@@ -29,10 +29,10 @@ void ui_tremolo_controls_changed(void)
         static_cast<float>(lv_arc_get_value(rate_knob)),
         static_cast<float>(lv_arc_get_value(depth_knob)) * 0.01f,
         lv_obj_has_state(shape_sw, LV_STATE_CHECKED) ?
-        mfx::tremolo::shape_type::sine : mfx::tremolo::shape_type::triangle
+        mfx::tremolo::controls::shape_type::sine : mfx::tremolo::controls::shape_type::triangle
     };
 
-    mfx::effect_processor::event evt {mfx::effect_processor::effect_controls_evt_t {controls}};
+    mfx::effect_processor::event evt {mfx::effect_processor_events::effect_controls {controls}};
     mfx::effect_processor::instance->send(evt);
 }
 
@@ -49,10 +49,10 @@ void ui_echo_controls_changed(void)
         static_cast<float>(lv_arc_get_value(time_knob)) * 0.01f,
         static_cast<float>(lv_arc_get_value(feedback_knob)) * 0.01f,
         lv_obj_has_state(mode_sw, LV_STATE_CHECKED) ?
-        mfx::echo::mode_type::delay : mfx::echo::mode_type::echo
+        mfx::echo::controls::mode_type::delay : mfx::echo::controls::mode_type::echo
     };
 
-    mfx::effect_processor::event evt {mfx::effect_processor::effect_controls_evt_t {controls}};
+    mfx::effect_processor::event evt {mfx::effect_processor_events::effect_controls {controls}};
     mfx::effect_processor::instance->send(evt);
 }
 
@@ -70,10 +70,10 @@ void ui_overdrive_controls_changed(void)
         static_cast<float>(lv_arc_get_value(tone_knob)) * 0.01f,
         static_cast<float>(lv_arc_get_value(mix_knob)) * 0.01f,
         lv_obj_has_state(mode_sw, LV_STATE_CHECKED) ?
-        mfx::overdrive::mode_type::hard : mfx::overdrive::mode_type::soft
+        mfx::overdrive::controls::mode_type::hard : mfx::overdrive::controls::mode_type::soft
     };
 
-    mfx::effect_processor::event evt {mfx::effect_processor::effect_controls_evt_t {controls}};
+    mfx::effect_processor::event evt {mfx::effect_processor_events::effect_controls {controls}};
     mfx::effect_processor::instance->send(evt);
 }
 
@@ -87,7 +87,7 @@ void ui_settings_in_vol_changed(lv_event_t * e)
     uint8_t in_vol = lv_slider_get_value(in_slider);
     uint8_t out_vol = lv_slider_get_value(out_slider);
 
-    mfx::effect_processor::event evt {mfx::effect_processor::volume_evt_t {in_vol, out_vol}};
+    mfx::effect_processor::event evt {mfx::effect_processor_events::volume {in_vol, out_vol}};
     mfx::effect_processor::instance->send(evt);
 }
 
@@ -99,7 +99,7 @@ void ui_settings_out_vol_changed(lv_event_t * e)
     uint8_t in_vol = lv_slider_get_value(in_slider);
     uint8_t out_vol = lv_slider_get_value(out_slider);
 
-    mfx::effect_processor::event evt {mfx::effect_processor::volume_evt_t {in_vol, out_vol}};
+    mfx::effect_processor::event evt {mfx::effect_processor_events::volume {in_vol, out_vol}};
     mfx::effect_processor::instance->send(evt);
 }
 

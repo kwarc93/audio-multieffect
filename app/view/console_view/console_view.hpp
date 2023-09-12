@@ -22,28 +22,27 @@
 namespace mfx
 {
 
-struct console_view_event
+namespace console_view_events
 {
-    struct char_queue_not_empty_evt_t
+    struct char_queue_not_empty
     {
 
     };
 
-    using holder = std::variant<char_queue_not_empty_evt_t>;
-};
+    using holder = std::variant<char_queue_not_empty>;
+}
 
-class console_view : public view_interface, public console_view_event, public middlewares::active_object<console_view_event::holder>
+class console_view : public view_interface, public middlewares::active_object<console_view_events::holder>
 {
 public:
     console_view();
     ~console_view();
 
-    void update(const data_holder &data) override;
 private:
     void dispatch(const event &e) override;
 
     /* Event handlers */
-    void event_handler(const char_queue_not_empty_evt_t &e);
+    void event_handler(const console_view_events::char_queue_not_empty &e);
 
     void character_received_callback(const std::byte *data, std::size_t bytes_read);
 

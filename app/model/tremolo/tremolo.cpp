@@ -28,7 +28,7 @@ namespace
 //-----------------------------------------------------------------------------
 /* public */
 
-tremolo::tremolo(float rate, float depth, shape_type shape) : effect { effect_id::tremolo, "tremolo" },
+tremolo::tremolo(float rate, float depth, controls::shape_type shape) : effect { effect_id::tremolo, "tremolo" },
 lfo { libs::adsp::oscillator::shape::sine, sampling_frequency_hz }
 {
     this->set_shape(shape);
@@ -47,41 +47,41 @@ void tremolo::process(const dsp_input_t& in, dsp_output_t& out)
     [this](auto input)
     {
         /* Modulate output signal: y[n] = x[n] * ((1 - d) + d * m[n]) */
-        return input * ((1.0f - this->depth) + this->depth * this->lfo.generate());
+        return input * ((1.0f - this->ctrl.depth) + this->ctrl.depth * this->lfo.generate());
     }
     );
 }
 
 void tremolo::set_depth(float depth)
 {
-    if (this->depth == depth)
+    if (this->ctrl.depth == depth)
         return;
 
-    this->depth = std::clamp(depth, 0.0f, 0.5f);
+    this->ctrl.depth = std::clamp(depth, 0.0f, 0.5f);
 }
 
 void tremolo::set_rate(float rate)
 {
-    if (this->rate == rate)
+    if (this->ctrl.rate == rate)
         return;
 
-    this->rate = std::clamp(rate, 1.0f, 20.0f);
-    this->lfo.set_frequency(this->rate);
+    this->ctrl.rate = std::clamp(rate, 1.0f, 20.0f);
+    this->lfo.set_frequency(this->ctrl.rate);
 }
 
-void tremolo::set_shape(shape_type shape)
+void tremolo::set_shape(controls::shape_type shape)
 {
-    if (this->shape == shape)
+    if (this->ctrl.shape == shape)
         return;
 
-    this->shape = shape;
+    this->ctrl.shape = shape;
 
-    switch (this->shape)
+    switch (this->ctrl.shape)
     {
-    case shape_type::sine:
+    case controls::shape_type::sine:
         this->lfo.set_shape(libs::adsp::oscillator::shape::sine);
         break;
-    case shape_type::triangle:
+    case controls::shape_type::triangle:
         this->lfo.set_shape(libs::adsp::oscillator::shape::triangle);
         break;
     default:

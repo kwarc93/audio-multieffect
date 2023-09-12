@@ -15,6 +15,7 @@
 #include <hal/hal_usart.hpp>
 
 using namespace mfx;
+namespace events = console_view_events;
 
 //-----------------------------------------------------------------------------
 /* helpers */
@@ -35,7 +36,7 @@ void console_view::character_received_callback(const std::byte *data, std::size_
 
     if (queue_was_empty)
     {
-        static const console_view::event e { console_view::char_queue_not_empty_evt_t{}, console_view::event::flags::immutable };
+        static const console_view::event e { events::char_queue_not_empty{}, console_view::event::flags::immutable };
         this->send(e, 0);
     }
 }
@@ -45,7 +46,7 @@ void console_view::dispatch(const event &e)
     std::visit([this](const auto &e) { this->event_handler(e); }, e.data);
 }
 
-void console_view::event_handler(const char_queue_not_empty_evt_t &e)
+void console_view::event_handler(const events::char_queue_not_empty &e)
 {
     /* TODO: Add command line parser */
 }
@@ -53,7 +54,7 @@ void console_view::event_handler(const char_queue_not_empty_evt_t &e)
 //-----------------------------------------------------------------------------
 /* public */
 
-console_view::console_view() : active_object("echo", osPriorityNormal, 1024), stdio_serial { hal::usart::stdio::get_instance() }
+console_view::console_view() : active_object("console_view", osPriorityNormal, 1024), stdio_serial { hal::usart::stdio::get_instance() }
 {
     /* Start listening for character */
     this->stdio_serial.listen(true);
@@ -70,10 +71,4 @@ console_view::~console_view()
 
 }
 
-void console_view::update(const data_holder &data)
-{
-    this->data = data;
-
-    /* TODO */
-}
 

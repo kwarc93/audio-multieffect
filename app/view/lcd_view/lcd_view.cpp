@@ -14,6 +14,7 @@
 #include <middlewares/i2c_manager.hpp>
 
 using namespace mfx;
+namespace events = lcd_view_events;
 
 //-----------------------------------------------------------------------------
 /* helpers */
@@ -63,7 +64,7 @@ void lcd_view_timer_callback(void *arg)
 {
     lcd_view *lcd_view_ao = static_cast<lcd_view*>(arg);
 
-    static const lcd_view::event e { lcd_view::timer_evt_t {}, lcd_view::event::flags::immutable };
+    static const lcd_view::event e { events::timer{}, lcd_view::event::flags::immutable };
     lcd_view_ao->send(e);
 }
 
@@ -72,24 +73,14 @@ void lcd_view_timer_callback(void *arg)
 //-----------------------------------------------------------------------------
 /* private */
 
-void lcd_view::update(const data_holder &data)
-{
-
-}
-
 void lcd_view::dispatch(const event &e)
 {
     std::visit([this](const auto &e) { this->event_handler(e); }, e.data);
 }
 
-void lcd_view::event_handler(const timer_evt_t &e)
+void lcd_view::event_handler(const events::timer &e)
 {
     lv_timer_handler();
-}
-
-void lcd_view::event_handler(const demo_test_evt_t &e)
-{
-
 }
 
 //-----------------------------------------------------------------------------

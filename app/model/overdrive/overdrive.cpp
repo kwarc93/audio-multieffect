@@ -53,7 +53,7 @@ dsp_sample_t overdrive::soft_clip(dsp_sample_t in)
 /* public */
 
 
-overdrive::overdrive(float low, float high, float gain, float mix, mode_type mode) : effect { effect_id::overdrive, "overdrive" }
+overdrive::overdrive(float low, float high, float gain, float mix, controls::mode_type mode) : effect { effect_id::overdrive, "overdrive" }
 {
     this->set_mode(mode);
     this->set_low(low);
@@ -81,12 +81,12 @@ void overdrive::process(const dsp_input_t& in, dsp_output_t& out)
         auto sample = output;
 
         /* 3. Apply gain, clip & mix */
-        if (this->mode == mode_type::hard)
-            sample = this->hard_clip(sample * this->gain);
+        if (this->ctrl.mode == controls::mode_type::hard)
+            sample = this->hard_clip(sample * this->ctrl.gain);
         else
-            sample = this->soft_clip(sample * this->gain);
+            sample = this->soft_clip(sample * this->ctrl.gain);
 
-        return this->mix * sample + (1.0f - this->mix) * input;
+        return this->ctrl.mix * sample + (1.0f - this->ctrl.mix) * input;
     }
     );
 
@@ -98,7 +98,7 @@ void overdrive::set_high(float high)
 {
     high = std::clamp(high, 0.0f, 1.0f);
 
-    if (this->high == high)
+    if (this->ctrl.high == high)
         return;
 
     /* Calculate coefficient for 2-nd order low-pass IIR (3kHz - 9kHz range) */
@@ -106,14 +106,14 @@ void overdrive::set_high(float high)
 
     this->iir_lp.calc_coeffs(fc, sampling_frequency_hz);
 
-    this->high = high;
+    this->ctrl.high = high;
 }
 
 void overdrive::set_low(float low)
 {
     low = std::clamp(low, 0.0f, 1.0f);
 
-    if (this->low == low)
+    if (this->ctrl.low == low)
         return;
 
     /* Calculate coefficient for 2-nd order high-pass IIR (50Hz - 250Hz range) */
@@ -121,35 +121,35 @@ void overdrive::set_low(float low)
 
     this->iir_hp.calc_coeffs(fc, sampling_frequency_hz);
 
-    this->low = low;
+    this->ctrl.low = low;
 }
 
 void overdrive::set_gain(float gain)
 {
     gain = std::clamp(gain, 0.0f, 100.0f);
 
-    if (this->gain == gain)
+    if (this->ctrl.gain == gain)
         return;
 
-    this->gain = gain;
+    this->ctrl.gain = gain;
 }
 
 void overdrive::set_mix(float mix)
 {
     mix = std::clamp(mix, 0.0f, 1.0f);
 
-    if (this->mix == mix)
+    if (this->ctrl.mix == mix)
         return;
 
-    this->mix = mix;
+    this->ctrl.mix = mix;
 }
 
-void overdrive::set_mode(mode_type mode)
+void overdrive::set_mode(controls::mode_type mode)
 {
-    if (this->mode == mode)
+    if (this->ctrl.mode == mode)
         return;
 
-    this->mode = mode;
+    this->ctrl.mode = mode;
 }
 
 

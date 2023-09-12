@@ -23,6 +23,7 @@
 #include <stm32f7xx.h> // For managing D-Cache & I-Cache
 
 using namespace mfx;
+namespace events = effect_processor_events;
 
 //-----------------------------------------------------------------------------
 /* helpers */
@@ -45,7 +46,7 @@ void effect_processor::dispatch(const event &e)
     std::visit([this](const auto &e) { this->event_handler(e); }, e.data);
 }
 
-void effect_processor::event_handler(const add_effect_evt_t &e)
+void effect_processor::event_handler(const events::add_effect &e)
 {
     std::vector<std::unique_ptr<effect>>::iterator it;
 
@@ -56,7 +57,7 @@ void effect_processor::event_handler(const add_effect_evt_t &e)
     }
 }
 
-void effect_processor::event_handler(const remove_effect_evt_t &e)
+void effect_processor::event_handler(const events::remove_effect &e)
 {
     std::vector<std::unique_ptr<effect>>::iterator it;
 
@@ -66,7 +67,7 @@ void effect_processor::event_handler(const remove_effect_evt_t &e)
     }
 }
 
-void effect_processor::event_handler(const bypass_evt_t &e)
+void effect_processor::event_handler(const events::bypass &e)
 {
     std::vector<std::unique_ptr<effect>>::iterator it;
 
@@ -77,13 +78,13 @@ void effect_processor::event_handler(const bypass_evt_t &e)
     }
 }
 
-void effect_processor::event_handler(const volume_evt_t &e)
+void effect_processor::event_handler(const events::volume &e)
 {
     this->audio.set_input_volume(e.input_vol);
     this->audio.set_output_volume(e.output_vol);
 }
 
-void effect_processor::event_handler(const process_data_evt_t &e)
+void effect_processor::event_handler(const events::process_data &e)
 {
     const uint32_t cycles_start = hal::system::clock::cycles();
 
@@ -128,20 +129,12 @@ void effect_processor::event_handler(const process_data_evt_t &e)
     this->processing_time_us = cpu_cycles_to_us(cycles_start, cycles_end);
 }
 
-void effect_processor::event_handler(const effect_controls_evt_t &e)
+void effect_processor::event_handler(const events::effect_controls &e)
 {
     std::visit([this](auto &&controls)
     {
         using T = std::decay_t<decltype(controls)>;
-        if constexpr (std::is_same_v<T, equalizer::controls>)
-        {
-            /* Do something specific to this effect */
-        }
-        else if constexpr (std::is_same_v<T, noise_gate::controls>)
-        {
-            /* Do something specific to this effect */
-        }
-        else if constexpr (std::is_same_v<T, tremolo::controls>)
+        if constexpr (std::is_same_v<T, tremolo::controls>)
         {
             std::vector<std::unique_ptr<mfx::effect>>::iterator it;
 
@@ -194,8 +187,6 @@ std::unique_ptr<effect> effect_processor::create_new(effect_id id)
 {
     static const std::map<effect_id, std::function<std::unique_ptr<effect>()>> effect_factory =
     {
-        { effect_id::equalizer,     []() { return std::make_unique<equalizer>(); } },
-        { effect_id::noise_gate,    []() { return std::make_unique<noise_gate>(); } },
         { effect_id::tremolo,       []() { return std::make_unique<tremolo>(); } },
         { effect_id::echo,          []() { return std::make_unique<echo>(); } },
         { effect_id::overdrive,     []() { return std::make_unique<overdrive>(); } },
@@ -238,7 +229,7 @@ void effect_processor::audio_capture_cb(const hal::audio_devices::codec::input_s
     }
 
     /* Send event to process data */
-    static const event e{ process_data_evt_t {}, event::immutable };
+    static const event e{ events::process_data {}, event::immutable };
     this->send(e, 0);
 }
 

@@ -19,32 +19,25 @@
 namespace mfx
 {
 
-struct lcd_view_event
+namespace lcd_view_events
 {
-    struct timer_evt_t
+    struct timer
     {
 
     };
 
-    struct demo_test_evt_t
-    {
+    using holder = std::variant<timer>;
+}
 
-    };
-
-    using holder = std::variant<timer_evt_t, demo_test_evt_t>;
-};
-
-class lcd_view : public view_interface, public lcd_view_event, public middlewares::active_object<lcd_view_event::holder>
+class lcd_view : public view_interface, public middlewares::active_object<lcd_view_events::holder>
 {
 public:
     lcd_view();
 private:
-    void update(const data_holder &data) override;
     void dispatch(const event &e) override;
 
     /* Event handlers */
-    void event_handler(const timer_evt_t &e);
-    void event_handler(const demo_test_evt_t &e);
+    void event_handler(const lcd_view_events::timer &e);
 
     hal::displays::main display;
     osTimerId_t timer;

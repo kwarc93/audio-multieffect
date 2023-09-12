@@ -12,7 +12,7 @@
 #include <string_view>
 #include <cstdint>
 
-#include "data_types.hpp"
+#include "effect_features.hpp"
 
 namespace mfx
 {
