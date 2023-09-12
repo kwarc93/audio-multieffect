@@ -21,7 +21,7 @@
 
 namespace libs::adsp
 {
-    constexpr inline float pi {3.14159265359f};
+    constexpr inline float pi {3.1415926535897932};
 
     template <typename T>
     int sgn(T val)
