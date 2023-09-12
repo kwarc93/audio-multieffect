@@ -96,6 +96,8 @@ void overdrive::process(const dsp_input_t& in, dsp_output_t& out)
 
 void overdrive::set_high(float high)
 {
+    high = std::clamp(high, 0.0f, 1.0f);
+
     if (this->high == high)
         return;
 
@@ -109,6 +111,8 @@ void overdrive::set_high(float high)
 
 void overdrive::set_low(float low)
 {
+    low = std::clamp(low, 0.0f, 1.0f);
+
     if (this->low == low)
         return;
 
@@ -122,6 +126,8 @@ void overdrive::set_low(float low)
 
 void overdrive::set_gain(float gain)
 {
+    gain = std::clamp(gain, 0.0f, 100.0f);
+
     if (this->gain == gain)
         return;
 
@@ -130,6 +136,8 @@ void overdrive::set_gain(float gain)
 
 void overdrive::set_mix(float mix)
 {
+    mix = std::clamp(mix, 0.0f, 1.0f);
+
     if (this->mix == mix)
         return;
 

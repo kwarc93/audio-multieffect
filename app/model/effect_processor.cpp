@@ -163,7 +163,7 @@ void effect_processor::event_handler(const effect_controls_evt_t &e)
                 auto &effect = *it;
                 auto echo = static_cast<mfx::echo*>(effect.get());
                 echo->set_mode(controls.mode);
-                echo->set_decay(controls.decay);
+                echo->set_blur(controls.blur);
                 echo->set_time(controls.time);
                 echo->set_feedback(controls.feedback);
             }

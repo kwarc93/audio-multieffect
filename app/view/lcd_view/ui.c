@@ -69,11 +69,11 @@ void ui_event_btn_echo_bypass(lv_event_t * e);
 lv_obj_t * ui_btn_echo_bypass;
 lv_obj_t * ui_lbl_btn_echo_bypass;
 lv_obj_t * ui_pnl_echo_controls;
-lv_obj_t * ui_pnl_echo_decay;
-lv_obj_t * ui_img_echo_decay;
-void ui_event_arc_echo_decay(lv_event_t * e);
-lv_obj_t * ui_arc_echo_decay;
-lv_obj_t * ui_lbl_echo_decay;
+lv_obj_t * ui_pnl_echo_blur;
+lv_obj_t * ui_img_echo_blur;
+void ui_event_arc_echo_blur(lv_event_t * e);
+lv_obj_t * ui_arc_echo_blur;
+lv_obj_t * ui_lbl_echo_blur;
 lv_obj_t * ui_pnl_echo_feedb;
 lv_obj_t * ui_img_echo_feedb;
 void ui_event_arc_echo_feedb(lv_event_t * e);
@@ -271,12 +271,12 @@ void ui_event_btn_echo_bypass(lv_event_t * e)
         ui_echo_bypass(e);
     }
 }
-void ui_event_arc_echo_decay(lv_event_t * e)
+void ui_event_arc_echo_blur(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_VALUE_CHANGED) {
-        ui_echo_decay_changed(e);
+        ui_echo_blur_changed(e);
     }
 }
 void ui_event_arc_echo_feedb(lv_event_t * e)

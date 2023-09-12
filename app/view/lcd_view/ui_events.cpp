@@ -38,14 +38,14 @@ void ui_tremolo_controls_changed(void)
 
 void ui_echo_controls_changed(void)
 {
-    lv_obj_t *decay_knob = ui_arc_echo_decay;
+    lv_obj_t *blur_knob = ui_arc_echo_blur;
     lv_obj_t *time_knob = ui_arc_echo_time;
     lv_obj_t *feedback_knob = ui_arc_echo_feedb;
     lv_obj_t *mode_sw = ui_sw_echo_mode;
 
     const mfx::echo::controls controls
     {
-        static_cast<float>(lv_arc_get_value(decay_knob)) * 0.01f,
+        static_cast<float>(lv_arc_get_value(blur_knob)) * 0.01f,
         static_cast<float>(lv_arc_get_value(time_knob)) * 0.01f,
         static_cast<float>(lv_arc_get_value(feedback_knob)) * 0.01f,
         lv_obj_has_state(mode_sw, LV_STATE_CHECKED) ?
@@ -133,7 +133,7 @@ void ui_echo_bypass(lv_event_t * e)
     ui_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::echo);
 }
 
-void ui_echo_decay_changed(lv_event_t * e)
+void ui_echo_blur_changed(lv_event_t * e)
 {
     ui_echo_controls_changed();
 }

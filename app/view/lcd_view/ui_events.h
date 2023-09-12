@@ -18,7 +18,7 @@ void ui_tremolo_rate_changed(lv_event_t * e);
 void ui_tremolo_depth_changed(lv_event_t * e);
 void ui_tremolo_shape_changed(lv_event_t * e);
 void ui_echo_bypass(lv_event_t * e);
-void ui_echo_decay_changed(lv_event_t * e);
+void ui_echo_blur_changed(lv_event_t * e);
 void ui_echo_feedb_changed(lv_event_t * e);
 void ui_echo_time_changed(lv_event_t * e);
 void ui_echo_mode_changed(lv_event_t * e);
