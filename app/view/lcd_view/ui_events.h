@@ -10,6 +10,7 @@
 extern "C" {
 #endif
 
+void ui_set_user_data(void * user_data);
 void ui_settings_in_vol_changed(lv_event_t * e);
 void ui_settings_out_vol_changed(lv_event_t * e);
 void ui_settings_cab_sim_bypass(lv_event_t * e);

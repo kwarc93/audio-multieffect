@@ -72,15 +72,34 @@ void controller::event_handler(const controller_events::button &e)
     printf("Button %s\n", e.state ? "pressed" : "released");
 }
 
-void controller::event_handler(const controller_events::effect_controls &e)
+void controller::view_event_handler(const view_interface_events::settings_volume_changed &e)
 {
-    std::visit([this](auto &&controls)
-    {
-        /* TODO: Try to avoid duplicating & forwarding events to model */
-        const effect_processor::event evt {effect_processor_events::effect_controls {controls}};
-        this->model->send(evt);
+    const effect_processor::event evt {effect_processor_events::volume {e.input_vol, e.output_vol}};
+    this->model.get()->send(evt);
+}
 
-    }, e.controls);
+void controller::view_event_handler(const view_interface_events::effect_bypass_changed &e)
+{
+    const effect_processor::event evt {effect_processor_events::bypass {e.id, e.bypassed}};
+    this->model.get()->send(evt);
+}
+
+void controller::view_event_handler(const view_interface_events::tremolo_controls_changed &e)
+{
+    effect_processor::event evt {effect_processor_events::effect_controls {e.ctrl}};
+    this->model.get()->send(evt);
+}
+
+void controller::view_event_handler(const view_interface_events::echo_controls_changed &e)
+{
+    effect_processor::event evt {effect_processor_events::effect_controls {e.ctrl}};
+    this->model.get()->send(evt);
+}
+
+void controller::view_event_handler(const view_interface_events::overdrive_controls_changed &e)
+{
+    effect_processor::event evt {effect_processor_events::effect_controls {e.ctrl}};
+    this->model.get()->send(evt);
 }
 
 //-----------------------------------------------------------------------------
@@ -102,13 +121,12 @@ view {std::move(view)}
     assert(this->led_timer != nullptr);
     osTimerStart(this->led_timer, 500);
 
-    /* Register event handler for view */
-    this->view.get()->set_event_handler(
+    /* Register event handler for view(s) */
+    this->view.get()->event_handler =
     [this](const view_interface_events::holder &e)
     {
-        /* TODO */
-    }
-    );
+        std::visit([this](const auto &e) { this->view_event_handler(e); }, e);
+    };
 
     /* Add some effects (order is important!) */
     static const std::array<effect_processor::event, 4> model_events =

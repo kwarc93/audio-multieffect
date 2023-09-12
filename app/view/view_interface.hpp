@@ -11,13 +11,25 @@
 #include <functional>
 #include <variant>
 
-#include <app/model/effect_features.hpp>
+#include "app/model/effect_features.hpp"
 
 namespace mfx
 {
 
 namespace view_interface_events
 {
+    struct settings_volume_changed
+    {
+        uint8_t input_vol;
+        uint8_t output_vol;
+    };
+
+    struct effect_bypass_changed
+    {
+        effect_id id;
+        bool bypassed;
+    };
+
     struct tremolo_controls_changed
     {
         tremolo_attributes::controls ctrl;
@@ -35,6 +47,8 @@ namespace view_interface_events
 
     using holder = std::variant
     <
+        settings_volume_changed,
+        effect_bypass_changed,
         tremolo_controls_changed,
         echo_controls_changed,
         overdrive_controls_changed
@@ -48,9 +62,7 @@ public:
 
     virtual ~view_interface() {};
 
-    void set_event_handler(const event_handler_t &h) { this->send_event = h; };
-protected:
-    event_handler_t send_event;
+    event_handler_t event_handler;
 };
 
 }

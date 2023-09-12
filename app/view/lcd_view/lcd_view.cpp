@@ -126,6 +126,7 @@ display {middlewares::i2c_managers::main::get_instance()}
     assert(this->timer != nullptr);
     osTimerStart(this->timer, 10);
 
+    ui_set_user_data(this);
     ui_init();
 };
 
