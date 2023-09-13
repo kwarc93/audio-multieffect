@@ -10,6 +10,7 @@
 #include <array>
 
 using namespace mfx;
+namespace events = controller_events;
 
 //-----------------------------------------------------------------------------
 /* helpers */
@@ -26,16 +27,16 @@ void button_timer_cb(void *arg)
 
     button->debounce();
 
-    static controller::event e { controller_events::button {}, controller::event::flags::immutable };
+    static controller::event e { events::button {}, controller::event::flags::immutable };
 
     if (button->was_pressed())
     {
-        std::get<controller_events::button>(e.data).state = true;
+        std::get<events::button>(e.data).state = true;
         controller::instance->send(e);
     }
     else if (button->was_released())
     {
-        std::get<controller_events::button>(e.data).state = false;
+        std::get<events::button>(e.data).state = false;
         controller::instance->send(e);
     }
 }
@@ -47,7 +48,7 @@ void led_timer_cb(void *arg)
 
     auto *ctrl = static_cast<controller*>(arg);
 
-    static const controller::event e { controller_events::led {}, controller::event::flags::immutable };
+    static const controller::event e { events::led {}, controller::event::flags::immutable };
     ctrl->send(e);
 }
 
@@ -61,15 +62,30 @@ void controller::dispatch(const event& e)
     std::visit([this](const auto &e) { this->event_handler(e); }, e.data);
 }
 
-void controller::event_handler(const controller_events::led &e)
+void controller::event_handler(const events::led &e)
 {
     this->led.set(!this->led.get());
-    printf("Effect processor load: %u%%\n", this->model.get()->get_processing_load());
+
+    const effect_processor::event evt {effect_processor_events::get_processing_load
+    {
+        [this](auto... params)
+        {
+            const controller::event e {events::effect_processor_load {params...}};
+            this->send(e);
+        }
+    }};
+
+    this->model.get()->send(evt);
 }
 
-void controller::event_handler(const controller_events::button &e)
+void controller::event_handler(const events::button &e)
 {
     printf("Button %s\n", e.state ? "pressed" : "released");
+}
+
+void controller::event_handler(const events::effect_processor_load &e)
+{
+    printf("Effect processor load: %u%%\n", e.load);
 }
 
 void controller::view_event_handler(const view_interface_events::settings_volume_changed &e)

@@ -129,6 +129,11 @@ void effect_processor::event_handler(const events::process_data &e)
     this->processing_time_us = cpu_cycles_to_us(cycles_start, cycles_end);
 }
 
+void effect_processor::event_handler(const effect_processor_events::get_processing_load &e)
+{
+    e.response(this->get_processing_load());
+}
+
 void effect_processor::event_handler(const events::effect_controls &e)
 {
     std::visit([this](auto &&controls)
@@ -244,6 +249,12 @@ void effect_processor::audio_play_cb(uint16_t sample_index)
         this->audio_output.sample_index = 0;
 }
 
+uint8_t effect_processor::get_processing_load(void)
+{
+    constexpr uint32_t max_processing_time_us = 1e6 * dsp_vector_size / sampling_frequency_hz;
+    return 100 * this->processing_time_us / max_processing_time_us;
+}
+
 //-----------------------------------------------------------------------------
 /* public */
 
@@ -276,12 +287,6 @@ audio{middlewares::i2c_managers::main::get_instance()}
 effect_processor::~effect_processor()
 {
 
-}
-
-uint8_t effect_processor::get_processing_load(void)
-{
-    constexpr uint32_t max_processing_time_us = 1e6 * 2 * dsp_vector_size / sampling_frequency_hz;
-    return 100 * this->processing_time_us / max_processing_time_us;
 }
 
 

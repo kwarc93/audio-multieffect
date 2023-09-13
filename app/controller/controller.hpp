@@ -33,7 +33,12 @@ namespace controller_events
         bool state;
     };
 
-    using holder = std::variant<button, led>;
+    struct effect_processor_load
+    {
+        uint8_t load;
+    };
+
+    using holder = std::variant<button, led, effect_processor_load>;
 }
 
 class controller : public middlewares::active_object<controller_events::holder>
@@ -48,12 +53,14 @@ private:
     /* Event handlers */
     void event_handler(const controller_events::led &e);
     void event_handler(const controller_events::button &e);
+    void event_handler(const controller_events::effect_processor_load &e);
 
     void view_event_handler(const view_interface_events::settings_volume_changed &e);
     void view_event_handler(const view_interface_events::effect_bypass_changed &e);
     void view_event_handler(const view_interface_events::tremolo_controls_changed &e);
     void view_event_handler(const view_interface_events::echo_controls_changed &e);
     void view_event_handler(const view_interface_events::overdrive_controls_changed &e);
+
 
     int error_code;
 

@@ -12,6 +12,7 @@
 
 #include <hal/hal_audio.hpp>
 
+#include <functional>
 #include <variant>
 #include <memory>
 #include <array>
@@ -31,6 +32,11 @@ namespace effect_processor_events
     struct process_data
     {
 
+    };
+
+    struct get_processing_load
+    {
+        std::function<void(uint8_t load)> response;
     };
 
     struct add_effect
@@ -69,6 +75,7 @@ namespace effect_processor_events
 
     using holder = std::variant
     <
+        get_processing_load,
         process_data,
         add_effect,
         remove_effect,
@@ -84,7 +91,6 @@ public:
     effect_processor();
     ~effect_processor();
 
-    uint8_t get_processing_load(void);
 private:
     void dispatch(const event &e) override;
 
@@ -94,6 +100,7 @@ private:
     void event_handler(const effect_processor_events::bypass &e);
     void event_handler(const effect_processor_events::volume &e);
     void event_handler(const effect_processor_events::process_data &e);
+    void event_handler(const effect_processor_events::get_processing_load &e);
     void event_handler(const effect_processor_events::effect_controls &e);
 
     std::unique_ptr<effect> create_new(effect_id id);
@@ -101,6 +108,8 @@ private:
 
     void audio_capture_cb(const hal::audio_devices::codec::input_sample_t *input, uint16_t length);
     void audio_play_cb(uint16_t sample_index);
+
+    uint8_t get_processing_load(void);
 
     std::vector<std::unique_ptr<effect>> effects;
 
