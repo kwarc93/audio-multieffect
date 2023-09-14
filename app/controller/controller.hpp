@@ -14,8 +14,9 @@
 #include <hal/hal_button.hpp>
 
 #include <middlewares/active_object.hpp>
+#include <middlewares/observer.hpp>
 
-#include "app/view/view_interface.hpp"
+#include "app/view/lcd_view/lcd_view.hpp"
 #include "app/model/effect_processor.hpp"
 
 namespace mfx
@@ -38,34 +39,46 @@ namespace controller_events
         uint8_t load;
     };
 
-    using holder = std::variant<button, led, effect_processor_load>;
+    using incoming = std::variant<button, led, effect_processor_load>;
 }
 
-class controller : public middlewares::active_object<controller_events::holder>
+class controller : public middlewares::active_object<controller_events::incoming>,
+                   public middlewares::observer<effect_processor_events::outgoing>,
+                   public middlewares::observer<lcd_view_events::outgoing>
 {
 public:
-    controller(std::unique_ptr<effect_processor> model, std::unique_ptr<view_interface> view);
+    controller(std::unique_ptr<effect_processor> model, std::unique_ptr<lcd_view> view);
     ~controller();
 
 private:
     void dispatch(const event &e) override;
+    void update(const effect_processor_events::outgoing &e) override;
+    void update(const lcd_view_events::outgoing &e) override;
 
     /* Event handlers */
     void event_handler(const controller_events::led &e);
     void event_handler(const controller_events::button &e);
     void event_handler(const controller_events::effect_processor_load &e);
 
-    void view_event_handler(const view_interface_events::settings_volume_changed &e);
-    void view_event_handler(const view_interface_events::effect_bypass_changed &e);
-    void view_event_handler(const view_interface_events::tremolo_controls_changed &e);
-    void view_event_handler(const view_interface_events::echo_controls_changed &e);
-    void view_event_handler(const view_interface_events::overdrive_controls_changed &e);
+    void view_event_handler(const lcd_view_events::settings_volume_changed &e);
+    void view_event_handler(const lcd_view_events::effect_bypass_changed &e);
+    void view_event_handler(const lcd_view_events::tremolo_controls_changed &e);
+    void view_event_handler(const lcd_view_events::echo_controls_changed &e);
+    void view_event_handler(const lcd_view_events::overdrive_controls_changed &e);
 
+    void model_event_handler(const effect_processor_events::effect_attr &e);
+    void model_event_handler(const effect_processor_events::bypass &e);
+    void model_event_handler(const effect_processor_events::volume &e);
+
+    void effect_attr_handler(const tremolo_attributes &attr);
+    void effect_attr_handler(const echo_attributes &attr);
+    void effect_attr_handler(const overdrive_attributes &attr);
+    void effect_attr_handler(const cabinet_sim_attributes &attr);
 
     int error_code;
 
     std::unique_ptr<effect_processor> model;
-    std::unique_ptr<view_interface> view;
+    std::unique_ptr<lcd_view> view;
 
     hal::buttons::blue_btn button;
     osTimerId_t button_timer;

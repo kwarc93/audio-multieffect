@@ -62,6 +62,20 @@ void controller::dispatch(const event& e)
     std::visit([this](const auto &e) { this->event_handler(e); }, e.data);
 }
 
+void controller::update(const effect_processor_events::outgoing &e)
+{
+    /* WARINING: This method could have been called from another thread */
+
+    std::visit([this](const auto &e) { this->model_event_handler(e); }, e);
+}
+
+void controller::update(const lcd_view_events::outgoing &e)
+{
+    /* WARINING: This method could have been called from another thread */
+
+    std::visit([this](const auto &e) { this->view_event_handler(e); }, e);
+}
+
 void controller::event_handler(const events::led &e)
 {
     this->led.set(!this->led.get());
@@ -88,40 +102,75 @@ void controller::event_handler(const events::effect_processor_load &e)
     printf("Effect processor load: %u%%\n", e.load);
 }
 
-void controller::view_event_handler(const view_interface_events::settings_volume_changed &e)
+void controller::view_event_handler(const lcd_view_events::settings_volume_changed &e)
 {
     const effect_processor::event evt {effect_processor_events::volume {e.input_vol, e.output_vol}};
     this->model.get()->send(evt);
 }
 
-void controller::view_event_handler(const view_interface_events::effect_bypass_changed &e)
+void controller::view_event_handler(const lcd_view_events::effect_bypass_changed &e)
 {
     const effect_processor::event evt {effect_processor_events::bypass {e.id, e.bypassed}};
     this->model.get()->send(evt);
 }
 
-void controller::view_event_handler(const view_interface_events::tremolo_controls_changed &e)
+void controller::view_event_handler(const lcd_view_events::tremolo_controls_changed &e)
 {
     effect_processor::event evt {effect_processor_events::effect_controls {e.ctrl}};
     this->model.get()->send(evt);
 }
 
-void controller::view_event_handler(const view_interface_events::echo_controls_changed &e)
+void controller::view_event_handler(const lcd_view_events::echo_controls_changed &e)
 {
     effect_processor::event evt {effect_processor_events::effect_controls {e.ctrl}};
     this->model.get()->send(evt);
 }
 
-void controller::view_event_handler(const view_interface_events::overdrive_controls_changed &e)
+void controller::view_event_handler(const lcd_view_events::overdrive_controls_changed &e)
 {
     effect_processor::event evt {effect_processor_events::effect_controls {e.ctrl}};
     this->model.get()->send(evt);
+}
+
+void controller::model_event_handler(const effect_processor_events::effect_attr &e)
+{
+    std::visit([this](const auto &attr) { this->effect_attr_handler(attr); }, e);
+}
+
+void controller::model_event_handler(const effect_processor_events::bypass &e)
+{
+
+}
+
+void controller::model_event_handler(const effect_processor_events::volume &e)
+{
+
+}
+
+void controller::effect_attr_handler(const tremolo_attributes &attr)
+{
+
+}
+
+void controller::effect_attr_handler(const echo_attributes &attr)
+{
+
+}
+
+void controller::effect_attr_handler(const overdrive_attributes &attr)
+{
+
+}
+
+void controller::effect_attr_handler(const cabinet_sim_attributes &attr)
+{
+
 }
 
 //-----------------------------------------------------------------------------
 /* public */
 
-controller::controller(std::unique_ptr<effect_processor> model, std::unique_ptr<view_interface> view) :
+controller::controller(std::unique_ptr<effect_processor> model, std::unique_ptr<lcd_view> view) :
 active_object("controller", osPriorityNormal, 2048),
 error_code{0},
 model {std::move(model)},
@@ -137,12 +186,11 @@ view {std::move(view)}
     assert(this->led_timer != nullptr);
     osTimerStart(this->led_timer, 500);
 
-    /* Register event handler for view(s) */
-    this->view.get()->event_handler =
-    [this](const view_interface_events::holder &e)
-    {
-        std::visit([this](const auto &e) { this->view_event_handler(e); }, e);
-    };
+    /* Start observing model */
+    this->model.get()->attach(this);
+
+    /* Start observing view(s) */
+    this->view.get()->attach(this);
 
     /* Add some effects (order is important!) */
     static const std::array<effect_processor::event, 4> model_events =

@@ -31,67 +31,70 @@ namespace mfx
 
 namespace effect_processor_events
 {
-    struct process_data
-    {
 
-    };
+struct process_data
+{
 
-    struct get_processing_load
-    {
-        std::function<void(uint8_t load)> response;
-    };
+};
 
-    struct add_effect
-    {
-        effect_id id;
-    };
+struct get_processing_load
+{
+    std::function<void(uint8_t load)> response;
+};
 
-    struct remove_effect
-    {
-        effect_id id;
-    };
+struct add_effect
+{
+    effect_id id;
+};
 
-    struct bypass
-    {
-        effect_id id;
-        bool bypassed;
-    };
+struct remove_effect
+{
+    effect_id id;
+};
 
-    struct volume
-    {
-        uint8_t input_vol;
-        uint8_t output_vol;
-    };
+struct bypass
+{
+    effect_id id;
+    bool bypassed;
+};
 
-    struct effect_controls
-    {
-        std::variant
-        <
-            tremolo_attributes::controls,
-            echo_attributes::controls,
-            overdrive_attributes::controls,
-            cabinet_sim_attributes::controls
-        >
-        controls;
-    };
+struct volume
+{
+    uint8_t input_vol;
+    uint8_t output_vol;
+};
 
-    using incoming = std::variant
+struct effect_controls
+{
+    std::variant
     <
-        get_processing_load,
-        process_data,
-        add_effect,
-        remove_effect,
-        bypass,
-        volume,
-        effect_controls
-    >;
+        tremolo_attributes::controls,
+        echo_attributes::controls,
+        overdrive_attributes::controls,
+        cabinet_sim_attributes::controls
+    >
+    controls;
+};
 
-    using outgoing = std::variant
-    <
-        bypass,
-        volume,
-        effect_attributes
-    >;
+using effect_attr = effect_attributes;
+
+using incoming = std::variant
+<
+    get_processing_load,
+    process_data,
+    add_effect,
+    remove_effect,
+    bypass,
+    volume,
+    effect_controls
+>;
+
+using outgoing = std::variant
+<
+    bypass,
+    volume,
+    effect_attr
+>;
 }
 
 class effect_processor : public middlewares::active_object<effect_processor_events::incoming>,
@@ -120,6 +123,7 @@ private:
 
     std::unique_ptr<effect> create_new(effect_id id);
     bool find_effect(effect_id id, std::vector<std::unique_ptr<effect>>::iterator &it);
+    effect* find_effect(effect_id id);
 
     template<effect_id id>
     using effect_type = typename std::tuple_element<static_cast<unsigned int>(id),

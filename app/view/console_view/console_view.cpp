@@ -26,6 +26,7 @@ namespace events = console_view_events;
 void console_view::character_received_callback(const std::byte *data, std::size_t bytes_read)
 {
     /* WARNING: This is called from interrupt */
+
     if (bytes_read == 0)
         return;
 

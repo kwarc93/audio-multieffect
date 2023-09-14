@@ -12,24 +12,64 @@
 
 #include <hal/hal_lcd.hpp>
 
-#include "app/view/view_interface.hpp"
+#include <middlewares/active_object.hpp>
+#include <middlewares/observer.hpp>
 
-#include "middlewares/active_object.hpp"
+#include "app/model/effect_features.hpp"
 
 namespace mfx
 {
 
 namespace lcd_view_events
 {
-    struct timer
-    {
 
-    };
+struct timer
+{
 
-    using holder = std::variant<timer>;
+};
+
+struct settings_volume_changed
+{
+    uint8_t input_vol;
+    uint8_t output_vol;
+};
+
+struct effect_bypass_changed
+{
+    effect_id id;
+    bool bypassed;
+};
+
+struct tremolo_controls_changed
+{
+    tremolo_attributes::controls ctrl;
+};
+
+struct echo_controls_changed
+{
+    echo_attributes::controls ctrl;
+};
+
+struct overdrive_controls_changed
+{
+    overdrive_attributes::controls ctrl;
+};
+
+using outgoing = std::variant
+<
+    settings_volume_changed,
+    effect_bypass_changed,
+    tremolo_controls_changed,
+    echo_controls_changed,
+    overdrive_controls_changed
+>;
+
+using incoming = std::variant<timer>;
+
 }
 
-class lcd_view : public view_interface, public middlewares::active_object<lcd_view_events::holder>
+class lcd_view : public middlewares::active_object<lcd_view_events::incoming>,
+                 public middlewares::subject<lcd_view_events::outgoing>
 {
 public:
     lcd_view();

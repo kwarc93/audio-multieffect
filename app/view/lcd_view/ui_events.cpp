@@ -5,7 +5,9 @@
 
 #include "ui.h"
 
-#include "../view_interface.hpp"
+#include "lcd_view.hpp"
+
+#include <cassert>
 
 //-----------------------------------------------------------------------------
 /* private */
@@ -13,15 +15,15 @@
 namespace
 {
 
-namespace events = mfx::view_interface_events;
+namespace events = mfx::lcd_view_events;
 
-mfx::view_interface *view;
+mfx::lcd_view *view;
 
 void ui_effect_bypass_changed(lv_obj_t *obj, mfx::effect_id effect)
 {
     bool bypassed = !lv_obj_has_state(obj, LV_STATE_CHECKED);
     const events::effect_bypass_changed evt {effect, bypassed};
-    view->event_handler(evt);
+    view->notify(evt);
 }
 
 void ui_tremolo_controls_changed(void)
@@ -39,7 +41,7 @@ void ui_tremolo_controls_changed(void)
         mfx::tremolo_attributes::controls::shape_type::triangle
     };
 
-    view->event_handler(evt);
+    view->notify(evt);
 }
 
 void ui_echo_controls_changed(void)
@@ -59,7 +61,7 @@ void ui_echo_controls_changed(void)
         mfx::echo_attributes::controls::mode_type::echo
     };
 
-    view->event_handler(evt);
+    view->notify(evt);
 }
 
 void ui_overdrive_controls_changed(void)
@@ -80,7 +82,7 @@ void ui_overdrive_controls_changed(void)
         mfx::overdrive_attributes::controls::mode_type::soft
     };
 
-    view->event_handler(evt);
+    view->notify(evt);
 }
 
 }
@@ -90,7 +92,8 @@ void ui_overdrive_controls_changed(void)
 
 void ui_set_user_data(void *user_data)
 {
-    view = static_cast<mfx::view_interface*>(user_data);
+    assert(user_data != nullptr);
+    view = static_cast<mfx::lcd_view*>(user_data);
 }
 
 void ui_settings_in_vol_changed(lv_event_t * e)
@@ -102,7 +105,7 @@ void ui_settings_in_vol_changed(lv_event_t * e)
     uint8_t out_vol = lv_slider_get_value(out_slider);
 
     const events::settings_volume_changed evt {in_vol, out_vol};
-    view->event_handler(evt);
+    view->notify(evt);
 }
 
 void ui_settings_out_vol_changed(lv_event_t * e)
@@ -114,7 +117,7 @@ void ui_settings_out_vol_changed(lv_event_t * e)
     uint8_t out_vol = lv_slider_get_value(out_slider);
 
     const events::settings_volume_changed evt {in_vol, out_vol};
-    view->event_handler(evt);
+    view->notify(evt);
 }
 
 void ui_settings_cab_sim_bypass(lv_event_t * e)

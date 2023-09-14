@@ -13,26 +13,30 @@
 #include <variant>
 
 #include <middlewares/active_object.hpp>
+#include <middlewares/observer.hpp>
+
 #include <libs/fast_queue.hpp>
 
 #include <hal/hal_interface.hpp>
-
-#include "app/view/view_interface.hpp"
 
 namespace mfx
 {
 
 namespace console_view_events
 {
-    struct char_queue_not_empty
-    {
 
-    };
+struct char_queue_not_empty
+{
 
-    using holder = std::variant<char_queue_not_empty>;
+};
+
+using incoming = std::variant<char_queue_not_empty>;
+using outgoing = std::variant<std::monostate>;
+
 }
 
-class console_view : public view_interface, public middlewares::active_object<console_view_events::holder>
+class console_view : public middlewares::active_object<console_view_events::incoming>,
+                     public middlewares::subject<console_view_events::outgoing>
 {
 public:
     console_view();

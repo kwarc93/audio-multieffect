@@ -71,19 +71,21 @@ void effect_processor::event_handler(const events::remove_effect &e)
 
 void effect_processor::event_handler(const events::bypass &e)
 {
-    std::vector<std::unique_ptr<effect>>::iterator it;
+    auto effect = this->find_effect(e.id);
+    if (effect == nullptr)
+        return;
 
-    if (this->find_effect(e.id, it))
-    {
-        auto &effect = *it;
-        effect->bypass(e.bypassed);
-    }
+    effect->bypass(e.bypassed);
+
+//    this->notify(events::bypass {e.id, e.bypassed});
 }
 
 void effect_processor::event_handler(const events::volume &e)
 {
     this->audio.set_input_volume(e.input_vol);
     this->audio.set_output_volume(e.output_vol);
+
+//    this->notify(events::volume {e.input_vol, e.output_vol});
 }
 
 void effect_processor::event_handler(const events::process_data &e)
@@ -211,20 +213,21 @@ bool effect_processor::find_effect(effect_id id, std::vector<std::unique_ptr<eff
     return effect_it != std::end(this->effects);
 }
 
+effect* effect_processor::find_effect(effect_id id)
+{
+    std::vector<std::unique_ptr<effect>>::iterator it;
+    return this->find_effect(id, it) ? (*it).get() : nullptr;
+}
+
 template<effect_id id, typename T = effect_processor::effect_type<id>>
 T* effect_processor::get_effect(void)
 {
-    std::vector<std::unique_ptr<mfx::effect>>::iterator it;
-
-    if (this->find_effect(id, it))
-        return static_cast<T*>((*it).get());
-    else
-        return nullptr;
+    return static_cast<T*>(this->find_effect(id));
 }
 
 void effect_processor::audio_capture_cb(const hal::audio_devices::codec::input_sample_t *input, uint16_t length)
 {
-    /* WARINING: This method may be called from interrupt */
+    /* WARINING: This method could have been called from interrupt */
 
     // If D-Cache is enabled, it must be cleaned/invalidated for buffers used by DMA.
     // Moreover, functions 'SCB_*_by_Addr()' require address alignment of 32 bytes.
@@ -251,7 +254,7 @@ void effect_processor::audio_capture_cb(const hal::audio_devices::codec::input_s
 
 void effect_processor::audio_play_cb(uint16_t sample_index)
 {
-    /* WARINING: This method may be called from interrupt */
+    /* WARINING: This method could have been called from interrupt */
 
     /* Set current write index for output buffer (double buffering) */
     if (sample_index == this->audio_output.buffer.size())
