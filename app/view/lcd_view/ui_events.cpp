@@ -19,14 +19,14 @@ namespace events = mfx::lcd_view_events;
 
 mfx::lcd_view *view;
 
-void ui_effect_bypass_changed(lv_obj_t *obj, mfx::effect_id effect)
+void notify_effect_bypass_changed(lv_obj_t *obj, mfx::effect_id effect)
 {
     bool bypassed = !lv_obj_has_state(obj, LV_STATE_CHECKED);
     const events::effect_bypass_changed evt {effect, bypassed};
     view->notify(evt);
 }
 
-void ui_tremolo_controls_changed(void)
+void notify_tremolo_controls_changed(void)
 {
     lv_obj_t *rate_knob = ui_arc_trem_rate;
     lv_obj_t *depth_knob = ui_arc_trem_depth;
@@ -44,7 +44,7 @@ void ui_tremolo_controls_changed(void)
     view->notify(evt);
 }
 
-void ui_echo_controls_changed(void)
+void notify_echo_controls_changed(void)
 {
     lv_obj_t *blur_knob = ui_arc_echo_blur;
     lv_obj_t *time_knob = ui_arc_echo_time;
@@ -64,7 +64,7 @@ void ui_echo_controls_changed(void)
     view->notify(evt);
 }
 
-void ui_overdrive_controls_changed(void)
+void notify_overdrive_controls_changed(void)
 {
     lv_obj_t *mix_knob = ui_arc_od_mix;
     lv_obj_t *gain_knob = ui_arc_od_gain;
@@ -96,6 +96,11 @@ void ui_set_user_data(void *user_data)
     view = static_cast<mfx::lcd_view*>(user_data);
 }
 
+void ui_splash_loaded(lv_event_t * e)
+{
+    view->notify(events::splash_loaded {});
+}
+
 void ui_settings_in_vol_changed(lv_event_t * e)
 {
     lv_obj_t *in_slider = ui_sld_in_vol;
@@ -122,77 +127,77 @@ void ui_settings_out_vol_changed(lv_event_t * e)
 
 void ui_settings_cab_sim_bypass(lv_event_t * e)
 {
-    ui_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::cabinet_sim);
+    notify_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::cabinet_sim);
 }
 
 void ui_tremolo_bypass(lv_event_t * e)
 {
-    ui_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::tremolo);
+    notify_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::tremolo);
 }
 
 void ui_tremolo_rate_changed(lv_event_t * e)
 {
-    ui_tremolo_controls_changed();
+    notify_tremolo_controls_changed();
 }
 
 void ui_tremolo_depth_changed(lv_event_t * e)
 {
-    ui_tremolo_controls_changed();
+    notify_tremolo_controls_changed();
 }
 
 void ui_tremolo_shape_changed(lv_event_t * e)
 {
-    ui_tremolo_controls_changed();
+    notify_tremolo_controls_changed();
 }
 
 void ui_echo_bypass(lv_event_t * e)
 {
-    ui_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::echo);
+    notify_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::echo);
 }
 
 void ui_echo_blur_changed(lv_event_t * e)
 {
-    ui_echo_controls_changed();
+    notify_echo_controls_changed();
 }
 
 void ui_echo_feedb_changed(lv_event_t * e)
 {
-    ui_echo_controls_changed();
+    notify_echo_controls_changed();
 }
 
 void ui_echo_time_changed(lv_event_t * e)
 {
-    ui_echo_controls_changed();
+    notify_echo_controls_changed();
 }
 
 void ui_echo_mode_changed(lv_event_t * e)
 {
-    ui_echo_controls_changed();
+    notify_echo_controls_changed();
 }
 
 void ui_overdrive_bypass(lv_event_t * e)
 {
-    ui_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::overdrive);
+    notify_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::overdrive);
 }
 
 void ui_overdrive_low_changed(lv_event_t * e)
 {
-    ui_overdrive_controls_changed();
+    notify_overdrive_controls_changed();
 }
 
 void ui_overdrive_gain_changed(lv_event_t * e)
 {
-    ui_overdrive_controls_changed();
+    notify_overdrive_controls_changed();
 }
 
 void ui_overdrive_high_changed(lv_event_t * e)
 {
-    ui_overdrive_controls_changed();
+    notify_overdrive_controls_changed();
 }
 
 void ui_overdrive_mode_changed(lv_event_t * e)
 {
-    ui_overdrive_controls_changed();
+    notify_overdrive_controls_changed();
 }
 
 

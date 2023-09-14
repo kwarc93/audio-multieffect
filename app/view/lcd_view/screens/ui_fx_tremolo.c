@@ -233,6 +233,7 @@ void ui_fx_tremolo_screen_init(void)
     lv_obj_set_style_text_font(ui_lbl_trem_triangle, &ui_font_14_bold, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_color(ui_lbl_trem_triangle, lv_color_hex(0x50FF7D), LV_PART_MAIN | LV_STATE_CHECKED);
     lv_obj_set_style_text_opa(ui_lbl_trem_triangle, 255, LV_PART_MAIN | LV_STATE_CHECKED);
+    lv_obj_add_state(ui_lbl_trem_triangle, LV_STATE_CHECKED);
 
     ui_lbl_trem_sine = lv_label_create(ui_pnl_trem_shape);
     lv_obj_set_width(ui_lbl_trem_sine, LV_SIZE_CONTENT);   /// 1

@@ -102,6 +102,33 @@ void controller::event_handler(const events::effect_processor_load &e)
     printf("Effect processor load: %u%%\n", e.load);
 }
 
+void controller::event_handler(const events::load_preset &e)
+{
+    /* TODO: Load last active preset ('pedal board') of effects */
+
+    /* Example of simple preset (order is important!) */
+    static const std::array<effect_id, 4> preset =
+    {{
+        effect_id::overdrive,
+        effect_id::tremolo,
+        effect_id::echo,
+        effect_id::cabinet_sim,
+    }};
+
+    for (const auto &p : preset)
+    {
+        this->view.get()->send({lcd_view_events::add_effect_screen {p}});
+        this->model.get()->send({effect_processor_events::add_effect {p}});
+    }
+
+    this->view.get()->send({lcd_view_events::show_effect_screen {preset[0]}});
+}
+
+void controller::view_event_handler(const lcd_view_events::splash_loaded &e)
+{
+    this->send({events::load_preset{}});
+}
+
 void controller::view_event_handler(const lcd_view_events::settings_volume_changed &e)
 {
     const effect_processor::event evt {effect_processor_events::volume {e.input_vol, e.output_vol}};
@@ -192,17 +219,8 @@ view {std::move(view)}
     /* Start observing view(s) */
     this->view.get()->attach(this);
 
-    /* Add some effects (order is important!) */
-    static const std::array<effect_processor::event, 4> model_events =
-    {{
-        { effect_processor_events::add_effect {effect_id::overdrive} },
-        { effect_processor_events::add_effect {effect_id::tremolo} },
-        { effect_processor_events::add_effect {effect_id::echo} },
-        { effect_processor_events::add_effect {effect_id::cabinet_sim} },
-    }};
-
-    for (const auto &e : model_events)
-        this->model->send(e);
+    /* Show splash screen */
+    this->view.get()->send({lcd_view_events::show_splash_screen {}});
 }
 
 controller::~controller()

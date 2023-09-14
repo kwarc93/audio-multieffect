@@ -8,16 +8,17 @@
 #ifndef MODEL_EFFECT_PROCESSOR_HPP_
 #define MODEL_EFFECT_PROCESSOR_HPP_
 
-#include <middlewares/active_object.hpp>
-#include <middlewares/observer.hpp>
-
-#include <hal/hal_audio.hpp>
-
 #include <functional>
 #include <variant>
 #include <memory>
 #include <array>
 #include <tuple>
+
+#include <middlewares/active_object.hpp>
+#include <middlewares/observer.hpp>
+
+#include <hal/hal_audio.hpp>
+
 
 #include "effect_interface.hpp"
 

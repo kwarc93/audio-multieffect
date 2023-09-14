@@ -279,6 +279,7 @@ void ui_fx_overdrive_screen_init(void)
     lv_obj_set_style_text_font(ui_lbl_od_mode_overdrive, &ui_font_14_bold, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_color(ui_lbl_od_mode_overdrive, lv_color_hex(0x50FF7D), LV_PART_MAIN | LV_STATE_CHECKED);
     lv_obj_set_style_text_opa(ui_lbl_od_mode_overdrive, 255, LV_PART_MAIN | LV_STATE_CHECKED);
+    lv_obj_add_state(ui_lbl_od_mode_overdrive, LV_STATE_CHECKED);
 
     ui_lbl_od_mode_distortion = lv_label_create(ui_pnl_od_mode);
     lv_obj_set_width(ui_lbl_od_mode_distortion, LV_SIZE_CONTENT);   /// 1

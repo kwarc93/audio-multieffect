@@ -121,8 +121,6 @@ void ui_event_sw_overdrive_mode(lv_event_t * e);
 extern lv_obj_t * ui_sw_od_mode;
 extern lv_obj_t * ui_lbl_od_mode_overdrive;
 extern lv_obj_t * ui_lbl_od_mode_distortion;
-void ui_event____initial_actions0(lv_event_t * e);
-extern lv_obj_t * ui____initial_actions0;
 
 LV_IMG_DECLARE(ui_img_pot_ver_line_png);    // assets/pot_ver_line.png
 LV_IMG_DECLARE(ui_img_pot_ver_knob_png);    // assets/pot_ver_knob.png

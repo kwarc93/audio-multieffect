@@ -83,6 +83,54 @@ void lcd_view::event_handler(const events::timer &e)
     lv_timer_handler();
 }
 
+void lcd_view::event_handler(const lcd_view_events::show_splash_screen &e)
+{
+    ui_splash_screen_init();
+    lv_disp_load_scr(ui_splash);
+}
+
+void lcd_view::event_handler(const lcd_view_events::show_effect_screen &e)
+{
+    switch (e.id)
+    {
+    case effect_id::tremolo:
+        lv_disp_load_scr(ui_fx_tremolo);
+        break;
+    case effect_id::echo:
+        lv_disp_load_scr(ui_fx_echo);
+        break;
+    case effect_id::overdrive:
+        lv_disp_load_scr(ui_fx_overdrive);
+        break;
+    case effect_id::cabinet_sim:
+        break;
+    default:
+        break;
+    }
+}
+
+void lcd_view::event_handler(const lcd_view_events::add_effect_screen &e)
+{
+    this->effects_screens.push_back(e.id);
+
+    switch (e.id)
+    {
+    case effect_id::tremolo:
+        ui_fx_tremolo_screen_init();
+        break;
+    case effect_id::echo:
+        ui_fx_echo_screen_init();
+        break;
+    case effect_id::overdrive:
+        ui_fx_overdrive_screen_init();
+        break;
+    case effect_id::cabinet_sim:
+        break;
+    default:
+        break;
+    }
+}
+
 //-----------------------------------------------------------------------------
 /* public */
 

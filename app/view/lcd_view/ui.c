@@ -121,9 +121,6 @@ lv_obj_t * ui_sw_od_mode;
 lv_obj_t * ui_lbl_od_mode_overdrive;
 lv_obj_t * ui_lbl_od_mode_distortion;
 
-void ui_event____initial_actions0(lv_event_t * e);
-lv_obj_t * ui____initial_actions0;
-
 ///////////////////// TEST LVGL SETTINGS ////////////////////
 #if LV_COLOR_DEPTH != 16
     #error "LV_COLOR_DEPTH should be 16bit to match SquareLine Studio's settings"
@@ -133,6 +130,14 @@ lv_obj_t * ui____initial_actions0;
 #endif
 
 ///////////////////// ANIMATIONS ////////////////////
+static void splashfadein_anim_ready(lv_anim_t *anim)
+{
+    lv_event_t e;
+    e.code = LV_EVENT_READY;
+
+    ui_splash_loaded(&e);
+}
+
 void splashfadein_Animation(lv_obj_t * TargetObject, int delay)
 {
     ui_anim_user_data_t * PropertyAnimation_0_user_data = lv_mem_alloc(sizeof(ui_anim_user_data_t));
@@ -145,13 +150,14 @@ void splashfadein_Animation(lv_obj_t * TargetObject, int delay)
     lv_anim_set_custom_exec_cb(&PropertyAnimation_0, _ui_anim_callback_set_opacity);
     lv_anim_set_values(&PropertyAnimation_0, 0, 255);
     lv_anim_set_path_cb(&PropertyAnimation_0, lv_anim_path_linear);
-    lv_anim_set_delay(&PropertyAnimation_0, delay + 100);
+    lv_anim_set_delay(&PropertyAnimation_0, delay);
     lv_anim_set_deleted_cb(&PropertyAnimation_0, _ui_anim_callback_free_user_data);
-    lv_anim_set_playback_time(&PropertyAnimation_0, 0);
+    lv_anim_set_playback_time(&PropertyAnimation_0, 1500);
     lv_anim_set_playback_delay(&PropertyAnimation_0, 0);
     lv_anim_set_repeat_count(&PropertyAnimation_0, 0);
     lv_anim_set_repeat_delay(&PropertyAnimation_0, 0);
     lv_anim_set_early_apply(&PropertyAnimation_0, false);
+    lv_anim_set_ready_cb(&PropertyAnimation_0, splashfadein_anim_ready);
     lv_anim_start(&PropertyAnimation_0);
 
 }
@@ -163,9 +169,6 @@ void ui_event_splash(lv_event_t * e)
 
     if(event_code == LV_EVENT_SCREEN_LOAD_START) {
         splashfadein_Animation(ui_lbl_splash, 0);
-    }
-    if(event_code == LV_EVENT_SCREEN_LOADED) {
-        _ui_screen_change(&ui_fx_overdrive, LV_SCR_LOAD_ANIM_FADE_ON, 500, 2600, &ui_fx_overdrive_screen_init);
     }
 }
 void ui_event_settings(lv_event_t * e)
@@ -361,16 +364,6 @@ void ui_event_sw_overdrive_mode(lv_event_t * e)
         _ui_state_modify(ui_lbl_od_mode_overdrive, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
     }
 }
-void ui_event____initial_actions0(lv_event_t * e)
-{
-    lv_event_code_t event_code = lv_event_get_code(e);
-
-    if(event_code == LV_EVENT_SCREEN_LOAD_START) {
-        _ui_state_modify(ui_lbl_trem_triangle, LV_STATE_CHECKED, _UI_MODIFY_STATE_ADD);
-        _ui_state_modify(ui_lbl_echo_mode_echo, LV_STATE_CHECKED, _UI_MODIFY_STATE_ADD);
-        _ui_state_modify(ui_lbl_od_mode_overdrive, LV_STATE_CHECKED, _UI_MODIFY_STATE_ADD);
-    }
-}
 
 ///////////////////// SCREENS ////////////////////
 
@@ -382,14 +375,4 @@ void ui_init(void * user_data)
     lv_theme_t * theme = lv_theme_default_init(dispp, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_RED),
                                                false, LV_FONT_DEFAULT);
     lv_disp_set_theme(dispp, theme);
-    ui_splash_screen_init();
-    ui_settings_screen_init();
-    ui_fx_tremolo_screen_init();
-    ui_fx_echo_screen_init();
-    ui_fx_overdrive_screen_init();
-    ui____initial_actions0 = lv_obj_create(NULL);
-    lv_obj_add_event_cb(ui____initial_actions0, ui_event____initial_actions0, LV_EVENT_ALL, NULL);
-
-    lv_disp_load_scr(ui____initial_actions0);
-    lv_disp_load_scr(ui_splash);
 }

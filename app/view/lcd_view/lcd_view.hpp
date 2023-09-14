@@ -28,6 +28,26 @@ struct timer
 
 };
 
+struct show_splash_screen
+{
+
+};
+
+struct splash_loaded
+{
+
+};
+
+struct show_effect_screen
+{
+    effect_id id;
+};
+
+struct add_effect_screen
+{
+    effect_id id;
+};
+
 struct settings_volume_changed
 {
     uint8_t input_vol;
@@ -57,6 +77,7 @@ struct overdrive_controls_changed
 
 using outgoing = std::variant
 <
+    splash_loaded,
     settings_volume_changed,
     effect_bypass_changed,
     tremolo_controls_changed,
@@ -64,7 +85,13 @@ using outgoing = std::variant
     overdrive_controls_changed
 >;
 
-using incoming = std::variant<timer>;
+using incoming = std::variant
+<
+    timer,
+    show_splash_screen,
+    show_effect_screen,
+    add_effect_screen
+>;
 
 }
 
@@ -78,9 +105,14 @@ private:
 
     /* Event handlers */
     void event_handler(const lcd_view_events::timer &e);
+    void event_handler(const lcd_view_events::show_splash_screen &e);
+    void event_handler(const lcd_view_events::show_effect_screen &e);
+    void event_handler(const lcd_view_events::add_effect_screen &e);
 
     hal::displays::main display;
     osTimerId_t timer;
+
+    std::vector<effect_id> effects_screens;
 };
 
 }

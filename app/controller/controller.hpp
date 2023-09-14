@@ -24,22 +24,35 @@ namespace mfx
 
 namespace controller_events
 {
-    struct led
-    {
 
-    };
+struct led
+{
 
-    struct button
-    {
-        bool state;
-    };
+};
 
-    struct effect_processor_load
-    {
-        uint8_t load;
-    };
+struct button
+{
+    bool state;
+};
 
-    using incoming = std::variant<button, led, effect_processor_load>;
+struct load_preset
+{
+
+};
+
+struct effect_processor_load
+{
+    uint8_t load;
+};
+
+using incoming = std::variant
+<
+    button,
+    led,
+    effect_processor_load,
+    load_preset
+>;
+
 }
 
 class controller : public middlewares::active_object<controller_events::incoming>,
@@ -59,7 +72,9 @@ private:
     void event_handler(const controller_events::led &e);
     void event_handler(const controller_events::button &e);
     void event_handler(const controller_events::effect_processor_load &e);
+    void event_handler(const controller_events::load_preset &e);
 
+    void view_event_handler(const lcd_view_events::splash_loaded &e);
     void view_event_handler(const lcd_view_events::settings_volume_changed &e);
     void view_event_handler(const lcd_view_events::effect_bypass_changed &e);
     void view_event_handler(const lcd_view_events::tremolo_controls_changed &e);

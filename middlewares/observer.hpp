@@ -8,7 +8,7 @@
 #ifndef OBSERVER_HPP_
 #define OBSERVER_HPP_
 
-#include <list>
+#include <vector>
 
 namespace middlewares
 {
@@ -34,7 +34,7 @@ public:
 
     void detach(observer<T> *o)
     {
-        this->observers.remove(o);
+        this->observers.erase(std::remove(this->observers.begin(), this->observers.end(), o), this->observers.end());
     }
 
     void notify(const T &data)
@@ -43,7 +43,7 @@ public:
             o->update(data);
     }
 private:
-    std::list<observer<T>*> observers;
+    std::vector<observer<T>*> observers;
 };
 
 }
