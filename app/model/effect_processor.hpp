@@ -9,6 +9,7 @@
 #define MODEL_EFFECT_PROCESSOR_HPP_
 
 #include <middlewares/active_object.hpp>
+#include <middlewares/observer.hpp>
 
 #include <hal/hal_audio.hpp>
 
@@ -16,6 +17,7 @@
 #include <variant>
 #include <memory>
 #include <array>
+#include <tuple>
 
 #include "effect_interface.hpp"
 
@@ -65,15 +67,15 @@ namespace effect_processor_events
     {
         std::variant
         <
-            tremolo::controls,
-            echo::controls,
-            overdrive::controls,
-            cabinet_sim::controls
+            tremolo_attributes::controls,
+            echo_attributes::controls,
+            overdrive_attributes::controls,
+            cabinet_sim_attributes::controls
         >
         controls;
     };
 
-    using holder = std::variant
+    using incoming = std::variant
     <
         get_processing_load,
         process_data,
@@ -83,9 +85,17 @@ namespace effect_processor_events
         volume,
         effect_controls
     >;
+
+    using outgoing = std::variant
+    <
+        bypass,
+        volume,
+        effect_attributes
+    >;
 }
 
-class effect_processor : public middlewares::active_object<effect_processor_events::holder>
+class effect_processor : public middlewares::active_object<effect_processor_events::incoming>,
+                         public middlewares::subject<effect_processor_events::outgoing>
 {
 public:
     effect_processor();
@@ -103,8 +113,20 @@ private:
     void event_handler(const effect_processor_events::get_processing_load &e);
     void event_handler(const effect_processor_events::effect_controls &e);
 
+    void set_controls(const tremolo_attributes::controls &ctrl);
+    void set_controls(const echo_attributes::controls &ctrl);
+    void set_controls(const overdrive_attributes::controls &ctrl);
+    void set_controls(const cabinet_sim_attributes::controls &ctrl);
+
     std::unique_ptr<effect> create_new(effect_id id);
     bool find_effect(effect_id id, std::vector<std::unique_ptr<effect>>::iterator &it);
+
+    template<effect_id id>
+    using effect_type = typename std::tuple_element<static_cast<unsigned int>(id),
+    std::tuple<tremolo, echo, overdrive, cabinet_sim>>::type;
+
+    template<effect_id id, typename T = effect_type<id>>
+    T* get_effect(void);
 
     void audio_capture_cb(const hal::audio_devices::codec::input_sample_t *input, uint16_t length);
     void audio_play_cb(uint16_t sample_index);

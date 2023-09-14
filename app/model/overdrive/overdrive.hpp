@@ -17,13 +17,14 @@
 namespace mfx
 {
 
-class overdrive : public overdrive_attributes, public effect
+class overdrive : private overdrive_attributes, public effect
 {
 public:
     overdrive(float low = 0.5f, float high = 0.5f, float gain = 40.0f, float mix = 0.5f, controls::mode_type mode = controls::mode_type::soft);
     virtual ~overdrive();
 
     void process(const dsp_input_t &in, dsp_output_t &out) override;
+    effect_attributes get_attributes(void) const override;
 
     void set_high(float high);
     void set_gain(float gain);
@@ -32,8 +33,8 @@ public:
     void set_mode(controls::mode_type mode);
 
 private:
-    dsp_sample_t soft_clip(dsp_sample_t in);
-    dsp_sample_t hard_clip(dsp_sample_t in);
+    float soft_clip(float in);
+    float hard_clip(float in);
 
     /* Low-pass FIR filter for anti-aliasing */
     constexpr static inline std::array<float, 97> fir_coeffs

@@ -9,22 +9,26 @@
 #define MODEL_EFFECT_FEATURES_HPP_
 
 #include <vector>
+#include <variant>
 
 namespace mfx
 {
 
+//-----------------------------------------------------------------------------
 /* Constants */
 constexpr inline uint16_t dsp_vector_size {128};
 constexpr inline uint32_t sampling_frequency_hz {48000};
 
+//-----------------------------------------------------------------------------
+/* Type definitions */
+typedef std::vector<float> dsp_input_t;
+typedef std::vector<float> dsp_output_t;
+
+//-----------------------------------------------------------------------------
 /* Available effects */
 enum class effect_id { tremolo, echo, overdrive, cabinet_sim };
 
-/* Type definitions */
-typedef float dsp_sample_t;
-typedef std::vector<dsp_sample_t> dsp_input_t;
-typedef std::vector<dsp_sample_t> dsp_output_t;
-
+//-----------------------------------------------------------------------------
 /* Effects attributes */
 struct tremolo_attributes
 {
@@ -86,6 +90,18 @@ struct cabinet_sim_attributes
         int error_code;
     } stat;
 };
+
+//-----------------------------------------------------------------------------
+/* Effect controls & state */
+
+typedef std::variant
+<
+    tremolo_attributes,
+    echo_attributes,
+    overdrive_attributes,
+    cabinet_sim_attributes
+>
+effect_attributes;
 
 }
 

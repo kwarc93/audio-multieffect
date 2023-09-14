@@ -52,6 +52,11 @@ void tremolo::process(const dsp_input_t& in, dsp_output_t& out)
     );
 }
 
+effect_attributes tremolo::get_attributes(void) const
+{
+    return tremolo_attributes {this->ctrl, this->stat};
+}
+
 void tremolo::set_depth(float depth)
 {
     if (this->ctrl.depth == depth)

@@ -23,15 +23,15 @@ namespace
 //-----------------------------------------------------------------------------
 /* private */
 
-dsp_sample_t overdrive::hard_clip(dsp_sample_t in)
+float overdrive::hard_clip(float in)
 {
-    dsp_sample_t out = in;
+    float out = in;
 
     /* Threshold for symmetrical soft clipping by Schetzen Formula */
-    constexpr dsp_sample_t th = 1.0f/3.0f;
+    constexpr float th = 1.0f/3.0f;
 
-    const dsp_sample_t in_abs = std::abs(in);
-    const dsp_sample_t sign = libs::adsp::sgn(in);
+    const float in_abs = std::abs(in);
+    const float sign = libs::adsp::sgn(in);
 
     if (in_abs < th)
         out = 2 * in;
@@ -44,7 +44,7 @@ dsp_sample_t overdrive::hard_clip(dsp_sample_t in)
     return out;
 }
 
-dsp_sample_t overdrive::soft_clip(dsp_sample_t in)
+float overdrive::soft_clip(float in)
 {
     return libs::adsp::sgn(in) * (1 - std::exp(-std::abs(in)));
 }
@@ -92,6 +92,11 @@ void overdrive::process(const dsp_input_t& in, dsp_output_t& out)
 
     /* 4. Apply 2-nd order low-pass IIR filter (in-place) */
     this->iir_lp.process(out.data(), out.data(), out.size());
+}
+
+effect_attributes overdrive::get_attributes(void) const
+{
+    return overdrive_attributes {this->ctrl, this->stat};
 }
 
 void overdrive::set_high(float high)

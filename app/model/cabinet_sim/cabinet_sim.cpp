@@ -33,4 +33,8 @@ void cabinet_sim::process(const dsp_input_t& in, dsp_output_t& out)
     this->fast_conv.process(in.data(), out.data());
 }
 
+effect_attributes cabinet_sim::get_attributes(void) const
+{
+    return cabinet_sim_attributes {this->ctrl, this->stat};
+}
 

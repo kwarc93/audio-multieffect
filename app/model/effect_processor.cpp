@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <memory>
 #include <vector>
+#include <tuple>
 #include <map>
 
 #include <hal/hal_system.hpp>
@@ -53,6 +54,7 @@ void effect_processor::event_handler(const events::add_effect &e)
     if (!this->find_effect(e.id, it))
     {
         auto effect = this->create_new(e.id);
+        this->notify(effect.get()->get_attributes());
         this->effects.push_back(std::move(effect));
     }
 }
@@ -136,56 +138,54 @@ void effect_processor::event_handler(const effect_processor_events::get_processi
 
 void effect_processor::event_handler(const events::effect_controls &e)
 {
-    std::visit([this](auto &&controls)
-    {
-        using T = std::decay_t<decltype(controls)>;
-        if constexpr (std::is_same_v<T, tremolo::controls>)
-        {
-            std::vector<std::unique_ptr<mfx::effect>>::iterator it;
+    std::visit([this](auto &&ctrl) { this->set_controls(ctrl); }, e.controls);
+}
 
-            if (this->find_effect(effect_id::tremolo, it))
-            {
-                auto &effect = *it;
-                auto tremolo = static_cast<mfx::tremolo*>(effect.get());
-                tremolo->set_rate(controls.rate);
-                tremolo->set_depth(controls.depth);
-                tremolo->set_shape(controls.shape);
-            }
-        }
-        else if constexpr (std::is_same_v<T, echo::controls>)
-        {
-            std::vector<std::unique_ptr<mfx::effect>>::iterator it;
+void effect_processor::set_controls(const tremolo_attributes::controls &ctrl)
+{
+    auto tremolo_effect = this->get_effect<effect_id::tremolo>();
 
-            if (this->find_effect(effect_id::echo, it))
-            {
-                auto &effect = *it;
-                auto echo = static_cast<mfx::echo*>(effect.get());
-                echo->set_mode(controls.mode);
-                echo->set_blur(controls.blur);
-                echo->set_time(controls.time);
-                echo->set_feedback(controls.feedback);
-            }
-        }
-        else if constexpr (std::is_same_v<T, overdrive::controls>)
-        {
-            std::vector<std::unique_ptr<mfx::effect>>::iterator it;
+    if (tremolo_effect == nullptr)
+        return;
 
-            if (this->find_effect(effect_id::overdrive, it))
-            {
-                auto &effect = *it;
-                auto overdrive = static_cast<mfx::overdrive*>(effect.get());
-                overdrive->set_mode(controls.mode);
-                overdrive->set_high(controls.high);
-                overdrive->set_low(controls.low);
-                overdrive->set_gain(controls.gain);
-                overdrive->set_mix(controls.mix);
-            }
-        }
-        else if constexpr (std::is_same_v<T, cabinet_sim::controls>)
-        {
-            /* Do something specific to this effect */
-        }
-    }, e.controls);
+    tremolo_effect->set_rate(ctrl.rate);
+    tremolo_effect->set_depth(ctrl.depth);
+    tremolo_effect->set_shape(ctrl.shape);
+}
+
+void effect_processor::set_controls(const echo_attributes::controls &ctrl)
+{
+    auto echo_effect = this->get_effect<effect_id::echo>();
+
+    if (echo_effect == nullptr)
+        return;
+
+    echo_effect->set_mode(ctrl.mode);
+    echo_effect->set_blur(ctrl.blur);
+    echo_effect->set_time(ctrl.time);
+    echo_effect->set_feedback(ctrl.feedback);
+}
+
+void effect_processor::set_controls(const overdrive_attributes::controls &ctrl)
+{
+    auto overdrive_effect = this->get_effect<effect_id::overdrive>();
+
+    if (overdrive_effect == nullptr)
+        return;
+
+    overdrive_effect->set_mode(ctrl.mode);
+    overdrive_effect->set_high(ctrl.high);
+    overdrive_effect->set_low(ctrl.low);
+    overdrive_effect->set_gain(ctrl.gain);
+    overdrive_effect->set_mix(ctrl.mix);
+}
+
+void effect_processor::set_controls(const cabinet_sim_attributes::controls &ctrl)
+{
+    auto cab_sim_effect = this->get_effect<effect_id::cabinet_sim>();
+
+    if (cab_sim_effect == nullptr)
+        return;
 }
 
 std::unique_ptr<effect> effect_processor::create_new(effect_id id)
@@ -209,6 +209,17 @@ bool effect_processor::find_effect(effect_id id, std::vector<std::unique_ptr<eff
     it = effect_it;
 
     return effect_it != std::end(this->effects);
+}
+
+template<effect_id id, typename T = effect_processor::effect_type<id>>
+T* effect_processor::get_effect(void)
+{
+    std::vector<std::unique_ptr<mfx::effect>>::iterator it;
+
+    if (this->find_effect(id, it))
+        return static_cast<T*>((*it).get());
+    else
+        return nullptr;
 }
 
 void effect_processor::audio_capture_cb(const hal::audio_devices::codec::input_sample_t *input, uint16_t length)

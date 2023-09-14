@@ -18,7 +18,7 @@ using namespace mfx;
 namespace
 {
 __attribute__((section(".sdram")))
-std::array<dsp_sample_t, 1 * sampling_frequency_hz> delay_line_memory; // Maximum delay time: 1s
+std::array<float, 1 * sampling_frequency_hz> delay_line_memory; // Maximum delay time: 1s
 }
 
 //-----------------------------------------------------------------------------
@@ -48,14 +48,19 @@ void echo::process(const dsp_input_t& in, dsp_output_t& out)
     [this](auto input)
     {
         /* Universal comb filter with LP in feedback */
-        const dsp_sample_t in_d = this->delay_line.get();
-        dsp_sample_t in_df = in_d;
+        const float in_d = this->delay_line.get();
+        float in_df = in_d;
         if (this->ctrl.blur > 0) this->iir_lp.process(&in_d, &in_df, 1);
-        const dsp_sample_t in_h = input + this->ctrl.feedback * in_df;
+        const float in_h = input + this->ctrl.feedback * in_df;
         this->delay_line.put(in_h);
         return this->feedforward * in_df + this->blend * in_h;
     }
     );
+}
+
+effect_attributes echo::get_attributes(void) const
+{
+    return echo_attributes {this->ctrl, this->stat};
 }
 
 void echo::set_blur(float blur)

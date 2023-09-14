@@ -15,13 +15,14 @@
 namespace mfx
 {
 
-class echo : public echo_attributes, public effect
+class echo : private echo_attributes, public effect
 {
 public:
     echo(float blur = 0.5f, float time = 0.3f, float feedback = 0.6f, controls::mode_type mode = controls::mode_type::echo);
     virtual ~echo();
 
     void process(const dsp_input_t &in, dsp_output_t &out) override;
+    effect_attributes get_attributes(void) const override;
 
     void set_blur(float blur);
     void set_time(float time);
