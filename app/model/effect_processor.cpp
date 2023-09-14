@@ -23,6 +23,11 @@
 
 #include <stm32f7xx.h> // For managing D-Cache & I-Cache
 
+#include "app/model/tremolo/tremolo.hpp"
+#include "app/model/echo/echo.hpp"
+#include "app/model/overdrive/overdrive.hpp"
+#include "app/model/cabinet_sim/cabinet_sim.hpp"
+
 using namespace mfx;
 namespace events = effect_processor_events;
 
@@ -51,6 +56,7 @@ void effect_processor::event_handler(const events::add_effect &e)
 {
     std::vector<std::unique_ptr<effect>>::iterator it;
 
+    /* Dont allow duplicates */
     if (!this->find_effect(e.id, it))
     {
         auto effect = this->create_new(e.id);
@@ -145,7 +151,7 @@ void effect_processor::event_handler(const events::effect_controls &e)
 
 void effect_processor::set_controls(const tremolo_attributes::controls &ctrl)
 {
-    auto tremolo_effect = this->get_effect<effect_id::tremolo>();
+    auto tremolo_effect = static_cast<tremolo*>(this->find_effect(effect_id::tremolo));
 
     if (tremolo_effect == nullptr)
         return;
@@ -157,7 +163,7 @@ void effect_processor::set_controls(const tremolo_attributes::controls &ctrl)
 
 void effect_processor::set_controls(const echo_attributes::controls &ctrl)
 {
-    auto echo_effect = this->get_effect<effect_id::echo>();
+    auto echo_effect = static_cast<echo*>(this->find_effect(effect_id::echo));
 
     if (echo_effect == nullptr)
         return;
@@ -170,7 +176,7 @@ void effect_processor::set_controls(const echo_attributes::controls &ctrl)
 
 void effect_processor::set_controls(const overdrive_attributes::controls &ctrl)
 {
-    auto overdrive_effect = this->get_effect<effect_id::overdrive>();
+    auto overdrive_effect = static_cast<overdrive*>(this->find_effect(effect_id::overdrive));
 
     if (overdrive_effect == nullptr)
         return;
@@ -184,7 +190,7 @@ void effect_processor::set_controls(const overdrive_attributes::controls &ctrl)
 
 void effect_processor::set_controls(const cabinet_sim_attributes::controls &ctrl)
 {
-    auto cab_sim_effect = this->get_effect<effect_id::cabinet_sim>();
+    auto cab_sim_effect = static_cast<cabinet_sim*>(this->find_effect(effect_id::cabinet_sim));
 
     if (cab_sim_effect == nullptr)
         return;
@@ -217,12 +223,6 @@ effect* effect_processor::find_effect(effect_id id)
 {
     std::vector<std::unique_ptr<effect>>::iterator it;
     return this->find_effect(id, it) ? (*it).get() : nullptr;
-}
-
-template<effect_id id, typename T = effect_processor::effect_type<id>>
-T* effect_processor::get_effect(void)
-{
-    return static_cast<T*>(this->find_effect(id));
 }
 
 void effect_processor::audio_capture_cb(const hal::audio_devices::codec::input_sample_t *input, uint16_t length)

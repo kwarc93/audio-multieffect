@@ -159,11 +159,6 @@ void controller::view_event_handler(const lcd_view_events::overdrive_controls_ch
     this->model.get()->send(evt);
 }
 
-void controller::model_event_handler(const effect_processor_events::effect_attr &e)
-{
-    std::visit([this](const auto &attr) { this->effect_attr_handler(attr); }, e);
-}
-
 void controller::model_event_handler(const effect_processor_events::bypass &e)
 {
 
@@ -173,6 +168,12 @@ void controller::model_event_handler(const effect_processor_events::volume &e)
 {
 
 }
+
+void controller::model_event_handler(const effect_processor_events::effect_attr &e)
+{
+    std::visit([this](const auto &attr) { this->effect_attr_handler(attr); }, e);
+}
+
 
 void controller::effect_attr_handler(const tremolo_attributes &attr)
 {

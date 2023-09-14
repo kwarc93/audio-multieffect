@@ -19,13 +19,7 @@
 
 #include <hal/hal_audio.hpp>
 
-
 #include "effect_interface.hpp"
-
-#include "app/model/tremolo/tremolo.hpp"
-#include "app/model/echo/echo.hpp"
-#include "app/model/overdrive/overdrive.hpp"
-#include "app/model/cabinet_sim/cabinet_sim.hpp"
 
 namespace mfx
 {
@@ -125,13 +119,6 @@ private:
     std::unique_ptr<effect> create_new(effect_id id);
     bool find_effect(effect_id id, std::vector<std::unique_ptr<effect>>::iterator &it);
     effect* find_effect(effect_id id);
-
-    template<effect_id id>
-    using effect_type = typename std::tuple_element<static_cast<unsigned int>(id),
-    std::tuple<tremolo, echo, overdrive, cabinet_sim>>::type;
-
-    template<effect_id id, typename T = effect_type<id>>
-    T* get_effect(void);
 
     void audio_capture_cb(const hal::audio_devices::codec::input_sample_t *input, uint16_t length);
     void audio_play_cb(uint16_t sample_index);

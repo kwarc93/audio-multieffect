@@ -81,9 +81,9 @@ private:
     void view_event_handler(const lcd_view_events::echo_controls_changed &e);
     void view_event_handler(const lcd_view_events::overdrive_controls_changed &e);
 
-    void model_event_handler(const effect_processor_events::effect_attr &e);
     void model_event_handler(const effect_processor_events::bypass &e);
     void model_event_handler(const effect_processor_events::volume &e);
+    void model_event_handler(const effect_processor_events::effect_attr &e);
 
     void effect_attr_handler(const tremolo_attributes &attr);
     void effect_attr_handler(const echo_attributes &attr);
