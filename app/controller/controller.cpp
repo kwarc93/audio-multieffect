@@ -27,16 +27,16 @@ void button_timer_cb(void *arg)
 
     button->debounce();
 
-    static controller::event e { events::button {}, controller::event::flags::immutable };
+    static controller::event e { events::button_state_changed {}, controller::event::flags::immutable };
 
     if (button->was_pressed())
     {
-        std::get<events::button>(e.data).state = true;
+        std::get<events::button_state_changed>(e.data).state = true;
         controller::instance->send(e);
     }
     else if (button->was_released())
     {
-        std::get<events::button>(e.data).state = false;
+        std::get<events::button_state_changed>(e.data).state = false;
         controller::instance->send(e);
     }
 }
@@ -48,7 +48,7 @@ void led_timer_cb(void *arg)
 
     auto *ctrl = static_cast<controller*>(arg);
 
-    static const controller::event e { events::led {}, controller::event::flags::immutable };
+    static const controller::event e { events::led_toggle {}, controller::event::flags::immutable };
     ctrl->send(e);
 }
 
@@ -76,7 +76,7 @@ void controller::update(const lcd_view_events::outgoing &e)
     std::visit([this](const auto &e) { this->view_event_handler(e); }, e);
 }
 
-void controller::event_handler(const events::led &e)
+void controller::event_handler(const events::led_toggle &e)
 {
     this->led.set(!this->led.get());
 
@@ -92,7 +92,7 @@ void controller::event_handler(const events::led &e)
     this->model.get()->send(evt);
 }
 
-void controller::event_handler(const events::button &e)
+void controller::event_handler(const events::button_state_changed &e)
 {
     printf("Button %s\n", e.state ? "pressed" : "released");
 }
@@ -124,6 +124,19 @@ void controller::event_handler(const events::load_preset &e)
     /* Show screen of the first effect in preset */
     this->current_effect = this->active_effects.begin();
     this->view.get()->send({lcd_view_events::show_next_effect_screen {*this->current_effect}});
+
+    /* Get effect attributes */
+    const effect_processor::event evt {effect_processor_events::get_effect_attributes
+    {
+        *this->current_effect,
+        [this](auto... params)
+        {
+            const lcd_view::event e {lcd_view_events::set_effect_attributes {params...}};
+            this->view.get()->send(e);
+        }
+    }};
+
+    this->model.get()->send(evt);
 }
 
 void controller::view_event_handler(const lcd_view_events::splash_loaded &e)
@@ -138,6 +151,19 @@ void controller::view_event_handler(const lcd_view_events::next_effect_screen_re
 
     this->current_effect = std::next(this->current_effect);
     this->view.get()->send({lcd_view_events::show_next_effect_screen {*this->current_effect}});
+
+    /* Get effect attributes */
+    const effect_processor::event evt {effect_processor_events::get_effect_attributes
+    {
+        *this->current_effect,
+        [this](auto... params)
+        {
+            const lcd_view::event e {lcd_view_events::set_effect_attributes {params...}};
+            this->view.get()->send(e);
+        }
+    }};
+
+    this->model.get()->send(evt);
 }
 
 void controller::view_event_handler(const lcd_view_events::prev_effect_screen_request &e)
@@ -147,72 +173,60 @@ void controller::view_event_handler(const lcd_view_events::prev_effect_screen_re
 
     this->current_effect = std::prev(this->current_effect);
     this->view.get()->send({lcd_view_events::show_prev_effect_screen {*this->current_effect}});
+
+    /* Get effect attributes */
+    const effect_processor::event evt {effect_processor_events::get_effect_attributes
+    {
+        *this->current_effect,
+        [this](auto... params)
+        {
+            const lcd_view::event e {lcd_view_events::set_effect_attributes {params...}};
+            this->view.get()->send(e);
+        }
+    }};
+
+    this->model.get()->send(evt);
 }
 
 void controller::view_event_handler(const lcd_view_events::settings_volume_changed &e)
 {
-    const effect_processor::event evt {effect_processor_events::volume {e.input_vol, e.output_vol}};
+    const effect_processor::event evt {effect_processor_events::set_volume {e.input_vol, e.output_vol}};
     this->model.get()->send(evt);
 }
 
 void controller::view_event_handler(const lcd_view_events::effect_bypass_changed &e)
 {
-    const effect_processor::event evt {effect_processor_events::bypass {e.id, e.bypassed}};
+    const effect_processor::event evt {effect_processor_events::bypass_effect {e.id, e.bypassed}};
     this->model.get()->send(evt);
 }
 
 void controller::view_event_handler(const lcd_view_events::tremolo_controls_changed &e)
 {
-    effect_processor::event evt {effect_processor_events::effect_controls {e.ctrl}};
+    effect_processor::event evt {effect_processor_events::set_effect_controls {e.ctrl}};
     this->model.get()->send(evt);
 }
 
 void controller::view_event_handler(const lcd_view_events::echo_controls_changed &e)
 {
-    effect_processor::event evt {effect_processor_events::effect_controls {e.ctrl}};
+    effect_processor::event evt {effect_processor_events::set_effect_controls {e.ctrl}};
     this->model.get()->send(evt);
 }
 
 void controller::view_event_handler(const lcd_view_events::overdrive_controls_changed &e)
 {
-    effect_processor::event evt {effect_processor_events::effect_controls {e.ctrl}};
+    effect_processor::event evt {effect_processor_events::set_effect_controls {e.ctrl}};
     this->model.get()->send(evt);
 }
 
-void controller::model_event_handler(const effect_processor_events::bypass &e)
+void controller::model_event_handler(const effect_processor_events::volume_changed &e)
 {
 
 }
 
-void controller::model_event_handler(const effect_processor_events::volume &e)
+void controller::model_event_handler(const effect_processor_events::effect_attributes_changed &e)
 {
-
-}
-
-void controller::model_event_handler(const effect_processor_events::effect_attr &e)
-{
-    std::visit([this](const auto &attr) { this->effect_attr_handler(attr); }, e);
-}
-
-
-void controller::effect_attr_handler(const tremolo_attributes &attr)
-{
-
-}
-
-void controller::effect_attr_handler(const echo_attributes &attr)
-{
-
-}
-
-void controller::effect_attr_handler(const overdrive_attributes &attr)
-{
-
-}
-
-void controller::effect_attr_handler(const cabinet_sim_attributes &attr)
-{
-
+    lcd_view::event evt {lcd_view_events::set_effect_attributes {e.basic, e.specific}};
+    this->view.get()->send(evt);
 }
 
 //-----------------------------------------------------------------------------

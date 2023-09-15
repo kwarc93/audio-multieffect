@@ -68,6 +68,15 @@ void lcd_view_timer_callback(void *arg)
     lcd_view_ao->send(e);
 }
 
+template<typename T>
+T map_range(T in_start, T in_end, T out_start, T out_end, T in_value)
+{
+    const T in_range = in_end - in_start;
+    const T out_range = out_end - out_start;
+
+    return (in_value - in_start) * out_range / in_range + out_start;
+}
+
 }
 
 //-----------------------------------------------------------------------------
@@ -83,20 +92,104 @@ void lcd_view::event_handler(const events::timer &e)
     lv_timer_handler();
 }
 
-void lcd_view::event_handler(const lcd_view_events::show_splash_screen &e)
+void lcd_view::event_handler(const events::show_splash_screen &e)
 {
     ui_splash_screen_init();
     lv_disp_load_scr(ui_splash);
 }
 
-void lcd_view::event_handler(const lcd_view_events::show_next_effect_screen &e)
+void lcd_view::event_handler(const events::show_next_effect_screen &e)
 {
     this->change_effect_screen(e.id, LV_SCR_LOAD_ANIM_MOVE_LEFT);
 }
 
-void lcd_view::event_handler(const lcd_view_events::show_prev_effect_screen &e)
+void lcd_view::event_handler(const events::show_prev_effect_screen &e)
 {
     this->change_effect_screen(e.id, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
+}
+
+void lcd_view::event_handler(const events::set_effect_attributes &e)
+{
+    std::visit([this, &e](const auto &specific) { this->set_effect_attr(e.basic, specific); }, e.specific);
+}
+
+void lcd_view::set_effect_attr(const effect_basic_attributes &basic, const tremolo_attributes &specific)
+{
+    if (basic.bypassed)
+        lv_obj_clear_state(ui_btn_trem_bypass, LV_STATE_CHECKED);
+    else
+        lv_obj_add_state(ui_btn_trem_bypass, LV_STATE_CHECKED);
+
+    lv_arc_set_value(ui_arc_trem_rate, map_range<float>(1, 20, lv_arc_get_min_value(ui_arc_trem_depth), lv_arc_get_max_value(ui_arc_trem_depth), specific.ctrl.rate));
+    lv_arc_set_value(ui_arc_trem_depth, map_range<float>(0, 0.5, lv_arc_get_min_value(ui_arc_trem_depth), lv_arc_get_max_value(ui_arc_trem_depth), specific.ctrl.depth));
+
+    if (specific.ctrl.shape == tremolo_attributes::controls::shape_type::triangle)
+    {
+        lv_obj_clear_state(ui_sw_trem_shape, LV_STATE_CHECKED);
+        lv_obj_clear_state(ui_lbl_trem_sine, LV_STATE_CHECKED);
+        lv_obj_add_state(ui_lbl_trem_triangle, LV_STATE_CHECKED);
+    }
+    else
+    {
+        lv_obj_add_state(ui_sw_trem_shape, LV_STATE_CHECKED);
+        lv_obj_add_state(ui_lbl_trem_sine, LV_STATE_CHECKED);
+        lv_obj_clear_state(ui_lbl_trem_triangle, LV_STATE_CHECKED);
+    }
+}
+
+void lcd_view::set_effect_attr(const effect_basic_attributes &basic, const echo_attributes &specific)
+{
+    if (basic.bypassed)
+        lv_obj_clear_state(ui_btn_echo_bypass, LV_STATE_CHECKED);
+    else
+        lv_obj_add_state(ui_btn_echo_bypass, LV_STATE_CHECKED);
+
+    lv_arc_set_value(ui_arc_echo_blur, map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_echo_blur), lv_arc_get_max_value(ui_arc_echo_blur), specific.ctrl.blur));
+    lv_arc_set_value(ui_arc_echo_time, map_range<float>(0.05f, 1, lv_arc_get_min_value(ui_arc_echo_time), lv_arc_get_max_value(ui_arc_echo_time), specific.ctrl.time));
+    lv_arc_set_value(ui_arc_echo_feedb, map_range<float>(0, 0.9f, lv_arc_get_min_value(ui_arc_echo_feedb), lv_arc_get_max_value(ui_arc_echo_feedb), specific.ctrl.feedback));
+
+    if (specific.ctrl.mode == echo_attributes::controls::mode_type::echo)
+    {
+        lv_obj_clear_state(ui_sw_echo_mode, LV_STATE_CHECKED);
+        lv_obj_clear_state(ui_lbl_echo_mode_delay, LV_STATE_CHECKED);
+        lv_obj_add_state(ui_lbl_echo_mode_echo, LV_STATE_CHECKED);
+    }
+    else
+    {
+        lv_obj_add_state(ui_sw_echo_mode, LV_STATE_CHECKED);
+        lv_obj_add_state(ui_lbl_echo_mode_delay, LV_STATE_CHECKED);
+        lv_obj_clear_state(ui_lbl_echo_mode_echo, LV_STATE_CHECKED);
+    }
+}
+
+void lcd_view::set_effect_attr(const effect_basic_attributes &basic, const overdrive_attributes &specific)
+{
+    if (basic.bypassed)
+        lv_obj_clear_state(ui_btn_od_bypass, LV_STATE_CHECKED);
+    else
+        lv_obj_add_state(ui_btn_od_bypass, LV_STATE_CHECKED);
+
+    lv_arc_set_value(ui_arc_od_mix, map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_od_mix), lv_arc_get_max_value(ui_arc_od_mix), specific.ctrl.mix));
+    lv_arc_set_value(ui_arc_od_gain, map_range<float>(1, 100, lv_arc_get_min_value(ui_arc_od_gain), lv_arc_get_max_value(ui_arc_od_gain), specific.ctrl.gain));
+    lv_arc_set_value(ui_arc_od_tone, map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_od_tone), lv_arc_get_max_value(ui_arc_od_tone), specific.ctrl.high));
+
+    if (specific.ctrl.mode == overdrive_attributes::controls::mode_type::soft)
+    {
+        lv_obj_clear_state(ui_sw_od_mode, LV_STATE_CHECKED);
+        lv_obj_clear_state(ui_lbl_od_mode_hard, LV_STATE_CHECKED);
+        lv_obj_add_state(ui_lbl_od_mode_soft, LV_STATE_CHECKED);
+    }
+    else
+    {
+        lv_obj_add_state(ui_sw_od_mode, LV_STATE_CHECKED);
+        lv_obj_add_state(ui_lbl_od_mode_hard, LV_STATE_CHECKED);
+        lv_obj_clear_state(ui_lbl_od_mode_soft, LV_STATE_CHECKED);
+    }
+}
+
+void lcd_view::set_effect_attr(const effect_basic_attributes &basic, const cabinet_sim_attributes &specific)
+{
+
 }
 
 void lcd_view::change_effect_screen(effect_id id, int dir)

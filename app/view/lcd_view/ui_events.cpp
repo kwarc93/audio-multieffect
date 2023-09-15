@@ -30,7 +30,7 @@ void notify_tremolo_controls_changed(void)
 {
     lv_obj_t *rate_knob = ui_arc_trem_rate;
     lv_obj_t *depth_knob = ui_arc_trem_depth;
-    lv_obj_t *shape_sw = ui_sw_tremolo_shape;
+    lv_obj_t *shape_sw = ui_sw_trem_shape;
 
     const events::tremolo_controls_changed evt
     {

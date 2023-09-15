@@ -58,7 +58,7 @@ lv_obj_t * ui_lbl_trem_depth;
 lv_obj_t * ui_pnl_trem_shape;
 lv_obj_t * ui_lbl_trem_shape;
 void ui_event_sw_tremolo_shape(lv_event_t * e);
-lv_obj_t * ui_sw_tremolo_shape;
+lv_obj_t * ui_sw_trem_shape;
 lv_obj_t * ui_lbl_trem_triangle;
 lv_obj_t * ui_lbl_trem_sine;
 
@@ -120,8 +120,8 @@ lv_obj_t * ui_lbl_od_gain;
 lv_obj_t * ui_pnl_od_mode;
 void ui_event_sw_overdrive_mode(lv_event_t * e);
 lv_obj_t * ui_sw_od_mode;
-lv_obj_t * ui_lbl_od_mode_overdrive;
-lv_obj_t * ui_lbl_od_mode_distortion;
+lv_obj_t * ui_lbl_od_mode_soft;
+lv_obj_t * ui_lbl_od_mode_hard;
 
 ///////////////////// TEST LVGL SETTINGS ////////////////////
 #if LV_COLOR_DEPTH != 16
@@ -370,8 +370,8 @@ void ui_event_sw_overdrive_mode(lv_event_t * e)
 
     if(event_code == LV_EVENT_VALUE_CHANGED) {
         ui_overdrive_mode_changed(e);
-        _ui_state_modify(ui_lbl_od_mode_distortion, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
-        _ui_state_modify(ui_lbl_od_mode_overdrive, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
+        _ui_state_modify(ui_lbl_od_mode_hard, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
+        _ui_state_modify(ui_lbl_od_mode_soft, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
     }
 }
 

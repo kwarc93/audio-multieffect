@@ -26,12 +26,12 @@ namespace mfx
 namespace controller_events
 {
 
-struct led
+struct led_toggle
 {
 
 };
 
-struct button
+struct button_state_changed
 {
     bool state;
 };
@@ -48,8 +48,8 @@ struct effect_processor_load
 
 using incoming = std::variant
 <
-    button,
-    led,
+    button_state_changed,
+    led_toggle,
     effect_processor_load,
     load_preset
 >;
@@ -70,8 +70,8 @@ private:
     void update(const lcd_view_events::outgoing &e) override;
 
     /* Event handlers */
-    void event_handler(const controller_events::led &e);
-    void event_handler(const controller_events::button &e);
+    void event_handler(const controller_events::led_toggle &e);
+    void event_handler(const controller_events::button_state_changed &e);
     void event_handler(const controller_events::effect_processor_load &e);
     void event_handler(const controller_events::load_preset &e);
 
@@ -84,14 +84,8 @@ private:
     void view_event_handler(const lcd_view_events::echo_controls_changed &e);
     void view_event_handler(const lcd_view_events::overdrive_controls_changed &e);
 
-    void model_event_handler(const effect_processor_events::bypass &e);
-    void model_event_handler(const effect_processor_events::volume &e);
-    void model_event_handler(const effect_processor_events::effect_attr &e);
-
-    void effect_attr_handler(const tremolo_attributes &attr);
-    void effect_attr_handler(const echo_attributes &attr);
-    void effect_attr_handler(const overdrive_attributes &attr);
-    void effect_attr_handler(const cabinet_sim_attributes &attr);
+    void model_event_handler(const effect_processor_events::volume_changed &e);
+    void model_event_handler(const effect_processor_events::effect_attributes_changed &e);
 
     int error_code;
 

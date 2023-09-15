@@ -268,30 +268,30 @@ void ui_fx_overdrive_screen_init(void)
     lv_obj_set_style_bg_color(ui_sw_od_mode, lv_color_hex(0x4C4E5B), LV_PART_KNOB | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_sw_od_mode, 255, LV_PART_KNOB | LV_STATE_DEFAULT);
 
-    ui_lbl_od_mode_overdrive = lv_label_create(ui_pnl_od_mode);
-    lv_obj_set_width(ui_lbl_od_mode_overdrive, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_lbl_od_mode_overdrive, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_align(ui_lbl_od_mode_overdrive, LV_ALIGN_LEFT_MID);
-    lv_label_set_text(ui_lbl_od_mode_overdrive, "SOFT");
-    lv_obj_set_style_text_color(ui_lbl_od_mode_overdrive, lv_color_hex(0x9395A1), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_lbl_od_mode_overdrive, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_align(ui_lbl_od_mode_overdrive, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_lbl_od_mode_overdrive, &ui_font_14_bold, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_color(ui_lbl_od_mode_overdrive, lv_color_hex(0x50FF7D), LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_text_opa(ui_lbl_od_mode_overdrive, 255, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_add_state(ui_lbl_od_mode_overdrive, LV_STATE_CHECKED);
+    ui_lbl_od_mode_soft = lv_label_create(ui_pnl_od_mode);
+    lv_obj_set_width(ui_lbl_od_mode_soft, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_lbl_od_mode_soft, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_lbl_od_mode_soft, LV_ALIGN_LEFT_MID);
+    lv_label_set_text(ui_lbl_od_mode_soft, "SOFT");
+    lv_obj_set_style_text_color(ui_lbl_od_mode_soft, lv_color_hex(0x9395A1), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_lbl_od_mode_soft, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui_lbl_od_mode_soft, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_lbl_od_mode_soft, &ui_font_14_bold, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui_lbl_od_mode_soft, lv_color_hex(0x50FF7D), LV_PART_MAIN | LV_STATE_CHECKED);
+    lv_obj_set_style_text_opa(ui_lbl_od_mode_soft, 255, LV_PART_MAIN | LV_STATE_CHECKED);
+    lv_obj_add_state(ui_lbl_od_mode_soft, LV_STATE_CHECKED);
 
-    ui_lbl_od_mode_distortion = lv_label_create(ui_pnl_od_mode);
-    lv_obj_set_width(ui_lbl_od_mode_distortion, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_lbl_od_mode_distortion, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_align(ui_lbl_od_mode_distortion, LV_ALIGN_RIGHT_MID);
-    lv_label_set_text(ui_lbl_od_mode_distortion, "HARD");
-    lv_obj_set_style_text_color(ui_lbl_od_mode_distortion, lv_color_hex(0x9395A1), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_lbl_od_mode_distortion, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_align(ui_lbl_od_mode_distortion, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_lbl_od_mode_distortion, &ui_font_14_bold, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_color(ui_lbl_od_mode_distortion, lv_color_hex(0x50FF7D), LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_text_opa(ui_lbl_od_mode_distortion, 255, LV_PART_MAIN | LV_STATE_CHECKED);
+    ui_lbl_od_mode_hard = lv_label_create(ui_pnl_od_mode);
+    lv_obj_set_width(ui_lbl_od_mode_hard, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_lbl_od_mode_hard, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_lbl_od_mode_hard, LV_ALIGN_RIGHT_MID);
+    lv_label_set_text(ui_lbl_od_mode_hard, "HARD");
+    lv_obj_set_style_text_color(ui_lbl_od_mode_hard, lv_color_hex(0x9395A1), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_lbl_od_mode_hard, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui_lbl_od_mode_hard, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_lbl_od_mode_hard, &ui_font_14_bold, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui_lbl_od_mode_hard, lv_color_hex(0x50FF7D), LV_PART_MAIN | LV_STATE_CHECKED);
+    lv_obj_set_style_text_opa(ui_lbl_od_mode_hard, 255, LV_PART_MAIN | LV_STATE_CHECKED);
 
     lv_obj_add_event_cb(ui_btn_od_bypass, ui_event_btn_overdrive_bypass, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_arc_od_mix, ui_event_arc_overdrive_mix, LV_EVENT_ALL, NULL);

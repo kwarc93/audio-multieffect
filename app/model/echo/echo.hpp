@@ -15,19 +15,19 @@
 namespace mfx
 {
 
-class echo : private echo_attributes, public effect
+class echo : public effect
 {
 public:
-    echo(float blur = 0.5f, float time = 0.3f, float feedback = 0.6f, controls::mode_type mode = controls::mode_type::echo);
+    echo(float blur = 0.5f, float time = 0.3f, float feedback = 0.6f, echo_attributes::controls::mode_type mode = echo_attributes::controls::mode_type::echo);
     virtual ~echo();
 
     void process(const dsp_input_t &in, dsp_output_t &out) override;
-    effect_attributes get_attributes(void) const override;
+    const effect_specific_attributes get_specific_attributes(void) const override;
 
     void set_blur(float blur);
     void set_time(float time);
     void set_feedback(float feedback);
-    void set_mode(controls::mode_type mode);
+    void set_mode(echo_attributes::controls::mode_type mode);
 
 private:
     float blend;
@@ -35,6 +35,8 @@ private:
 
     libs::adsp::iir_lowpass iir_lp;
     libs::adsp::delay_line<libs::adsp::delay_line_intrpl::none> delay_line;
+
+    echo_attributes attributes;
 };
 
 }

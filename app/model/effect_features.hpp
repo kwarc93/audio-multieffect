@@ -10,6 +10,7 @@
 
 #include <vector>
 #include <variant>
+#include <string_view>
 
 namespace mfx
 {
@@ -30,6 +31,14 @@ enum class effect_id { tremolo, echo, overdrive, cabinet_sim };
 
 //-----------------------------------------------------------------------------
 /* Effects attributes */
+struct effect_basic_attributes
+{
+    const effect_id id;
+    const std::string_view name;
+    bool bypassed;
+    int status;
+};
+
 struct tremolo_attributes
 {
     struct controls
@@ -38,11 +47,6 @@ struct tremolo_attributes
         float depth; // Effect depth, range: [0, 0.5]
         enum class shape_type {sine, triangle} shape; // LFO shape
     } ctrl;
-
-    struct state
-    {
-        int error_code;
-    } stat;
 };
 
 struct echo_attributes
@@ -50,15 +54,10 @@ struct echo_attributes
     struct controls
     {
         float blur; // Blur level (1-st order LP filter cutoff), range: [0, 1.0]
-        float time; // Delay time, range: [0.01s, 1.0s]
+        float time; // Delay time, range: [0.05s, 1.0s]
         float feedback; // Feedback, range: [0.0, 0.9]
         enum class mode_type {delay, echo} mode; // Mode of effect
     } ctrl;
-
-    struct state
-    {
-        int error_code;
-    } stat;
 };
 
 struct overdrive_attributes
@@ -71,11 +70,6 @@ struct overdrive_attributes
         float mix; // Wet/dry mix, range: [0, 1]
         enum class mode_type {soft, hard} mode; // Clip mode
     } ctrl;
-
-    struct state
-    {
-        int error_code;
-    } stat;
 };
 
 struct cabinet_sim_attributes
@@ -84,15 +78,7 @@ struct cabinet_sim_attributes
     {
         enum class resolution {standart = 1024, high = 2048} res; // IR resolution in samples
     } ctrl;
-
-    struct state
-    {
-        int error_code;
-    } stat;
 };
-
-//-----------------------------------------------------------------------------
-/* Effect controls & state */
 
 typedef std::variant
 <
@@ -100,8 +86,7 @@ typedef std::variant
     echo_attributes,
     overdrive_attributes,
     cabinet_sim_attributes
->
-effect_attributes;
+> effect_specific_attributes;
 
 }
 

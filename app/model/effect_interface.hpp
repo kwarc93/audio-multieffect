@@ -20,21 +20,18 @@ namespace mfx
 class effect
 {
 public:
-    effect(const effect_id &id, const std::string_view &name) : id {id}, name {name}, bypassed {true} {};
+    effect(const effect_id &id, const std::string_view &name) : basic {id, name, true, 0} {};
     virtual ~effect() {};
 
     virtual void process(const dsp_input_t &in, dsp_output_t &out) = 0;
-    virtual effect_attributes get_attributes(void) const = 0;
+    virtual const effect_specific_attributes get_specific_attributes(void) const = 0;
 
-    effect_id get_id() const { return this->id; };
-    const std::string_view& get_name() const { return this->name; };
-    bool is_bypassed() const { return this->bypassed; };
-    void bypass(bool state) { this->bypassed = state; };
+    const effect_basic_attributes& get_basic_attributes(void) { return this->basic; };
+    bool is_bypassed() const { return this->basic.bypassed; };
+    void bypass(bool state) { this->basic.bypassed = state; };
 
 protected:
-    const effect_id id;
-    const std::string_view name;
-    bool bypassed;
+    effect_basic_attributes basic;
 };
 
 }

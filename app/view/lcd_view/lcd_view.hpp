@@ -85,6 +85,12 @@ struct overdrive_controls_changed
     overdrive_attributes::controls ctrl;
 };
 
+struct set_effect_attributes
+{
+    effect_basic_attributes basic;
+    effect_specific_attributes specific;
+};
+
 using outgoing = std::variant
 <
     splash_loaded,
@@ -102,7 +108,8 @@ using incoming = std::variant
     timer,
     show_splash_screen,
     show_next_effect_screen,
-    show_prev_effect_screen
+    show_prev_effect_screen,
+    set_effect_attributes
 >;
 
 }
@@ -120,6 +127,12 @@ private:
     void event_handler(const lcd_view_events::show_splash_screen &e);
     void event_handler(const lcd_view_events::show_next_effect_screen &e);
     void event_handler(const lcd_view_events::show_prev_effect_screen &e);
+    void event_handler(const lcd_view_events::set_effect_attributes &e);
+
+    void set_effect_attr(const effect_basic_attributes &basic, const tremolo_attributes &specific);
+    void set_effect_attr(const effect_basic_attributes &basic, const echo_attributes &specific);
+    void set_effect_attr(const effect_basic_attributes &basic, const overdrive_attributes &specific);
+    void set_effect_attr(const effect_basic_attributes &basic, const cabinet_sim_attributes &specific);
 
     void change_effect_screen(effect_id id, int dir);
 

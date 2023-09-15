@@ -61,7 +61,7 @@ extern lv_obj_t * ui_lbl_trem_depth;
 extern lv_obj_t * ui_pnl_trem_shape;
 extern lv_obj_t * ui_lbl_trem_shape;
 void ui_event_sw_tremolo_shape(lv_event_t * e);
-extern lv_obj_t * ui_sw_tremolo_shape;
+extern lv_obj_t * ui_sw_trem_shape;
 extern lv_obj_t * ui_lbl_trem_triangle;
 extern lv_obj_t * ui_lbl_trem_sine;
 // SCREEN: ui_fx_echo
@@ -120,8 +120,8 @@ extern lv_obj_t * ui_lbl_od_gain;
 extern lv_obj_t * ui_pnl_od_mode;
 void ui_event_sw_overdrive_mode(lv_event_t * e);
 extern lv_obj_t * ui_sw_od_mode;
-extern lv_obj_t * ui_lbl_od_mode_overdrive;
-extern lv_obj_t * ui_lbl_od_mode_distortion;
+extern lv_obj_t * ui_lbl_od_mode_soft;
+extern lv_obj_t * ui_lbl_od_mode_hard;
 
 LV_IMG_DECLARE(ui_img_pot_ver_line_png);    // assets/pot_ver_line.png
 LV_IMG_DECLARE(ui_img_pot_ver_knob_png);    // assets/pot_ver_knob.png

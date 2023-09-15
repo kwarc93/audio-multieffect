@@ -56,11 +56,10 @@ void effect_processor::event_handler(const events::add_effect &e)
 {
     std::vector<std::unique_ptr<effect>>::iterator it;
 
-    /* Dont allow duplicates */
+    /* Don't allow duplicates */
     if (!this->find_effect(e.id, it))
     {
         auto effect = this->create_new(e.id);
-        this->notify(effect.get()->get_attributes());
         this->effects.push_back(std::move(effect));
     }
 }
@@ -75,23 +74,19 @@ void effect_processor::event_handler(const events::remove_effect &e)
     }
 }
 
-void effect_processor::event_handler(const events::bypass &e)
+void effect_processor::event_handler(const events::bypass_effect &e)
 {
     auto effect = this->find_effect(e.id);
     if (effect == nullptr)
         return;
 
     effect->bypass(e.bypassed);
-
-//    this->notify(events::bypass {e.id, e.bypassed});
 }
 
-void effect_processor::event_handler(const events::volume &e)
+void effect_processor::event_handler(const events::set_volume &e)
 {
     this->audio.set_input_volume(e.input_vol);
     this->audio.set_output_volume(e.output_vol);
-
-//    this->notify(events::volume {e.input_vol, e.output_vol});
 }
 
 void effect_processor::event_handler(const events::process_data &e)
@@ -139,14 +134,23 @@ void effect_processor::event_handler(const events::process_data &e)
     this->processing_time_us = cpu_cycles_to_us(cycles_start, cycles_end);
 }
 
-void effect_processor::event_handler(const effect_processor_events::get_processing_load &e)
+void effect_processor::event_handler(const events::get_processing_load &e)
 {
     e.response(this->get_processing_load());
 }
 
-void effect_processor::event_handler(const events::effect_controls &e)
+void effect_processor::event_handler(const events::set_effect_controls &e)
 {
     std::visit([this](auto &&ctrl) { this->set_controls(ctrl); }, e.controls);
+}
+
+void effect_processor::event_handler(const events::get_effect_attributes &e)
+{
+    auto effect = this->find_effect(e.id);
+    if (effect == nullptr)
+        return;
+
+    e.response(effect->get_basic_attributes(), effect->get_specific_attributes());
 }
 
 void effect_processor::set_controls(const tremolo_attributes::controls &ctrl)
@@ -196,6 +200,11 @@ void effect_processor::set_controls(const cabinet_sim_attributes::controls &ctrl
         return;
 }
 
+void effect_processor::notify_effect_attributes_changed(effect *e)
+{
+    this->notify(events::effect_attributes_changed {e->get_basic_attributes(), e->get_specific_attributes()});
+}
+
 std::unique_ptr<effect> effect_processor::create_new(effect_id id)
 {
     static const std::map<effect_id, std::function<std::unique_ptr<effect>()>> effect_factory =
@@ -212,7 +221,7 @@ std::unique_ptr<effect> effect_processor::create_new(effect_id id)
 bool effect_processor::find_effect(effect_id id, std::vector<std::unique_ptr<effect>>::iterator &it)
 {
     auto effect_it = std::find_if(begin(this->effects), end(this->effects),
-                                  [id](const auto &effect) { return effect->get_id() == id; });
+                                  [id](const auto &effect) { return effect->get_basic_attributes().id == id; });
 
     it = effect_it;
 

@@ -17,20 +17,20 @@
 namespace mfx
 {
 
-class overdrive : private overdrive_attributes, public effect
+class overdrive : public effect
 {
 public:
-    overdrive(float low = 0.5f, float high = 0.5f, float gain = 40.0f, float mix = 0.5f, controls::mode_type mode = controls::mode_type::soft);
+    overdrive(float low = 0.5f, float high = 0.5f, float gain = 40.0f, float mix = 0.5f, overdrive_attributes::controls::mode_type mode = overdrive_attributes::controls::mode_type::soft);
     virtual ~overdrive();
 
     void process(const dsp_input_t &in, dsp_output_t &out) override;
-    effect_attributes get_attributes(void) const override;
+    const effect_specific_attributes get_specific_attributes(void) const override;
 
     void set_high(float high);
     void set_gain(float gain);
     void set_low(float low);
     void set_mix(float mix);
-    void set_mode(controls::mode_type mode);
+    void set_mode(overdrive_attributes::controls::mode_type mode);
 
 private:
     float soft_clip(float in);
@@ -68,6 +68,8 @@ private:
 
     /* Tunable low-pass 2-nd order IIR filter */
     libs::adsp::iir_lowpass iir_lp;
+
+    overdrive_attributes attributes;
 };
 
 }

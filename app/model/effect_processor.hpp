@@ -47,19 +47,19 @@ struct remove_effect
     effect_id id;
 };
 
-struct bypass
+struct bypass_effect
 {
     effect_id id;
     bool bypassed;
 };
 
-struct volume
+struct set_volume
 {
     uint8_t input_vol;
     uint8_t output_vol;
 };
 
-struct effect_controls
+struct set_effect_controls
 {
     std::variant
     <
@@ -71,25 +71,38 @@ struct effect_controls
     controls;
 };
 
-using effect_attr = effect_attributes;
+struct get_effect_attributes
+{
+    effect_id id;
+    std::function<void(const effect_basic_attributes &basic, const effect_specific_attributes &specific)> response;
+};
+
+struct effect_attributes_changed
+{
+    effect_basic_attributes basic;
+    effect_specific_attributes specific;
+};
+
+using volume_changed = set_volume;
 
 using incoming = std::variant
 <
-    get_processing_load,
     process_data,
+    get_processing_load,
     add_effect,
     remove_effect,
-    bypass,
-    volume,
-    effect_controls
+    bypass_effect,
+    set_volume,
+    set_effect_controls,
+    get_effect_attributes
 >;
 
 using outgoing = std::variant
 <
-    bypass,
-    volume,
-    effect_attr
+    volume_changed,
+    effect_attributes_changed
 >;
+
 }
 
 class effect_processor : public middlewares::active_object<effect_processor_events::incoming>,
@@ -105,16 +118,19 @@ private:
     /* Event handlers */
     void event_handler(const effect_processor_events::add_effect &e);
     void event_handler(const effect_processor_events::remove_effect& e);
-    void event_handler(const effect_processor_events::bypass &e);
-    void event_handler(const effect_processor_events::volume &e);
+    void event_handler(const effect_processor_events::bypass_effect &e);
+    void event_handler(const effect_processor_events::set_volume &e);
     void event_handler(const effect_processor_events::process_data &e);
     void event_handler(const effect_processor_events::get_processing_load &e);
-    void event_handler(const effect_processor_events::effect_controls &e);
+    void event_handler(const effect_processor_events::set_effect_controls &e);
+    void event_handler(const effect_processor_events::get_effect_attributes &e);
 
     void set_controls(const tremolo_attributes::controls &ctrl);
     void set_controls(const echo_attributes::controls &ctrl);
     void set_controls(const overdrive_attributes::controls &ctrl);
     void set_controls(const cabinet_sim_attributes::controls &ctrl);
+
+    void notify_effect_attributes_changed(effect *eff);
 
     std::unique_ptr<effect> create_new(effect_id id);
     bool find_effect(effect_id id, std::vector<std::unique_ptr<effect>>::iterator &it);
