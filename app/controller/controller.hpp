@@ -9,6 +9,7 @@
 #define CONTROLLER_CONTROLLER_HPP_
 
 #include <memory>
+#include <vector>
 
 #include <hal/hal_led.hpp>
 #include <hal/hal_button.hpp>
@@ -75,6 +76,8 @@ private:
     void event_handler(const controller_events::load_preset &e);
 
     void view_event_handler(const lcd_view_events::splash_loaded &e);
+    void view_event_handler(const lcd_view_events::next_effect_screen_request &e);
+    void view_event_handler(const lcd_view_events::prev_effect_screen_request &e);
     void view_event_handler(const lcd_view_events::settings_volume_changed &e);
     void view_event_handler(const lcd_view_events::effect_bypass_changed &e);
     void view_event_handler(const lcd_view_events::tremolo_controls_changed &e);
@@ -94,6 +97,9 @@ private:
 
     std::unique_ptr<effect_processor> model;
     std::unique_ptr<lcd_view> view;
+
+    std::vector<effect_id> active_effects;
+    std::vector<effect_id>::iterator current_effect;
 
     hal::buttons::blue_btn button;
     osTimerId_t button_timer;

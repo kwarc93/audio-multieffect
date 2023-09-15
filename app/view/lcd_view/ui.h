@@ -15,6 +15,7 @@ extern "C" {
 #include "ui_helpers.h"
 #include "ui_events.h"
 void splashfadein_Animation(lv_obj_t * TargetObject, int delay);
+extern lv_obj_t *ui_curr_screen;
 // SCREEN: ui_splash
 void ui_splash_screen_init(void);
 void ui_event_splash(lv_event_t * e);
@@ -23,8 +24,8 @@ extern lv_obj_t * ui_lbl_splash;
 // SCREEN: ui_settings
 void ui_settings_screen_init(void);
 void ui_event_settings(lv_event_t * e);
-extern lv_obj_t * ui_prev_screen;
 extern lv_obj_t * ui_settings;
+extern lv_obj_t * ui_settings_parent_screen;
 extern lv_obj_t * ui_lbl_sett_name;
 extern lv_obj_t * ui_pnl_in_vol;
 void ui_event_sld_in_vol(lv_event_t * e);

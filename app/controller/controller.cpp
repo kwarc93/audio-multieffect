@@ -107,7 +107,7 @@ void controller::event_handler(const events::load_preset &e)
     /* TODO: Load last active preset ('pedal board') of effects */
 
     /* Example of simple preset (order is important!) */
-    static const std::array<effect_id, 4> preset =
+    static constexpr std::array<effect_id, 4> preset =
     {{
         effect_id::overdrive,
         effect_id::tremolo,
@@ -117,16 +117,36 @@ void controller::event_handler(const events::load_preset &e)
 
     for (const auto &p : preset)
     {
-        this->view.get()->send({lcd_view_events::add_effect_screen {p}});
+        this->active_effects.push_back(p);
         this->model.get()->send({effect_processor_events::add_effect {p}});
     }
 
-    this->view.get()->send({lcd_view_events::show_effect_screen {preset[0]}});
+    /* Show screen of the first effect in preset */
+    this->current_effect = this->active_effects.begin();
+    this->view.get()->send({lcd_view_events::show_next_effect_screen {*this->current_effect}});
 }
 
 void controller::view_event_handler(const lcd_view_events::splash_loaded &e)
 {
     this->send({events::load_preset{}});
+}
+
+void controller::view_event_handler(const lcd_view_events::next_effect_screen_request &e)
+{
+    if (this->current_effect == (this->active_effects.end() - 1))
+        return;
+
+    this->current_effect = std::next(this->current_effect);
+    this->view.get()->send({lcd_view_events::show_next_effect_screen {*this->current_effect}});
+}
+
+void controller::view_event_handler(const lcd_view_events::prev_effect_screen_request &e)
+{
+    if (this->current_effect == this->active_effects.begin())
+        return;
+
+    this->current_effect = std::prev(this->current_effect);
+    this->view.get()->send({lcd_view_events::show_prev_effect_screen {*this->current_effect}});
 }
 
 void controller::view_event_handler(const lcd_view_events::settings_volume_changed &e)

@@ -101,6 +101,16 @@ void ui_splash_loaded(lv_event_t * e)
     view->notify(events::splash_loaded {});
 }
 
+void ui_effect_next(lv_event_t * e)
+{
+    view->notify(events::next_effect_screen_request {});
+}
+
+void ui_effect_prev(lv_event_t * e)
+{
+    view->notify(events::prev_effect_screen_request {});
+}
+
 void ui_settings_in_vol_changed(lv_event_t * e)
 {
     lv_obj_t *in_slider = ui_sld_in_vol;

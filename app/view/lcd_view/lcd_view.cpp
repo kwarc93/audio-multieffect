@@ -89,46 +89,46 @@ void lcd_view::event_handler(const lcd_view_events::show_splash_screen &e)
     lv_disp_load_scr(ui_splash);
 }
 
-void lcd_view::event_handler(const lcd_view_events::show_effect_screen &e)
+void lcd_view::event_handler(const lcd_view_events::show_next_effect_screen &e)
 {
-    switch (e.id)
-    {
-    case effect_id::tremolo:
-        lv_disp_load_scr(ui_fx_tremolo);
-        break;
-    case effect_id::echo:
-        lv_disp_load_scr(ui_fx_echo);
-        break;
-    case effect_id::overdrive:
-        lv_disp_load_scr(ui_fx_overdrive);
-        break;
-    case effect_id::cabinet_sim:
-        break;
-    default:
-        break;
-    }
+    this->change_effect_screen(e.id, LV_SCR_LOAD_ANIM_MOVE_LEFT);
 }
 
-void lcd_view::event_handler(const lcd_view_events::add_effect_screen &e)
+void lcd_view::event_handler(const lcd_view_events::show_prev_effect_screen &e)
 {
-    this->effects_screens.push_back(e.id);
+    this->change_effect_screen(e.id, LV_SCR_LOAD_ANIM_MOVE_RIGHT);
+}
 
-    switch (e.id)
+void lcd_view::change_effect_screen(effect_id id, int dir)
+{
+    lv_obj_t *current_screen = ui_curr_screen;
+    lv_obj_t *new_screen = nullptr;
+
+    switch (id)
     {
     case effect_id::tremolo:
         ui_fx_tremolo_screen_init();
+        new_screen = ui_fx_tremolo;
         break;
     case effect_id::echo:
         ui_fx_echo_screen_init();
+        new_screen = ui_fx_echo;
         break;
     case effect_id::overdrive:
         ui_fx_overdrive_screen_init();
-        break;
-    case effect_id::cabinet_sim:
+        new_screen = ui_fx_overdrive;
         break;
     default:
-        break;
+        return;
     }
+
+    if (new_screen != nullptr)
+        lv_scr_load_anim(new_screen, static_cast<lv_scr_load_anim_t>(dir), 250, 0, false);
+
+    if (current_screen != nullptr)
+        lv_obj_del(current_screen);
+
+    current_screen = new_screen;
 }
 
 //-----------------------------------------------------------------------------
