@@ -59,21 +59,21 @@ void led_timer_cb(void *arg)
 
 void controller::dispatch(const event& e)
 {
-    std::visit([this](const auto &e) { this->event_handler(e); }, e.data);
+    std::visit([this](auto &&e) { this->event_handler(e); }, e.data);
 }
 
 void controller::update(const effect_processor_events::outgoing &e)
 {
     /* WARINING: This method could have been called from another thread */
 
-    std::visit([this](const auto &e) { this->model_event_handler(e); }, e);
+    std::visit([this](auto &&e) { this->model_event_handler(e); }, e);
 }
 
 void controller::update(const lcd_view_events::outgoing &e)
 {
     /* WARINING: This method could have been called from another thread */
 
-    std::visit([this](const auto &e) { this->view_event_handler(e); }, e);
+    std::visit([this](auto &&e) { this->view_event_handler(e); }, e);
 }
 
 void controller::event_handler(const events::led_toggle &e)

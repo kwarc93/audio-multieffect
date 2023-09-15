@@ -49,7 +49,7 @@ namespace
 
 void effect_processor::dispatch(const event &e)
 {
-    std::visit([this](const auto &e) { this->event_handler(e); }, e.data);
+    std::visit([this](auto &&e) { this->event_handler(e); }, e.data);
 }
 
 void effect_processor::event_handler(const events::add_effect &e)

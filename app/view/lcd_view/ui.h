@@ -15,7 +15,6 @@ extern "C" {
 #include "ui_helpers.h"
 #include "ui_events.h"
 void splashfadein_Animation(lv_obj_t * TargetObject, int delay);
-extern lv_obj_t *ui_curr_screen;
 // SCREEN: ui_splash
 void ui_splash_screen_init(void);
 void ui_event_splash(lv_event_t * e);

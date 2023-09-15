@@ -66,6 +66,7 @@ void ui_fx_cabinet_sim_screen_init(void)
     lv_obj_set_style_text_opa(ui_roller_cab_sim_ir, 255, LV_PART_SELECTED | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(ui_roller_cab_sim_ir, lv_color_hex(0x50FF7D), LV_PART_SELECTED | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_roller_cab_sim_ir, 255, LV_PART_SELECTED | LV_STATE_DEFAULT);
+    lv_obj_clear_flag(ui_roller_cab_sim_ir, LV_OBJ_FLAG_GESTURE_BUBBLE);      /// Flags
 
     ui_lbl_cab_sim_ir = lv_label_create(ui_fx_cabinet_sim);
     lv_obj_set_width(ui_lbl_cab_sim_ir, LV_SIZE_CONTENT);   /// 1

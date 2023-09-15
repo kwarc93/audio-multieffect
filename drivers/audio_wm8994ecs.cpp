@@ -384,13 +384,16 @@ void audio_wm8994ecs::write_reg(uint16_t reg_addr, uint16_t reg_val)
         sizeof(tx),
     };
 
-    this->i2c_dev.transfer(desc);
-    assert(desc.stat == transfr_desc::status::ok);
 
     if constexpr (verify_i2c_writes)
     {
+        this->i2c_dev.transfer(desc);
         if (reg_addr != WM8994_SW_RESET)
             assert(this->read_reg(reg_addr) == reg_val);
+    }
+    else
+    {
+        this->i2c_dev.transfer(desc, [](const auto &) {});
     }
 }
 
@@ -413,6 +416,8 @@ i2c_dev {dev}, i2c_addr {addr}, sai_drv{sai_16bit::id::sai2}
     constexpr uint32_t audio_freq = 48000;
     constexpr uint8_t output_vol = 57; // 0dB
     constexpr uint8_t input_vol = 11; // 0dB
+    constexpr uint16_t slots_1_3 = 0b1010;
+    constexpr uint16_t slots_0_2 = 0b0101;
 
     if (out != output::none)
     {
@@ -425,7 +430,7 @@ i2c_dev {dev}, i2c_addr {addr}, sai_drv{sai_16bit::id::sai2}
             sai_16bit::block::frame_type::stereo,
             sai_16bit::block::audio_freq::_48kHz,
             WM8994_SLOTS_NUMBER, // 4 slots
-            0b0101 // active slots: 0 & 2
+            slots_0_2 // active slots: 0 & 2
         };
 
         sai_drv.block_a.configure(sai_a_cfg);
@@ -445,8 +450,7 @@ i2c_dev {dev}, i2c_addr {addr}, sai_drv{sai_16bit::id::sai2}
             sai_16bit::block::frame_type::stereo,
             sai_16bit::block::audio_freq::_48kHz,
             WM8994_SLOTS_NUMBER,
-            (in == input::mic2 || in == input::line2) ?
-            0b1010 : 0b0101,
+            (in == input::mic2 || in == input::line2) ? slots_1_3 : slots_0_2,
         };
 
         sai_drv.block_b.configure(sai_b_cfg);

@@ -44,7 +44,7 @@ void console_view::character_received_callback(const std::byte *data, std::size_
 
 void console_view::dispatch(const event &e)
 {
-    std::visit([this](const auto &e) { this->event_handler(e); }, e.data);
+    std::visit([this](auto &&e) { this->event_handler(e); }, e.data);
 }
 
 void console_view::event_handler(const events::char_queue_not_empty &e)

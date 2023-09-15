@@ -92,7 +92,7 @@ private:
 
     void dispatch(const event &e) override
     {
-        std::visit([this](const auto &e) { this->event_handler(e); }, e.data);
+        std::visit([this](auto &&e) { this->event_handler(e); }, e.data);
     }
 
     void event_handler(const schedule_transfer_evt_t &e)
