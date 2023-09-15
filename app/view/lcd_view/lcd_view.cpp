@@ -189,7 +189,10 @@ void lcd_view::set_effect_attr(const effect_basic_attributes &basic, const overd
 
 void lcd_view::set_effect_attr(const effect_basic_attributes &basic, const cabinet_sim_attributes &specific)
 {
-
+    if (basic.bypassed)
+        lv_obj_clear_state(ui_btn_cab_sim_bypass, LV_STATE_CHECKED);
+    else
+        lv_obj_add_state(ui_btn_cab_sim_bypass, LV_STATE_CHECKED);
 }
 
 void lcd_view::change_effect_screen(effect_id id, int dir)
@@ -210,6 +213,10 @@ void lcd_view::change_effect_screen(effect_id id, int dir)
     case effect_id::overdrive:
         ui_fx_overdrive_screen_init();
         new_screen = ui_fx_overdrive;
+        break;
+    case effect_id::cabinet_sim:
+        ui_fx_cabinet_sim_screen_init();
+        new_screen = ui_fx_cabinet_sim;
         break;
     default:
         return;

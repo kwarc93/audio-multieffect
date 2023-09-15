@@ -135,9 +135,9 @@ void ui_settings_out_vol_changed(lv_event_t * e)
     view->notify(evt);
 }
 
-void ui_settings_cab_sim_bypass(lv_event_t * e)
+void ui_settings_some_setting(lv_event_t * e)
 {
-    notify_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::cabinet_sim);
+
 }
 
 void ui_tremolo_bypass(lv_event_t * e)
@@ -208,6 +208,16 @@ void ui_overdrive_high_changed(lv_event_t * e)
 void ui_overdrive_mode_changed(lv_event_t * e)
 {
     notify_overdrive_controls_changed();
+}
+
+void ui_cab_sim_bypass(lv_event_t * e)
+{
+    notify_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::cabinet_sim);
+}
+
+void ui_cab_sim_ir(lv_event_t * e)
+{
+
 }
 
 

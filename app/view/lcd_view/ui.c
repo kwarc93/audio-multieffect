@@ -33,8 +33,8 @@ void ui_event_sld_out_vol(lv_event_t * e);
 lv_obj_t * ui_sld_out_vol;
 lv_obj_t * ui_lbl_out_vol_dbmax;
 lv_obj_t * ui_lbl_out_vol;
-void ui_event_cb_cab_sim(lv_event_t * e);
-lv_obj_t * ui_cb_cab_sim;
+void ui_event_cb_some_setting(lv_event_t * e);
+lv_obj_t * ui_cb_some_setting;
 
 // SCREEN: ui_fx_tremolo
 void ui_fx_tremolo_screen_init(void);
@@ -123,6 +123,18 @@ lv_obj_t * ui_sw_od_mode;
 lv_obj_t * ui_lbl_od_mode_soft;
 lv_obj_t * ui_lbl_od_mode_hard;
 
+// SCREEN: ui_fx_cabinet_sim
+void ui_fx_cabinet_sim_screen_init(void);
+void ui_event_fx_cabinet_sim(lv_event_t * e);
+lv_obj_t * ui_fx_cabinet_sim;
+lv_obj_t * ui_lbl_cab_sim_fx_name;
+void ui_event_btn_cab_sim_bypass(lv_event_t * e);
+lv_obj_t * ui_btn_cab_sim_bypass;
+lv_obj_t * ui_lbl_btn_cab_sim_bypass;
+void ui_event_roller_cab_sim_ir(lv_event_t * e);
+lv_obj_t * ui_roller_cab_sim_ir;
+lv_obj_t * ui_lbl_cab_sim_ir;
+
 ///////////////////// TEST LVGL SETTINGS ////////////////////
 #if LV_COLOR_DEPTH != 16
     #error "LV_COLOR_DEPTH should be 16bit to match SquareLine Studio's settings"
@@ -195,11 +207,11 @@ void ui_event_sld_out_vol(lv_event_t * e)
         ui_settings_out_vol_changed(e);
     }
 }
-void ui_event_cb_cab_sim(lv_event_t * e)
+void ui_event_cb_some_setting(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     if(event_code == LV_EVENT_VALUE_CHANGED) {
-        ui_settings_cab_sim_bypass(e);
+        ui_settings_some_setting(e);
     }
 }
 void ui_event_fx_tremolo(lv_event_t * e)
@@ -372,6 +384,38 @@ void ui_event_sw_overdrive_mode(lv_event_t * e)
         ui_overdrive_mode_changed(e);
         _ui_state_modify(ui_lbl_od_mode_hard, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
         _ui_state_modify(ui_lbl_od_mode_soft, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
+    }
+}
+void ui_event_fx_cabinet_sim(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_LEFT) {
+        lv_indev_wait_release(lv_indev_get_act());
+        ui_effect_next(e);
+    }
+    if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_RIGHT) {
+        lv_indev_wait_release(lv_indev_get_act());
+        ui_effect_prev(e);
+    }
+    if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_BOTTOM) {
+        lv_indev_wait_release(lv_indev_get_act());
+        _ui_screen_change(&ui_settings, LV_SCR_LOAD_ANIM_MOVE_BOTTOM, 250, 0, &ui_settings_screen_init);
+        ui_settings_parent_screen = ui_fx_cabinet_sim;
+    }
+}
+void ui_event_btn_cab_sim_bypass(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    if(event_code == LV_EVENT_CLICKED) {
+        ui_cab_sim_bypass(e);
+    }
+}
+void ui_event_roller_cab_sim_ir(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_cab_sim_ir(e);
     }
 }
 

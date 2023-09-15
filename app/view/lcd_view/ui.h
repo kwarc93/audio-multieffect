@@ -37,8 +37,8 @@ void ui_event_sld_out_vol(lv_event_t * e);
 extern lv_obj_t * ui_sld_out_vol;
 extern lv_obj_t * ui_lbl_out_vol_dbmax;
 extern lv_obj_t * ui_lbl_out_vol;
-void ui_event_cb_cab_sim(lv_event_t * e);
-extern lv_obj_t * ui_cb_cab_sim;
+void ui_event_cb_some_setting(lv_event_t * e);
+extern lv_obj_t * ui_cb_some_setting;
 // SCREEN: ui_fx_tremolo
 void ui_fx_tremolo_screen_init(void);
 void ui_event_fx_tremolo(lv_event_t * e);
@@ -122,6 +122,17 @@ void ui_event_sw_overdrive_mode(lv_event_t * e);
 extern lv_obj_t * ui_sw_od_mode;
 extern lv_obj_t * ui_lbl_od_mode_soft;
 extern lv_obj_t * ui_lbl_od_mode_hard;
+// SCREEN: ui_fx_cabinet_sim
+void ui_fx_cabinet_sim_screen_init(void);
+void ui_event_fx_cabinet_sim(lv_event_t * e);
+extern lv_obj_t * ui_fx_cabinet_sim;
+extern lv_obj_t * ui_lbl_cab_sim_fx_name;
+void ui_event_btn_cab_sim_bypass(lv_event_t * e);
+extern lv_obj_t * ui_btn_cab_sim_bypass;
+extern lv_obj_t * ui_lbl_btn_cab_sim_bypass;
+void ui_event_roller_cab_sim_ir(lv_event_t * e);
+extern lv_obj_t * ui_roller_cab_sim_ir;
+extern lv_obj_t * ui_lbl_cab_sim_ir;
 
 LV_IMG_DECLARE(ui_img_pot_ver_line_png);    // assets/pot_ver_line.png
 LV_IMG_DECLARE(ui_img_pot_ver_knob_png);    // assets/pot_ver_knob.png

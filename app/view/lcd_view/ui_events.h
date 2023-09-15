@@ -16,7 +16,7 @@ void ui_effect_next(lv_event_t * e);
 void ui_effect_prev(lv_event_t * e);
 void ui_settings_in_vol_changed(lv_event_t * e);
 void ui_settings_out_vol_changed(lv_event_t * e);
-void ui_settings_cab_sim_bypass(lv_event_t * e);
+void ui_settings_some_setting(lv_event_t * e);
 void ui_tremolo_bypass(lv_event_t * e);
 void ui_tremolo_rate_changed(lv_event_t * e);
 void ui_tremolo_depth_changed(lv_event_t * e);
@@ -31,6 +31,8 @@ void ui_overdrive_low_changed(lv_event_t * e);
 void ui_overdrive_gain_changed(lv_event_t * e);
 void ui_overdrive_high_changed(lv_event_t * e);
 void ui_overdrive_mode_changed(lv_event_t * e);
+void ui_cab_sim_bypass(lv_event_t * e);
+void ui_cab_sim_ir(lv_event_t * e);
 
 #ifdef __cplusplus
 } /*extern "C"*/
