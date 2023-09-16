@@ -141,7 +141,7 @@ void effect_processor::event_handler(const events::get_processing_load &e)
 
 void effect_processor::event_handler(const events::set_effect_controls &e)
 {
-    std::visit([this](auto &&ctrl) { this->set_controls(ctrl); }, e.controls);
+    std::visit([this](auto &&ctrl) { this->set_controls(ctrl); }, e.ctrl);
 }
 
 void effect_processor::event_handler(const events::get_effect_attributes &e)

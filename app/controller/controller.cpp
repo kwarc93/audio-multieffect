@@ -164,19 +164,7 @@ void controller::view_event_handler(const lcd_view_events::effect_bypass_changed
     this->model->send(evt);
 }
 
-void controller::view_event_handler(const lcd_view_events::tremolo_controls_changed &e)
-{
-    effect_processor::event evt {effect_processor_events::set_effect_controls {e.ctrl}};
-    this->model->send(evt);
-}
-
-void controller::view_event_handler(const lcd_view_events::echo_controls_changed &e)
-{
-    effect_processor::event evt {effect_processor_events::set_effect_controls {e.ctrl}};
-    this->model->send(evt);
-}
-
-void controller::view_event_handler(const lcd_view_events::overdrive_controls_changed &e)
+void controller::view_event_handler(const lcd_view_events::effect_controls_changed &e)
 {
     effect_processor::event evt {effect_processor_events::set_effect_controls {e.ctrl}};
     this->model->send(evt);

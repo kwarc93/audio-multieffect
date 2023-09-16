@@ -70,19 +70,16 @@ struct effect_bypass_changed
     bool bypassed;
 };
 
-struct tremolo_controls_changed
+struct effect_controls_changed
 {
-    tremolo_attributes::controls ctrl;
-};
-
-struct echo_controls_changed
-{
-    echo_attributes::controls ctrl;
-};
-
-struct overdrive_controls_changed
-{
-    overdrive_attributes::controls ctrl;
+    std::variant
+    <
+        tremolo_attributes::controls,
+        echo_attributes::controls,
+        overdrive_attributes::controls,
+        cabinet_sim_attributes::controls
+    >
+    ctrl;
 };
 
 struct set_effect_attributes
@@ -98,9 +95,7 @@ using outgoing = std::variant
     prev_effect_screen_request,
     settings_volume_changed,
     effect_bypass_changed,
-    tremolo_controls_changed,
-    echo_controls_changed,
-    overdrive_controls_changed
+    effect_controls_changed
 >;
 
 using incoming = std::variant

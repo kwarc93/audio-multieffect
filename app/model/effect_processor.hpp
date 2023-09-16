@@ -67,7 +67,7 @@ struct set_effect_controls
         overdrive_attributes::controls,
         cabinet_sim_attributes::controls
     >
-    controls;
+    ctrl;
 };
 
 struct get_effect_attributes

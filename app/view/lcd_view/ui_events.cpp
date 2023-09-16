@@ -32,7 +32,7 @@ void notify_tremolo_controls_changed(void)
     lv_obj_t *depth_knob = ui_arc_trem_depth;
     lv_obj_t *shape_sw = ui_sw_trem_shape;
 
-    const events::tremolo_controls_changed evt
+    const mfx::tremolo_attributes::controls ctrl
     {
         static_cast<float>(lv_arc_get_value(rate_knob)),
         static_cast<float>(lv_arc_get_value(depth_knob)) * 0.01f,
@@ -41,7 +41,7 @@ void notify_tremolo_controls_changed(void)
         mfx::tremolo_attributes::controls::shape_type::triangle
     };
 
-    view->notify(evt);
+    view->notify(events::effect_controls_changed {ctrl});
 }
 
 void notify_echo_controls_changed(void)
@@ -51,7 +51,7 @@ void notify_echo_controls_changed(void)
     lv_obj_t *feedback_knob = ui_arc_echo_feedb;
     lv_obj_t *mode_sw = ui_sw_echo_mode;
 
-    const events::echo_controls_changed evt
+    const mfx::echo_attributes::controls ctrl
     {
         static_cast<float>(lv_arc_get_value(blur_knob)) * 0.01f,
         static_cast<float>(lv_arc_get_value(time_knob)) * 0.01f,
@@ -61,7 +61,7 @@ void notify_echo_controls_changed(void)
         mfx::echo_attributes::controls::mode_type::echo
     };
 
-    view->notify(evt);
+    view->notify(events::effect_controls_changed {ctrl});
 }
 
 void notify_overdrive_controls_changed(void)
@@ -71,7 +71,7 @@ void notify_overdrive_controls_changed(void)
     lv_obj_t *tone_knob = ui_arc_od_tone;
     lv_obj_t *mode_sw = ui_sw_od_mode;
 
-    const events::overdrive_controls_changed evt
+    const mfx::overdrive_attributes::controls ctrl
     {
         1.0f - (static_cast<float>(lv_arc_get_value(tone_knob)) * 0.01f),
         static_cast<float>(lv_arc_get_value(gain_knob)),
@@ -82,7 +82,14 @@ void notify_overdrive_controls_changed(void)
         mfx::overdrive_attributes::controls::mode_type::soft
     };
 
-    view->notify(evt);
+    view->notify(events::effect_controls_changed {ctrl});
+}
+
+void notify_cabinet_sim_controls_changed(void)
+{
+    lv_obj_t *ir_list = ui_roller_cab_sim_ir;
+
+    /* TODO: Notify about selected impulse response */
 }
 
 }
@@ -217,7 +224,7 @@ void ui_cab_sim_bypass(lv_event_t * e)
 
 void ui_cab_sim_ir(lv_event_t * e)
 {
-
+    notify_cabinet_sim_controls_changed();
 }
 
 
