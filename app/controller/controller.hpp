@@ -87,6 +87,8 @@ private:
     void model_event_handler(const effect_processor_events::volume_changed &e);
     void model_event_handler(const effect_processor_events::effect_attributes_changed &e);
 
+    void update_effect_attributes(effect_id id);
+
     int error_code;
 
     std::unique_ptr<effect_processor> model;

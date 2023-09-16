@@ -96,7 +96,7 @@ void effect_processor::event_handler(const events::process_data &e)
     dsp_input_t *current_input {&this->dsp_input};
     dsp_output_t *current_output {&this->dsp_output};
 
-    for (auto &effect : this->effects)
+    for (auto &&effect : this->effects)
     {
         if (!(effect->is_bypassed()))
         {
@@ -221,7 +221,7 @@ std::unique_ptr<effect> effect_processor::create_new(effect_id id)
 bool effect_processor::find_effect(effect_id id, std::vector<std::unique_ptr<effect>>::iterator &it)
 {
     auto effect_it = std::find_if(begin(this->effects), end(this->effects),
-                                  [id](const auto &effect) { return effect->get_basic_attributes().id == id; });
+                                  [id](auto &&effect) { return effect->get_basic_attributes().id == id; });
 
     it = effect_it;
 
@@ -292,7 +292,7 @@ audio{middlewares::i2c_managers::main::get_instance()}
 
     /* Start audio capture */
     this->audio.capture(this->audio_input.buffer.data(), this->audio_input.buffer.size(),
-    [this](auto... params)
+    [this](auto && ...params)
     {
         this->audio_capture_cb(params...);
     },
@@ -300,7 +300,7 @@ audio{middlewares::i2c_managers::main::get_instance()}
 
     /* Start audio playback */
     this->audio.play(this->audio_output.buffer.data(), this->audio_output.buffer.size(),
-    [this](auto... params)
+    [this](auto && ...params)
     {
         this->audio_play_cb(params...);
     },

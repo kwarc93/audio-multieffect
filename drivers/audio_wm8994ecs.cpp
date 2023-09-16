@@ -393,7 +393,7 @@ void audio_wm8994ecs::write_reg(uint16_t reg_addr, uint16_t reg_val)
     }
     else
     {
-        this->i2c_dev.transfer(desc, [](const auto &) {});
+        this->i2c_dev.transfer(desc, {});
     }
 }
 

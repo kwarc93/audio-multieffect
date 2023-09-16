@@ -82,7 +82,7 @@ void controller::event_handler(const events::led_toggle &e)
 
     const effect_processor::event evt {effect_processor_events::get_processing_load
     {
-        [this](auto... params)
+        [this](auto &&... params)
         {
             const controller::event e {events::effect_processor_load {params...}};
             this->send(e);
@@ -115,7 +115,7 @@ void controller::event_handler(const events::load_preset &e)
         effect_id::cabinet_sim,
     }};
 
-    for (const auto &p : preset)
+    for (auto &&p : preset)
     {
         this->active_effects.push_back(p);
         this->model.get()->send({effect_processor_events::add_effect {p}});
@@ -124,19 +124,7 @@ void controller::event_handler(const events::load_preset &e)
     /* Show screen of the first effect in preset */
     this->current_effect = this->active_effects.begin();
     this->view.get()->send({lcd_view_events::show_next_effect_screen {*this->current_effect}});
-
-    /* Get effect attributes */
-    const effect_processor::event evt {effect_processor_events::get_effect_attributes
-    {
-        *this->current_effect,
-        [this](auto... params)
-        {
-            const lcd_view::event e {lcd_view_events::set_effect_attributes {params...}};
-            this->view.get()->send(e);
-        }
-    }};
-
-    this->model.get()->send(evt);
+    this->update_effect_attributes(*this->current_effect);
 }
 
 void controller::view_event_handler(const lcd_view_events::splash_loaded &e)
@@ -151,19 +139,7 @@ void controller::view_event_handler(const lcd_view_events::next_effect_screen_re
 
     this->current_effect = std::next(this->current_effect);
     this->view.get()->send({lcd_view_events::show_next_effect_screen {*this->current_effect}});
-
-    /* Get effect attributes */
-    const effect_processor::event evt {effect_processor_events::get_effect_attributes
-    {
-        *this->current_effect,
-        [this](auto... params)
-        {
-            const lcd_view::event e {lcd_view_events::set_effect_attributes {params...}};
-            this->view.get()->send(e);
-        }
-    }};
-
-    this->model.get()->send(evt);
+    this->update_effect_attributes(*this->current_effect);
 }
 
 void controller::view_event_handler(const lcd_view_events::prev_effect_screen_request &e)
@@ -173,19 +149,7 @@ void controller::view_event_handler(const lcd_view_events::prev_effect_screen_re
 
     this->current_effect = std::prev(this->current_effect);
     this->view.get()->send({lcd_view_events::show_prev_effect_screen {*this->current_effect}});
-
-    /* Get effect attributes */
-    const effect_processor::event evt {effect_processor_events::get_effect_attributes
-    {
-        *this->current_effect,
-        [this](auto... params)
-        {
-            const lcd_view::event e {lcd_view_events::set_effect_attributes {params...}};
-            this->view.get()->send(e);
-        }
-    }};
-
-    this->model.get()->send(evt);
+    this->update_effect_attributes(*this->current_effect);
 }
 
 void controller::view_event_handler(const lcd_view_events::settings_volume_changed &e)
@@ -227,6 +191,21 @@ void controller::model_event_handler(const effect_processor_events::effect_attri
 {
     lcd_view::event evt {lcd_view_events::set_effect_attributes {e.basic, e.specific}};
     this->view.get()->send(evt);
+}
+
+void controller::update_effect_attributes(effect_id id)
+{
+    const effect_processor::event e {effect_processor_events::get_effect_attributes
+    {
+        id,
+        [this](auto &&... params)
+        {
+            const lcd_view::event e {lcd_view_events::set_effect_attributes {params...}};
+            this->view.get()->send(e);
+        }
+    }};
+
+    this->model.get()->send(e);
 }
 
 //-----------------------------------------------------------------------------
