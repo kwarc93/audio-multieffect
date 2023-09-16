@@ -23,7 +23,7 @@ public:
     overdrive(float low = 0.5f, float high = 0.5f, float gain = 40.0f, float mix = 0.5f, overdrive_attributes::controls::mode_type mode = overdrive_attributes::controls::mode_type::soft);
     virtual ~overdrive();
 
-    void process(const dsp_input_t &in, dsp_output_t &out) override;
+    void process(const dsp_input &in, dsp_output &out) override;
     const effect_specific_attributes get_specific_attributes(void) const override;
 
     void set_high(float high);
@@ -61,7 +61,7 @@ private:
         -0.00054562, -0.00007726
     }};
 
-    libs::adsp::fir<fir_coeffs.size(), fir_coeffs, dsp_vector_size> fir_lp;
+    libs::adsp::fir<fir_coeffs.size(), fir_coeffs, config::dsp_vector_size> fir_lp;
 
     /* Tunable high-pass 2nd order IIR filter */
     libs::adsp::iir_highpass iir_hp;

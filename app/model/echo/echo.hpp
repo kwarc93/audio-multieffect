@@ -21,7 +21,7 @@ public:
     echo(float blur = 0.5f, float time = 0.3f, float feedback = 0.6f, echo_attributes::controls::mode_type mode = echo_attributes::controls::mode_type::echo);
     virtual ~echo();
 
-    void process(const dsp_input_t &in, dsp_output_t &out) override;
+    void process(const dsp_input &in, dsp_output &out) override;
     const effect_specific_attributes get_specific_attributes(void) const override;
 
     void set_blur(float blur);

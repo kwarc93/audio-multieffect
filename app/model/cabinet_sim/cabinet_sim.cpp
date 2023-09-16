@@ -28,7 +28,7 @@ cabinet_sim::~cabinet_sim()
 
 }
 
-void cabinet_sim::process(const dsp_input_t& in, dsp_output_t& out)
+void cabinet_sim::process(const dsp_input& in, dsp_output& out)
 {
     this->fast_conv.process(in.data(), out.data());
 }

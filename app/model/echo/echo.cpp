@@ -18,7 +18,7 @@ using namespace mfx;
 namespace
 {
 __attribute__((section(".sdram")))
-std::array<float, 1 * sampling_frequency_hz> delay_line_memory; // Maximum delay time: 1s
+std::array<float, 1 * config::sampling_frequency_hz> delay_line_memory; // Maximum delay time: 1s
 }
 
 //-----------------------------------------------------------------------------
@@ -29,7 +29,7 @@ std::array<float, 1 * sampling_frequency_hz> delay_line_memory; // Maximum delay
 
 
 echo::echo(float blur, float time, float feedback, echo_attributes::controls::mode_type mode) : effect { effect_id::echo, "echo" },
-delay_line{delay_line_memory.data(), delay_line_memory.size(), sampling_frequency_hz}
+delay_line{delay_line_memory.data(), delay_line_memory.size(), config::sampling_frequency_hz}
 {
     this->set_mode(mode);
     this->set_blur(blur);
@@ -42,7 +42,7 @@ echo::~echo()
 
 }
 
-void echo::process(const dsp_input_t& in, dsp_output_t& out)
+void echo::process(const dsp_input& in, dsp_output& out)
 {
     std::transform(in.begin(), in.end(), out.begin(),
     [this](auto input)
@@ -75,7 +75,7 @@ void echo::set_blur(float blur)
     /* Calculate coefficient for 1-st order low-pass IIR (2kHz - 8kHz range) */
     const float fc = 2000 + (1 - blur) * 6000;
 
-    this->iir_lp.calc_coeffs(fc, sampling_frequency_hz, true);
+    this->iir_lp.calc_coeffs(fc, config::sampling_frequency_hz, true);
 
 }
 

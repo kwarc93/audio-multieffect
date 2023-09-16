@@ -89,7 +89,7 @@ void controller::event_handler(const events::led_toggle &e)
         }
     }};
 
-    this->model.get()->send(evt);
+    this->model->send(evt);
 }
 
 void controller::event_handler(const events::button_state_changed &e)
@@ -118,12 +118,12 @@ void controller::event_handler(const events::load_preset &e)
     for (auto &&p : preset)
     {
         this->active_effects.push_back(p);
-        this->model.get()->send({effect_processor_events::add_effect {p}});
+        this->model->send({effect_processor_events::add_effect {p}});
     }
 
     /* Show screen of the first effect in preset */
     this->current_effect = this->active_effects.begin();
-    this->view.get()->send({lcd_view_events::show_next_effect_screen {*this->current_effect}});
+    this->view->send({lcd_view_events::show_next_effect_screen {*this->current_effect}});
     this->update_effect_attributes(*this->current_effect);
 }
 
@@ -138,7 +138,7 @@ void controller::view_event_handler(const lcd_view_events::next_effect_screen_re
         return;
 
     this->current_effect = std::next(this->current_effect);
-    this->view.get()->send({lcd_view_events::show_next_effect_screen {*this->current_effect}});
+    this->view->send({lcd_view_events::show_next_effect_screen {*this->current_effect}});
     this->update_effect_attributes(*this->current_effect);
 }
 
@@ -148,38 +148,38 @@ void controller::view_event_handler(const lcd_view_events::prev_effect_screen_re
         return;
 
     this->current_effect = std::prev(this->current_effect);
-    this->view.get()->send({lcd_view_events::show_prev_effect_screen {*this->current_effect}});
+    this->view->send({lcd_view_events::show_prev_effect_screen {*this->current_effect}});
     this->update_effect_attributes(*this->current_effect);
 }
 
 void controller::view_event_handler(const lcd_view_events::settings_volume_changed &e)
 {
     const effect_processor::event evt {effect_processor_events::set_volume {e.input_vol, e.output_vol}};
-    this->model.get()->send(evt);
+    this->model->send(evt);
 }
 
 void controller::view_event_handler(const lcd_view_events::effect_bypass_changed &e)
 {
     const effect_processor::event evt {effect_processor_events::bypass_effect {e.id, e.bypassed}};
-    this->model.get()->send(evt);
+    this->model->send(evt);
 }
 
 void controller::view_event_handler(const lcd_view_events::tremolo_controls_changed &e)
 {
     effect_processor::event evt {effect_processor_events::set_effect_controls {e.ctrl}};
-    this->model.get()->send(evt);
+    this->model->send(evt);
 }
 
 void controller::view_event_handler(const lcd_view_events::echo_controls_changed &e)
 {
     effect_processor::event evt {effect_processor_events::set_effect_controls {e.ctrl}};
-    this->model.get()->send(evt);
+    this->model->send(evt);
 }
 
 void controller::view_event_handler(const lcd_view_events::overdrive_controls_changed &e)
 {
     effect_processor::event evt {effect_processor_events::set_effect_controls {e.ctrl}};
-    this->model.get()->send(evt);
+    this->model->send(evt);
 }
 
 void controller::model_event_handler(const effect_processor_events::volume_changed &e)
@@ -190,7 +190,7 @@ void controller::model_event_handler(const effect_processor_events::volume_chang
 void controller::model_event_handler(const effect_processor_events::effect_attributes_changed &e)
 {
     lcd_view::event evt {lcd_view_events::set_effect_attributes {e.basic, e.specific}};
-    this->view.get()->send(evt);
+    this->view->send(evt);
 }
 
 void controller::update_effect_attributes(effect_id id)
@@ -201,11 +201,11 @@ void controller::update_effect_attributes(effect_id id)
         [this](auto &&... params)
         {
             const lcd_view::event e {lcd_view_events::set_effect_attributes {params...}};
-            this->view.get()->send(e);
+            this->view->send(e);
         }
     }};
 
-    this->model.get()->send(e);
+    this->model->send(e);
 }
 
 //-----------------------------------------------------------------------------
@@ -228,13 +228,13 @@ view {std::move(view)}
     osTimerStart(this->led_timer, 500);
 
     /* Start observing model */
-    this->model.get()->attach(this);
+    this->model->attach(this);
 
     /* Start observing view(s) */
-    this->view.get()->attach(this);
+    this->view->attach(this);
 
     /* Show splash screen */
-    this->view.get()->send({lcd_view_events::show_splash_screen {}});
+    this->view->send({lcd_view_events::show_splash_screen {}});
 }
 
 controller::~controller()

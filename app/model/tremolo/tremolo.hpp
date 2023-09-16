@@ -21,7 +21,7 @@ public:
     tremolo(float rate = 8, float depth = 0.3f, tremolo_attributes::controls::shape_type shape = tremolo_attributes::controls::shape_type::triangle);
     virtual ~tremolo();
 
-    void process(const dsp_input_t &in, dsp_output_t &out) override;
+    void process(const dsp_input &in, dsp_output &out) override;
     const effect_specific_attributes get_specific_attributes(void) const override;
 
     void set_depth(float depth);

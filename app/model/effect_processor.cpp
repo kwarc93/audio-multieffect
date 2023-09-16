@@ -93,8 +93,8 @@ void effect_processor::event_handler(const events::process_data &e)
 {
     const uint32_t cycles_start = hal::system::clock::cycles();
 
-    dsp_input_t *current_input {&this->dsp_input};
-    dsp_output_t *current_output {&this->dsp_output};
+    effect::dsp_input *current_input {&this->dsp_input};
+    effect::dsp_output *current_output {&this->dsp_output};
 
     for (auto &&effect : this->effects)
     {
@@ -103,7 +103,7 @@ void effect_processor::event_handler(const events::process_data &e)
             effect->process(*current_input, *current_output);
 
             /* Swap current buffers pointers after each effect process so that old output is new input */
-            dsp_input_t *tmp = current_input;
+            effect::dsp_input *tmp = current_input;
             current_input = current_output;
             current_output = tmp;
         }
@@ -274,7 +274,7 @@ void effect_processor::audio_play_cb(uint16_t sample_index)
 
 uint8_t effect_processor::get_processing_load(void)
 {
-    constexpr uint32_t max_processing_time_us = 1e6 * dsp_vector_size / sampling_frequency_hz;
+    constexpr uint32_t max_processing_time_us = 1e6 * config::dsp_vector_size / config::sampling_frequency_hz;
     return 100 * this->processing_time_us / max_processing_time_us;
 }
 
@@ -287,8 +287,8 @@ audio{middlewares::i2c_managers::main::get_instance()}
     this->processing_time_us = 0;
 
     /* DSP buffers contain only one channel (left) */
-    this->dsp_input.resize(dsp_vector_size);
-    this->dsp_output.resize(dsp_vector_size);
+    this->dsp_input.resize(config::dsp_vector_size);
+    this->dsp_output.resize(config::dsp_vector_size);
 
     /* Start audio capture */
     this->audio.capture(this->audio_input.buffer.data(), this->audio_input.buffer.size(),

@@ -13,6 +13,7 @@
 #include <string_view>
 
 #include "effect_features.hpp"
+#include "app/config.hpp"
 
 namespace mfx
 {
@@ -20,10 +21,13 @@ namespace mfx
 class effect
 {
 public:
+    typedef std::vector<float> dsp_input;
+    typedef std::vector<float> dsp_output;
+
     effect(const effect_id &id, const std::string_view &name) : basic {id, name, true, 0} {};
     virtual ~effect() {};
 
-    virtual void process(const dsp_input_t &in, dsp_output_t &out) = 0;
+    virtual void process(const dsp_input &in, dsp_output &out) = 0;
     virtual const effect_specific_attributes get_specific_attributes(void) const = 0;
 
     const effect_basic_attributes& get_basic_attributes(void) { return this->basic; };

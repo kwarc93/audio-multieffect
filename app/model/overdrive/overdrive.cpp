@@ -67,7 +67,7 @@ overdrive::~overdrive()
 
 }
 
-void overdrive::process(const dsp_input_t& in, dsp_output_t& out)
+void overdrive::process(const dsp_input& in, dsp_output& out)
 {
     /* 1. Low-pass filter for anti-aliasing. Filter whole block using FIR filter. */
     this->fir_lp.process(in.data(), out.data());
@@ -109,7 +109,7 @@ void overdrive::set_high(float high)
     /* Calculate coefficient for 2-nd order low-pass IIR (3kHz - 9kHz range) */
     const float fc = 3000 + high * 6000;
 
-    this->iir_lp.calc_coeffs(fc, sampling_frequency_hz);
+    this->iir_lp.calc_coeffs(fc, config::sampling_frequency_hz);
 
     this->attributes.ctrl.high = high;
 }
@@ -124,7 +124,7 @@ void overdrive::set_low(float low)
     /* Calculate coefficient for 2-nd order high-pass IIR (50Hz - 250Hz range) */
     const float fc = 50 + (1.0f - low) * 200;
 
-    this->iir_hp.calc_coeffs(fc, sampling_frequency_hz);
+    this->iir_hp.calc_coeffs(fc, config::sampling_frequency_hz);
 
     this->attributes.ctrl.low = low;
 }

@@ -16,16 +16,6 @@ namespace mfx
 {
 
 //-----------------------------------------------------------------------------
-/* Constants */
-constexpr inline uint16_t dsp_vector_size {128};
-constexpr inline uint32_t sampling_frequency_hz {48000};
-
-//-----------------------------------------------------------------------------
-/* Type definitions */
-typedef std::vector<float> dsp_input_t;
-typedef std::vector<float> dsp_output_t;
-
-//-----------------------------------------------------------------------------
 /* Available effects */
 enum class effect_id { tremolo, echo, overdrive, cabinet_sim };
 

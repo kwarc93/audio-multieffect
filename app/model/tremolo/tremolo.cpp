@@ -29,7 +29,7 @@ namespace
 /* public */
 
 tremolo::tremolo(float rate, float depth, tremolo_attributes::controls::shape_type shape) : effect { effect_id::tremolo, "tremolo" },
-lfo { libs::adsp::oscillator::shape::sine, sampling_frequency_hz }
+lfo { libs::adsp::oscillator::shape::sine, config::sampling_frequency_hz }
 {
     this->set_shape(shape);
     this->set_depth(depth);
@@ -41,7 +41,7 @@ tremolo::~tremolo()
 
 }
 
-void tremolo::process(const dsp_input_t& in, dsp_output_t& out)
+void tremolo::process(const dsp_input& in, dsp_output& out)
 {
     std::transform(in.begin(), in.end(), out.begin(),
     [this](auto input)

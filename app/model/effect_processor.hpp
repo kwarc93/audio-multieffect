@@ -12,7 +12,6 @@
 #include <variant>
 #include <memory>
 #include <array>
-#include <tuple>
 
 #include <middlewares/active_object.hpp>
 #include <middlewares/observer.hpp>
@@ -144,11 +143,11 @@ private:
     std::vector<std::unique_ptr<effect>> effects;
 
     hal::audio_devices::codec audio;
-    hal::audio_devices::codec::input_buffer_t<2 * dsp_vector_size> audio_input;
-    hal::audio_devices::codec::output_buffer_t<2 * dsp_vector_size> audio_output;
+    hal::audio_devices::codec::input_buffer_t<2 * config::dsp_vector_size> audio_input;
+    hal::audio_devices::codec::output_buffer_t<2 * config::dsp_vector_size> audio_output;
 
-    dsp_input_t dsp_input;
-    dsp_output_t dsp_output;
+    effect::dsp_input dsp_input;
+    effect::dsp_output dsp_output;
 
     uint32_t processing_time_us;
 };

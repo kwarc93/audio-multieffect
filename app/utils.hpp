@@ -8,8 +8,6 @@
 #ifndef UTILS_HPP_
 #define UTILS_HPP_
 
-#include <cmath>
-#include <cstdint>
 
 namespace mfx::utils
 {
