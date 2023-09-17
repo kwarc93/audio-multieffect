@@ -19,6 +19,7 @@ lv_obj_t * ui_lbl_splash;
 void ui_settings_screen_init(void);
 void ui_event_settings(lv_event_t * e);
 lv_obj_t * ui_settings;
+lv_obj_t * ui_pnl_sett_content;
 lv_obj_t * ui_settings_parent_screen;
 lv_obj_t * ui_lbl_sett_name;
 lv_obj_t * ui_pnl_in_vol;
@@ -38,6 +39,7 @@ lv_obj_t * ui_cb_some_setting;
 void ui_fx_tremolo_screen_init(void);
 void ui_event_fx_tremolo(lv_event_t * e);
 lv_obj_t * ui_fx_tremolo;
+lv_obj_t * ui_pnl_trem_content;
 lv_obj_t * ui_lbl_trem_fx_name;
 void ui_event_btn_trem_bypass(lv_event_t * e);
 lv_obj_t * ui_btn_trem_bypass;
@@ -64,6 +66,7 @@ lv_obj_t * ui_lbl_trem_sine;
 void ui_fx_echo_screen_init(void);
 void ui_event_fx_echo(lv_event_t * e);
 lv_obj_t * ui_fx_echo;
+lv_obj_t * ui_pnl_echo_content;
 lv_obj_t * ui_lbl_echo_fx_name;
 void ui_event_btn_echo_bypass(lv_event_t * e);
 lv_obj_t * ui_btn_echo_bypass;
@@ -94,6 +97,7 @@ lv_obj_t * ui_lbl_echo_mode_delay;
 void ui_fx_overdrive_screen_init(void);
 void ui_event_fx_overdrive(lv_event_t * e);
 lv_obj_t * ui_fx_overdrive;
+lv_obj_t * ui_pnl_od_content;
 lv_obj_t * ui_lbl_od_fx_name;
 void ui_event_btn_overdrive_bypass(lv_event_t * e);
 lv_obj_t * ui_btn_od_bypass;
@@ -125,6 +129,7 @@ lv_obj_t * ui_lbl_od_mode_hard;
 void ui_fx_cabinet_sim_screen_init(void);
 void ui_event_fx_cabinet_sim(lv_event_t * e);
 lv_obj_t * ui_fx_cabinet_sim;
+lv_obj_t * ui_pnl_cab_sim_content;
 lv_obj_t * ui_lbl_cab_sim_fx_name;
 void ui_event_btn_cab_sim_bypass(lv_event_t * e);
 lv_obj_t * ui_btn_cab_sim_bypass;
@@ -179,18 +184,23 @@ static void helper_change_screen(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
-    if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_LEFT) {
+    if(event_code == LV_EVENT_GESTURE) {
         lv_indev_wait_release(lv_indev_get_act());
-        ui_effect_next(e);
-    }
-    if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_RIGHT) {
-        lv_indev_wait_release(lv_indev_get_act());
-        ui_effect_prev(e);
-    }
-    if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_BOTTOM) {
-        lv_indev_wait_release(lv_indev_get_act());
-        _ui_screen_change(&ui_settings, LV_SCR_LOAD_ANIM_MOVE_BOTTOM, 250, 0, &ui_settings_screen_init);
-        ui_settings_parent_screen = lv_event_get_current_target(e);
+
+        switch (lv_indev_get_gesture_dir(lv_indev_get_act())) {
+        case LV_DIR_LEFT:
+            ui_effect_next(e);
+            break;
+        case LV_DIR_RIGHT:
+            ui_effect_prev(e);
+            break;
+        case LV_DIR_BOTTOM:
+            _ui_screen_change(&ui_settings, LV_SCR_LOAD_ANIM_MOVE_BOTTOM, 250, 0, &ui_settings_screen_init);
+            ui_settings_parent_screen = lv_event_get_current_target(e);
+            break;
+        default:
+            break;
+        }
     }
 }
 void ui_event_splash(lv_event_t * e)

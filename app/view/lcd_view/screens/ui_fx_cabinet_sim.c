@@ -8,13 +8,23 @@
 void ui_fx_cabinet_sim_screen_init(void)
 {
     ui_fx_cabinet_sim = lv_obj_create(NULL);
-    lv_obj_clear_flag(ui_fx_cabinet_sim, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_color(ui_fx_cabinet_sim, lv_color_hex(0x4C4E5B), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_fx_cabinet_sim, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_grad_color(ui_fx_cabinet_sim, lv_color_hex(0x393B46), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_grad_dir(ui_fx_cabinet_sim, LV_GRAD_DIR_VER, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_lbl_cab_sim_fx_name = lv_label_create(ui_fx_cabinet_sim);
+    ui_pnl_cab_sim_content = lv_obj_create(ui_fx_cabinet_sim);
+    lv_obj_set_width(ui_pnl_cab_sim_content, lv_pct(100));
+    lv_obj_set_height(ui_pnl_cab_sim_content, lv_pct(100));
+    lv_obj_clear_flag(ui_pnl_cab_sim_content, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_pnl_cab_sim_content, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_pnl_cab_sim_content, lv_color_hex(0x4C4E5B), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_pnl_cab_sim_content, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_color(ui_pnl_cab_sim_content, lv_color_hex(0x393B46), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_dir(ui_pnl_cab_sim_content, LV_GRAD_DIR_VER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(ui_pnl_cab_sim_content, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(ui_pnl_cab_sim_content, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(ui_pnl_cab_sim_content, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(ui_pnl_cab_sim_content, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(ui_pnl_cab_sim_content, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_lbl_cab_sim_fx_name = lv_label_create(ui_pnl_cab_sim_content);
     lv_obj_set_width(ui_lbl_cab_sim_fx_name, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_lbl_cab_sim_fx_name, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_lbl_cab_sim_fx_name, 0);
@@ -25,7 +35,7 @@ void ui_fx_cabinet_sim_screen_init(void)
     lv_obj_set_style_text_opa(ui_lbl_cab_sim_fx_name, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_lbl_cab_sim_fx_name, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_btn_cab_sim_bypass = lv_imgbtn_create(ui_fx_cabinet_sim);
+    ui_btn_cab_sim_bypass = lv_imgbtn_create(ui_pnl_cab_sim_content);
     lv_imgbtn_set_src(ui_btn_cab_sim_bypass, LV_IMGBTN_STATE_RELEASED, NULL, &ui_img_btn_1_inact_png, NULL);
     lv_imgbtn_set_src(ui_btn_cab_sim_bypass, LV_IMGBTN_STATE_PRESSED, NULL, &ui_img_btn_1_act_png, NULL);
     lv_imgbtn_set_src(ui_btn_cab_sim_bypass, LV_IMGBTN_STATE_DISABLED, NULL, &ui_img_btn_1_inact_png, NULL);
@@ -49,7 +59,7 @@ void ui_fx_cabinet_sim_screen_init(void)
     lv_obj_set_style_text_opa(ui_lbl_btn_cab_sim_bypass, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_lbl_btn_cab_sim_bypass, &ui_font_14_bold, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_roller_cab_sim_ir = lv_roller_create(ui_fx_cabinet_sim);
+    ui_roller_cab_sim_ir = lv_roller_create(ui_pnl_cab_sim_content);
     lv_roller_set_options(ui_roller_cab_sim_ir,
     "1960-G12M25-SM57-Cap45-0-5in\n1960-G12M25-SM57-Cap-5in\n1960-G12M25-R121-Cap-0in", LV_ROLLER_MODE_NORMAL);
     lv_obj_set_width(ui_roller_cab_sim_ir, lv_pct(70));
@@ -68,7 +78,7 @@ void ui_fx_cabinet_sim_screen_init(void)
     lv_obj_set_style_bg_opa(ui_roller_cab_sim_ir, 255, LV_PART_SELECTED | LV_STATE_DEFAULT);
     lv_obj_clear_flag(ui_roller_cab_sim_ir, LV_OBJ_FLAG_GESTURE_BUBBLE);      /// Flags
 
-    ui_lbl_cab_sim_ir = lv_label_create(ui_fx_cabinet_sim);
+    ui_lbl_cab_sim_ir = lv_label_create(ui_pnl_cab_sim_content);
     lv_obj_set_width(ui_lbl_cab_sim_ir, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_lbl_cab_sim_ir, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_lbl_cab_sim_ir, 0);
