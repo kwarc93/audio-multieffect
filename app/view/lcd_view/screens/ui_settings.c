@@ -154,7 +154,7 @@ void ui_settings_screen_init(void)
     lv_obj_set_style_text_font(ui_lbl_out_vol, &lv_font_montserrat_14, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_cb_some_setting = lv_checkbox_create(ui_pnl_sett_content);
-    lv_checkbox_set_text(ui_cb_some_setting, "Enable something");
+    lv_checkbox_set_text(ui_cb_some_setting, "MUTE");
     lv_obj_set_width(ui_cb_some_setting, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_cb_some_setting, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_cb_some_setting, 0);
