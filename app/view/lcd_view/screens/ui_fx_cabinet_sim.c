@@ -60,9 +60,7 @@ void ui_fx_cabinet_sim_screen_init(void)
     lv_obj_set_style_text_font(ui_lbl_btn_cab_sim_bypass, &ui_font_14_bold, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_roller_cab_sim_ir = lv_roller_create(ui_pnl_cab_sim_content);
-    lv_roller_set_options(ui_roller_cab_sim_ir,
-    "1960-G12M25-SM57-Cap45-0-5in\n1960-G12M25-SM57-Cap-5in\n1960-G12M25-R121-Cap-0in", LV_ROLLER_MODE_NORMAL);
-    lv_obj_set_width(ui_roller_cab_sim_ir, lv_pct(70));
+    lv_obj_set_width(ui_roller_cab_sim_ir, lv_pct(50));
     lv_obj_set_height(ui_roller_cab_sim_ir, lv_pct(40));
     lv_obj_set_align(ui_roller_cab_sim_ir, LV_ALIGN_CENTER);
     lv_obj_set_style_text_color(ui_roller_cab_sim_ir, lv_color_hex(0x9395A1), LV_PART_MAIN | LV_STATE_DEFAULT);

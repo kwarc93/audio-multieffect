@@ -26,6 +26,9 @@ public:
     void process(const dsp_input &in, dsp_output &out) override;
     const effect_specific_attributes get_specific_attributes(void) const override;
 
+    void set_ir(const ir_t &ir);
+    void set_ir(uint8_t idx);
+
 private:
     constexpr static cabinet_sim_attributes::controls::resolution ir_res {cabinet_sim_attributes::controls::resolution::standart};
     constexpr static uint32_t ir_size {static_cast<uint32_t>(ir_res) - config::dsp_vector_size};

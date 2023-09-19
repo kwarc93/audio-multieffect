@@ -8,7 +8,7 @@
 #ifndef MODEL_EFFECT_FEATURES_HPP_
 #define MODEL_EFFECT_FEATURES_HPP_
 
-#include <vector>
+#include <array>
 #include <variant>
 #include <string_view>
 
@@ -66,7 +66,14 @@ struct cabinet_sim_attributes
 {
     struct controls
     {
-        enum class resolution {standart = 1024, high = 2048} res; // IR resolution in samples
+        enum class resolution {standart = 1024, high = 2048} ir_res; // IR resolution in samples
+        uint8_t ir_idx; // Currently selected IR index
+        static constexpr inline std::array<const char *, 3> ir_names // List of available impulses
+        {
+            "Marshall 1960A 4x12",
+            "Orange 2x12",
+            "Catharsis Fredman"
+        };
     } ctrl;
 };
 

@@ -11,6 +11,7 @@
 
 #include "ui.h"
 
+#include <string>
 #include <middlewares/i2c_manager.hpp>
 
 using namespace mfx;
@@ -193,6 +194,14 @@ void lcd_view::set_effect_attr(const effect_basic_attributes &basic, const cabin
         lv_obj_clear_state(ui_btn_cab_sim_bypass, LV_STATE_CHECKED);
     else
         lv_obj_add_state(ui_btn_cab_sim_bypass, LV_STATE_CHECKED);
+
+    std::string options;
+    for (const auto &ir : specific.ctrl.ir_names)
+        options += std::string(ir) + "\n";
+    options.erase(options.end() - 1);
+
+    lv_roller_set_options(ui_roller_cab_sim_ir, options.c_str(), LV_ROLLER_MODE_NORMAL);
+    lv_roller_set_selected(ui_roller_cab_sim_ir, specific.ctrl.ir_idx, LV_ANIM_OFF);
 }
 
 void lcd_view::change_effect_screen(effect_id id, int dir)

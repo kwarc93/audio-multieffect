@@ -198,6 +198,8 @@ void effect_processor::set_controls(const cabinet_sim_attributes::controls &ctrl
 
     if (cab_sim_effect == nullptr)
         return;
+
+    cab_sim_effect->set_ir(ctrl.ir_idx);
 }
 
 void effect_processor::notify_effect_attributes_changed(effect *e)

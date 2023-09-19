@@ -89,7 +89,13 @@ void notify_cabinet_sim_controls_changed(void)
 {
     lv_obj_t *ir_list = ui_roller_cab_sim_ir;
 
-    /* TODO: Notify about selected impulse response */
+    const mfx::cabinet_sim_attributes::controls ctrl
+    {
+        mfx::cabinet_sim_attributes::controls::resolution::standart,
+        static_cast<uint8_t>(lv_roller_get_selected(ir_list)),
+    };
+
+    view->notify(events::effect_controls_changed {ctrl});
 }
 
 }
