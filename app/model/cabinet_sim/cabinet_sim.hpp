@@ -20,7 +20,7 @@ namespace mfx
 class cabinet_sim : public effect
 {
 public:
-    cabinet_sim(const ir_t &ir = ir_1960_G12M25_SM57_Cap45_0_5in);
+    cabinet_sim();
     virtual ~cabinet_sim();
 
     void process(const dsp_input &in, dsp_output &out) override;

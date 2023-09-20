@@ -68,12 +68,7 @@ struct cabinet_sim_attributes
     {
         enum class resolution {standart = 1024, high = 2048} ir_res; // IR resolution in samples
         uint8_t ir_idx; // Currently selected IR index
-        static constexpr inline std::array<const char *, 3> ir_names // List of available impulses
-        {
-            "Marshall 1960A 4x12",
-            "Orange 2x12",
-            "Catharsis Fredman"
-        };
+        std::array<const char *, 3> ir_names; // List of available impulses
     } ctrl;
 };
 
