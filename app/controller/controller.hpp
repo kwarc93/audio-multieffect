@@ -81,6 +81,9 @@ private:
     void view_event_handler(const lcd_view_events::settings_volume_changed &e);
     void view_event_handler(const lcd_view_events::effect_bypass_changed &e);
     void view_event_handler(const lcd_view_events::effect_controls_changed &e);
+    void view_event_handler(const lcd_view_events::add_effect_request &e);
+    void view_event_handler(const lcd_view_events::remove_effect_request &e);
+    void view_event_handler(const lcd_view_events::move_effect_request &e);
 
     void model_event_handler(const effect_processor_events::volume_changed &e);
     void model_event_handler(const effect_processor_events::effect_attributes_changed &e);

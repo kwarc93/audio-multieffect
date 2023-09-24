@@ -32,9 +32,10 @@ extern lv_obj_t * ui_btn_sett_curr_fx;
 extern lv_obj_t * ui_sld_in_vol;
 extern lv_obj_t * ui_sld_out_vol;
 extern lv_obj_t * ui_sw_mute_audio;
+extern const char *ui_fx_names[4];
 void ui_event_sld_in_vol(lv_event_t * e);
 void ui_event_sld_out_vol(lv_event_t * e);
-void ui_event_cb_mute_audio(lv_event_t * e);
+void ui_event_sw_mute_audio(lv_event_t * e);
 // SCREEN: ui_fx_tremolo
 void ui_fx_tremolo_screen_init(void);
 void ui_event_fx_tremolo(lv_event_t * e);

@@ -27,9 +27,10 @@ lv_obj_t * ui_btn_sett_curr_fx;
 lv_obj_t * ui_sld_in_vol;
 lv_obj_t * ui_sld_out_vol;
 lv_obj_t * ui_sw_mute_audio;
+const char *ui_fx_names[4];
 void ui_event_sld_in_vol(lv_event_t * e);
 void ui_event_sld_out_vol(lv_event_t * e);
-void ui_event_cb_mute_audio(lv_event_t * e);
+void ui_event_sw_mute_audio(lv_event_t * e);
 
 // SCREEN: ui_fx_tremolo
 void ui_fx_tremolo_screen_init(void);
@@ -229,7 +230,7 @@ void ui_event_sld_out_vol(lv_event_t * e)
         ui_settings_out_vol_changed(e);
     }
 }
-void ui_event_cb_mute_audio(lv_event_t * e)
+void ui_event_sw_mute_audio(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     if(event_code == LV_EVENT_VALUE_CHANGED) {
@@ -390,6 +391,7 @@ void ui_event_roller_cab_sim_ir(lv_event_t * e)
 void ui_init(void * user_data)
 {
     ui_set_user_data(user_data);
+    ui_perform_initial_actions();
 
     lv_disp_t *disp = lv_disp_get_default();
     const lv_color_t primary_color = LV_COLOR_MAKE(80, 255, 125);

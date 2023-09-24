@@ -82,6 +82,23 @@ struct effect_controls_changed
     ctrl;
 };
 
+struct add_effect_request
+{
+    effect_id new_effect_id;
+    effect_id curr_effect_id;
+};
+
+struct remove_effect_request
+{
+    effect_id id;
+};
+
+struct move_effect_request
+{
+    effect_id id;
+    int32_t dir;
+};
+
 struct set_effect_attributes
 {
     effect_basic_attributes basic;
@@ -95,7 +112,10 @@ using outgoing = std::variant
     prev_effect_screen_request,
     settings_volume_changed,
     effect_bypass_changed,
-    effect_controls_changed
+    effect_controls_changed,
+    add_effect_request,
+    remove_effect_request,
+    move_effect_request
 >;
 
 using incoming = std::variant

@@ -11,12 +11,16 @@ extern "C" {
 #endif
 
 void ui_set_user_data(void * user_data);
+void ui_perform_initial_actions(void);
 void ui_splash_loaded(lv_event_t * e);
 void ui_effect_next(lv_event_t * e);
 void ui_effect_prev(lv_event_t * e);
 void ui_settings_in_vol_changed(lv_event_t * e);
 void ui_settings_out_vol_changed(lv_event_t * e);
 void ui_settings_mute_audio(lv_event_t * e);
+void ui_settings_add_effect(uint32_t new_effect_id, uint32_t curr_effect_id);
+void ui_settings_remove_effect(uint32_t effect_id);
+void ui_settings_move_effect(uint32_t effect_id, int32_t dir);
 void ui_tremolo_bypass(lv_event_t * e);
 void ui_tremolo_rate_changed(lv_event_t * e);
 void ui_tremolo_depth_changed(lv_event_t * e);

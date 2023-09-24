@@ -109,6 +109,14 @@ void ui_set_user_data(void *user_data)
     view = static_cast<mfx::lcd_view*>(user_data);
 }
 
+void ui_perform_initial_actions(void)
+{
+    ui_fx_names[static_cast<unsigned>(mfx::effect_id::tremolo)] = "Tremolo";
+    ui_fx_names[static_cast<unsigned>(mfx::effect_id::echo)] = "Echo";
+    ui_fx_names[static_cast<unsigned>(mfx::effect_id::overdrive)] = "Overdrive";
+    ui_fx_names[static_cast<unsigned>(mfx::effect_id::cabinet_sim)] = "Cabinet simulator";
+}
+
 void ui_splash_loaded(lv_event_t * e)
 {
     view->notify(events::splash_loaded {});
@@ -151,6 +159,24 @@ void ui_settings_out_vol_changed(lv_event_t * e)
 void ui_settings_mute_audio(lv_event_t * e)
 {
 
+}
+
+void ui_settings_add_effect(uint32_t new_effect_id, uint32_t curr_effect_id)
+{
+    const events::add_effect_request evt {static_cast<mfx::effect_id>(new_effect_id), static_cast<mfx::effect_id>(curr_effect_id)};
+    view->notify(evt);
+}
+
+void ui_settings_remove_effect(uint32_t effect_id)
+{
+    const events::remove_effect_request evt {static_cast<mfx::effect_id>(effect_id)};
+    view->notify(evt);
+}
+
+void ui_settings_move_effect(uint32_t effect_id, int32_t dir)
+{
+    const events::move_effect_request evt {static_cast<mfx::effect_id>(effect_id), dir};
+    view->notify(evt);
 }
 
 void ui_tremolo_bypass(lv_event_t * e)

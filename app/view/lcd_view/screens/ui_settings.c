@@ -9,11 +9,6 @@
 #include <string.h>
 #include <stdbool.h>
 
-static const char * fx_names[] =
-{
-    "Tremolo", "Echo", "Overdrive", "Cabinet simulator"
-};
-
 static void menu_exit_handler(lv_event_t * e)
 {
     lv_obj_t * obj = lv_event_get_target(e);
@@ -135,7 +130,7 @@ static void fx_ops_back_handler(lv_event_t * e)
 static void fx_items_add_item_handler(lv_event_t * e)
 {
     const lv_event_code_t code = lv_event_get_code(e);
-    lv_obj_t * obj = lv_event_get_target(e);
+    lv_obj_t * fx_item = lv_event_get_target(e);
 
     if (code == LV_EVENT_CLICKED)
     {
@@ -153,7 +148,9 @@ static void fx_items_add_item_handler(lv_event_t * e)
         lv_obj_scroll_to_view(btn, LV_ANIM_ON);
 
         lv_obj_t * lab = lv_label_create(btn);
-        lv_label_set_text(lab, lv_list_get_btn_text(ui_list_sett_fx_items, obj));
+        lv_label_set_text(lab, lv_list_get_btn_text(ui_list_sett_fx_items, fx_item));
+
+        ui_settings_add_effect(lv_obj_get_index(fx_item), index - 1);
 
         lv_obj_clear_flag(ui_list_sett_fx_ops, LV_OBJ_FLAG_HIDDEN);
         lv_obj_del(ui_list_sett_fx_items);
@@ -176,12 +173,11 @@ static void fx_ops_add_handler(lv_event_t * e)
         lv_obj_add_event_cb(btn, fx_ops_back_handler, LV_EVENT_ALL, NULL);
         lv_group_remove_obj(btn);
 
-        const unsigned items_cnt = sizeof(fx_names)/sizeof(fx_names[0]);
-        for (unsigned i = 0; i < items_cnt; i++)
+        for (unsigned i = 0; i < sizeof(ui_fx_names) / sizeof(ui_fx_names[0]); i++)
         {
-            btn = lv_list_add_btn(ui_list_sett_fx_items, NULL, fx_names[i]);
+            btn = lv_list_add_btn(ui_list_sett_fx_items, NULL, ui_fx_names[i]);
 
-            if (is_in_fx_chain(fx_names[i]))
+            if (is_in_fx_chain(ui_fx_names[i]))
             {
                 lv_obj_set_style_text_color(btn, lv_color_darken(lv_color_white(), 127), LV_STATE_DISABLED);
                 lv_obj_add_state(btn, LV_STATE_DISABLED);
@@ -205,6 +201,9 @@ static void fx_ops_remove_handler(lv_event_t * e)
             return;
 
         uint32_t index = lv_obj_get_index(ui_btn_sett_curr_fx);
+
+        ui_settings_remove_effect(index);
+
         if (index == lv_obj_get_child_cnt(ui_list_sett_fx_chain) - 1)
             index--;
 
@@ -226,10 +225,13 @@ static void fx_ops_move_up_handler(lv_event_t * e)
 
     if ((code == LV_EVENT_CLICKED) || (code == LV_EVENT_LONG_PRESSED_REPEAT))
     {
-        if(ui_btn_sett_curr_fx == NULL)
+        if (ui_btn_sett_curr_fx == NULL)
             return;
 
         const uint32_t index = lv_obj_get_index(ui_btn_sett_curr_fx);
+
+        ui_settings_move_effect(index, 1);
+
         if (index <= 0)
             return;
 
@@ -244,12 +246,16 @@ static void fx_ops_move_down_handler(lv_event_t * e)
 
     if ((code == LV_EVENT_CLICKED) || (code == LV_EVENT_LONG_PRESSED_REPEAT))
     {
-        if(ui_btn_sett_curr_fx == NULL)
+        if (ui_btn_sett_curr_fx == NULL)
             return;
 
         const uint32_t index = lv_obj_get_index(ui_btn_sett_curr_fx);
+
+        ui_settings_move_effect(index, -1);
+
         lv_obj_move_to_index(ui_btn_sett_curr_fx, index + 1);
         lv_obj_scroll_to_view(ui_btn_sett_curr_fx, LV_ANIM_ON);
+
     }
 }
 
@@ -315,7 +321,7 @@ void ui_settings_screen_init(void)
     ui_sld_in_vol = lv_obj_get_child(cont, -1);
     cont = menu_create_slider(section, NULL, "Output volume", 0, 63, 57, ui_event_sld_out_vol);
     ui_sld_out_vol = lv_obj_get_child(cont, -1);
-    cont = menu_create_switch(section, NULL, "Mute", false, ui_event_cb_mute_audio);
+    cont = menu_create_switch(section, NULL, "Mute", false, ui_event_sw_mute_audio);
     ui_sw_mute_audio = lv_obj_get_child(cont, -1);
 
     lv_obj_t * sub_effects_page = lv_menu_page_create(menu, "Effects");
