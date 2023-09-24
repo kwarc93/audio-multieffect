@@ -7,45 +7,45 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 static const uint32_t bg_color = 0x25272E;
 #define ARRAY_SIZE(a) (sizeof(a)/sizeof(a[0]))
 static const char * available_effects[] =
 {
-    "Tremolo", "Echo", "Overdrive", "Cabinet simulator"
+    "Tremolo", "Echo", "Overdrive", "Chorus", "Reverb", "Equalizer", "Cabinet simulator"
 };
 
 //-----------------------------------------------------------------------------
 /* MENU */
 
-lv_obj_t * root_page;
-
-lv_style_t style_list_btn;
-
-static void back_event_handler(lv_event_t * e)
+static void menu_exit_handler(lv_event_t * e)
 {
     lv_obj_t * obj = lv_event_get_target(e);
     lv_obj_t * menu = lv_event_get_user_data(e);
 
-    if(lv_menu_back_btn_is_root(menu, obj)) {
+    if (lv_menu_back_btn_is_root(menu, obj))
+    {
         lv_obj_t * mbox1 = lv_msgbox_create(NULL, "Hello", "Root back btn click.", NULL, true);
         lv_obj_center(mbox1);
     }
 }
 
-static lv_obj_t * create_text(lv_obj_t * parent, const char * icon, const char * txt)
+static lv_obj_t * menu_create_text(lv_obj_t * parent, const char * icon, const char * txt)
 {
     lv_obj_t * obj = lv_menu_cont_create(parent);
 
     lv_obj_t * img = NULL;
     lv_obj_t * label = NULL;
 
-    if(icon) {
+    if (icon)
+    {
         img = lv_img_create(obj);
         lv_img_set_src(img, icon);
     }
 
-    if(txt) {
+    if (txt)
+    {
         label = lv_label_create(obj);
         lv_label_set_text(label, txt);
         lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR);
@@ -55,26 +55,24 @@ static lv_obj_t * create_text(lv_obj_t * parent, const char * icon, const char *
     return obj;
 }
 
-static lv_obj_t * create_slider(lv_obj_t * parent, const char * icon, const char * txt, int32_t min, int32_t max,
-                                int32_t val)
+static lv_obj_t * menu_create_slider(lv_obj_t * parent, const char * icon, const char * txt, int32_t min, int32_t max, int32_t val)
 {
-    lv_obj_t * obj = create_text(parent, icon, txt);
+    lv_obj_t * obj = menu_create_text(parent, icon, txt);
 
     lv_obj_t * slider = lv_slider_create(obj);
     lv_obj_set_flex_grow(slider, 1);
     lv_slider_set_range(slider, min, max);
     lv_slider_set_value(slider, val, LV_ANIM_OFF);
 
-    if(icon == NULL) {
+    if (icon == NULL)
         lv_obj_add_flag(slider, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK);
-    }
 
     return obj;
 }
 
-static lv_obj_t * create_switch(lv_obj_t * parent, const char * icon, const char * txt, bool chk)
+static lv_obj_t * menu_create_switch(lv_obj_t * parent, const char * icon, const char * txt, bool chk)
 {
-    lv_obj_t * obj = create_text(parent, icon, txt);
+    lv_obj_t * obj = menu_create_text(parent, icon, txt);
 
     lv_obj_t * sw = lv_switch_create(obj);
     lv_obj_add_state(sw, chk ? LV_STATE_CHECKED : 0);
@@ -82,7 +80,7 @@ static lv_obj_t * create_switch(lv_obj_t * parent, const char * icon, const char
     return obj;
 }
 
-static lv_obj_t * create_section(lv_obj_t * parent)
+static lv_obj_t * menu_create_section(lv_obj_t * parent)
 {
     lv_obj_t * section = lv_menu_section_create(parent);
     lv_obj_set_style_bg_color(section, lv_color_lighten(lv_color_hex(bg_color), 18), 0);
@@ -91,196 +89,217 @@ static lv_obj_t * create_section(lv_obj_t * parent)
 
 //-----------------------------------------------------------------------------
 /* EFFECT LIST */
-static lv_obj_t * list1;
-static lv_obj_t * list2;
-static lv_obj_t * list3;
+static lv_obj_t * ui_list_sett_fx_chain;
+static lv_obj_t * ui_list_sett_fx_ops;
+static lv_obj_t * ui_list_sett_fx_items;
+static lv_obj_t * ui_btn_sett_curr_fx = NULL;
 
-static lv_obj_t * currentButton = NULL;
-
-static uint8_t is_already_in_list1(const char *name)
+static bool is_in_fx_chain(const char *name)
 {
-    for (unsigned i = 0; i < lv_obj_get_child_cnt(list1); i++)
+    for (unsigned i = 0; i < lv_obj_get_child_cnt(ui_list_sett_fx_chain); i++)
     {
-        lv_obj_t * obj = lv_obj_get_child(list1, i);
-        if (strcmp(name, lv_list_get_btn_text(list1, obj)) == 0)
-            return 1;
+        lv_obj_t * btn = lv_obj_get_child(ui_list_sett_fx_chain, i);
+        if (strcmp(name, lv_list_get_btn_text(ui_list_sett_fx_chain, btn)) == 0)
+            return true;
     }
 
-    return 0;
+    return false;
 }
 
-static void event_handler(lv_event_t * e)
+static void fx_chain_btn_handler(lv_event_t * e)
 {
-    lv_event_code_t code = lv_event_get_code(e);
+    const lv_event_code_t code = lv_event_get_code(e);
     lv_obj_t * obj = lv_event_get_target(e);
-    if(code == LV_EVENT_CLICKED) {
-        LV_LOG_USER("Clicked: %s", lv_list_get_btn_text(list1, obj));
 
-        if(currentButton == obj) {
-            currentButton = NULL;
-        }
-        else {
-            currentButton = obj;
-        }
+    if (code == LV_EVENT_CLICKED)
+    {
+        if (ui_btn_sett_curr_fx == obj)
+            ui_btn_sett_curr_fx = NULL;
+        else
+            ui_btn_sett_curr_fx = obj;
+
         lv_obj_t * parent = lv_obj_get_parent(obj);
-        uint32_t i;
-        for(i = 0; i < lv_obj_get_child_cnt(parent); i++) {
+        for (unsigned i = 0; i < lv_obj_get_child_cnt(parent); i++)
+        {
             lv_obj_t * child = lv_obj_get_child(parent, i);
-            if(child == currentButton) {
+
+            if (child == ui_btn_sett_curr_fx)
                 lv_obj_clear_state(child, LV_STATE_CHECKED);
-            }
-            else {
+            else
                 lv_obj_add_state(child, LV_STATE_CHECKED);
-            }
         }
     }
 }
 
-static void event_handler_back(lv_event_t * e)
+static void fx_ops_back_handler(lv_event_t * e)
 {
-    lv_event_code_t code = lv_event_get_code(e);
-    if(code == LV_EVENT_CLICKED) {
-        lv_obj_clear_flag(list2, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_del(list3);
+    const lv_event_code_t code = lv_event_get_code(e);
+
+    if (code == LV_EVENT_CLICKED)
+    {
+        lv_obj_clear_flag(ui_list_sett_fx_ops, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_del(ui_list_sett_fx_items);
     }
 }
 
-static void event_handler_add_effect(lv_event_t * e)
+static void fx_items_add_item_handler(lv_event_t * e)
 {
-    lv_event_code_t code = lv_event_get_code(e);
+    const lv_event_code_t code = lv_event_get_code(e);
     lv_obj_t * obj = lv_event_get_target(e);
-    if(code == LV_EVENT_CLICKED) {
-        uint32_t index = lv_obj_get_child_cnt(list1);
-        if(currentButton != NULL)
-            index = lv_obj_get_index(currentButton) + 1;
 
-        lv_obj_t * btn = lv_btn_create(list1);
+    if (code == LV_EVENT_CLICKED)
+    {
+        uint32_t index = lv_obj_get_child_cnt(ui_list_sett_fx_chain);
+
+        if (ui_btn_sett_curr_fx != NULL)
+            index = lv_obj_get_index(ui_btn_sett_curr_fx) + 1;
+
+        lv_obj_t * btn = lv_btn_create(ui_list_sett_fx_chain);
         lv_obj_set_width(btn, LV_SIZE_CONTENT);
-        lv_obj_add_event_cb(btn, event_handler, LV_EVENT_CLICKED, NULL);
+        lv_obj_add_event_cb(btn, fx_chain_btn_handler, LV_EVENT_CLICKED, NULL);
         lv_obj_add_state(btn, LV_STATE_CHECKED);
         lv_obj_move_to_index(btn, index);
         lv_obj_scroll_to_view(btn, LV_ANIM_ON);
 
         lv_obj_t * lab = lv_label_create(btn);
-        lv_label_set_text(lab, lv_list_get_btn_text(list3, obj));
+        lv_label_set_text(lab, lv_list_get_btn_text(ui_list_sett_fx_items, obj));
 
-        lv_obj_clear_flag(list2, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_del(list3);
+        lv_obj_clear_flag(ui_list_sett_fx_ops, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_del(ui_list_sett_fx_items);
     }
 }
 
-static void event_handler_add(lv_event_t * e)
+static void fx_ops_add_handler(lv_event_t * e)
 {
     const lv_event_code_t code = lv_event_get_code(e);
-    if(code == LV_EVENT_CLICKED) {
 
-        list3 = lv_list_create(lv_obj_get_parent(list2));
-        lv_obj_add_flag(list3, LV_OBJ_FLAG_IGNORE_LAYOUT);
-        lv_obj_set_size(list3, lv_pct(40), lv_obj_get_height(list2));
-        lv_obj_align(list3, LV_ALIGN_TOP_RIGHT, 0, 0);
-        lv_obj_set_style_bg_color(list3, lv_color_lighten(lv_color_hex(bg_color), 18), 0);
+    if (code == LV_EVENT_CLICKED)
+    {
+        /* Create list of available effects to add to effects chain */
+        ui_list_sett_fx_items = lv_list_create(lv_obj_get_parent(ui_list_sett_fx_ops));
+        lv_obj_add_flag(ui_list_sett_fx_items, LV_OBJ_FLAG_IGNORE_LAYOUT);
+        lv_obj_set_size(ui_list_sett_fx_items, lv_pct(40), lv_pct(100));
+        lv_obj_align(ui_list_sett_fx_items, LV_ALIGN_TOP_RIGHT, 0, 0);
+        lv_obj_set_style_bg_color(ui_list_sett_fx_items, lv_color_lighten(lv_color_hex(bg_color), 18), 0);
 
-        lv_obj_t * btn = lv_list_add_btn(list3, LV_SYMBOL_LEFT, NULL);
-        lv_obj_add_event_cb(btn, event_handler_back, LV_EVENT_ALL, NULL);
+        lv_obj_t * btn = lv_list_add_btn(ui_list_sett_fx_items, LV_SYMBOL_LEFT, NULL);
+        lv_obj_add_event_cb(btn, fx_ops_back_handler, LV_EVENT_ALL, NULL);
         lv_obj_set_style_bg_color(btn, lv_color_lighten(lv_color_hex(bg_color), 18), 0);
         lv_group_remove_obj(btn);
 
         for (unsigned i = 0; i < ARRAY_SIZE(available_effects); i++)
         {
-            btn = lv_list_add_btn(list3, NULL, available_effects[i]);
-            if (is_already_in_list1(available_effects[i]))
+            btn = lv_list_add_btn(ui_list_sett_fx_items, NULL, available_effects[i]);
+
+            if (is_in_fx_chain(available_effects[i]))
             {
-                lv_obj_set_style_text_color(btn, lv_color_black(), LV_STATE_DISABLED);
+                lv_obj_set_style_text_color(btn, lv_color_darken(lv_color_white(), 127), LV_STATE_DISABLED);
                 lv_obj_add_state(btn, LV_STATE_DISABLED);
             }
-            lv_obj_add_event_cb(btn, event_handler_add_effect, LV_EVENT_ALL, NULL);
+
+            lv_obj_add_event_cb(btn, fx_items_add_item_handler, LV_EVENT_ALL, NULL);
             lv_obj_set_style_bg_color(btn, lv_color_lighten(lv_color_hex(bg_color), 18), 0);
             lv_group_remove_obj(btn);
         }
-        lv_obj_add_flag(list2, LV_OBJ_FLAG_HIDDEN);
 
+        lv_obj_add_flag(ui_list_sett_fx_ops, LV_OBJ_FLAG_HIDDEN);
     }
 }
 
-static void event_handler_remove(lv_event_t * e)
+static void fx_ops_remove_handler(lv_event_t * e)
 {
     const lv_event_code_t code = lv_event_get_code(e);
-    if((code == LV_EVENT_CLICKED) || (code == LV_EVENT_LONG_PRESSED_REPEAT)) {
-        if(currentButton == NULL) return;
-        uint32_t index = lv_obj_get_index(currentButton);
-        if (index == lv_obj_get_child_cnt(list1) - 1)
-            index--;
-        lv_obj_del(currentButton);
-        currentButton = lv_obj_get_child(list1, index);
-        if (currentButton == NULL)
+
+    if ((code == LV_EVENT_CLICKED) || (code == LV_EVENT_LONG_PRESSED_REPEAT))
+    {
+        if (ui_btn_sett_curr_fx == NULL)
             return;
-        lv_obj_clear_state(currentButton, LV_STATE_CHECKED);
-        lv_obj_move_to_index(currentButton, index);
-        lv_obj_scroll_to_view(currentButton, LV_ANIM_ON);
+
+        uint32_t index = lv_obj_get_index(ui_btn_sett_curr_fx);
+        if (index == lv_obj_get_child_cnt(ui_list_sett_fx_chain) - 1)
+            index--;
+
+        lv_obj_del(ui_btn_sett_curr_fx);
+        ui_btn_sett_curr_fx = lv_obj_get_child(ui_list_sett_fx_chain, index);
+
+        if (ui_btn_sett_curr_fx == NULL)
+            return;
+
+        lv_obj_clear_state(ui_btn_sett_curr_fx, LV_STATE_CHECKED);
+        lv_obj_move_to_index(ui_btn_sett_curr_fx, index);
+        lv_obj_scroll_to_view(ui_btn_sett_curr_fx, LV_ANIM_ON);
     }
 }
 
-static void event_handler_up(lv_event_t * e)
+static void fx_ops_move_up_handler(lv_event_t * e)
 {
-    lv_event_code_t code = lv_event_get_code(e);
-    if((code == LV_EVENT_CLICKED) || (code == LV_EVENT_LONG_PRESSED_REPEAT)) {
-        if(currentButton == NULL) return;
-        uint32_t index = lv_obj_get_index(currentButton);
+    const lv_event_code_t code = lv_event_get_code(e);
+
+    if ((code == LV_EVENT_CLICKED) || (code == LV_EVENT_LONG_PRESSED_REPEAT))
+    {
+        if(ui_btn_sett_curr_fx == NULL)
+            return;
+
+        const uint32_t index = lv_obj_get_index(ui_btn_sett_curr_fx);
         if (index <= 0)
             return;
-        lv_obj_move_to_index(currentButton, index - 1);
-        lv_obj_scroll_to_view(currentButton, LV_ANIM_ON);
+
+        lv_obj_move_to_index(ui_btn_sett_curr_fx, index - 1);
+        lv_obj_scroll_to_view(ui_btn_sett_curr_fx, LV_ANIM_ON);
     }
 }
 
-static void event_handler_dn(lv_event_t * e)
+static void fx_ops_move_down_handler(lv_event_t * e)
 {
     const lv_event_code_t code = lv_event_get_code(e);
-    if((code == LV_EVENT_CLICKED) || (code == LV_EVENT_LONG_PRESSED_REPEAT)) {
-        if(currentButton == NULL) return;
-        const uint32_t index = lv_obj_get_index(currentButton);
-        lv_obj_move_to_index(currentButton, index + 1);
-        lv_obj_scroll_to_view(currentButton, LV_ANIM_ON);
+
+    if ((code == LV_EVENT_CLICKED) || (code == LV_EVENT_LONG_PRESSED_REPEAT))
+    {
+        if(ui_btn_sett_curr_fx == NULL)
+            return;
+
+        const uint32_t index = lv_obj_get_index(ui_btn_sett_curr_fx);
+        lv_obj_move_to_index(ui_btn_sett_curr_fx, index + 1);
+        lv_obj_scroll_to_view(ui_btn_sett_curr_fx, LV_ANIM_ON);
     }
 }
 
-void create_effects_list(lv_obj_t * parent)
+static void create_effects_management_lists(lv_obj_t * parent)
 {
-    /*Create a list*/
-    list1 = lv_list_create(parent);
-    lv_obj_add_flag(list1, LV_OBJ_FLAG_IGNORE_LAYOUT);
-    lv_obj_set_style_pad_row(list1, 5, 0);
-    lv_obj_set_size(list1, lv_pct(58), lv_pct(100));
-    lv_obj_align(list1, LV_ALIGN_TOP_LEFT, 0, 0);
-    lv_obj_set_style_bg_color(list1, lv_color_lighten(lv_color_hex(bg_color), 18), 0);
+    /* Create a list of effects in chain */
+    ui_list_sett_fx_chain = lv_list_create(parent);
+    lv_obj_add_flag(ui_list_sett_fx_chain, LV_OBJ_FLAG_IGNORE_LAYOUT);
+    lv_obj_set_style_pad_row(ui_list_sett_fx_chain, 5, 0);
+    lv_obj_set_size(ui_list_sett_fx_chain, lv_pct(58), lv_pct(100));
+    lv_obj_align(ui_list_sett_fx_chain, LV_ALIGN_TOP_LEFT, 0, 0);
+    lv_obj_set_style_bg_color(ui_list_sett_fx_chain, lv_color_lighten(lv_color_hex(bg_color), 18), 0);
 
-    /*Create a second list with up and down buttons*/
-    list2 = lv_list_create(parent);
-    lv_obj_add_flag(list2, LV_OBJ_FLAG_IGNORE_LAYOUT);
-    lv_obj_set_size(list2, lv_pct(40), LV_SIZE_CONTENT);
-    lv_obj_align(list2, LV_ALIGN_TOP_RIGHT, 0, 0);
-    lv_obj_set_style_bg_color(list2, lv_color_lighten(lv_color_hex(bg_color), 18), 0);
+    /* Create a second list with buttons for various operations on effects chain */
+    ui_list_sett_fx_ops = lv_list_create(parent);
+    lv_obj_add_flag(ui_list_sett_fx_ops, LV_OBJ_FLAG_IGNORE_LAYOUT);
+    lv_obj_set_size(ui_list_sett_fx_ops, lv_pct(40), LV_SIZE_CONTENT);
+    lv_obj_align(ui_list_sett_fx_ops, LV_ALIGN_TOP_RIGHT, 0, 0);
+    lv_obj_set_style_bg_color(ui_list_sett_fx_ops, lv_color_lighten(lv_color_hex(bg_color), 18), 0);
 
-    lv_obj_t * btn = lv_list_add_btn(list2, LV_SYMBOL_PLUS, "Add...");
-    lv_obj_add_event_cb(btn, event_handler_add, LV_EVENT_ALL, NULL);
+    lv_obj_t * btn = lv_list_add_btn(ui_list_sett_fx_ops, LV_SYMBOL_PLUS, "Add...");
+    lv_obj_add_event_cb(btn, fx_ops_add_handler, LV_EVENT_ALL, NULL);
     lv_obj_set_style_bg_color(btn, lv_color_lighten(lv_color_hex(bg_color), 18), 0);
     lv_group_remove_obj(btn);
 
-    btn = lv_list_add_btn(list2, LV_SYMBOL_TRASH, "Remove");
-    lv_obj_add_event_cb(btn, event_handler_remove, LV_EVENT_ALL, NULL);
+    btn = lv_list_add_btn(ui_list_sett_fx_ops, LV_SYMBOL_TRASH, "Remove");
+    lv_obj_add_event_cb(btn, fx_ops_remove_handler, LV_EVENT_ALL, NULL);
     lv_obj_set_style_bg_color(btn, lv_color_lighten(lv_color_hex(bg_color), 18), 0);
     lv_group_remove_obj(btn);
 
-    btn = lv_list_add_btn(list2, LV_SYMBOL_UP, "Move up");
-    lv_obj_add_event_cb(btn, event_handler_up, LV_EVENT_ALL, NULL);
+    btn = lv_list_add_btn(ui_list_sett_fx_ops, LV_SYMBOL_UP, "Move up");
+    lv_obj_add_event_cb(btn, fx_ops_move_up_handler, LV_EVENT_ALL, NULL);
     lv_obj_set_style_bg_color(btn, lv_color_lighten(lv_color_hex(bg_color), 18), 0);
     lv_group_remove_obj(btn);
 
-    btn = lv_list_add_btn(list2, LV_SYMBOL_DOWN, "Move down");
-    lv_obj_add_event_cb(btn, event_handler_dn, LV_EVENT_ALL, NULL);
+    btn = lv_list_add_btn(ui_list_sett_fx_ops, LV_SYMBOL_DOWN, "Move down");
+    lv_obj_add_event_cb(btn, fx_ops_move_down_handler, LV_EVENT_ALL, NULL);
     lv_obj_set_style_bg_color(btn, lv_color_lighten(lv_color_hex(bg_color), 18), 0);
     lv_group_remove_obj(btn);
-
 }
 
 //-----------------------------------------------------------------------------
@@ -294,20 +313,20 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_style_bg_color(menu, lv_color_hex(bg_color), 0);
 
     lv_menu_set_mode_root_back_btn(menu, LV_MENU_ROOT_BACK_BTN_ENABLED);
-    lv_obj_add_event_cb(menu, back_event_handler, LV_EVENT_CLICKED, menu);
+    lv_obj_add_event_cb(menu, menu_exit_handler, LV_EVENT_CLICKED, menu);
     lv_obj_set_size(menu, lv_disp_get_hor_res(NULL), lv_disp_get_ver_res(NULL));
     lv_obj_center(menu);
 
     lv_obj_t * cont;
     lv_obj_t * section;
 
-    /*Create sub pages*/
+    /* Create sub pages */
     lv_obj_t * sub_audio_page = lv_menu_page_create(menu, "Audio");
     lv_obj_set_style_pad_hor(sub_audio_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
-    section = create_section(sub_audio_page);
-    create_slider(section, NULL, "Input volume", 0, 150, 120);
-    create_slider(section, NULL, "Output volume", 0, 150, 50);
-    create_switch(section, NULL, "Mute", false);
+    section = menu_create_section(sub_audio_page);
+    menu_create_slider(section, NULL, "Input volume", 0, 150, 120);
+    menu_create_slider(section, NULL, "Output volume", 0, 150, 50);
+    menu_create_switch(section, NULL, "Mute", false);
 
     lv_obj_t * sub_effects_page = lv_menu_page_create(menu, "Effects");
     lv_obj_set_style_pad_hor(sub_effects_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
@@ -315,58 +334,57 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_style_pad_top(cont, 0, 0);
     lv_obj_set_style_pad_hor(cont, 0, 0);
     lv_obj_set_size(cont, lv_pct(100), lv_pct(100));
-    create_effects_list(cont);
+    create_effects_management_lists(cont);
 
     lv_obj_t * sub_presets_page = lv_menu_page_create(menu, "Presets");
     lv_obj_set_style_pad_hor(sub_presets_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
-    section = create_section(sub_presets_page);
-    create_text(section, NULL, "Load preset");
-    create_text(section, NULL, "Save preset");
-    create_text(section, NULL, "Remove all");
+    section = menu_create_section(sub_presets_page);
+    menu_create_text(section, NULL, "Load preset");
+    menu_create_text(section, NULL, "Save preset");
+    menu_create_text(section, NULL, "Remove all");
 
     lv_obj_t * sub_display_page = lv_menu_page_create(menu, "Display");
     lv_obj_set_style_pad_hor(sub_display_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
-    section = create_section(sub_display_page);
-    create_slider(section, NULL, "Brightness", 0, 150, 100);
+    section = menu_create_section(sub_display_page);
+    menu_create_slider(section, NULL, "Brightness", 0, 150, 100);
 
     lv_obj_t * sub_software_page = lv_menu_page_create(menu, "Software");
     lv_obj_set_style_pad_hor(sub_software_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
-    section = create_section(sub_software_page);
-    create_text(section, NULL, "Version: v1.0.0");
+    section = menu_create_section(sub_software_page);
+    menu_create_text(section, NULL, "Version: v1.0.0");
 
     lv_obj_t * sub_hardware_page = lv_menu_page_create(menu, "Hardware");
     lv_obj_set_style_pad_hor(sub_hardware_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
-    section = create_section(sub_hardware_page);
-    create_text(section, NULL, "Version: v1.0.1\nCPU: ARM Cortex-M7 200MHz\nRAM: 8MB");
+    section = menu_create_section(sub_hardware_page);
+    menu_create_text(section, NULL, "Version: v1.0.1\nCPU: ARM Cortex-M7 200MHz\nRAM: 8MB");
 
     lv_obj_t * sub_about_page = lv_menu_page_create(menu, "About");
     lv_obj_set_style_pad_hor(sub_about_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
-    cont = create_text(sub_about_page, NULL, "Guitar MFX - Guitar Multi Effect Processor\nCopyright 2023 Kamil Worek. All rights reserved.");
-    section = create_section(sub_about_page);
-    cont = create_text(section, NULL, "Software information");
+    cont = menu_create_text(sub_about_page, NULL, "Guitar MFX - Guitar Multi Effect Processor\nCopyright 2023 Kamil Worek. All rights reserved.");
+    section = menu_create_section(sub_about_page);
+    cont = menu_create_text(section, NULL, "Software information");
     lv_menu_set_load_page_event(menu, cont, sub_software_page);
-    cont = create_text(section, NULL, "Hardware information");
+    cont = menu_create_text(section, NULL, "Hardware information");
     lv_menu_set_load_page_event(menu, cont, sub_hardware_page);
 
-    /*Create a root page*/
-    root_page = lv_menu_page_create(menu, "Settings");
-    lv_obj_set_style_pad_hor(root_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
-    section = create_section(root_page);
-    cont = create_text(section, LV_SYMBOL_AUDIO, "Effects");
+    /* Create a root page */
+    lv_obj_t * menu_root_page = lv_menu_page_create(menu, "Settings");
+    lv_obj_set_style_pad_hor(menu_root_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
+    section = menu_create_section(menu_root_page);
+    cont = menu_create_text(section, LV_SYMBOL_AUDIO, "Effects");
     lv_menu_set_load_page_event(menu, cont, sub_effects_page);
-    cont = create_text(section, LV_SYMBOL_LIST, "Presets");
+    cont = menu_create_text(section, LV_SYMBOL_LIST, "Presets");
     lv_menu_set_load_page_event(menu, cont, sub_presets_page);
-    cont = create_text(section, LV_SYMBOL_VOLUME_MAX, "Audio");
+    cont = menu_create_text(section, LV_SYMBOL_VOLUME_MAX, "Audio");
     lv_menu_set_load_page_event(menu, cont, sub_audio_page);
-    cont = create_text(section, LV_SYMBOL_IMAGE, "Display");
+    cont = menu_create_text(section, LV_SYMBOL_IMAGE, "Display");
     lv_menu_set_load_page_event(menu, cont, sub_display_page);
 
-    lv_menu_separator_create(root_page);
-    section = create_section(root_page);
-    cont = create_text(section, LV_SYMBOL_SETTINGS, "About");
+    lv_menu_separator_create(menu_root_page);
+    section = menu_create_section(menu_root_page);
+    cont = menu_create_text(section, LV_SYMBOL_SETTINGS, "About");
     lv_menu_set_load_page_event(menu, cont, sub_about_page);
 
     lv_menu_set_sidebar_page(menu, NULL);
-    lv_menu_set_page(menu, root_page);
-
+    lv_menu_set_page(menu, menu_root_page);
 }
