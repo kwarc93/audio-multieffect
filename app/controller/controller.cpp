@@ -173,14 +173,16 @@ void controller::view_event_handler(const lcd_view_events::effect_controls_chang
 void controller::view_event_handler(const lcd_view_events::add_effect_request &e)
 {
     /* TODO */
-    effect_processor::event evt {effect_processor_events::add_effect {e.new_effect_id}};
-    this->model->send(evt);
+//    this->active_effects.push_back(e.new_effect_id);
+//    effect_processor::event evt {effect_processor_events::add_effect {e.new_effect_id}};
+//    this->model->send(evt);
 }
 
 void controller::view_event_handler(const lcd_view_events::remove_effect_request &e)
 {
-    effect_processor::event evt {effect_processor_events::remove_effect {e.id}};
-    this->model->send(evt);
+    /* TODO */
+//    effect_processor::event evt {effect_processor_events::remove_effect {e.id}};
+//    this->model->send(evt);
 }
 
 void controller::view_event_handler(const lcd_view_events::move_effect_request &e)

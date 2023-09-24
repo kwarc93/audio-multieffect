@@ -299,7 +299,7 @@ void ui_settings_screen_init(void)
 
     /* Create menu */
     lv_obj_t * menu = lv_menu_create(ui_settings);
-    lv_obj_set_style_bg_color(menu, lv_color_darken(lv_obj_get_style_bg_color(menu, 0), 128), 0);
+    lv_obj_set_style_bg_color(menu, lv_color_darken(lv_obj_get_style_bg_color(menu, 0), 64), 0);
 
     lv_menu_set_mode_root_back_btn(menu, LV_MENU_ROOT_BACK_BTN_ENABLED);
     lv_obj_add_event_cb(menu, menu_exit_handler, LV_EVENT_CLICKED, menu);
