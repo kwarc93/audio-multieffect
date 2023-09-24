@@ -19,21 +19,17 @@ lv_obj_t * ui_lbl_splash;
 void ui_settings_screen_init(void);
 void ui_event_settings(lv_event_t * e);
 lv_obj_t * ui_settings;
-lv_obj_t * ui_pnl_sett_content;
 lv_obj_t * ui_settings_parent_screen;
-lv_obj_t * ui_lbl_sett_name;
-lv_obj_t * ui_pnl_in_vol;
-void ui_event_sld_in_vol(lv_event_t * e);
+lv_obj_t * ui_list_sett_fx_chain;
+lv_obj_t * ui_list_sett_fx_ops;
+lv_obj_t * ui_list_sett_fx_items;
+lv_obj_t * ui_btn_sett_curr_fx;
 lv_obj_t * ui_sld_in_vol;
-lv_obj_t * ui_lbl_in_vol_dbmax;
-lv_obj_t * ui_lbl_in_vol;
-lv_obj_t * ui_pnl_out_vol;
-void ui_event_sld_out_vol(lv_event_t * e);
 lv_obj_t * ui_sld_out_vol;
-lv_obj_t * ui_lbl_out_vol_dbmax;
-lv_obj_t * ui_lbl_out_vol;
-void ui_event_cb_some_setting(lv_event_t * e);
-lv_obj_t * ui_cb_some_setting;
+lv_obj_t * ui_sw_mute_audio;
+void ui_event_sld_in_vol(lv_event_t * e);
+void ui_event_sld_out_vol(lv_event_t * e);
+void ui_event_cb_mute_audio(lv_event_t * e);
 
 // SCREEN: ui_fx_tremolo
 void ui_fx_tremolo_screen_init(void);
@@ -180,7 +176,7 @@ void splashfadein_Animation(lv_obj_t * TargetObject, int delay)
 }
 
 ///////////////////// FUNCTIONS ////////////////////
-static void helper_change_screen(lv_event_t * e)
+static void gesture_handler(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
@@ -195,7 +191,7 @@ static void helper_change_screen(lv_event_t * e)
             ui_effect_prev(e);
             break;
         case LV_DIR_BOTTOM:
-            _ui_screen_change(&ui_settings, LV_SCR_LOAD_ANIM_MOVE_BOTTOM, 250, 0, &ui_settings_screen_init);
+            _ui_screen_change(&ui_settings, LV_SCR_LOAD_ANIM_MOVE_BOTTOM, 250, 0, ui_settings_screen_init);
             ui_settings_parent_screen = lv_event_get_current_target(e);
             break;
         default:
@@ -233,16 +229,16 @@ void ui_event_sld_out_vol(lv_event_t * e)
         ui_settings_out_vol_changed(e);
     }
 }
-void ui_event_cb_some_setting(lv_event_t * e)
+void ui_event_cb_mute_audio(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     if(event_code == LV_EVENT_VALUE_CHANGED) {
-        ui_settings_some_setting(e);
+        ui_settings_mute_audio(e);
     }
 }
 void ui_event_fx_tremolo(lv_event_t * e)
 {
-    helper_change_screen(e);
+    gesture_handler(e);
 }
 void ui_event_btn_trem_bypass(lv_event_t * e)
 {
@@ -280,7 +276,7 @@ void ui_event_sw_tremolo_shape(lv_event_t * e)
 }
 void ui_event_fx_echo(lv_event_t * e)
 {
-    helper_change_screen(e);
+    gesture_handler(e);
 }
 void ui_event_btn_echo_bypass(lv_event_t * e)
 {
@@ -326,7 +322,7 @@ void ui_event_sw_echo_mode(lv_event_t * e)
 }
 void ui_event_fx_overdrive(lv_event_t * e)
 {
-    helper_change_screen(e);
+    gesture_handler(e);
 }
 void ui_event_btn_overdrive_bypass(lv_event_t * e)
 {
@@ -372,7 +368,7 @@ void ui_event_sw_overdrive_mode(lv_event_t * e)
 }
 void ui_event_fx_cabinet_sim(lv_event_t * e)
 {
-    helper_change_screen(e);
+    gesture_handler(e);
 }
 void ui_event_btn_cab_sim_bypass(lv_event_t * e)
 {
@@ -395,8 +391,9 @@ void ui_init(void * user_data)
 {
     ui_set_user_data(user_data);
 
-    lv_disp_t * dispp = lv_disp_get_default();
-    lv_theme_t * theme = lv_theme_default_init(dispp, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_RED),
-                                               false, LV_FONT_DEFAULT);
-    lv_disp_set_theme(dispp, theme);
+    lv_disp_t *disp = lv_disp_get_default();
+    const lv_color_t primary_color = LV_COLOR_MAKE(80, 255, 125);
+    const lv_color_t secondary_color = LV_COLOR_MAKE(96, 125, 139);
+    lv_theme_t *theme = lv_theme_default_init(disp, primary_color, secondary_color, true, LV_FONT_DEFAULT);
+    lv_disp_set_theme(disp, theme);
 }

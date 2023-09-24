@@ -16,7 +16,7 @@ void ui_effect_next(lv_event_t * e);
 void ui_effect_prev(lv_event_t * e);
 void ui_settings_in_vol_changed(lv_event_t * e);
 void ui_settings_out_vol_changed(lv_event_t * e);
-void ui_settings_some_setting(lv_event_t * e);
+void ui_settings_mute_audio(lv_event_t * e);
 void ui_tremolo_bypass(lv_event_t * e);
 void ui_tremolo_rate_changed(lv_event_t * e);
 void ui_tremolo_depth_changed(lv_event_t * e);

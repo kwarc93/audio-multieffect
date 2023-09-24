@@ -278,6 +278,3 @@ display {middlewares::i2c_managers::main::get_instance()}
 
     ui_init(this);
 };
-
-
-

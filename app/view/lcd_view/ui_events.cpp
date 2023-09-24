@@ -148,7 +148,7 @@ void ui_settings_out_vol_changed(lv_event_t * e)
     view->notify(evt);
 }
 
-void ui_settings_some_setting(lv_event_t * e)
+void ui_settings_mute_audio(lv_event_t * e)
 {
 
 }
