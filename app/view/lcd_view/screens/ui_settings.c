@@ -18,6 +18,26 @@ static void menu_exit_handler(lv_event_t * e)
         _ui_screen_change(&ui_settings_parent_screen, LV_SCR_LOAD_ANIM_MOVE_TOP, 250, 0, NULL);
 }
 
+static void menu_set_theme_handler(lv_event_t * e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    lv_obj_t * obj = lv_event_get_target(e);
+
+    if (code == LV_EVENT_VALUE_CHANGED)
+    {
+        bool dark_mode = lv_obj_has_state(obj, LV_STATE_CHECKED);
+
+        lv_disp_t *disp = lv_disp_get_default();
+        lv_color_t primary_color = lv_color_hex(UI_PALETTE_SPRING_GREEN);
+        lv_color_t secondary_color = lv_color_hex(UI_PALETTE_BATTLESHIP_GRAY);
+        lv_theme_t *theme = lv_theme_default_init(disp, primary_color, secondary_color, dark_mode, LV_FONT_DEFAULT);
+        lv_disp_set_theme(disp, theme);
+
+        lv_color_t menu_bg_color = dark_mode ? lv_color_lighten(lv_color_black(), 25) : lv_color_darken(lv_color_white(), 25);
+        lv_obj_set_style_bg_color(ui_menu_sett, menu_bg_color, 0);
+    }
+}
+
 static lv_obj_t * menu_create_text(lv_obj_t * parent, const char * icon, const char * txt)
 {
     lv_obj_t * obj = lv_menu_cont_create(parent);
@@ -71,12 +91,6 @@ static lv_obj_t * menu_create_switch(lv_obj_t * parent, const char * icon, const
         lv_obj_add_event_cb(sw, event_cb, LV_EVENT_ALL, NULL);
 
     return obj;
-}
-
-static lv_obj_t * menu_create_section(lv_obj_t * parent)
-{
-    lv_obj_t * section = lv_menu_section_create(parent);
-    return section;
 }
 
 static bool is_in_fx_chain(const char *name)
@@ -299,15 +313,16 @@ void ui_settings_screen_init(void)
 
     /* Create menu */
     lv_obj_t * menu = lv_menu_create(ui_settings);
-    lv_obj_set_style_bg_color(menu, lv_color_darken(lv_obj_get_style_bg_color(menu, 0), 64), 0);
 
+    lv_obj_set_style_bg_color(menu, lv_color_lighten(lv_color_black(), 25), 0);
     lv_menu_set_mode_root_back_btn(menu, LV_MENU_ROOT_BACK_BTN_ENABLED);
     lv_obj_add_event_cb(menu, menu_exit_handler, LV_EVENT_CLICKED, menu);
     lv_obj_set_size(menu, lv_pct(100), lv_pct(100));
     lv_obj_center(menu);
+    ui_menu_sett = menu;
 
     /* Modify the back button */
-    lv_obj_t * back_btn = lv_menu_get_main_header_back_btn(menu);;
+    lv_obj_t * back_btn = lv_menu_get_main_header_back_btn(menu);
     lv_obj_set_style_pad_hor(back_btn, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
 
     lv_obj_t * cont;
@@ -316,7 +331,7 @@ void ui_settings_screen_init(void)
     /* Create sub pages */
     lv_obj_t * sub_audio_page = lv_menu_page_create(menu, "Audio");
     lv_obj_set_style_pad_hor(sub_audio_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
-    section = menu_create_section(sub_audio_page);
+    section = lv_menu_section_create(sub_audio_page);
     cont = menu_create_slider(section, NULL, "Input volume", 0, 31, 11, ui_event_sld_in_vol);
     ui_sld_in_vol = lv_obj_get_child(cont, -1);
     cont = menu_create_slider(section, NULL, "Output volume", 0, 63, 57, ui_event_sld_out_vol);
@@ -334,30 +349,31 @@ void ui_settings_screen_init(void)
 
     lv_obj_t * sub_presets_page = lv_menu_page_create(menu, "Presets");
     lv_obj_set_style_pad_hor(sub_presets_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
-    section = menu_create_section(sub_presets_page);
+    section = lv_menu_section_create(sub_presets_page);
     menu_create_text(section, NULL, "Load preset");
     menu_create_text(section, NULL, "Save preset");
     menu_create_text(section, NULL, "Remove all");
 
     lv_obj_t * sub_display_page = lv_menu_page_create(menu, "Display");
     lv_obj_set_style_pad_hor(sub_display_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
-    section = menu_create_section(sub_display_page);
+    section = lv_menu_section_create(sub_display_page);
     menu_create_slider(section, NULL, "Brightness", 0, 150, 100, NULL);
+    cont = menu_create_switch(section, NULL, "Dark mode", true, menu_set_theme_handler);
 
     lv_obj_t * sub_software_page = lv_menu_page_create(menu, "Software");
     lv_obj_set_style_pad_hor(sub_software_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
-    section = menu_create_section(sub_software_page);
+    section = lv_menu_section_create(sub_software_page);
     menu_create_text(section, NULL, "Version: v1.0.0");
 
     lv_obj_t * sub_hardware_page = lv_menu_page_create(menu, "Hardware");
     lv_obj_set_style_pad_hor(sub_hardware_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
-    section = menu_create_section(sub_hardware_page);
+    section = lv_menu_section_create(sub_hardware_page);
     menu_create_text(section, NULL, "Version: v1.0.1\nCPU: ARM Cortex-M7 200MHz\nRAM: 8MB");
 
     lv_obj_t * sub_about_page = lv_menu_page_create(menu, "About");
     lv_obj_set_style_pad_hor(sub_about_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
     cont = menu_create_text(sub_about_page, NULL, "Guitar MFX - Guitar Multi Effect Processor\nCopyright 2023 Kamil Worek. All rights reserved.");
-    section = menu_create_section(sub_about_page);
+    section = lv_menu_section_create(sub_about_page);
     cont = menu_create_text(section, NULL, "Software information");
     lv_menu_set_load_page_event(menu, cont, sub_software_page);
     cont = menu_create_text(section, NULL, "Hardware information");
@@ -366,7 +382,7 @@ void ui_settings_screen_init(void)
     /* Create a root page */
     lv_obj_t * menu_root_page = lv_menu_page_create(menu, "Settings");
     lv_obj_set_style_pad_hor(menu_root_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
-    section = menu_create_section(menu_root_page);
+    section = lv_menu_section_create(menu_root_page);
     cont = menu_create_text(section, LV_SYMBOL_AUDIO, "Effects");
     lv_menu_set_load_page_event(menu, cont, sub_effects_page);
     cont = menu_create_text(section, LV_SYMBOL_LIST, "Presets");
@@ -377,7 +393,7 @@ void ui_settings_screen_init(void)
     lv_menu_set_load_page_event(menu, cont, sub_display_page);
 
     lv_menu_separator_create(menu_root_page);
-    section = menu_create_section(menu_root_page);
+    section = lv_menu_section_create(menu_root_page);
     cont = menu_create_text(section, LV_SYMBOL_SETTINGS, "About");
     lv_menu_set_load_page_event(menu, cont, sub_about_page);
 

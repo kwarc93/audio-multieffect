@@ -20,6 +20,7 @@ void ui_settings_screen_init(void);
 void ui_event_settings(lv_event_t * e);
 lv_obj_t * ui_settings;
 lv_obj_t * ui_settings_parent_screen;
+lv_obj_t * ui_menu_sett;
 lv_obj_t * ui_list_sett_fx_chain;
 lv_obj_t * ui_list_sett_fx_ops;
 lv_obj_t * ui_list_sett_fx_items;
@@ -394,8 +395,9 @@ void ui_init(void * user_data)
     ui_perform_initial_actions();
 
     lv_disp_t *disp = lv_disp_get_default();
-    const lv_color_t primary_color = LV_COLOR_MAKE(80, 255, 125);
-    const lv_color_t secondary_color = LV_COLOR_MAKE(96, 125, 139);
+    lv_color_t primary_color = lv_color_hex(UI_PALETTE_SPRING_GREEN);
+    lv_color_t secondary_color = lv_color_hex(UI_PALETTE_BATTLESHIP_GRAY);
     lv_theme_t *theme = lv_theme_default_init(disp, primary_color, secondary_color, true, LV_FONT_DEFAULT);
+
     lv_disp_set_theme(disp, theme);
 }

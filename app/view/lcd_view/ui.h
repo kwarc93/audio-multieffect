@@ -14,6 +14,11 @@ extern "C" {
 
 #include "ui_helpers.h"
 #include "ui_events.h"
+
+// USER:
+#define UI_PALETTE_SPRING_GREEN 0x50FF7D
+#define UI_PALETTE_BATTLESHIP_GRAY 0x788585
+
 void splashfadein_Animation(lv_obj_t * TargetObject, int delay);
 // SCREEN: ui_splash
 void ui_splash_screen_init(void);
@@ -25,6 +30,7 @@ void ui_settings_screen_init(void);
 void ui_event_settings(lv_event_t * e);
 extern lv_obj_t * ui_settings;
 extern lv_obj_t * ui_settings_parent_screen;
+extern lv_obj_t * ui_menu_sett;
 extern lv_obj_t * ui_list_sett_fx_chain;
 extern lv_obj_t * ui_list_sett_fx_ops;
 extern lv_obj_t * ui_list_sett_fx_items;
