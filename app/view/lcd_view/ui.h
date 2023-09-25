@@ -25,6 +25,12 @@ void ui_splash_screen_init(void);
 void ui_event_splash(lv_event_t * e);
 extern lv_obj_t * ui_splash;
 extern lv_obj_t * ui_lbl_splash;
+// SCREEN: ui_blank
+void ui_blank_screen_init(void);
+void ui_event_blank(lv_event_t * e);
+extern lv_obj_t * ui_blank;
+extern lv_obj_t * ui_pnl_blank_content;
+extern lv_obj_t * ui_lbl_blank_name;
 // SCREEN: ui_settings
 void ui_settings_screen_init(void);
 void ui_event_settings(lv_event_t * e);
@@ -35,9 +41,9 @@ extern lv_obj_t * ui_list_sett_fx_chain;
 extern lv_obj_t * ui_list_sett_fx_ops;
 extern lv_obj_t * ui_list_sett_fx_items;
 extern lv_obj_t * ui_btn_sett_curr_fx;
-extern lv_obj_t * ui_sld_in_vol;
-extern lv_obj_t * ui_sld_out_vol;
-extern lv_obj_t * ui_sw_mute_audio;
+extern lv_obj_t * ui_sld_sett_in_vol;
+extern lv_obj_t * ui_sld_sett_out_vol;
+extern lv_obj_t * ui_sw_sett_mute_audio;
 extern const char *ui_fx_names[4];
 void ui_event_sld_in_vol(lv_event_t * e);
 void ui_event_sld_out_vol(lv_event_t * e);

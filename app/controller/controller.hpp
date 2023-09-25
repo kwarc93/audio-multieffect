@@ -95,8 +95,8 @@ private:
     std::unique_ptr<effect_processor> model;
     std::unique_ptr<lcd_view> view;
 
+    effect_id current_effect;
     std::vector<effect_id> active_effects;
-    std::vector<effect_id>::iterator current_effect;
 
     hal::buttons::blue_btn button;
     osTimerId_t button_timer;

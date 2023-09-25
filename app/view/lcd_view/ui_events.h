@@ -11,7 +11,7 @@ extern "C" {
 #endif
 
 void ui_set_user_data(void * user_data);
-void ui_perform_initial_actions(void);
+void ui_user_init_actions(void);
 void ui_splash_loaded(lv_event_t * e);
 void ui_effect_next(lv_event_t * e);
 void ui_effect_prev(lv_event_t * e);

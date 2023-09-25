@@ -15,6 +15,13 @@ void ui_event_splash(lv_event_t * e);
 lv_obj_t * ui_splash;
 lv_obj_t * ui_lbl_splash;
 
+// SCREEN: ui_blank
+void ui_blank_screen_init(void);
+void ui_event_blank(lv_event_t * e);
+lv_obj_t * ui_blank;
+lv_obj_t * ui_pnl_blank_content;
+lv_obj_t * ui_lbl_blank_name;
+
 // SCREEN: ui_settings
 void ui_settings_screen_init(void);
 void ui_event_settings(lv_event_t * e);
@@ -25,9 +32,9 @@ lv_obj_t * ui_list_sett_fx_chain;
 lv_obj_t * ui_list_sett_fx_ops;
 lv_obj_t * ui_list_sett_fx_items;
 lv_obj_t * ui_btn_sett_curr_fx;
-lv_obj_t * ui_sld_in_vol;
-lv_obj_t * ui_sld_out_vol;
-lv_obj_t * ui_sw_mute_audio;
+lv_obj_t * ui_sld_sett_in_vol;
+lv_obj_t * ui_sld_sett_out_vol;
+lv_obj_t * ui_sw_sett_mute_audio;
 const char *ui_fx_names[4];
 void ui_event_sld_in_vol(lv_event_t * e);
 void ui_event_sld_out_vol(lv_event_t * e);
@@ -208,6 +215,10 @@ void ui_event_splash(lv_event_t * e)
     if(event_code == LV_EVENT_SCREEN_LOAD_START) {
         splashfadein_Animation(ui_lbl_splash, 0);
     }
+}
+void ui_event_blank(lv_event_t * e)
+{
+    gesture_handler(e);
 }
 void ui_event_settings(lv_event_t * e)
 {
@@ -392,7 +403,7 @@ void ui_event_roller_cab_sim_ir(lv_event_t * e)
 void ui_init(void * user_data)
 {
     ui_set_user_data(user_data);
-    ui_perform_initial_actions();
+    ui_user_init_actions();
 
     lv_disp_t *disp = lv_disp_get_default();
     lv_color_t primary_color = lv_color_hex(UI_PALETTE_SPRING_GREEN);

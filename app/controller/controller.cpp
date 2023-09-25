@@ -8,6 +8,7 @@
 #include "controller.hpp"
 
 #include <array>
+#include <algorithm>
 
 using namespace mfx;
 namespace events = controller_events;
@@ -122,34 +123,37 @@ void controller::event_handler(const events::load_preset &e)
     }
 
     /* Show screen of the first effect in preset */
-    this->current_effect = this->active_effects.begin();
-    this->view->send({lcd_view_events::show_next_effect_screen {*this->current_effect}});
-    this->update_effect_attributes(*this->current_effect);
+    this->current_effect = this->active_effects.at(0);
+    this->view->send({lcd_view_events::show_next_effect_screen {this->current_effect}});
+    this->update_effect_attributes(this->current_effect);
 }
 
 void controller::view_event_handler(const lcd_view_events::splash_loaded &e)
 {
-    this->send({events::load_preset{}});
+//    this->send({events::load_preset{}});
+    this->view->send({lcd_view_events::show_blank_screen {}});
 }
 
 void controller::view_event_handler(const lcd_view_events::next_effect_screen_request &e)
 {
-    if (this->current_effect == (this->active_effects.end() - 1))
+    const auto it = std::find(this->active_effects.begin(), this->active_effects.end(), this->current_effect);
+    if (it >= (this->active_effects.end() - 1))
         return;
 
-    this->current_effect = std::next(this->current_effect);
-    this->view->send({lcd_view_events::show_next_effect_screen {*this->current_effect}});
-    this->update_effect_attributes(*this->current_effect);
+    this->current_effect = *std::next(it);
+    this->view->send({lcd_view_events::show_next_effect_screen {this->current_effect}});
+    this->update_effect_attributes(this->current_effect);
 }
 
 void controller::view_event_handler(const lcd_view_events::prev_effect_screen_request &e)
 {
-    if (this->current_effect == this->active_effects.begin())
+    const auto it = std::find(this->active_effects.begin(), this->active_effects.end(), this->current_effect);
+    if (it == this->active_effects.begin())
         return;
 
-    this->current_effect = std::prev(this->current_effect);
-    this->view->send({lcd_view_events::show_prev_effect_screen {*this->current_effect}});
-    this->update_effect_attributes(*this->current_effect);
+    this->current_effect = *std::prev(it);
+    this->view->send({lcd_view_events::show_prev_effect_screen {this->current_effect}});
+    this->update_effect_attributes(this->current_effect);
 }
 
 void controller::view_event_handler(const lcd_view_events::settings_volume_changed &e)
@@ -172,17 +176,39 @@ void controller::view_event_handler(const lcd_view_events::effect_controls_chang
 
 void controller::view_event_handler(const lcd_view_events::add_effect_request &e)
 {
-    /* TODO */
-//    this->active_effects.push_back(e.new_effect_id);
-//    effect_processor::event evt {effect_processor_events::add_effect {e.new_effect_id}};
-//    this->model->send(evt);
+    this->current_effect = e.id;
+    this->active_effects.push_back(e.id);
+    this->model->send({effect_processor_events::add_effect {e.id}});
+    this->view->send({lcd_view_events::show_next_effect_screen {this->current_effect}});
+    this->update_effect_attributes(this->current_effect);
 }
 
 void controller::view_event_handler(const lcd_view_events::remove_effect_request &e)
 {
-    /* TODO */
-//    effect_processor::event evt {effect_processor_events::remove_effect {e.id}};
-//    this->model->send(evt);
+    if (e.id == this->current_effect)
+    {
+        /* Select new current effect */
+        auto it = std::find(this->active_effects.begin(), this->active_effects.end(), e.id);
+
+        if (it == this->active_effects.begin())
+            it = std::next(it);
+        else
+            it = std::prev(it);
+
+        if (this->active_effects.size() == 1)
+        {
+            this->view->send({lcd_view_events::show_blank_screen {}});
+        }
+        else
+        {
+            this->current_effect = *it;
+            this->view->send({lcd_view_events::show_prev_effect_screen {this->current_effect}});
+            this->update_effect_attributes(this->current_effect);
+        }
+    }
+
+    this->active_effects.erase(std::remove(this->active_effects.begin(), this->active_effects.end(), e.id), this->active_effects.end());
+    this->model->send({effect_processor_events::remove_effect {e.id}});
 }
 
 void controller::view_event_handler(const lcd_view_events::move_effect_request &e)

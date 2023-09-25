@@ -109,7 +109,7 @@ void ui_set_user_data(void *user_data)
     view = static_cast<mfx::lcd_view*>(user_data);
 }
 
-void ui_perform_initial_actions(void)
+void ui_user_init_actions(void)
 {
     ui_fx_names[static_cast<unsigned>(mfx::effect_id::tremolo)] = "Tremolo";
     ui_fx_names[static_cast<unsigned>(mfx::effect_id::echo)] = "Echo";
@@ -134,8 +134,8 @@ void ui_effect_prev(lv_event_t * e)
 
 void ui_settings_in_vol_changed(lv_event_t * e)
 {
-    lv_obj_t *in_slider = ui_sld_in_vol;
-    lv_obj_t *out_slider = ui_sld_out_vol;
+    lv_obj_t *in_slider = ui_sld_sett_in_vol;
+    lv_obj_t *out_slider = ui_sld_sett_out_vol;
 
     uint8_t in_vol = lv_slider_get_value(in_slider);
     uint8_t out_vol = lv_slider_get_value(out_slider);
@@ -146,8 +146,8 @@ void ui_settings_in_vol_changed(lv_event_t * e)
 
 void ui_settings_out_vol_changed(lv_event_t * e)
 {
-    lv_obj_t *in_slider = ui_sld_in_vol;
-    lv_obj_t *out_slider = ui_sld_out_vol;
+    lv_obj_t *in_slider = ui_sld_sett_in_vol;
+    lv_obj_t *out_slider = ui_sld_sett_out_vol;
 
     uint8_t in_vol = lv_slider_get_value(in_slider);
     uint8_t out_vol = lv_slider_get_value(out_slider);
@@ -161,9 +161,9 @@ void ui_settings_mute_audio(lv_event_t * e)
 
 }
 
-void ui_settings_add_effect(uint32_t new_effect_id, uint32_t curr_effect_id)
+void ui_settings_add_effect(uint32_t id, uint32_t curr_id)
 {
-    const events::add_effect_request evt {static_cast<mfx::effect_id>(new_effect_id), static_cast<mfx::effect_id>(curr_effect_id)};
+    const events::add_effect_request evt {static_cast<mfx::effect_id>(id), static_cast<mfx::effect_id>(curr_id)};
     view->notify(evt);
 }
 

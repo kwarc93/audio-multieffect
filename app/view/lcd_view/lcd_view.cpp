@@ -99,6 +99,22 @@ void lcd_view::event_handler(const events::show_splash_screen &e)
     lv_disp_load_scr(ui_splash);
 }
 
+void lcd_view::event_handler(const lcd_view_events::show_blank_screen &e)
+{
+    ui_blank_screen_init();
+
+    /* Don't change screen when settings screen is displayed */
+    if (lv_scr_act() == ui_settings)
+    {
+        lv_obj_del(ui_settings_parent_screen);
+        ui_settings_parent_screen = ui_blank;
+    }
+    else
+    {
+        lv_scr_load_anim(ui_blank, LV_SCR_LOAD_ANIM_FADE_IN, 250, 0, true);
+    }
+}
+
 void lcd_view::event_handler(const events::show_next_effect_screen &e)
 {
     this->change_effect_screen(e.id, LV_SCR_LOAD_ANIM_MOVE_LEFT);
@@ -230,7 +246,16 @@ void lcd_view::change_effect_screen(effect_id id, int dir)
         return;
     }
 
-    lv_scr_load_anim(new_screen, static_cast<lv_scr_load_anim_t>(dir), 250, 0, true);
+    /* Don't change screen when settings screen is displayed */
+    if (lv_scr_act() == ui_settings)
+    {
+        lv_obj_del(ui_settings_parent_screen);
+        ui_settings_parent_screen = new_screen;
+    }
+    else
+    {
+        lv_scr_load_anim(new_screen, static_cast<lv_scr_load_anim_t>(dir), 250, 0, true);
+    }
 }
 
 //-----------------------------------------------------------------------------

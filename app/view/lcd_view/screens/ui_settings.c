@@ -141,7 +141,7 @@ static void fx_ops_back_handler(lv_event_t * e)
     }
 }
 
-static void fx_items_add_item_handler(lv_event_t * e)
+static void fx_ops_add_fx_handler(lv_event_t * e)
 {
     const lv_event_code_t code = lv_event_get_code(e);
     lv_obj_t * fx_item = lv_event_get_target(e);
@@ -164,7 +164,7 @@ static void fx_items_add_item_handler(lv_event_t * e)
         lv_obj_t * lab = lv_label_create(btn);
         lv_label_set_text(lab, lv_list_get_btn_text(ui_list_sett_fx_items, fx_item));
 
-        ui_settings_add_effect(lv_obj_get_index(fx_item), index - 1);
+        ui_settings_add_effect(lv_obj_get_index(fx_item) - 1, index - 1);
 
         lv_obj_clear_flag(ui_list_sett_fx_ops, LV_OBJ_FLAG_HIDDEN);
         lv_obj_del(ui_list_sett_fx_items);
@@ -197,7 +197,7 @@ static void fx_ops_add_handler(lv_event_t * e)
                 lv_obj_add_state(btn, LV_STATE_DISABLED);
             }
 
-            lv_obj_add_event_cb(btn, fx_items_add_item_handler, LV_EVENT_ALL, NULL);
+            lv_obj_add_event_cb(btn, fx_ops_add_fx_handler, LV_EVENT_ALL, NULL);
             lv_group_remove_obj(btn);
         }
 
@@ -216,7 +216,11 @@ static void fx_ops_remove_handler(lv_event_t * e)
 
         uint32_t index = lv_obj_get_index(ui_btn_sett_curr_fx);
 
-        ui_settings_remove_effect(index);
+        for (unsigned i = 0; i < sizeof(ui_fx_names) / sizeof(ui_fx_names[0]); i++)
+        {
+            if (strcmp(ui_fx_names[i], lv_label_get_text(lv_obj_get_child(ui_btn_sett_curr_fx, -1))) == 0)
+                ui_settings_remove_effect(i);
+        }
 
         if (index == lv_obj_get_child_cnt(ui_list_sett_fx_chain) - 1)
             index--;
@@ -333,11 +337,11 @@ void ui_settings_screen_init(void)
     lv_obj_set_style_pad_hor(sub_audio_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
     section = lv_menu_section_create(sub_audio_page);
     cont = menu_create_slider(section, NULL, "Input volume", 0, 31, 11, ui_event_sld_in_vol);
-    ui_sld_in_vol = lv_obj_get_child(cont, -1);
+    ui_sld_sett_in_vol = lv_obj_get_child(cont, -1);
     cont = menu_create_slider(section, NULL, "Output volume", 0, 63, 57, ui_event_sld_out_vol);
-    ui_sld_out_vol = lv_obj_get_child(cont, -1);
+    ui_sld_sett_out_vol = lv_obj_get_child(cont, -1);
     cont = menu_create_switch(section, NULL, "Mute", false, ui_event_sw_mute_audio);
-    ui_sw_mute_audio = lv_obj_get_child(cont, -1);
+    ui_sw_sett_mute_audio = lv_obj_get_child(cont, -1);
 
     lv_obj_t * sub_effects_page = lv_menu_page_create(menu, "Effects");
     lv_obj_set_style_pad_hor(sub_effects_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);

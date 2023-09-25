@@ -38,6 +38,11 @@ struct splash_loaded
 
 };
 
+struct show_blank_screen
+{
+
+};
+
 struct show_next_effect_screen
 {
     effect_id id;
@@ -84,8 +89,8 @@ struct effect_controls_changed
 
 struct add_effect_request
 {
-    effect_id new_effect_id;
-    effect_id curr_effect_id;
+    effect_id id;
+    effect_id curr_id;
 };
 
 struct remove_effect_request
@@ -122,6 +127,7 @@ using incoming = std::variant
 <
     timer,
     show_splash_screen,
+    show_blank_screen,
     show_next_effect_screen,
     show_prev_effect_screen,
     set_effect_attributes
@@ -140,6 +146,7 @@ private:
     /* Event handlers */
     void event_handler(const lcd_view_events::timer &e);
     void event_handler(const lcd_view_events::show_splash_screen &e);
+    void event_handler(const lcd_view_events::show_blank_screen &e);
     void event_handler(const lcd_view_events::show_next_effect_screen &e);
     void event_handler(const lcd_view_events::show_prev_effect_screen &e);
     void event_handler(const lcd_view_events::set_effect_attributes &e);
