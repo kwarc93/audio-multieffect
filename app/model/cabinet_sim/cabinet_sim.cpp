@@ -32,7 +32,8 @@ constexpr std::array<std::pair<const char*, const ir_t*>, 3> ir_map
 /* public */
 
 
-cabinet_sim::cabinet_sim() : effect { effect_id::cabinet_sim, "cabinet_sim" }
+cabinet_sim::cabinet_sim() : effect { effect_id::cabinet_sim, "cabinet_sim" },
+attributes {}
 {
     this->attributes.ctrl.ir_idx = 0;
     this->fast_conv.set_ir(ir_map.at(0).second->data());

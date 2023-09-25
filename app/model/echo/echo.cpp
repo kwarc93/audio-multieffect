@@ -29,7 +29,7 @@ std::array<float, 1 * config::sampling_frequency_hz> delay_line_memory; // Maxim
 
 
 echo::echo(float blur, float time, float feedback, echo_attributes::controls::mode_type mode) : effect { effect_id::echo, "echo" },
-delay_line{delay_line_memory.data(), delay_line_memory.size(), config::sampling_frequency_hz}
+delay_line{delay_line_memory.data(), delay_line_memory.size(), config::sampling_frequency_hz}, attributes {}
 {
     this->set_mode(mode);
     this->set_blur(blur);
