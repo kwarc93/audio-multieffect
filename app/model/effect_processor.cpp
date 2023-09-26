@@ -74,6 +74,17 @@ void effect_processor::event_handler(const events::remove_effect &e)
     }
 }
 
+void effect_processor::event_handler(const events::move_effect &e)
+{
+    std::vector<std::unique_ptr<effect>>::iterator it;
+
+    if (this->find_effect(e.id, it))
+    {
+        /* Only moves by +1/-1 are supported */
+        std::swap(*it, *std::next(it, (e.step == 0) ? 0 : (e.step > 0) ? 1 : -1));
+    }
+}
+
 void effect_processor::event_handler(const events::bypass_effect &e)
 {
     auto effect = this->find_effect(e.id);

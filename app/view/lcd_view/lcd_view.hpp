@@ -101,7 +101,7 @@ struct remove_effect_request
 struct move_effect_request
 {
     effect_id id;
-    int32_t dir;
+    int32_t step;
 };
 
 struct set_effect_attributes

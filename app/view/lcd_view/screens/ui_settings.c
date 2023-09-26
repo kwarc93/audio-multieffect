@@ -105,6 +105,17 @@ static bool is_in_fx_chain(const char *name)
     return false;
 }
 
+static int fx_id_from_name(const char *name)
+{
+    for (unsigned i = 0; i < sizeof(ui_fx_names) / sizeof(ui_fx_names[0]); i++)
+    {
+        if (strcmp(ui_fx_names[i], name) == 0)
+            return i;
+    }
+
+    return -1;
+}
+
 static void fx_chain_btn_handler(lv_event_t * e)
 {
     const lv_event_code_t code = lv_event_get_code(e);
@@ -214,14 +225,11 @@ static void fx_ops_remove_handler(lv_event_t * e)
         if (ui_btn_sett_curr_fx == NULL)
             return;
 
+        int fx_id = fx_id_from_name(lv_label_get_text(lv_obj_get_child(ui_btn_sett_curr_fx, -1)));
+        if (fx_id >= 0)
+            ui_settings_remove_effect(fx_id);
+
         uint32_t index = lv_obj_get_index(ui_btn_sett_curr_fx);
-
-        for (unsigned i = 0; i < sizeof(ui_fx_names) / sizeof(ui_fx_names[0]); i++)
-        {
-            if (strcmp(ui_fx_names[i], lv_label_get_text(lv_obj_get_child(ui_btn_sett_curr_fx, -1))) == 0)
-                ui_settings_remove_effect(i);
-        }
-
         if (index == lv_obj_get_child_cnt(ui_list_sett_fx_chain) - 1)
             index--;
 
@@ -247,14 +255,15 @@ static void fx_ops_move_up_handler(lv_event_t * e)
             return;
 
         const uint32_t index = lv_obj_get_index(ui_btn_sett_curr_fx);
-
-        ui_settings_move_effect(index, 1);
-
         if (index <= 0)
             return;
 
         lv_obj_move_to_index(ui_btn_sett_curr_fx, index - 1);
         lv_obj_scroll_to_view(ui_btn_sett_curr_fx, LV_ANIM_ON);
+
+        int fx_id = fx_id_from_name(lv_label_get_text(lv_obj_get_child(ui_btn_sett_curr_fx, -1)));
+        if (fx_id >= 0)
+            ui_settings_move_effect(fx_id, -1);
     }
 }
 
@@ -268,12 +277,12 @@ static void fx_ops_move_down_handler(lv_event_t * e)
             return;
 
         const uint32_t index = lv_obj_get_index(ui_btn_sett_curr_fx);
-
-        ui_settings_move_effect(index, -1);
-
         lv_obj_move_to_index(ui_btn_sett_curr_fx, index + 1);
         lv_obj_scroll_to_view(ui_btn_sett_curr_fx, LV_ANIM_ON);
 
+        int fx_id = fx_id_from_name(lv_label_get_text(lv_obj_get_child(ui_btn_sett_curr_fx, -1)));
+        if (fx_id >= 0)
+            ui_settings_move_effect(fx_id, 1);
     }
 }
 

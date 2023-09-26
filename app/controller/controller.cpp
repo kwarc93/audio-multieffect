@@ -213,7 +213,16 @@ void controller::view_event_handler(const lcd_view_events::remove_effect_request
 
 void controller::view_event_handler(const lcd_view_events::move_effect_request &e)
 {
-    /* TODO */
+    auto it = std::find(this->active_effects.begin(), this->active_effects.end(), e.id);
+    if (it == this->active_effects.begin() && e.step < 0)
+        return;
+
+    auto swap_it = std::next(it, (e.step == 0) ? 0 : (e.step > 0) ? 1 : -1);
+    if (swap_it == this->active_effects.end())
+        return;
+
+    std::swap(*it, *swap_it);
+    this->model->send({effect_processor_events::move_effect {e.id, e.step}});
 }
 
 void controller::model_event_handler(const effect_processor_events::volume_changed &e)

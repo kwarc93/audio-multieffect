@@ -59,6 +59,8 @@ const effect_specific_attributes tremolo::get_specific_attributes(void) const
 
 void tremolo::set_depth(float depth)
 {
+    depth = std::clamp(depth, 0.0f, 0.5f);
+
     if (this->attributes.ctrl.depth == depth)
         return;
 
@@ -67,6 +69,8 @@ void tremolo::set_depth(float depth)
 
 void tremolo::set_rate(float rate)
 {
+    rate = std::clamp(rate, 1.0f, 20.0f);
+
     if (this->attributes.ctrl.rate == rate)
         return;
 

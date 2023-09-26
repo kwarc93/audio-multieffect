@@ -173,9 +173,9 @@ void ui_settings_remove_effect(uint32_t effect_id)
     view->notify(evt);
 }
 
-void ui_settings_move_effect(uint32_t effect_id, int32_t dir)
+void ui_settings_move_effect(uint32_t effect_id, int32_t step)
 {
-    const events::move_effect_request evt {static_cast<mfx::effect_id>(effect_id), dir};
+    const events::move_effect_request evt {static_cast<mfx::effect_id>(effect_id), step};
     view->notify(evt);
 }
 

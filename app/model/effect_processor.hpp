@@ -46,6 +46,12 @@ struct remove_effect
     effect_id id;
 };
 
+struct move_effect
+{
+    effect_id id;
+    int32_t step;
+};
+
 struct bypass_effect
 {
     effect_id id;
@@ -90,6 +96,7 @@ using incoming = std::variant
     get_processing_load,
     add_effect,
     remove_effect,
+    move_effect,
     bypass_effect,
     set_volume,
     set_effect_controls,
@@ -117,6 +124,7 @@ private:
     /* Event handlers */
     void event_handler(const effect_processor_events::add_effect &e);
     void event_handler(const effect_processor_events::remove_effect& e);
+    void event_handler(const effect_processor_events::move_effect& e);
     void event_handler(const effect_processor_events::bypass_effect &e);
     void event_handler(const effect_processor_events::set_volume &e);
     void event_handler(const effect_processor_events::process_data &e);
