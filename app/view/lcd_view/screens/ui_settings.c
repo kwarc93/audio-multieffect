@@ -161,8 +161,8 @@ static void fx_ops_add_fx_handler(lv_event_t * e)
     {
         uint32_t index = lv_obj_get_child_cnt(ui_list_sett_fx_chain);
 
-        if (ui_btn_sett_curr_fx != NULL)
-            index = lv_obj_get_index(ui_btn_sett_curr_fx) + 1;
+//        if (ui_btn_sett_curr_fx != NULL)
+//            index = lv_obj_get_index(ui_btn_sett_curr_fx) + 1;
 
         lv_obj_t * btn = lv_btn_create(ui_list_sett_fx_chain);
         lv_obj_set_width(btn, LV_SIZE_CONTENT);
