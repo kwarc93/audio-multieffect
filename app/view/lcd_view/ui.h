@@ -19,7 +19,7 @@ extern "C" {
 #define UI_PALETTE_SPRING_GREEN 0x50FF7D
 #define UI_PALETTE_BATTLESHIP_GRAY 0x788585
 
-void splashfadein_Animation(lv_obj_t * TargetObject, int delay);
+void ui_splash_fadein_anim(lv_obj_t * TargetObject, int delay);
 // SCREEN: ui_splash
 void ui_splash_screen_init(void);
 void ui_event_splash(lv_event_t * e);
