@@ -376,12 +376,12 @@ void ui_settings_screen_init(void)
     lv_obj_t * sub_software_page = lv_menu_page_create(menu, "Software");
     lv_obj_set_style_pad_hor(sub_software_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
     section = lv_menu_section_create(sub_software_page);
-    menu_create_text(section, NULL, "Version: v1.0.0");
+    menu_create_text(section, NULL, "Version: v0.0.1");
 
     lv_obj_t * sub_hardware_page = lv_menu_page_create(menu, "Hardware");
     lv_obj_set_style_pad_hor(sub_hardware_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
     section = lv_menu_section_create(sub_hardware_page);
-    menu_create_text(section, NULL, "Version: v1.0.1\nCPU: ARM Cortex-M7 200MHz\nRAM: 8MB");
+    menu_create_text(section, NULL, "Board: STM32F746G-DISCO MB1191B\nCPU: ARM Cortex-M7 200MHz\nRAM: 8MB");
 
     lv_obj_t * sub_about_page = lv_menu_page_create(menu, "About");
     lv_obj_set_style_pad_hor(sub_about_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
