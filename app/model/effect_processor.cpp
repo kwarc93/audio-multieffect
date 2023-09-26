@@ -54,14 +54,9 @@ void effect_processor::dispatch(const event &e)
 
 void effect_processor::event_handler(const events::add_effect &e)
 {
-    std::vector<std::unique_ptr<effect>>::iterator it;
-
     /* Don't allow duplicates */
-    if (!this->find_effect(e.id, it))
-    {
-        auto effect = this->create_new(e.id);
-        this->effects.push_back(std::move(effect));
-    }
+    if (!this->find_effect(e.id))
+        this->effects.push_back(std::move(this->create_new(e.id)));
 }
 
 void effect_processor::event_handler(const events::remove_effect &e)
@@ -69,9 +64,7 @@ void effect_processor::event_handler(const events::remove_effect &e)
     std::vector<std::unique_ptr<effect>>::iterator it;
 
     if (this->find_effect(e.id, it))
-    {
         this->effects.erase(it);
-    }
 }
 
 void effect_processor::event_handler(const events::move_effect &e)
@@ -80,18 +73,24 @@ void effect_processor::event_handler(const events::move_effect &e)
 
     if (this->find_effect(e.id, it))
     {
+        if (it == this->effects.begin() && e.step < 0)
+            return;
+
+        if (it == (this->effects.end() - 1) && e.step > 0)
+            return;
+
         /* Only moves by +1/-1 are supported */
-        std::swap(*it, *std::next(it, (e.step == 0) ? 0 : (e.step > 0) ? 1 : -1));
+        std::swap(*it, *std::next(it, std::clamp(e.step, -1L, 1L)));
     }
 }
 
 void effect_processor::event_handler(const events::bypass_effect &e)
 {
     auto effect = this->find_effect(e.id);
-    if (effect == nullptr)
-        return;
 
-    effect->bypass(e.bypassed);
+    if (effect)
+        effect->bypass(e.bypassed);
+
 }
 
 void effect_processor::event_handler(const events::set_volume &e)
@@ -109,7 +108,7 @@ void effect_processor::event_handler(const events::process_data &e)
 
     for (auto &&effect : this->effects)
     {
-        if (!(effect->is_bypassed()))
+        if (!effect->is_bypassed())
         {
             effect->process(*current_input, *current_output);
 
@@ -158,10 +157,9 @@ void effect_processor::event_handler(const events::set_effect_controls &e)
 void effect_processor::event_handler(const events::get_effect_attributes &e)
 {
     auto effect = this->find_effect(e.id);
-    if (effect == nullptr)
-        return;
 
-    e.response(effect->get_basic_attributes(), effect->get_specific_attributes());
+    if (effect)
+        e.response(effect->get_basic_attributes(), effect->get_specific_attributes());
 }
 
 void effect_processor::set_controls(const tremolo_attributes::controls &ctrl)
