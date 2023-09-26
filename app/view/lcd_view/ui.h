@@ -24,13 +24,12 @@ void splashfadein_Animation(lv_obj_t * TargetObject, int delay);
 void ui_splash_screen_init(void);
 void ui_event_splash(lv_event_t * e);
 extern lv_obj_t * ui_splash;
-extern lv_obj_t * ui_lbl_splash;
+extern lv_obj_t * ui_lbl_blank;
 // SCREEN: ui_blank
 void ui_blank_screen_init(void);
 void ui_event_blank(lv_event_t * e);
 extern lv_obj_t * ui_blank;
-extern lv_obj_t * ui_pnl_blank_content;
-extern lv_obj_t * ui_lbl_blank_name;
+extern lv_obj_t * ui_logo_gmfx;
 // SCREEN: ui_settings
 void ui_settings_screen_init(void);
 void ui_event_settings(lv_event_t * e);
@@ -152,6 +151,7 @@ LV_IMG_DECLARE(ui_img_pot_ver_knob_png);    // assets/pot_ver_knob.png
 LV_IMG_DECLARE(ui_img_btn_1_inact_png);    // assets/btn_1_inact.png
 LV_IMG_DECLARE(ui_img_btn_1_act_png);    // assets/btn_1_act.png
 LV_IMG_DECLARE(ui_img_btn_knob_png);    // assets/btn_knob.png
+LV_IMG_DECLARE(ui_img_logo_gmfx);   // assets/gmfx-logo-gimp.png
 
 LV_FONT_DECLARE(ui_font_14_bold);
 

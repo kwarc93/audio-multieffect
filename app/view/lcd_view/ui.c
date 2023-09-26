@@ -13,14 +13,13 @@ void splashfadein_Animation(lv_obj_t * TargetObject, int delay);
 void ui_splash_screen_init(void);
 void ui_event_splash(lv_event_t * e);
 lv_obj_t * ui_splash;
-lv_obj_t * ui_lbl_splash;
+lv_obj_t * ui_logo_gmfx;
 
 // SCREEN: ui_blank
 void ui_blank_screen_init(void);
 void ui_event_blank(lv_event_t * e);
 lv_obj_t * ui_blank;
-lv_obj_t * ui_pnl_blank_content;
-lv_obj_t * ui_lbl_blank_name;
+lv_obj_t * ui_lbl_blank;
 
 // SCREEN: ui_settings
 void ui_settings_screen_init(void);
@@ -213,7 +212,7 @@ void ui_event_splash(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_SCREEN_LOAD_START) {
-        splashfadein_Animation(ui_lbl_splash, 0);
+        splashfadein_Animation(ui_logo_gmfx, 0);
     }
 }
 void ui_event_blank(lv_event_t * e)
