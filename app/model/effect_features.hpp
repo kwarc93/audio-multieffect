@@ -39,10 +39,10 @@ constexpr inline std::array<const char*, static_cast<uint8_t>(effect_id::_count)
 
 struct effect_attr
 {
-    const effect_id id;
-    const char *name;
-    bool bypassed;
-    int status;
+    const effect_id id; // Effect unique ID, see above
+    const char *name; // Effect unique name, see above
+    bool bypassed; // Bypass status: true - effect inactive, false - effect active
+    int status; // Status/error code
 };
 
 //-----------------------------------------------------------------------------
