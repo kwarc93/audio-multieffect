@@ -32,13 +32,13 @@ void notify_tremolo_controls_changed(void)
     lv_obj_t *depth_knob = ui_arc_trem_depth;
     lv_obj_t *shape_sw = ui_sw_trem_shape;
 
-    const mfx::tremolo_attributes::controls ctrl
+    const mfx::tremolo_attr::controls ctrl
     {
         static_cast<float>(lv_arc_get_value(rate_knob)),
         static_cast<float>(lv_arc_get_value(depth_knob)) * 0.01f,
         lv_obj_has_state(shape_sw, LV_STATE_CHECKED) ?
-        mfx::tremolo_attributes::controls::shape_type::sine :
-        mfx::tremolo_attributes::controls::shape_type::triangle
+        mfx::tremolo_attr::controls::shape_type::sine :
+        mfx::tremolo_attr::controls::shape_type::triangle
     };
 
     view->notify(events::effect_controls_changed {ctrl});
@@ -51,14 +51,14 @@ void notify_echo_controls_changed(void)
     lv_obj_t *feedback_knob = ui_arc_echo_feedb;
     lv_obj_t *mode_sw = ui_sw_echo_mode;
 
-    const mfx::echo_attributes::controls ctrl
+    const mfx::echo_attr::controls ctrl
     {
         static_cast<float>(lv_arc_get_value(blur_knob)) * 0.01f,
         static_cast<float>(lv_arc_get_value(time_knob)) * 0.01f,
         static_cast<float>(lv_arc_get_value(feedback_knob)) * 0.01f,
         lv_obj_has_state(mode_sw, LV_STATE_CHECKED) ?
-        mfx::echo_attributes::controls::mode_type::delay :
-        mfx::echo_attributes::controls::mode_type::echo
+        mfx::echo_attr::controls::mode_type::delay :
+        mfx::echo_attr::controls::mode_type::echo
     };
 
     view->notify(events::effect_controls_changed {ctrl});
@@ -71,15 +71,15 @@ void notify_overdrive_controls_changed(void)
     lv_obj_t *tone_knob = ui_arc_od_tone;
     lv_obj_t *mode_sw = ui_sw_od_mode;
 
-    const mfx::overdrive_attributes::controls ctrl
+    const mfx::overdrive_attr::controls ctrl
     {
         1.0f - (static_cast<float>(lv_arc_get_value(tone_knob)) * 0.01f),
         static_cast<float>(lv_arc_get_value(gain_knob)),
         static_cast<float>(lv_arc_get_value(tone_knob)) * 0.01f,
         static_cast<float>(lv_arc_get_value(mix_knob)) * 0.01f,
         lv_obj_has_state(mode_sw, LV_STATE_CHECKED) ?
-        mfx::overdrive_attributes::controls::mode_type::hard :
-        mfx::overdrive_attributes::controls::mode_type::soft
+        mfx::overdrive_attr::controls::mode_type::hard :
+        mfx::overdrive_attr::controls::mode_type::soft
     };
 
     view->notify(events::effect_controls_changed {ctrl});
@@ -89,9 +89,9 @@ void notify_cabinet_sim_controls_changed(void)
 {
     lv_obj_t *ir_list = ui_roller_cab_sim_ir;
 
-    const mfx::cabinet_sim_attributes::controls ctrl
+    const mfx::cabinet_sim_attr::controls ctrl
     {
-        mfx::cabinet_sim_attributes::controls::resolution::standart,
+        mfx::cabinet_sim_attr::controls::resolution::standart,
         static_cast<uint8_t>(lv_roller_get_selected(ir_list)),
     };
 
@@ -111,10 +111,8 @@ void ui_set_user_data(void *user_data)
 
 void ui_user_init_actions(void)
 {
-    ui_fx_names[static_cast<unsigned>(mfx::effect_id::tremolo)] = "Tremolo";
-    ui_fx_names[static_cast<unsigned>(mfx::effect_id::echo)] = "Echo";
-    ui_fx_names[static_cast<unsigned>(mfx::effect_id::overdrive)] = "Overdrive";
-    ui_fx_names[static_cast<unsigned>(mfx::effect_id::cabinet_sim)] = "Cabinet simulator";
+    ui_fx_names_size = mfx::effect_name.size();
+    ui_fx_names = mfx::effect_name.data();
 }
 
 void ui_splash_loaded(lv_event_t * e)

@@ -18,7 +18,7 @@ namespace mfx
 class tremolo : public effect
 {
 public:
-    tremolo(float rate = 8, float depth = 0.3f, tremolo_attributes::controls::shape_type shape = tremolo_attributes::controls::shape_type::triangle);
+    tremolo(float rate = 8, float depth = 0.3f, tremolo_attr::controls::shape_type shape = tremolo_attr::controls::shape_type::triangle);
     virtual ~tremolo();
 
     void process(const dsp_input &in, dsp_output &out) override;
@@ -26,12 +26,12 @@ public:
 
     void set_depth(float depth);
     void set_rate(float rate);
-    void set_shape(tremolo_attributes::controls::shape_type shape);
+    void set_shape(tremolo_attr::controls::shape_type shape);
 private:
     /* Low frequency oscillator */
     libs::adsp::oscillator lfo;
 
-    tremolo_attributes attributes;
+    tremolo_attr attr;
 };
 
 }

@@ -79,10 +79,10 @@ struct effect_controls_changed
 {
     std::variant
     <
-        tremolo_attributes::controls,
-        echo_attributes::controls,
-        overdrive_attributes::controls,
-        cabinet_sim_attributes::controls
+        tremolo_attr::controls,
+        echo_attr::controls,
+        overdrive_attr::controls,
+        cabinet_sim_attr::controls
     >
     ctrl;
 };
@@ -106,7 +106,7 @@ struct move_effect_request
 
 struct set_effect_attributes
 {
-    effect_basic_attributes basic;
+    effect_attr basic;
     effect_specific_attributes specific;
 };
 
@@ -151,10 +151,10 @@ private:
     void event_handler(const lcd_view_events::show_prev_effect_screen &e);
     void event_handler(const lcd_view_events::set_effect_attributes &e);
 
-    void set_effect_attr(const effect_basic_attributes &basic, const tremolo_attributes &specific);
-    void set_effect_attr(const effect_basic_attributes &basic, const echo_attributes &specific);
-    void set_effect_attr(const effect_basic_attributes &basic, const overdrive_attributes &specific);
-    void set_effect_attr(const effect_basic_attributes &basic, const cabinet_sim_attributes &specific);
+    void set_effect_attr(const effect_attr &basic, const tremolo_attr &specific);
+    void set_effect_attr(const effect_attr &basic, const echo_attr &specific);
+    void set_effect_attr(const effect_attr &basic, const overdrive_attr &specific);
+    void set_effect_attr(const effect_attr &basic, const cabinet_sim_attr &specific);
 
     void change_effect_screen(effect_id id, int dir);
 

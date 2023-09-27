@@ -30,13 +30,13 @@ public:
     void set_ir(uint8_t idx);
 
 private:
-    constexpr static cabinet_sim_attributes::controls::resolution ir_res {cabinet_sim_attributes::controls::resolution::standart};
+    constexpr static cabinet_sim_attr::controls::resolution ir_res {cabinet_sim_attr::controls::resolution::standart};
     constexpr static uint32_t ir_size {static_cast<uint32_t>(ir_res) - config::dsp_vector_size};
 
     /* FFT based convolution */
     libs::adsp::fast_convolution<config::dsp_vector_size, ir_size> fast_conv;
 
-    cabinet_sim_attributes attributes;
+    cabinet_sim_attr attr;
 };
 
 }

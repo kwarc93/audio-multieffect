@@ -68,10 +68,10 @@ struct set_effect_controls
 {
     std::variant
     <
-        tremolo_attributes::controls,
-        echo_attributes::controls,
-        overdrive_attributes::controls,
-        cabinet_sim_attributes::controls
+        tremolo_attr::controls,
+        echo_attr::controls,
+        overdrive_attr::controls,
+        cabinet_sim_attr::controls
     >
     ctrl;
 };
@@ -79,12 +79,12 @@ struct set_effect_controls
 struct get_effect_attributes
 {
     effect_id id;
-    std::function<void(const effect_basic_attributes &basic, const effect_specific_attributes &specific)> response;
+    std::function<void(const effect_attr &basic, const effect_specific_attributes &specific)> response;
 };
 
 struct effect_attributes_changed
 {
-    effect_basic_attributes basic;
+    effect_attr basic;
     effect_specific_attributes specific;
 };
 
@@ -132,10 +132,10 @@ private:
     void event_handler(const effect_processor_events::set_effect_controls &e);
     void event_handler(const effect_processor_events::get_effect_attributes &e);
 
-    void set_controls(const tremolo_attributes::controls &ctrl);
-    void set_controls(const echo_attributes::controls &ctrl);
-    void set_controls(const overdrive_attributes::controls &ctrl);
-    void set_controls(const cabinet_sim_attributes::controls &ctrl);
+    void set_controls(const tremolo_attr::controls &ctrl);
+    void set_controls(const echo_attr::controls &ctrl);
+    void set_controls(const overdrive_attr::controls &ctrl);
+    void set_controls(const cabinet_sim_attr::controls &ctrl);
 
     void notify_effect_attributes_changed(effect *eff);
 

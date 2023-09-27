@@ -53,8 +53,8 @@ float overdrive::soft_clip(float in)
 /* public */
 
 
-overdrive::overdrive(float low, float high, float gain, float mix, overdrive_attributes::controls::mode_type mode) : effect { effect_id::overdrive, "overdrive" },
-attributes {}
+overdrive::overdrive(float low, float high, float gain, float mix, overdrive_attr::controls::mode_type mode) : effect { effect_id::overdrive },
+attr {}
 {
     this->set_mode(mode);
     this->set_low(low);
@@ -82,12 +82,12 @@ void overdrive::process(const dsp_input& in, dsp_output& out)
         auto sample = output;
 
         /* 3. Apply gain, clip & mix */
-        if (this->attributes.ctrl.mode == overdrive_attributes::controls::mode_type::hard)
-            sample = this->hard_clip(sample * this->attributes.ctrl.gain);
+        if (this->attr.ctrl.mode == overdrive_attr::controls::mode_type::hard)
+            sample = this->hard_clip(sample * this->attr.ctrl.gain);
         else
-            sample = this->soft_clip(sample * this->attributes.ctrl.gain);
+            sample = this->soft_clip(sample * this->attr.ctrl.gain);
 
-        return this->attributes.ctrl.mix * sample + (1.0f - this->attributes.ctrl.mix) * input;
+        return this->attr.ctrl.mix * sample + (1.0f - this->attr.ctrl.mix) * input;
     }
     );
 
@@ -97,14 +97,14 @@ void overdrive::process(const dsp_input& in, dsp_output& out)
 
 const effect_specific_attributes overdrive::get_specific_attributes(void) const
 {
-    return this->attributes;
+    return this->attr;
 }
 
 void overdrive::set_high(float high)
 {
     high = std::clamp(high, 0.0f, 1.0f);
 
-    if (this->attributes.ctrl.high == high)
+    if (this->attr.ctrl.high == high)
         return;
 
     /* Calculate coefficient for 2-nd order low-pass IIR (3kHz - 9kHz range) */
@@ -112,14 +112,14 @@ void overdrive::set_high(float high)
 
     this->iir_lp.calc_coeffs(fc, config::sampling_frequency_hz);
 
-    this->attributes.ctrl.high = high;
+    this->attr.ctrl.high = high;
 }
 
 void overdrive::set_low(float low)
 {
     low = std::clamp(low, 0.0f, 1.0f);
 
-    if (this->attributes.ctrl.low == low)
+    if (this->attr.ctrl.low == low)
         return;
 
     /* Calculate coefficient for 2-nd order high-pass IIR (50Hz - 250Hz range) */
@@ -127,35 +127,35 @@ void overdrive::set_low(float low)
 
     this->iir_hp.calc_coeffs(fc, config::sampling_frequency_hz);
 
-    this->attributes.ctrl.low = low;
+    this->attr.ctrl.low = low;
 }
 
 void overdrive::set_gain(float gain)
 {
     gain = std::clamp(gain, 0.0f, 100.0f);
 
-    if (this->attributes.ctrl.gain == gain)
+    if (this->attr.ctrl.gain == gain)
         return;
 
-    this->attributes.ctrl.gain = gain;
+    this->attr.ctrl.gain = gain;
 }
 
 void overdrive::set_mix(float mix)
 {
     mix = std::clamp(mix, 0.0f, 1.0f);
 
-    if (this->attributes.ctrl.mix == mix)
+    if (this->attr.ctrl.mix == mix)
         return;
 
-    this->attributes.ctrl.mix = mix;
+    this->attr.ctrl.mix = mix;
 }
 
-void overdrive::set_mode(overdrive_attributes::controls::mode_type mode)
+void overdrive::set_mode(overdrive_attr::controls::mode_type mode)
 {
-    if (this->attributes.ctrl.mode == mode)
+    if (this->attr.ctrl.mode == mode)
         return;
 
-    this->attributes.ctrl.mode = mode;
+    this->attr.ctrl.mode = mode;
 }
 
 

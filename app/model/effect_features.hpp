@@ -10,26 +10,45 @@
 
 #include <array>
 #include <variant>
-#include <string_view>
 
 namespace mfx
 {
 
 //-----------------------------------------------------------------------------
-/* Available effects */
-enum class effect_id { tremolo, echo, overdrive, cabinet_sim };
+/* Available effects & their names */
+enum class effect_id : uint8_t
+{
+    tremolo,
+    echo,
+    overdrive,
+    cabinet_sim,
+
+    _count // Indicates total number of effects
+};
+
+constexpr inline std::array<const char*, static_cast<uint8_t>(effect_id::_count)> effect_name
+{{
+    "Tremolo",
+    "Echo",
+    "Overdrive",
+    "Cabinet simulator"
+}};
 
 //-----------------------------------------------------------------------------
-/* Effects attributes */
-struct effect_basic_attributes
+/* Base effect attributes */
+
+struct effect_attr
 {
     const effect_id id;
-    const std::string_view name;
+    const char *name;
     bool bypassed;
     int status;
 };
 
-struct tremolo_attributes
+//-----------------------------------------------------------------------------
+/* Effect specific attributes */
+
+struct tremolo_attr
 {
     struct controls
     {
@@ -39,7 +58,7 @@ struct tremolo_attributes
     } ctrl;
 };
 
-struct echo_attributes
+struct echo_attr
 {
     struct controls
     {
@@ -50,7 +69,7 @@ struct echo_attributes
     } ctrl;
 };
 
-struct overdrive_attributes
+struct overdrive_attr
 {
     struct controls
     {
@@ -62,7 +81,7 @@ struct overdrive_attributes
     } ctrl;
 };
 
-struct cabinet_sim_attributes
+struct cabinet_sim_attr
 {
     struct controls
     {
@@ -74,10 +93,10 @@ struct cabinet_sim_attributes
 
 typedef std::variant
 <
-    tremolo_attributes,
-    echo_attributes,
-    overdrive_attributes,
-    cabinet_sim_attributes
+    tremolo_attr,
+    echo_attr,
+    overdrive_attr,
+    cabinet_sim_attr
 > effect_specific_attributes;
 
 }

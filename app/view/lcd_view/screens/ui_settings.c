@@ -93,7 +93,7 @@ static lv_obj_t * menu_create_switch(lv_obj_t * parent, const char * icon, const
     return obj;
 }
 
-static bool is_in_fx_chain(const char *name)
+static bool is_fx_name_in_chain(const char *name)
 {
     for (unsigned i = 0; i < lv_obj_get_child_cnt(ui_list_sett_fx_chain); i++)
     {
@@ -105,9 +105,9 @@ static bool is_in_fx_chain(const char *name)
     return false;
 }
 
-static int fx_id_from_name(const char *name)
+static int fx_name_to_id(const char *name)
 {
-    for (unsigned i = 0; i < sizeof(ui_fx_names) / sizeof(ui_fx_names[0]); i++)
+    for (unsigned i = 0; i < ui_fx_names_size; i++)
     {
         if (strcmp(ui_fx_names[i], name) == 0)
             return i;
@@ -198,11 +198,11 @@ static void fx_ops_add_handler(lv_event_t * e)
         lv_obj_add_event_cb(btn, fx_ops_back_handler, LV_EVENT_ALL, NULL);
         lv_group_remove_obj(btn);
 
-        for (unsigned i = 0; i < sizeof(ui_fx_names) / sizeof(ui_fx_names[0]); i++)
+        for (unsigned i = 0; i < ui_fx_names_size; i++)
         {
             btn = lv_list_add_btn(ui_list_sett_fx_items, NULL, ui_fx_names[i]);
 
-            if (is_in_fx_chain(ui_fx_names[i]))
+            if (is_fx_name_in_chain(ui_fx_names[i]))
             {
                 lv_obj_set_style_text_color(btn, lv_color_darken(lv_color_white(), 127), LV_STATE_DISABLED);
                 lv_obj_add_state(btn, LV_STATE_DISABLED);
@@ -225,7 +225,7 @@ static void fx_ops_remove_handler(lv_event_t * e)
         if (ui_btn_sett_curr_fx == NULL)
             return;
 
-        int fx_id = fx_id_from_name(lv_label_get_text(lv_obj_get_child(ui_btn_sett_curr_fx, -1)));
+        int fx_id = fx_name_to_id(lv_label_get_text(lv_obj_get_child(ui_btn_sett_curr_fx, -1)));
         if (fx_id >= 0)
             ui_settings_remove_effect(fx_id);
 
@@ -261,7 +261,7 @@ static void fx_ops_move_up_handler(lv_event_t * e)
         lv_obj_move_to_index(ui_btn_sett_curr_fx, index - 1);
         lv_obj_scroll_to_view(ui_btn_sett_curr_fx, LV_ANIM_ON);
 
-        int fx_id = fx_id_from_name(lv_label_get_text(lv_obj_get_child(ui_btn_sett_curr_fx, -1)));
+        int fx_id = fx_name_to_id(lv_label_get_text(lv_obj_get_child(ui_btn_sett_curr_fx, -1)));
         if (fx_id >= 0)
             ui_settings_move_effect(fx_id, -1);
     }
@@ -280,7 +280,7 @@ static void fx_ops_move_down_handler(lv_event_t * e)
         lv_obj_move_to_index(ui_btn_sett_curr_fx, index + 1);
         lv_obj_scroll_to_view(ui_btn_sett_curr_fx, LV_ANIM_ON);
 
-        int fx_id = fx_id_from_name(lv_label_get_text(lv_obj_get_child(ui_btn_sett_curr_fx, -1)));
+        int fx_id = fx_name_to_id(lv_label_get_text(lv_obj_get_child(ui_btn_sett_curr_fx, -1)));
         if (fx_id >= 0)
             ui_settings_move_effect(fx_id, 1);
     }

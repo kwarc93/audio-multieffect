@@ -24,18 +24,18 @@ public:
     typedef std::vector<float> dsp_input;
     typedef std::vector<float> dsp_output;
 
-    effect(const effect_id &id, const std::string_view &name) : basic {id, name, true, 0} {};
+    effect(const effect_id id) : basic {id, effect_name[static_cast<uint8_t>(id)], true, 0} {};
     virtual ~effect() {};
 
     virtual void process(const dsp_input &in, dsp_output &out) = 0;
     virtual const effect_specific_attributes get_specific_attributes(void) const = 0;
 
-    const effect_basic_attributes& get_basic_attributes(void) { return this->basic; };
+    const effect_attr& get_basic_attributes(void) { return this->basic; };
     bool is_bypassed() const { return this->basic.bypassed; };
     void bypass(bool state) { this->basic.bypassed = state; };
 
 protected:
-    effect_basic_attributes basic;
+    effect_attr basic;
 };
 
 }

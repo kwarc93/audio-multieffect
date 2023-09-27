@@ -32,14 +32,14 @@ constexpr std::array<std::pair<const char*, const ir_t*>, 3> ir_map
 /* public */
 
 
-cabinet_sim::cabinet_sim() : effect { effect_id::cabinet_sim, "cabinet_sim" },
-attributes {}
+cabinet_sim::cabinet_sim() : effect { effect_id::cabinet_sim },
+attr {}
 {
-    this->attributes.ctrl.ir_idx = 0;
+    this->attr.ctrl.ir_idx = 0;
     this->fast_conv.set_ir(ir_map.at(0).second->data());
 
     for (unsigned i = 0; i < ir_map.size(); i++)
-        this->attributes.ctrl.ir_names.at(i) = ir_map.at(i).first;
+        this->attr.ctrl.ir_names.at(i) = ir_map.at(i).first;
 
 }
 
@@ -55,7 +55,7 @@ void cabinet_sim::process(const dsp_input& in, dsp_output& out)
 
 const effect_specific_attributes cabinet_sim::get_specific_attributes(void) const
 {
-    return this->attributes;
+    return this->attr;
 }
 
 void cabinet_sim::set_ir(const ir_t &ir)
@@ -65,10 +65,10 @@ void cabinet_sim::set_ir(const ir_t &ir)
 
 void cabinet_sim::set_ir(uint8_t idx)
 {
-    if (idx >= this->attributes.ctrl.ir_names.size())
+    if (idx >= this->attr.ctrl.ir_names.size())
         return;
 
-    this->attributes.ctrl.ir_idx = idx;
+    this->attr.ctrl.ir_idx = idx;
     this->fast_conv.set_ir(ir_map.at(idx).second->data());
 }
 

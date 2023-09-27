@@ -162,7 +162,7 @@ void effect_processor::event_handler(const events::get_effect_attributes &e)
         e.response(effect->get_basic_attributes(), effect->get_specific_attributes());
 }
 
-void effect_processor::set_controls(const tremolo_attributes::controls &ctrl)
+void effect_processor::set_controls(const tremolo_attr::controls &ctrl)
 {
     auto tremolo_effect = static_cast<tremolo*>(this->find_effect(effect_id::tremolo));
 
@@ -174,7 +174,7 @@ void effect_processor::set_controls(const tremolo_attributes::controls &ctrl)
     tremolo_effect->set_shape(ctrl.shape);
 }
 
-void effect_processor::set_controls(const echo_attributes::controls &ctrl)
+void effect_processor::set_controls(const echo_attr::controls &ctrl)
 {
     auto echo_effect = static_cast<echo*>(this->find_effect(effect_id::echo));
 
@@ -187,7 +187,7 @@ void effect_processor::set_controls(const echo_attributes::controls &ctrl)
     echo_effect->set_feedback(ctrl.feedback);
 }
 
-void effect_processor::set_controls(const overdrive_attributes::controls &ctrl)
+void effect_processor::set_controls(const overdrive_attr::controls &ctrl)
 {
     auto overdrive_effect = static_cast<overdrive*>(this->find_effect(effect_id::overdrive));
 
@@ -201,7 +201,7 @@ void effect_processor::set_controls(const overdrive_attributes::controls &ctrl)
     overdrive_effect->set_mix(ctrl.mix);
 }
 
-void effect_processor::set_controls(const cabinet_sim_attributes::controls &ctrl)
+void effect_processor::set_controls(const cabinet_sim_attr::controls &ctrl)
 {
     auto cab_sim_effect = static_cast<cabinet_sim*>(this->find_effect(effect_id::cabinet_sim));
 
