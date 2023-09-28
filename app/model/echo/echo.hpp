@@ -32,6 +32,7 @@ public:
 private:
     float blend;
     float feedforward;
+    float feedback;
 
     libs::adsp::iir_lowpass iir_lp;
     libs::adsp::delay_line<libs::adsp::delay_line_intrpl::none> delay_line;

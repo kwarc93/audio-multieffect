@@ -51,7 +51,7 @@ void echo::process(const dsp_input& in, dsp_output& out)
         const float in_d = this->delay_line.get();
         float in_df = in_d;
         if (this->attr.ctrl.blur > 0) this->iir_lp.process(&in_d, &in_df, 1);
-        const float in_h = input + this->attr.ctrl.feedback * in_df;
+        const float in_h = input + this->feedback * in_df;
         this->delay_line.put(in_h);
         return this->feedforward * in_df + this->blend * in_h;
     }
@@ -103,10 +103,10 @@ void echo::set_feedback(float feedback)
     if (this->attr.ctrl.mode == echo_attr::controls::mode_type::delay)
     {
         this->feedforward = this->attr.ctrl.feedback;
-        this->attr.ctrl.feedback = 0;
     }
     else if (this->attr.ctrl.mode == echo_attr::controls::mode_type::echo)
     {
+        this->feedback = this->attr.ctrl.feedback;
         this->blend = std::sqrt(1 - this->attr.ctrl.feedback * this->attr.ctrl.feedback); // L2 normalization
     }
 }
@@ -118,13 +118,15 @@ void echo::set_mode(echo_attr::controls::mode_type mode)
 
     if (mode == echo_attr::controls::mode_type::delay)
     {
+        this->feedback = 0;
+        this->feedforward = this->attr.ctrl.feedback;
         this->blend = 1;
-        this->attr.ctrl.feedback = 0;
     }
     else if (mode == echo_attr::controls::mode_type::echo)
     {
-        this->blend = std::sqrt(1 - this->attr.ctrl.feedback * this->attr.ctrl.feedback); // L2 normalization
+        this->feedback = this->attr.ctrl.feedback;
         this->feedforward = 0;
+        this->blend = std::sqrt(1 - this->attr.ctrl.feedback * this->attr.ctrl.feedback); // L2 normalization
     }
 
     this->attr.ctrl.mode = mode;
