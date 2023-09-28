@@ -84,6 +84,13 @@ void audio<T1, T2>::stop(void)
 }
 
 template <typename T1, typename T2>
+void audio<T1, T2>::mute(bool value)
+{
+    if (this->output_drv)
+        this->output_drv->mute(value);
+}
+
+template <typename T1, typename T2>
 void audio<T1, T2>::set_output_volume(uint8_t vol)
 {
     if (this->output_drv)

@@ -64,6 +64,11 @@ struct set_volume
     uint8_t output_vol;
 };
 
+struct set_mute
+{
+    bool value;
+};
+
 struct set_effect_controls
 {
     std::variant
@@ -99,6 +104,7 @@ using incoming = std::variant
     move_effect,
     bypass_effect,
     set_volume,
+    set_mute,
     set_effect_controls,
     get_effect_attributes
 >;
@@ -127,6 +133,7 @@ private:
     void event_handler(const effect_processor_events::move_effect& e);
     void event_handler(const effect_processor_events::bypass_effect &e);
     void event_handler(const effect_processor_events::set_volume &e);
+    void event_handler(const effect_processor_events::set_mute &e);
     void event_handler(const effect_processor_events::process_data &e);
     void event_handler(const effect_processor_events::get_processing_load &e);
     void event_handler(const effect_processor_events::set_effect_controls &e);

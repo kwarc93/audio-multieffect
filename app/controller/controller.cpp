@@ -156,9 +156,15 @@ void controller::view_event_handler(const lcd_view_events::prev_effect_screen_re
     this->update_effect_attributes(this->current_effect);
 }
 
-void controller::view_event_handler(const lcd_view_events::settings_volume_changed &e)
+void controller::view_event_handler(const lcd_view_events::volume_changed &e)
 {
     const effect_processor::event evt {effect_processor_events::set_volume {e.input_vol, e.output_vol}};
+    this->model->send(evt);
+}
+
+void controller::view_event_handler(const lcd_view_events::mute_changed &e)
+{
+    const effect_processor::event evt {effect_processor_events::set_mute {e.value}};
     this->model->send(evt);
 }
 

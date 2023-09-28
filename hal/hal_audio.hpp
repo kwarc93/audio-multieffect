@@ -43,6 +43,7 @@ namespace hal
         void pause(void);
         void resume(void);
         void stop(void);
+        void mute(bool value);
         void set_output_volume(uint8_t vol);
 
     protected:

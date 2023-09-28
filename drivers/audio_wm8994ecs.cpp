@@ -872,6 +872,9 @@ i2c_dev {dev}, i2c_addr {addr}, sai_drv{sai_16bit::id::sai2}
 
         /* Unmutes */
 
+        /* Mute ramp: fs/32 */
+        this->write_reg(0x0614, 0x0003);
+
         /* Unmute DAC 1 (Left) */
         this->write_reg(0x610, 0x00C0);
 
@@ -1002,6 +1005,21 @@ void audio_wm8994ecs::resume(void)
 void audio_wm8994ecs::stop(void)
 {
     /* TODO */
+}
+
+void audio_wm8994ecs::mute(bool value)
+{
+    uint16_t regval = 0;
+
+    if (value)
+        regval = 0x0300;
+    else
+        regval = 0x01C0;
+
+    this->write_reg(WM8994_DAC1_LEFT_VOL, regval);
+    this->write_reg(WM8994_DAC1_RIGHT_VOL, regval);
+    this->write_reg(WM8994_DAC2_LEFT_VOL, regval);
+    this->write_reg(WM8994_DAC2_RIGHT_VOL, regval);
 }
 
 void audio_wm8994ecs::set_output_volume(uint8_t vol)

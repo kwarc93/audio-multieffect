@@ -34,7 +34,7 @@ namespace hal::interface
     {
     public:
         virtual ~serial() {};
-        virtual void listen(bool enable) { this->listening = enable; };
+        virtual void listen(bool value) { this->listening = value; };
     protected:
         bool listening;
     };
@@ -55,8 +55,8 @@ namespace hal::interface
     {
     public:
         virtual ~i2s() {};
-        virtual void loop_read(bool state) { this->read_loop = state; };
-        virtual void loop_write(bool state) { this->write_loop = state; };
+        virtual void loop_read(bool value) { this->read_loop = value; };
+        virtual void loop_write(bool value) { this->write_loop = value; };
     protected:
         bool read_loop, write_loop;
 
@@ -131,7 +131,7 @@ namespace hal::interface
         virtual void draw_pixel(int16_t x, int16_t y, pixel_t pixel) = 0;
         virtual void draw_data(int16_t x0, int16_t y0, int16_t x1, int16_t y1, pixel_t *data) = 0;
 
-        virtual void enable_vsync(bool state) = 0;
+        virtual void enable_vsync(bool value) = 0;
         virtual void set_vsync_callback(const vsync_cb_t &callback) = 0;
     };
 
@@ -180,6 +180,7 @@ namespace hal::interface
         virtual void pause(void) = 0;
         virtual void resume(void) = 0;
         virtual void stop(void) = 0;
+        virtual void mute(bool value) = 0;
         virtual void set_output_volume(uint8_t vol) = 0;
 
     protected:

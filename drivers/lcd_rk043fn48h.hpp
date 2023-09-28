@@ -43,7 +43,7 @@ public:
     void draw_data(int16_t x0, int16_t y0, int16_t x1, int16_t y1, pixel_t *data) override;
     void set_draw_callback(const draw_cb_t &callback);
 
-    void enable_vsync(bool state) override;
+    void enable_vsync(bool value) override;
     void set_vsync_callback(const vsync_cb_t &callback) override;
 
     void set_frame_buffer(pixel_t *addr);

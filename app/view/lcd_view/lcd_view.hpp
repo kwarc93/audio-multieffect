@@ -63,10 +63,15 @@ struct prev_effect_screen_request
 
 };
 
-struct settings_volume_changed
+struct volume_changed
 {
     uint8_t input_vol;
     uint8_t output_vol;
+};
+
+struct mute_changed
+{
+    bool value;
 };
 
 struct effect_bypass_changed
@@ -115,7 +120,8 @@ using outgoing = std::variant
     splash_loaded,
     next_effect_screen_request,
     prev_effect_screen_request,
-    settings_volume_changed,
+    volume_changed,
+    mute_changed,
     effect_bypass_changed,
     effect_controls_changed,
     add_effect_request,

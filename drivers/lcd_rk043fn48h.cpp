@@ -195,9 +195,9 @@ void glcd_rk043fn48h::set_draw_callback(const draw_cb_t &callback)
     this->draw_callback = callback;
 }
 
-void glcd_rk043fn48h::enable_vsync(bool state)
+void glcd_rk043fn48h::enable_vsync(bool value)
 {
-    this->vsync_enabled = state;
+    this->vsync_enabled = value;
 }
 
 void glcd_rk043fn48h::set_vsync_callback(const vsync_cb_t &callback)

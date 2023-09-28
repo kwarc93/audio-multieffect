@@ -78,7 +78,8 @@ private:
     void view_event_handler(const lcd_view_events::splash_loaded &e);
     void view_event_handler(const lcd_view_events::next_effect_screen_request &e);
     void view_event_handler(const lcd_view_events::prev_effect_screen_request &e);
-    void view_event_handler(const lcd_view_events::settings_volume_changed &e);
+    void view_event_handler(const lcd_view_events::volume_changed &e);
+    void view_event_handler(const lcd_view_events::mute_changed &e);
     void view_event_handler(const lcd_view_events::effect_bypass_changed &e);
     void view_event_handler(const lcd_view_events::effect_controls_changed &e);
     void view_event_handler(const lcd_view_events::add_effect_request &e);

@@ -35,6 +35,7 @@ public:
     void pause(void) override;
     void resume(void) override;
     void stop(void) override;
+    void mute(bool value) override;
     void set_output_volume(uint8_t vol) override;
 
 private:

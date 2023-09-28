@@ -99,6 +99,11 @@ void effect_processor::event_handler(const events::set_volume &e)
     this->audio.set_output_volume(e.output_vol);
 }
 
+void effect_processor::event_handler(const events::set_mute &e)
+{
+    this->audio.mute(e.value);
+}
+
 void effect_processor::event_handler(const events::process_data &e)
 {
     const uint32_t cycles_start = hal::system::clock::cycles();

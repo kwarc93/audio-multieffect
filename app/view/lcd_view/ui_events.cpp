@@ -138,7 +138,7 @@ void ui_settings_in_vol_changed(lv_event_t * e)
     uint8_t in_vol = lv_slider_get_value(in_slider);
     uint8_t out_vol = lv_slider_get_value(out_slider);
 
-    const events::settings_volume_changed evt {in_vol, out_vol};
+    const events::volume_changed evt {in_vol, out_vol};
     view->notify(evt);
 }
 
@@ -150,13 +150,14 @@ void ui_settings_out_vol_changed(lv_event_t * e)
     uint8_t in_vol = lv_slider_get_value(in_slider);
     uint8_t out_vol = lv_slider_get_value(out_slider);
 
-    const events::settings_volume_changed evt {in_vol, out_vol};
+    const events::volume_changed evt {in_vol, out_vol};
     view->notify(evt);
 }
 
 void ui_settings_mute_audio(lv_event_t * e)
 {
-
+    const events::mute_changed evt {lv_obj_has_state(ui_sw_sett_mute_audio, LV_STATE_CHECKED)};
+    view->notify(evt);
 }
 
 void ui_settings_add_effect(uint32_t id, uint32_t curr_id)
