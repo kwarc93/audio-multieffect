@@ -384,7 +384,6 @@ void audio_wm8994ecs::write_reg(uint16_t reg_addr, uint16_t reg_val)
         sizeof(tx),
     };
 
-
     if constexpr (verify_i2c_writes)
     {
         this->i2c_dev.transfer(desc);
@@ -974,10 +973,10 @@ void audio_wm8994ecs::set_input_volume(uint8_t vol)
     constexpr uint8_t vol_30db = 31;
     vol = std::clamp(vol, vol_m16_5db, vol_30db);
 
-    this->write_reg(WM8994_LEFT_LINE_IN12_VOL, vol | 0x140);
-    this->write_reg(WM8994_LEFT_LINE_IN34_VOL, vol | 0x140);
-    this->write_reg(WM8994_RIGHT_LINE_IN12_VOL, vol | 0x140);
-    this->write_reg(WM8994_RIGHT_LINE_IN34_VOL, vol | 0x140);
+    this->write_reg(WM8994_LEFT_LINE_IN12_VOL, vol | 0x0040);
+    this->write_reg(WM8994_RIGHT_LINE_IN12_VOL, vol | 0x0140);
+    this->write_reg(WM8994_LEFT_LINE_IN34_VOL, vol | 0x0040);
+    this->write_reg(WM8994_RIGHT_LINE_IN34_VOL, vol | 0x0140);
 }
 
 void audio_wm8994ecs::play(const audio_output::sample_t *output, uint16_t length, const play_cb_t &cb, bool loop)
@@ -1012,9 +1011,9 @@ void audio_wm8994ecs::mute(bool value)
     uint16_t regval = 0;
 
     if (value)
-        regval = 0x0300;
+        regval = 0x0200;
     else
-        regval = 0x01C0;
+        regval = 0x00C0;
 
     this->write_reg(WM8994_DAC1_LEFT_VOL, regval);
     this->write_reg(WM8994_DAC1_RIGHT_VOL, regval);
@@ -1030,9 +1029,9 @@ void audio_wm8994ecs::set_output_volume(uint8_t vol)
     constexpr uint8_t vol_6db = 63;
     vol = std::clamp(vol, vol_m57db, vol_6db);
 
-    this->write_reg(WM8994_LEFT_OUTPUT_VOL, vol | 0x140);
-    this->write_reg(WM8994_RIGHT_OUTPUT_VOL, vol | 0x140);
-    this->write_reg(WM8994_SPK_LEFT_VOL, vol | 0x140);
-    this->write_reg(WM8994_SPK_RIGHT_VOL, vol | 0x140);
+    this->write_reg(WM8994_LEFT_OUTPUT_VOL, vol | 0x00C0);
+    this->write_reg(WM8994_RIGHT_OUTPUT_VOL, vol | 0x01C0);
+    this->write_reg(WM8994_SPK_LEFT_VOL, vol | 0x00C0);
+    this->write_reg(WM8994_SPK_RIGHT_VOL, vol | 0x01C0);
 }
 
