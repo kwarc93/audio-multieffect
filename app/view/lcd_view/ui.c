@@ -20,6 +20,7 @@ void ui_blank_screen_init(void);
 void ui_event_blank(lv_event_t * e);
 lv_obj_t * ui_blank;
 lv_obj_t * ui_lbl_blank;
+lv_obj_t * ui_lbl_blank_arrow;
 
 // SCREEN: ui_settings
 void ui_settings_screen_init(void);

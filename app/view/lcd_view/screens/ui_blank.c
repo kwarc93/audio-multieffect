@@ -16,5 +16,11 @@ void ui_blank_screen_init(void)
     lv_obj_set_align(ui_lbl_blank, LV_ALIGN_CENTER);
     lv_label_set_text(ui_lbl_blank, "PEDALBOARD IS EMPTY");
 
+    ui_lbl_blank_arrow = lv_label_create(ui_blank);
+    lv_obj_set_width(ui_lbl_blank_arrow, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_lbl_blank_arrow, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_lbl_blank_arrow, LV_ALIGN_TOP_MID);
+    lv_label_set_text(ui_lbl_blank_arrow, LV_SYMBOL_DOWN);
+
     lv_obj_add_event_cb(ui_blank, ui_event_blank, LV_EVENT_ALL, NULL);
 }

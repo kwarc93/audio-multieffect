@@ -25,6 +25,7 @@ void ui_splash_screen_init(void);
 void ui_event_splash(lv_event_t * e);
 extern lv_obj_t * ui_splash;
 extern lv_obj_t * ui_lbl_blank;
+extern lv_obj_t * ui_lbl_blank_arrow;
 // SCREEN: ui_blank
 void ui_blank_screen_init(void);
 void ui_event_blank(lv_event_t * e);
