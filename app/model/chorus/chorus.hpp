@@ -18,7 +18,7 @@ namespace mfx
 class chorus : public effect
 {
 public:
-    chorus(float depth = 0.005f, float rate = 0.15f, float tone = 0.5f, float mix = 1.0f);
+    chorus(float depth = 0.03f, float rate = 0.3f, float tone = 0.5f, float mix = 1.0f);
     virtual ~chorus();
 
     void process(const dsp_input &in, dsp_output &out) override;
@@ -30,6 +30,9 @@ public:
     void set_mix(float mix);
 
 private:
+    libs::adsp::oscillator lfo;
+    libs::adsp::delay_line<libs::adsp::delay_line_intrpl::allpass> delay_line;
+
     chorus_attr attr;
 };
 

@@ -190,6 +190,18 @@ public:
             return this->memory[this->read_idx++ % this->memory_length];
     }
 
+    float at(float d)
+    {
+        const float delay_samples = d * this->memory_length;
+
+        /* Set sample read index according to delay */
+        uint32_t read_idx = this->write_idx + this->memory_length -
+        std::clamp(static_cast<uint32_t>(delay_samples), 0UL, this->memory_length - 1);
+
+        /* Return sample without any interpolation */
+        return this->memory[read_idx % this->memory_length];
+    }
+
     void put(float sample)
     {
         this->memory[this->write_idx++ % this->memory_length] = sample;
