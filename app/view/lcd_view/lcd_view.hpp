@@ -159,6 +159,7 @@ private:
 
     void set_effect_attr(const effect_attr &basic, const tremolo_attr &specific);
     void set_effect_attr(const effect_attr &basic, const echo_attr &specific);
+    void set_effect_attr(const effect_attr &basic, const chorus_attr &specific);
     void set_effect_attr(const effect_attr &basic, const overdrive_attr &specific);
     void set_effect_attr(const effect_attr &basic, const cabinet_sim_attr &specific);
 

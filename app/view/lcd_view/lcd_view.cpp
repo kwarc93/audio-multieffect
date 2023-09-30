@@ -179,6 +179,11 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const echo_attr &specif
     }
 }
 
+void lcd_view::set_effect_attr(const effect_attr &basic, const chorus_attr &specific)
+{
+    /* TODO */
+}
+
 void lcd_view::set_effect_attr(const effect_attr &basic, const overdrive_attr &specific)
 {
     if (basic.bypassed)

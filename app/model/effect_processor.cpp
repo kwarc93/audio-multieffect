@@ -25,6 +25,7 @@
 
 #include "app/model/tremolo/tremolo.hpp"
 #include "app/model/echo/echo.hpp"
+#include "app/model/chorus/chorus.hpp"
 #include "app/model/overdrive/overdrive.hpp"
 #include "app/model/cabinet_sim/cabinet_sim.hpp"
 
@@ -192,6 +193,19 @@ void effect_processor::set_controls(const echo_attr::controls &ctrl)
     echo_effect->set_feedback(ctrl.feedback);
 }
 
+void effect_processor::set_controls(const chorus_attr::controls &ctrl)
+{
+    auto chorus_effect = static_cast<chorus*>(this->find_effect(effect_id::chorus));
+
+    if (chorus_effect == nullptr)
+        return;
+
+    chorus_effect->set_depth(ctrl.depth);
+    chorus_effect->set_rate(ctrl.rate);
+    chorus_effect->set_tone(ctrl.tone);
+    chorus_effect->set_mix(ctrl.mix);
+}
+
 void effect_processor::set_controls(const overdrive_attr::controls &ctrl)
 {
     auto overdrive_effect = static_cast<overdrive*>(this->find_effect(effect_id::overdrive));
@@ -227,6 +241,7 @@ std::unique_ptr<effect> effect_processor::create_new(effect_id id)
     {
         { effect_id::tremolo,       []() { return std::make_unique<tremolo>(); } },
         { effect_id::echo,          []() { return std::make_unique<echo>(); } },
+        { effect_id::chorus,        []() { return std::make_unique<chorus>(); } },
         { effect_id::overdrive,     []() { return std::make_unique<overdrive>(); } },
         { effect_id::cabinet_sim,   []() { return std::make_unique<cabinet_sim>(); } }
     };

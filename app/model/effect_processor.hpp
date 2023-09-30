@@ -141,6 +141,7 @@ private:
 
     void set_controls(const tremolo_attr::controls &ctrl);
     void set_controls(const echo_attr::controls &ctrl);
+    void set_controls(const chorus_attr::controls &ctrl);
     void set_controls(const overdrive_attr::controls &ctrl);
     void set_controls(const cabinet_sim_attr::controls &ctrl);
 

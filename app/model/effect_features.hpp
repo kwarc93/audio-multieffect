@@ -20,6 +20,7 @@ enum class effect_id : uint8_t
 {
     tremolo,
     echo,
+    chorus,
     overdrive,
     cabinet_sim,
 
@@ -30,6 +31,7 @@ constexpr inline std::array<const char*, static_cast<uint8_t>(effect_id::_count)
 {{
     "Tremolo",
     "Echo",
+    "Chorus",
     "Overdrive",
     "Cabinet simulator"
 }};
@@ -63,9 +65,20 @@ struct echo_attr
     struct controls
     {
         float blur; // Blur level (1-st order LP filter cutoff), range: [0, 1.0]
-        float time; // Delay time, range: [0.05s, 1.0s]
+        float time; // Delay time, range: [0.05, 1.0]
         float feedback; // Feedback, range: [0.0, 0.9]
         enum class mode_type {delay, echo} mode; // Mode of effect
+    } ctrl;
+};
+
+struct chorus_attr
+{
+    struct controls
+    {
+        float depth; // Depth level in seconds, range: [0.001, 0.03]
+        float rate; // Modulation rate in Hz, range: [0.05, 0.3]
+        float tone; // Tone, range: [0.0, 1.0]
+        float mix; // Wet/dry mix, range: [0, 1.0]
     } ctrl;
 };
 
@@ -73,10 +86,10 @@ struct overdrive_attr
 {
     struct controls
     {
-        float low; // High pass filter cutoff, range [0, 1]
+        float low; // High pass filter cutoff, range [0, 1.0]
         float gain; // Gain, range: [1, 100]
-        float high; // Low pass filter cutoff, range [0, 1]
-        float mix; // Wet/dry mix, range: [0, 1]
+        float high; // Low pass filter cutoff, range [0, 1.0]
+        float mix; // Wet/dry mix, range: [0, 1.0]
         enum class mode_type {soft, hard} mode; // Clip mode
     } ctrl;
 };
@@ -95,6 +108,7 @@ typedef std::variant
 <
     tremolo_attr,
     echo_attr,
+    chorus_attr,
     overdrive_attr,
     cabinet_sim_attr
 > effect_specific_attributes;
