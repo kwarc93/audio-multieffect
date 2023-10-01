@@ -49,7 +49,6 @@ delay_line{delay_line_memory.data(), delay_line_memory.size(), config::sampling_
     this->set_tone(tone);
     this->set_mix(mix);
 
-    this->lfo.set_shape(libs::adsp::oscillator::shape::triangle);
     this->bypass(false); // Remove
 }
 

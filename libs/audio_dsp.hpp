@@ -41,6 +41,7 @@ public:
         this->wave_shape = shape;
         this->frequency = 1;
         this->counter = 0;
+        this->counter_step = 1;
 
         update();
     }
@@ -75,8 +76,10 @@ public:
         {
             out = this->counter / this->counter_limit;
 
-            this->counter_step = std::clamp(this->counter, -this->counter_limit, this->counter_limit) / -this->counter_limit;
-
+            if (this->counter >= this->counter_limit)
+                this->counter_step = -1;
+            else if (this->counter <= -this->counter_limit)
+                this->counter_step = 1;
         }
         else if (this->wave_shape == shape::sine)
         {
