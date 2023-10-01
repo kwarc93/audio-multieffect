@@ -284,7 +284,7 @@ view {std::move(view)}
     this->view->attach(this);
 
     /* Show splash screen */
-    this->view->send({lcd_view_events::show_blank_screen {}});
+    this->view->send({lcd_view_events::show_splash_screen {}});
 }
 
 controller::~controller()
