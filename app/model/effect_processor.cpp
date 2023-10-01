@@ -204,6 +204,7 @@ void effect_processor::set_controls(const chorus_attr::controls &ctrl)
     chorus_effect->set_rate(ctrl.rate);
     chorus_effect->set_tone(ctrl.tone);
     chorus_effect->set_mix(ctrl.mix);
+    chorus_effect->set_mode(ctrl.mode);
 }
 
 void effect_processor::set_controls(const overdrive_attr::controls &ctrl)

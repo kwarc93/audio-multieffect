@@ -75,6 +75,7 @@ struct set_effect_controls
     <
         tremolo_attr::controls,
         echo_attr::controls,
+        chorus_attr::controls,
         overdrive_attr::controls,
         cabinet_sim_attr::controls
     >

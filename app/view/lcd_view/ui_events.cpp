@@ -64,6 +64,28 @@ void notify_echo_controls_changed(void)
     view->notify(events::effect_controls_changed {ctrl});
 }
 
+void notify_chorus_controls_changed(void)
+{
+    lv_obj_t *mix_knob = ui_arc_chorus_mix;
+    lv_obj_t *depth_knob = ui_arc_chorus_depth;
+    lv_obj_t *rate_knob = ui_arc_chorus_rate;
+    lv_obj_t *mode_sw = ui_sw_chorus_mode;
+
+    const mfx::chorus_attr::controls ctrl
+    {
+        static_cast<float>(lv_arc_get_value(depth_knob)) * 0.001f,
+        static_cast<float>(lv_arc_get_value(rate_knob)) * 0.01f,
+        0.0f, // Not used
+        static_cast<float>(lv_arc_get_value(mix_knob)) * 0.01f,
+        lv_obj_has_state(mode_sw, LV_STATE_CHECKED) ?
+        mfx::chorus_attr::controls::mode_type::mode_2 :
+        mfx::chorus_attr::controls::mode_type::mode_1
+    };
+
+    view->notify(events::effect_controls_changed {ctrl});
+}
+
+
 void notify_overdrive_controls_changed(void)
 {
     lv_obj_t *mix_knob = ui_arc_od_mix;
@@ -221,6 +243,31 @@ void ui_echo_time_changed(lv_event_t * e)
 void ui_echo_mode_changed(lv_event_t * e)
 {
     notify_echo_controls_changed();
+}
+
+void ui_chorus_bypass(lv_event_t * e)
+{
+    notify_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::chorus);
+}
+
+void ui_chorus_mix_changed(lv_event_t * e)
+{
+    notify_chorus_controls_changed();
+}
+
+void ui_chorus_rate_changed(lv_event_t * e)
+{
+    notify_chorus_controls_changed();
+}
+
+void ui_chorus_depth_changed(lv_event_t * e)
+{
+    notify_chorus_controls_changed();
+}
+
+void ui_chorus_mode_changed(lv_event_t * e)
+{
+    notify_chorus_controls_changed();
 }
 
 void ui_overdrive_bypass(lv_event_t * e)

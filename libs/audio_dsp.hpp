@@ -151,6 +151,7 @@ public:
         this->memory = new float [this->memory_length];
         this->write_idx = this->read_idx = 0;
         this->frac = 0;
+        this->aph = 0;
 
         arm_fill_f32(0, this->memory, this->memory_length);
     }
@@ -161,6 +162,7 @@ public:
         this->memory = samples_memory;
         this->write_idx = this->read_idx = 0;
         this->frac = 0;
+        this->aph = 0;
 
         arm_fill_f32(0, this->memory, this->memory_length);
     }
@@ -219,13 +221,10 @@ private:
 
     float allpass_interpolation(void)
     {
-        /* Allpass sample hold */
-        static float aph = 0;
-
         const float s0 = this->memory[this->read_idx++ % this->memory_length];
         const float s1 = this->memory[this->read_idx % this->memory_length];
         const float d = (1 - this->frac) / (1 + this->frac); // Or just '(1 - this->frac)'
-        return aph = s1 + d * (s0 - aph);
+        return this->aph = s1 + d * (s0 - this->aph);
     }
 
     const uint32_t fs;
@@ -235,6 +234,7 @@ private:
     uint32_t memory_length;
     uint32_t write_idx, read_idx;
     float frac;
+    float aph;
 
 };
 

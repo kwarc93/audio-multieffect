@@ -181,7 +181,27 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const echo_attr &specif
 
 void lcd_view::set_effect_attr(const effect_attr &basic, const chorus_attr &specific)
 {
-    /* TODO */
+    if (basic.bypassed)
+        lv_obj_clear_state(ui_btn_chorus_bypass, LV_STATE_CHECKED);
+    else
+        lv_obj_add_state(ui_btn_chorus_bypass, LV_STATE_CHECKED);
+
+    lv_arc_set_value(ui_arc_chorus_mix, map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_chorus_mix), lv_arc_get_max_value(ui_arc_chorus_mix), specific.ctrl.mix));
+    lv_arc_set_value(ui_arc_chorus_depth, map_range<float>(0.001f, 0.03f, lv_arc_get_min_value(ui_arc_chorus_depth), lv_arc_get_max_value(ui_arc_chorus_depth), specific.ctrl.depth));
+    lv_arc_set_value(ui_arc_chorus_rate, map_range<float>(0.05f, 0.5f, lv_arc_get_min_value(ui_arc_chorus_rate), lv_arc_get_max_value(ui_arc_chorus_rate), specific.ctrl.rate));
+
+    if (specific.ctrl.mode == chorus_attr::controls::mode_type::mode_1)
+    {
+        lv_obj_clear_state(ui_sw_chorus_mode, LV_STATE_CHECKED);
+        lv_obj_clear_state(ui_lbl_chorus_mode_2, LV_STATE_CHECKED);
+        lv_obj_add_state(ui_lbl_chorus_mode_1, LV_STATE_CHECKED);
+    }
+    else
+    {
+        lv_obj_add_state(ui_sw_chorus_mode, LV_STATE_CHECKED);
+        lv_obj_add_state(ui_lbl_chorus_mode_2, LV_STATE_CHECKED);
+        lv_obj_clear_state(ui_lbl_chorus_mode_1, LV_STATE_CHECKED);
+    }
 }
 
 void lcd_view::set_effect_attr(const effect_attr &basic, const overdrive_attr &specific)
@@ -238,6 +258,10 @@ void lcd_view::change_effect_screen(effect_id id, int dir)
     case effect_id::echo:
         ui_fx_echo_screen_init();
         new_screen = ui_fx_echo;
+        break;
+    case effect_id::chorus:
+        ui_fx_chorus_screen_init();
+        new_screen = ui_fx_chorus;
         break;
     case effect_id::overdrive:
         ui_fx_overdrive_screen_init();

@@ -8,7 +8,6 @@
 #include "chorus.hpp"
 
 #include <algorithm>
-#include <random>
 
 using namespace mfx;
 
@@ -18,18 +17,13 @@ using namespace mfx;
 namespace
 {
 
-constexpr float delay_center_tap = 0.05;
+constexpr float delay_line_center_tap = 0.04;
 __attribute__((section(".sdram")))
-std::array<float, static_cast<unsigned>(2 * delay_center_tap * config::sampling_frequency_hz)> delay_line_memory; // Maximum delay depth: 60ms
+std::array<float, static_cast<unsigned>(2 * delay_line_center_tap * config::sampling_frequency_hz)> delay_line_memory; // Maximum delay depth: 60ms
 
-float generate_random(void)
-{
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
-    static std::uniform_real_distribution<> dis(-1.0f, 1.0f);
-    return dis(gen);
-}
-
+constexpr float delay_line2_center_tap = 0.06;
+__attribute__((section(".sdram")))
+std::array<float, static_cast<unsigned>(2 * delay_line2_center_tap * config::sampling_frequency_hz)> delay_line2_memory; // Maximum delay depth: 60ms
 
 }
 
@@ -42,14 +36,18 @@ float generate_random(void)
 
 chorus::chorus(float depth, float rate, float tone, float mix) : effect { effect_id::chorus },
 lfo { libs::adsp::oscillator::shape::sine, config::sampling_frequency_hz },
-delay_line{delay_line_memory.data(), delay_line_memory.size(), config::sampling_frequency_hz}, attr {}
+lfo2 { libs::adsp::oscillator::shape::triangle, config::sampling_frequency_hz },
+delay_line {delay_line_memory.data(), delay_line_memory.size(), config::sampling_frequency_hz},
+delay_line2 {delay_line2_memory.data(), delay_line2_memory.size(), config::sampling_frequency_hz},
+attr {}
 {
     this->set_depth(depth);
     this->set_rate(rate);
     this->set_tone(tone);
     this->set_mix(mix);
+    this->set_mode(chorus_attr::controls::mode_type::mode_1);
 
-    this->bypass(false); // Remove
+    this->iir_lp.calc_coeffs(6000, config::sampling_frequency_hz, true);
 }
 
 chorus::~chorus()
@@ -62,14 +60,28 @@ void chorus::process(const dsp_input& in, dsp_output& out)
     std::transform(in.begin(), in.end(), out.begin(),
     [this](auto input)
     {
-        /* Modulate delay line with LFO */
-        this->delay_line.set_delay(delay_center_tap + this->lfo.generate() * this->attr.ctrl.depth);
+        if (this->attr.ctrl.mode == chorus_attr::controls::mode_type::mode_1)
+        {
+            constexpr float c = 1 / std::sqrt(2);
 
-        /* Apply Dattorro's approximation of allpass filter with a fixed center tap */
-        constexpr float c = 1 / std::sqrt(2);
-        const float in_h = input - c * this->delay_line.at(delay_center_tap);
-        this->delay_line.put(in_h);
-        return this->delay_line.get() + c * in_h;
+            this->delay_line.set_delay(delay_line_center_tap + this->lfo.generate() * this->attr.ctrl.depth);
+            float ct_del = this->delay_line.at(delay_line_center_tap);
+            this->iir_lp.process(&ct_del, &ct_del, 1);
+            const float in_h = input - c * ct_del;
+            this->delay_line.put(in_h);
+
+            return this->attr.ctrl.mix * (this->delay_line.get() + c * in_h) + (1.0f - this->attr.ctrl.mix) * input;
+        }
+        else
+        {
+            this->delay_line.set_delay(delay_line_center_tap + this->lfo.generate() * this->attr.ctrl.depth);
+            this->delay_line2.set_delay(delay_line2_center_tap - this->lfo2.generate() * this->attr.ctrl.depth);
+            this->delay_line.put(input);
+            this->delay_line2.put(input);
+            const float delayed_mix = this->delay_line.get() * 0.5f + this->delay_line2.get() * 0.5f;
+
+            return this->attr.ctrl.mix * delayed_mix + (1.0f - this->attr.ctrl.mix) * input;
+        }
     }
     );
 }
@@ -81,7 +93,7 @@ const effect_specific_attributes chorus::get_specific_attributes(void) const
 
 void chorus::set_depth(float depth)
 {
-//    depth = std::clamp(depth, 0.001f, 0.03f);
+    depth = std::clamp(depth, 0.001f, 0.03f);
 
     if (this->attr.ctrl.depth == depth)
         return;
@@ -91,7 +103,7 @@ void chorus::set_depth(float depth)
 
 void chorus::set_rate(float rate)
 {
-//    rate = std::clamp(rate, 0.05f, 0.3f);
+    rate = std::clamp(rate, 0.05f, 0.5f);
 
     if (this->attr.ctrl.rate == rate)
         return;
@@ -99,11 +111,12 @@ void chorus::set_rate(float rate)
     this->attr.ctrl.rate = rate;
 
     this->lfo.set_frequency(rate);
+    this->lfo2.set_frequency(rate * 0.66f);
 }
 
 void chorus::set_tone(float tone)
 {
-//    tone = std::clamp(tone, 0.0f, 1.0f);
+    tone = std::clamp(tone, 0.0f, 1.0f);
 
     if (this->attr.ctrl.tone == tone)
         return;
@@ -113,12 +126,20 @@ void chorus::set_tone(float tone)
 
 void chorus::set_mix(float mix)
 {
-//    mix = std::clamp(mix, 0.0f, 1.0f);
+    mix = std::clamp(mix, 0.0f, 1.0f);
 
     if (this->attr.ctrl.mix == mix)
         return;
 
     this->attr.ctrl.mix = mix;
+}
+
+void chorus::set_mode(chorus_attr::controls::mode_type mode)
+{
+    if (this->attr.ctrl.mode == mode)
+        return;
+
+    this->attr.ctrl.mode = mode;
 }
 
 

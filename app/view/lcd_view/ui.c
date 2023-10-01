@@ -99,6 +99,37 @@ lv_obj_t * ui_sw_echo_mode;
 lv_obj_t * ui_lbl_echo_mode_echo;
 lv_obj_t * ui_lbl_echo_mode_delay;
 
+// SCREEN: ui_fx_chorus
+void ui_fx_chorus_screen_init(void);
+void ui_event_fx_chorus(lv_event_t * e);
+lv_obj_t * ui_fx_chorus;
+lv_obj_t * ui_pnl_chorus_content;
+lv_obj_t * ui_lbl_chorus_fx_name;
+void ui_event_btn_chorus_bypass(lv_event_t * e);
+lv_obj_t * ui_btn_chorus_bypass;
+lv_obj_t * ui_lbl_btn_chorus_bypass;
+lv_obj_t * ui_pnl_chorus_controls;
+lv_obj_t * ui_pnl_chorus_mix;
+lv_obj_t * ui_img_chorus_mix;
+void ui_event_arc_chorus_mix(lv_event_t * e);
+lv_obj_t * ui_arc_chorus_mix;
+lv_obj_t * ui_lbl_chorus_mix;
+lv_obj_t * ui_pnl_chorus_rate;
+lv_obj_t * ui_img_chorus_rate;
+void ui_event_arc_chorus_rate(lv_event_t * e);
+lv_obj_t * ui_arc_chorus_rate;
+lv_obj_t * ui_lbl_chorus_rate;
+lv_obj_t * ui_pnl_chorus_depth;
+lv_obj_t * ui_img_chorus_depth;
+void ui_event_arc_chorus_depth(lv_event_t * e);
+lv_obj_t * ui_arc_chorus_depth;
+lv_obj_t * ui_lbl_chorus_depth;
+lv_obj_t * ui_pnl_chorus_mode;
+void ui_event_sw_chorus_mode(lv_event_t * e);
+lv_obj_t * ui_sw_chorus_mode;
+lv_obj_t * ui_lbl_chorus_mode_1;
+lv_obj_t * ui_lbl_chorus_mode_2;
+
 // SCREEN: ui_fx_overdrive
 void ui_fx_overdrive_screen_init(void);
 void ui_event_fx_overdrive(lv_event_t * e);
@@ -333,6 +364,52 @@ void ui_event_sw_echo_mode(lv_event_t * e)
         ui_echo_mode_changed(e);
         _ui_state_modify(ui_lbl_echo_mode_delay, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
         _ui_state_modify(ui_lbl_echo_mode_echo, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
+    }
+}
+void ui_event_fx_chorus(lv_event_t * e)
+{
+    ui_screen_gesture_handler(e);
+}
+void ui_event_btn_chorus_bypass(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_CLICKED) {
+        ui_chorus_bypass(e);
+    }
+}
+void ui_event_arc_chorus_mix(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_chorus_mix_changed(e);
+    }
+}
+void ui_event_arc_chorus_rate(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_chorus_rate_changed(e);
+    }
+}
+void ui_event_arc_chorus_depth(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_chorus_depth_changed(e);
+    }
+}
+void ui_event_sw_chorus_mode(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_chorus_mode_changed(e);
+        _ui_state_modify(ui_lbl_chorus_mode_1, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
+        _ui_state_modify(ui_lbl_chorus_mode_2, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
     }
 }
 void ui_event_fx_overdrive(lv_event_t * e)

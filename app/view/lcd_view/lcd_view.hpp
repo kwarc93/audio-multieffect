@@ -86,6 +86,7 @@ struct effect_controls_changed
     <
         tremolo_attr::controls,
         echo_attr::controls,
+        chorus_attr::controls,
         overdrive_attr::controls,
         cabinet_sim_attr::controls
     >
