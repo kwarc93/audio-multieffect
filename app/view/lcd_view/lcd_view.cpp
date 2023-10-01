@@ -186,9 +186,9 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const chorus_attr &spec
     else
         lv_obj_add_state(ui_btn_chorus_bypass, LV_STATE_CHECKED);
 
-    lv_arc_set_value(ui_arc_chorus_mix, map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_chorus_mix), lv_arc_get_max_value(ui_arc_chorus_mix), specific.ctrl.mix));
-    lv_arc_set_value(ui_arc_chorus_depth, map_range<float>(0.001f, 0.03f, lv_arc_get_min_value(ui_arc_chorus_depth), lv_arc_get_max_value(ui_arc_chorus_depth), specific.ctrl.depth));
+    lv_arc_set_value(ui_arc_chorus_depth, map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_chorus_depth), lv_arc_get_max_value(ui_arc_chorus_depth), specific.ctrl.depth));
     lv_arc_set_value(ui_arc_chorus_rate, map_range<float>(0.05f, 0.5f, lv_arc_get_min_value(ui_arc_chorus_rate), lv_arc_get_max_value(ui_arc_chorus_rate), specific.ctrl.rate));
+    lv_arc_set_value(ui_arc_chorus_mix, map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_chorus_mix), lv_arc_get_max_value(ui_arc_chorus_mix), specific.ctrl.mix));
 
     if (specific.ctrl.mode == chorus_attr::controls::mode_type::mode_1)
     {

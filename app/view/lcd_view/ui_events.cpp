@@ -73,7 +73,7 @@ void notify_chorus_controls_changed(void)
 
     const mfx::chorus_attr::controls ctrl
     {
-        static_cast<float>(lv_arc_get_value(depth_knob)) * 0.001f,
+        static_cast<float>(lv_arc_get_value(depth_knob)) * 0.01f,
         static_cast<float>(lv_arc_get_value(rate_knob)) * 0.01f,
         0.0f, // Not used
         static_cast<float>(lv_arc_get_value(mix_knob)) * 0.01f,

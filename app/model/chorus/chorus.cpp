@@ -17,13 +17,13 @@ using namespace mfx;
 namespace
 {
 
-constexpr float delay_line_center_tap = 0.04;
+constexpr float delay_line_center_tap = 0.01;
 __attribute__((section(".sdram")))
-std::array<float, static_cast<unsigned>(2 * delay_line_center_tap * config::sampling_frequency_hz)> delay_line_memory; // Maximum delay depth: 60ms
+std::array<float, static_cast<unsigned>(2 * delay_line_center_tap * config::sampling_frequency_hz)> delay_line_memory;
 
-constexpr float delay_line2_center_tap = 0.06;
+constexpr float delay_line2_center_tap = 0.02;
 __attribute__((section(".sdram")))
-std::array<float, static_cast<unsigned>(2 * delay_line2_center_tap * config::sampling_frequency_hz)> delay_line2_memory; // Maximum delay depth: 60ms
+std::array<float, static_cast<unsigned>(2 * delay_line2_center_tap * config::sampling_frequency_hz)> delay_line2_memory;
 
 }
 
@@ -46,8 +46,6 @@ attr {}
     this->set_tone(tone);
     this->set_mix(mix);
     this->set_mode(chorus_attr::controls::mode_type::mode_1);
-
-    this->iir_lp.calc_coeffs(6000, config::sampling_frequency_hz, true);
 }
 
 chorus::~chorus()
@@ -64,18 +62,16 @@ void chorus::process(const dsp_input& in, dsp_output& out)
         {
             constexpr float c = 1 / std::sqrt(2);
 
-            this->delay_line.set_delay(delay_line_center_tap + this->lfo.generate() * this->attr.ctrl.depth);
-            float ct_del = this->delay_line.at(delay_line_center_tap);
-            this->iir_lp.process(&ct_del, &ct_del, 1);
-            const float in_h = input - c * ct_del;
+            this->delay_line.set_delay(delay_line_center_tap * (1.0f + this->lfo.generate() * this->attr.ctrl.depth));
+            const float in_h = input - c * this->delay_line.at(delay_line_center_tap);
             this->delay_line.put(in_h);
 
             return this->attr.ctrl.mix * (this->delay_line.get() + c * in_h) + (1.0f - this->attr.ctrl.mix) * input;
         }
         else
         {
-            this->delay_line.set_delay(delay_line_center_tap + this->lfo.generate() * this->attr.ctrl.depth);
-            this->delay_line2.set_delay(delay_line2_center_tap - this->lfo2.generate() * this->attr.ctrl.depth);
+            this->delay_line.set_delay(delay_line_center_tap * (1.0f + this->lfo.generate() * this->attr.ctrl.depth));
+            this->delay_line2.set_delay(delay_line2_center_tap * (1.0f - this->lfo2.generate() * this->attr.ctrl.depth));
             this->delay_line.put(input);
             this->delay_line2.put(input);
             const float delayed_mix = this->delay_line.get() * 0.5f + this->delay_line2.get() * 0.5f;
@@ -93,7 +89,7 @@ const effect_specific_attributes chorus::get_specific_attributes(void) const
 
 void chorus::set_depth(float depth)
 {
-    depth = std::clamp(depth, 0.001f, 0.03f);
+    depth = std::clamp(depth, 0.1f, 0.9f);
 
     if (this->attr.ctrl.depth == depth)
         return;

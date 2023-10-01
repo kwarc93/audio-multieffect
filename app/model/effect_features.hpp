@@ -66,7 +66,7 @@ struct echo_attr
     {
         float blur; // Blur level (1-st order LP filter cutoff), range: [0, 1.0]
         float time; // Delay time, range: [0.05, 1.0]
-        float feedback; // Feedback, range: [0.0, 0.9]
+        float feedback; // Feedback, range: [0, 0.9]
         enum class mode_type {delay, echo} mode; // Mode of effect
     } ctrl;
 };
@@ -75,9 +75,9 @@ struct chorus_attr
 {
     struct controls
     {
-        float depth; // Depth level in seconds, range: [0.001, 0.03]
+        float depth; // Depth level, range: [0, 1.0]
         float rate; // Modulation rate in Hz, range: [0.05, 0.5]
-        float tone; // Tone, range: [0.0, 1.0]
+        float tone; // Tone, range: [0, 1.0]
         float mix; // Wet/dry mix, range: [0, 1.0]
         enum class mode_type {mode_1, mode_2} mode; // Mode of effect
     } ctrl;

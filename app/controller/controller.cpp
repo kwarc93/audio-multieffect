@@ -130,7 +130,6 @@ void controller::event_handler(const events::load_preset &e)
 
 void controller::view_event_handler(const lcd_view_events::splash_loaded &e)
 {
-//    this->send({events::load_preset{}});
     this->view->send({lcd_view_events::show_blank_screen {}});
 }
 
@@ -285,7 +284,7 @@ view {std::move(view)}
     this->view->attach(this);
 
     /* Show splash screen */
-    this->view->send({lcd_view_events::show_splash_screen {}});
+    this->view->send({lcd_view_events::show_blank_screen {}});
 }
 
 controller::~controller()

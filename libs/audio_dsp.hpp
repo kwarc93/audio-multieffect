@@ -175,7 +175,7 @@ public:
 
     void set_delay(float d)
     {
-        const float delay_samples = d * this->memory_length;
+        const float delay_samples = d * this->fs;
 
         /* Set sample read index according to delay */
         this->read_idx = this->write_idx + this->memory_length -
@@ -197,7 +197,7 @@ public:
 
     float at(float d)
     {
-        const float delay_samples = d * this->memory_length;
+        const float delay_samples = d * this->fs;
 
         /* Set sample read index according to delay */
         uint32_t read_idx = this->write_idx + this->memory_length -
@@ -214,15 +214,15 @@ public:
 private:
     float linear_interpolation(void)
     {
-        const float s0 = this->memory[this->read_idx++ % this->memory_length];
-        const float s1 = this->memory[this->read_idx % this->memory_length];
+        const float s1 = this->memory[this->read_idx++ % this->memory_length];
+        const float s0 = this->memory[this->read_idx % this->memory_length];
         return s0 + this->frac * (s1 - s0);
     }
 
     float allpass_interpolation(void)
     {
-        const float s0 = this->memory[this->read_idx++ % this->memory_length];
-        const float s1 = this->memory[this->read_idx % this->memory_length];
+        const float s1 = this->memory[this->read_idx++ % this->memory_length];
+        const float s0 = this->memory[this->read_idx % this->memory_length];
         const float d = (1 - this->frac) / (1 + this->frac); // Or just '(1 - this->frac)'
         return this->aph = s1 + d * (s0 - this->aph);
     }
