@@ -73,10 +73,10 @@ void notify_chorus_controls_changed(void)
 
     const mfx::chorus_attr::controls ctrl
     {
-        static_cast<float>(lv_arc_get_value(depth_knob)) * 0.01f,
-        static_cast<float>(lv_arc_get_value(rate_knob)) * 0.01f,
-        0.0f, // Not used
-        static_cast<float>(lv_arc_get_value(mix_knob)) * 0.01f,
+        lv_arc_get_value(depth_knob) * 0.01f,
+        lv_arc_get_value(rate_knob) * 0.01f,
+        0, // Not used
+        lv_arc_get_value(mix_knob) * 0.01f,
         lv_obj_has_state(mode_sw, LV_STATE_CHECKED) ?
         mfx::chorus_attr::controls::mode_type::mode_2 :
         mfx::chorus_attr::controls::mode_type::mode_1

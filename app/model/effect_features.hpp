@@ -76,7 +76,7 @@ struct chorus_attr
     struct controls
     {
         float depth; // Depth level, range: [0, 1.0]
-        float rate; // Modulation rate in Hz, range: [0.05, 0.5]
+        float rate; // Modulation rate, range: [0, 1.0]
         float tone; // Tone, range: [0, 1.0]
         float mix; // Wet/dry mix, range: [0, 1.0]
         enum class mode_type {mode_1, mode_2} mode; // Mode of effect

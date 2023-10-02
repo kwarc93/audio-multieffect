@@ -17,7 +17,7 @@ using namespace mfx;
 namespace
 {
 
-constexpr float delay_line_center_tap = 0.01;
+constexpr float delay_line_center_tap = 0.015;
 __attribute__((section(".sdram")))
 std::array<float, static_cast<unsigned>(2 * delay_line_center_tap * config::sampling_frequency_hz)> delay_line_memory;
 
@@ -60,9 +60,11 @@ void chorus::process(const dsp_input& in, dsp_output& out)
     std::transform(in.begin(), in.end(), out.begin(),
     [this](auto input)
     {
+        const float depth = 0.0001f + this->attr.ctrl.depth * 0.001f;
+
         if (this->attr.ctrl.mode == chorus_attr::controls::mode_type::mode_1)
         {
-            this->delay_line.set_delay(delay_line_center_tap * (1.0f + this->lfo.generate() * this->attr.ctrl.depth));
+            this->delay_line.set_delay(delay_line_center_tap + this->lfo.generate() * depth);
             const float in_h = input - c * this->delay_line.at(delay_line_center_tap);
             this->delay_line.put(in_h);
 
@@ -70,8 +72,8 @@ void chorus::process(const dsp_input& in, dsp_output& out)
         }
         else
         {
-            this->delay_line.set_delay(delay_line_center_tap * (1.0f + this->lfo.generate() * this->attr.ctrl.depth));
-            this->delay_line2.set_delay(delay_line2_center_tap * (1.0f - this->lfo2.generate() * this->attr.ctrl.depth));
+            this->delay_line.set_delay(delay_line_center_tap + this->lfo.generate() * depth);
+            this->delay_line2.set_delay(delay_line2_center_tap - this->lfo2.generate() * depth);
             this->delay_line.put(input);
             this->delay_line2.put(input);
             const float delayed_mix = this->delay_line.get() * c + this->delay_line2.get() * c;
@@ -89,7 +91,7 @@ const effect_specific_attributes chorus::get_specific_attributes(void) const
 
 void chorus::set_depth(float depth)
 {
-    depth = std::clamp(depth, 0.1f, 0.9f);
+    depth = std::clamp(depth, 0.0f, 1.0f);
 
     if (this->attr.ctrl.depth == depth)
         return;
@@ -99,12 +101,14 @@ void chorus::set_depth(float depth)
 
 void chorus::set_rate(float rate)
 {
-    rate = std::clamp(rate, 0.05f, 0.5f);
+    rate = std::clamp(rate, 0.0f, 1.0f);
 
     if (this->attr.ctrl.rate == rate)
         return;
 
     this->attr.ctrl.rate = rate;
+
+    rate = 0.05f + rate * 3.95f;
 
     this->lfo.set_frequency(rate);
     this->lfo2.set_frequency(rate * 0.66f);

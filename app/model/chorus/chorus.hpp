@@ -41,6 +41,4 @@ private:
 
 }
 
-
-
 #endif /* MODEL_CHORUS_CHORUS_HPP_ */
