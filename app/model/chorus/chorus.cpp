@@ -21,7 +21,7 @@ constexpr float delay_line_center_tap = 0.015;
 __attribute__((section(".sdram")))
 std::array<float, static_cast<unsigned>(2 * delay_line_center_tap * config::sampling_frequency_hz)> delay_line_memory;
 
-constexpr float delay_line2_center_tap = 0.02;
+constexpr float delay_line2_center_tap = 0.03;
 __attribute__((section(".sdram")))
 std::array<float, static_cast<unsigned>(2 * delay_line2_center_tap * config::sampling_frequency_hz)> delay_line2_memory;
 
@@ -111,7 +111,7 @@ void chorus::set_rate(float rate)
     rate = 0.05f + rate * 3.95f;
 
     this->lfo.set_frequency(rate);
-    this->lfo2.set_frequency(rate * 0.66f);
+    this->lfo2.set_frequency(rate * 0.5f);
 }
 
 void chorus::set_tone(float tone)
