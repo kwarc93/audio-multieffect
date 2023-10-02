@@ -163,7 +163,7 @@ void ui_fx_chorus_screen_init(void)
     lv_obj_set_align(ui_arc_chorus_rate, LV_ALIGN_CENTER);
     lv_obj_clear_flag(ui_arc_chorus_rate, LV_OBJ_FLAG_GESTURE_BUBBLE);      /// Flags
     lv_arc_set_range(ui_arc_chorus_rate, 5, 50);
-    lv_arc_set_value(ui_arc_chorus_rate, 200);
+    lv_arc_set_value(ui_arc_chorus_rate, 5);
     lv_arc_set_bg_angles(ui_arc_chorus_rate, 129, 51);
     lv_obj_set_style_pad_left(ui_arc_chorus_rate, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_pad_right(ui_arc_chorus_rate, 0, LV_PART_MAIN | LV_STATE_DEFAULT);

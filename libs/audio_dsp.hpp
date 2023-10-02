@@ -147,7 +147,7 @@ public:
 
     delay_line(float max_delay, uint32_t fs) : fs{fs}, allocated{true}
     {
-        this->memory_length = std::ceil(fs * max_delay);
+        this->memory_length = std::ceil(fs * max_delay) + 1;
         this->memory = new float [this->memory_length];
         this->write_idx = this->read_idx = 0;
         this->frac = 0;
@@ -176,13 +176,14 @@ public:
     void set_delay(float d)
     {
         const float delay_samples = d * this->fs;
+        const uint32_t delay_samples_int = delay_samples;
+
+        /* Set fraction of delay between samples */
+        this->frac = delay_samples - delay_samples_int;
 
         /* Set sample read index according to delay */
         this->read_idx = this->write_idx + this->memory_length -
-        std::clamp(static_cast<uint32_t>(delay_samples), 0UL, this->memory_length - 1);
-
-        /* Set fraction of delay between samples */
-        this->frac = delay_samples - std::floor(delay_samples);
+        std::clamp(delay_samples_int + 1, 0UL, this->memory_length - 1);
     }
 
     float get(void)
@@ -192,16 +193,17 @@ public:
         else if constexpr (intrpl == delay_line_intrpl::allpass)
             return allpass_interpolation();
         else
-            return this->memory[this->read_idx++ % this->memory_length];
+            return this->memory[++this->read_idx % this->memory_length];
     }
 
     float at(float d)
     {
         const float delay_samples = d * this->fs;
+        const uint32_t delay_samples_int = delay_samples;
 
         /* Set sample read index according to delay */
         uint32_t read_idx = this->write_idx + this->memory_length -
-        std::clamp(static_cast<uint32_t>(delay_samples), 0UL, this->memory_length - 1);
+        std::clamp(delay_samples_int, 0UL, this->memory_length - 1);
 
         /* Return sample without any interpolation */
         return this->memory[read_idx % this->memory_length];
