@@ -17,11 +17,11 @@ using namespace mfx;
 namespace
 {
 
-constexpr float delay_line_center_tap = 0.015;
+constexpr float delay_line_center_tap = 0.01;
 __attribute__((section(".sdram")))
 std::array<float, static_cast<unsigned>(2 * delay_line_center_tap * config::sampling_frequency_hz)> delay_line_memory;
 
-constexpr float delay_line2_center_tap = 0.03;
+constexpr float delay_line2_center_tap = 0.025;
 __attribute__((section(".sdram")))
 std::array<float, static_cast<unsigned>(2 * delay_line2_center_tap * config::sampling_frequency_hz)> delay_line2_memory;
 
