@@ -35,8 +35,8 @@ std::array<float, static_cast<unsigned>(2 * delay_line2_center_tap * config::sam
 
 
 chorus::chorus(float depth, float rate, float tone, float mix) : effect { effect_id::chorus },
-lfo { libs::adsp::oscillator::shape::sine, config::sampling_frequency_hz },
-lfo2 { libs::adsp::oscillator::shape::triangle, config::sampling_frequency_hz },
+lfo { libs::adsp::oscillator::shape::triangle, config::sampling_frequency_hz },
+lfo2 { libs::adsp::oscillator::shape::sine, config::sampling_frequency_hz },
 delay_line {delay_line_memory.data(), delay_line_memory.size(), config::sampling_frequency_hz},
 delay_line2 {delay_line2_memory.data(), delay_line2_memory.size(), config::sampling_frequency_hz},
 attr {}
@@ -60,7 +60,7 @@ void chorus::process(const dsp_input& in, dsp_output& out)
     std::transform(in.begin(), in.end(), out.begin(),
     [this](auto input)
     {
-        const float depth = 0.0001f + this->attr.ctrl.depth * 0.001f;
+        const float depth = 0.0001f + this->attr.ctrl.depth * 0.0015f;
 
         if (this->attr.ctrl.mode == chorus_attr::controls::mode_type::mode_1)
         {

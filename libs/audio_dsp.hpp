@@ -57,16 +57,15 @@ private:
 class oscillator
 {
 public:
-    enum class shape {sine, triangle, square, sawtooth};
+    enum class shape {sawtooth, square, triangle, sine, noise};
 
     oscillator(shape shape, uint32_t fs) : fs{fs}
     {
         this->wave_shape = shape;
         this->frequency = 1;
-        this->counter = 0;
-        this->counter_step = 1;
 
-        update();
+        this->counter = 0;
+        this->counter_limit = this->fs / this->frequency;
     }
 
     void set_frequency(float f)
@@ -75,8 +74,7 @@ public:
             return;
 
         this->frequency = f;
-
-        update();
+        this->counter_limit = this->fs / this->frequency;
     }
 
     void set_shape(shape s)
@@ -85,78 +83,45 @@ public:
             return;
 
         this->wave_shape = wave_shape;
-
-        this->counter = 0;
-
-        update();
     }
 
     float generate(void)
     {
-        float out = 0;
+        /* Unipolar sawtooth counter */
+        this->counter %= this->counter_limit;
+        float out = static_cast<float>(this->counter++ % this->counter_limit) / this->counter_limit;
 
-        if (this->wave_shape == shape::triangle)
+        if (this->wave_shape == shape::sawtooth)
         {
-            out = this->counter / this->counter_limit;
-
-            if (this->counter >= this->counter_limit)
-                this->counter_step = -1;
-            else if (this->counter <= -this->counter_limit)
-                this->counter_step = 1;
-        }
-        else if (this->wave_shape == shape::sine)
-        {
-            out = arm_sin_f32(this->counter);
-
-            if (this->counter >= this->counter_limit)
-                this->counter -= 2 * this->counter_limit;
+            out = 2 * (out - 0.5f);
         }
         else if (this->wave_shape == shape::square)
         {
-            /* TODO */
+            out = (2 * (out - 0.5f) >= 0) ? 1 : -1;
         }
-        else if (this->wave_shape == shape::sawtooth)
+        else if (this->wave_shape == shape::triangle)
+        {
+            out = -4 * std::abs(out - 0.5f) + 1;
+        }
+        else if (this->wave_shape == shape::sine)
+        {
+            out = arm_sin_f32(-2 * pi * out + pi);
+        }
+        else if (this->wave_shape == shape::noise)
         {
             /* TODO */
         }
-
-        this->counter += this->counter_step;
 
         return out;
     }
 
 private:
-    void update(void)
-    {
-        if (this->wave_shape == shape::sine)
-        {
-            /* Sine cycle in range [-pi : +pi] */
-            this->counter_limit = pi;
-            this->counter_step = 2 * this->counter_limit * this->frequency / this->fs;
-        }
-        else if (this->wave_shape == shape::triangle)
-        {
-            /* One triangle slope is frequency/4 */
-            this->counter_limit = 0.25f * (this->fs / this->frequency);
-            this->counter = std::clamp(this->counter, -this->counter_limit, this->counter_limit);
-        }
-        else if (this->wave_shape == shape::square)
-        {
-            /* TODO */
-        }
-        else if (this->wave_shape == shape::sawtooth)
-        {
-            /* TODO */
-        }
-    }
-
     const uint32_t fs;
 
     shape wave_shape;
     float frequency;
-    float counter;
-    float counter_step;
-    float counter_limit;
+    uint32_t counter;
+    uint32_t counter_limit;
 };
 
 //-----------------------------------------------------------------------------
