@@ -65,18 +65,19 @@ void chorus::process(const dsp_input& in, dsp_output& out)
         if (this->attr.ctrl.mode == chorus_attr::controls::mode_type::mode_1)
         {
             this->delay_line.set_delay(delay_line_center_tap + this->lfo.generate() * depth);
+            const float delayed = this->delay_line.get();
             const float in_h = input - c * this->delay_line.at(delay_line_center_tap);
             this->delay_line.put(in_h);
 
-            return this->attr.ctrl.mix * (this->delay_line.get() + c * in_h) + (1.0f - this->attr.ctrl.mix) * input;
+            return this->attr.ctrl.mix * (delayed + c * in_h) + (1.0f - this->attr.ctrl.mix) * input;
         }
         else
         {
             this->delay_line.set_delay(delay_line_center_tap + this->lfo.generate() * depth);
             this->delay_line2.set_delay(delay_line2_center_tap - this->lfo2.generate() * depth);
+            const float delayed_mix = this->delay_line.get() * c + this->delay_line2.get() * c;
             this->delay_line.put(input);
             this->delay_line2.put(input);
-            const float delayed_mix = this->delay_line.get() * c + this->delay_line2.get() * c;
 
             return this->attr.ctrl.mix * delayed_mix + (1.0f - this->attr.ctrl.mix) * input;
         }

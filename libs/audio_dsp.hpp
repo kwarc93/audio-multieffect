@@ -12,6 +12,7 @@
 #include <cmath>
 #include <algorithm>
 #include <array>
+#include <random>
 
 /* CMSIS DSP library */
 #include <cmsis/stm32f7xx.h>
@@ -28,6 +29,28 @@ namespace libs::adsp
     {
         return (T(0) < val) - (val < T(0));
     }
+
+//-----------------------------------------------------------------------------
+
+class random
+{
+public:
+    random(float min, float max) : gen{std::random_device{}()}, dis{min, max} {}
+
+    float operator()()
+    {
+        return this->dis(this->gen);
+    }
+
+    float operator()(float min, float max)
+    {
+        return decltype(this->dis){min, max}(this->gen);
+    }
+
+private:
+    std::mt19937 gen;
+    std::uniform_real_distribution<float> dis;
+};
 
 //-----------------------------------------------------------------------------
 
@@ -147,7 +170,7 @@ public:
 
     delay_line(float max_delay, uint32_t fs) : fs{fs}, allocated{true}
     {
-        this->memory_length = std::ceil(fs * max_delay) + 1;
+        this->memory_length = std::ceil(fs * max_delay);
         this->memory = new float [this->memory_length];
         this->write_idx = this->read_idx = 0;
         this->frac = 0;
@@ -178,34 +201,34 @@ public:
         const float delay_samples = d * this->fs;
         const uint32_t delay_samples_int = delay_samples;
 
-        /* Set fraction of delay between samples */
         this->frac = delay_samples - delay_samples_int;
-
-        /* Set sample read index according to delay */
-        this->read_idx = this->write_idx + this->memory_length -
-        std::clamp(delay_samples_int + 1, 0UL, this->memory_length - 1);
+        this->read_idx = this->write_idx - delay_samples_int - 1;
     }
 
     float get(void)
     {
         if constexpr (intrpl == delay_line_intrpl::linear)
-            return linear_interpolation();
+        {
+            const float s1 = this->memory[(this->read_idx - 1) % this->memory_length];
+            const float s0 = this->memory[this->read_idx++ % this->memory_length];
+            return s0 + this->frac * (s1 - s0);
+        }
         else if constexpr (intrpl == delay_line_intrpl::allpass)
-            return allpass_interpolation();
+        {
+            const float s1 = this->memory[(this->read_idx - 1) % this->memory_length];
+            const float s0 = this->memory[this->read_idx++ % this->memory_length];
+            const float d = (1 - this->frac) / (1 + this->frac); // Or just '(1 - this->frac)'
+            return this->aph = s1 + d * (s0 - this->aph);
+        }
         else
-            return this->memory[++this->read_idx % this->memory_length];
+        {
+            return this->memory[this->read_idx++ % this->memory_length];
+        }
     }
 
     float at(float d)
     {
-        const float delay_samples = d * this->fs;
-        const uint32_t delay_samples_int = delay_samples;
-
-        /* Set sample read index according to delay */
-        uint32_t read_idx = this->write_idx + this->memory_length -
-        std::clamp(delay_samples_int, 0UL, this->memory_length - 1);
-
-        /* Return sample without any interpolation */
+        const uint32_t read_idx = this->write_idx - static_cast<uint32_t>(d * this->fs) - 1;
         return this->memory[read_idx % this->memory_length];
     }
 
@@ -214,21 +237,6 @@ public:
         this->memory[this->write_idx++ % this->memory_length] = sample;
     }
 private:
-    float linear_interpolation(void)
-    {
-        const float s1 = this->memory[this->read_idx++ % this->memory_length];
-        const float s0 = this->memory[this->read_idx % this->memory_length];
-        return s0 + this->frac * (s1 - s0);
-    }
-
-    float allpass_interpolation(void)
-    {
-        const float s1 = this->memory[this->read_idx++ % this->memory_length];
-        const float s0 = this->memory[this->read_idx % this->memory_length];
-        const float d = (1 - this->frac) / (1 + this->frac); // Or just '(1 - this->frac)'
-        return this->aph = s1 + d * (s0 - this->aph);
-    }
-
     const uint32_t fs;
     const bool allocated;
 
@@ -237,7 +245,6 @@ private:
     uint32_t write_idx, read_idx;
     float frac;
     float aph;
-
 };
 
 //-----------------------------------------------------------------------------
