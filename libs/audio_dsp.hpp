@@ -135,7 +135,7 @@ public:
 
     delay_line(float max_delay, uint32_t fs) : fs{fs}, allocated{true}
     {
-        this->memory_length = std::ceil(fs * max_delay);
+        this->memory_length = std::ceil(fs * max_delay) + 1;
         this->memory = new float [this->memory_length];
         this->write_idx = this->read_idx = 0;
         this->frac = 0;
@@ -167,7 +167,7 @@ public:
         const uint32_t delay_samples_int = delay_samples;
 
         this->frac = delay_samples - delay_samples_int;
-        this->read_idx = this->write_idx - delay_samples_int - 1;
+        this->read_idx = this->write_idx - delay_samples_int;
     }
 
     float get(void)
@@ -193,13 +193,13 @@ public:
 
     float at(float d)
     {
-        const uint32_t read_idx = this->write_idx - static_cast<uint32_t>(d * this->fs) - 1;
+        const uint32_t read_idx = this->write_idx - static_cast<uint32_t>(d * this->fs);
         return this->memory[read_idx % this->memory_length];
     }
 
     void put(float sample)
     {
-        this->memory[this->write_idx++ % this->memory_length] = sample;
+        this->memory[++this->write_idx % this->memory_length] = sample;
     }
 private:
     const uint32_t fs;
@@ -247,7 +247,7 @@ class iir_biquad
 public:
     iir_biquad()
     {
-        arm_biquad_cascade_df1_init_f32
+        arm_biquad_cascade_df2T_init_f32
         (
             &this->instance,
             biquad_stages,
@@ -263,11 +263,11 @@ public:
 
     void process(const float *in, float *out, uint32_t samples)
     {
-        arm_biquad_cascade_df1_f32(&this->instance, const_cast<float*>(in), out, samples);
+        arm_biquad_cascade_df2T_f32(&this->instance, const_cast<float*>(in), out, samples);
     }
 protected:
-    arm_biquad_casd_df1_inst_f32 instance;
-    std::array<float, 4 * biquad_stages> state;
+    arm_biquad_cascade_df2T_instance_f32 instance;
+    std::array<float, 2 * biquad_stages> state;
     std::array<float, 5 * biquad_stages> coeffs;
 };
 
