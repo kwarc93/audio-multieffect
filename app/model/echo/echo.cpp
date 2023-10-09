@@ -18,7 +18,7 @@ using namespace mfx;
 namespace
 {
 __attribute__((section(".sdram")))
-std::array<float, 1 * config::sampling_frequency_hz> delay_line_memory; // Maximum delay time: 1s
+std::array<float, 1 * config::sampling_frequency_hz + 1> delay_line_memory; // Maximum delay time: 1s
 }
 
 //-----------------------------------------------------------------------------
