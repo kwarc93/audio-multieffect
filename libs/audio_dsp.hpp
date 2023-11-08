@@ -343,6 +343,42 @@ public:
     }
 };
 
+class iir_allpass : public iir_biquad<1>
+{
+public:
+    void calc_coeffs(float fc, float fb, float fs, bool first_order = false)
+    {
+        const float wc = fc / fs;
+        const float k = std::tan(pi * wc);
+        const float q = fc / fb;
+
+        const float k2q = k * k * q;
+
+        if (first_order)
+        {
+            /* 1-st order */
+            const float denum = 1.0f / (k + 1);
+
+            this->coeffs[0] = (k - 1) * denum; // b0
+            this->coeffs[1] = 1; // b1
+            this->coeffs[2] = 0; //b2
+            this->coeffs[3] = -this->coeffs[0]; // -a1
+            this->coeffs[4] = 0; // -a2
+        }
+        else
+        {
+            /* 2-nd order */
+            const float denum = 1.0f / (k2q + k + q);
+
+            this->coeffs[0] = (k2q - k + q) * denum; // b0
+            this->coeffs[1] = 2 * q * (k * k - 1) * denum; // b1
+            this->coeffs[2] = 1; // b2
+            this->coeffs[3] = -this->coeffs[1]; // -a1
+            this->coeffs[4] = -this->coeffs[0]; // -a2
+        }
+    }
+};
+
 //-----------------------------------------------------------------------------
 
 template<uint16_t block_size, uint16_t ir_size>

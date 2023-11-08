@@ -122,8 +122,8 @@ void ui_fx_reverb_screen_init(void)
     lv_obj_set_style_bg_opa(ui_arc_reverb_bw, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
 
     ui_lbl_reverb_bw = lv_label_create(ui_pnl_reverb_bw);
-    lv_obj_set_width(ui_lbl_reverb_bw, 68);
-    lv_obj_set_height(ui_lbl_reverb_bw, 17);
+    lv_obj_set_width(ui_lbl_reverb_bw, LV_SIZE_CONTENT);
+    lv_obj_set_height(ui_lbl_reverb_bw, LV_SIZE_CONTENT);
     lv_obj_set_align(ui_lbl_reverb_bw, LV_ALIGN_BOTTOM_MID);
     lv_label_set_text(ui_lbl_reverb_bw, "BANDWIDTH");
     lv_obj_set_style_text_color(ui_lbl_reverb_bw, lv_color_hex(0x9395A1), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -182,8 +182,8 @@ void ui_fx_reverb_screen_init(void)
     lv_obj_set_style_bg_opa(ui_arc_reverb_damp, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
 
     ui_lbl_reverb_damp = lv_label_create(ui_pnl_reverb_damp);
-    lv_obj_set_width(ui_lbl_reverb_damp, 100);
-    lv_obj_set_height(ui_lbl_reverb_damp, 17);
+    lv_obj_set_width(ui_lbl_reverb_damp, LV_SIZE_CONTENT);
+    lv_obj_set_height(ui_lbl_reverb_damp, LV_SIZE_CONTENT);
     lv_obj_set_align(ui_lbl_reverb_damp, LV_ALIGN_BOTTOM_MID);
     lv_label_set_text(ui_lbl_reverb_damp, "DAMPING");
     lv_obj_set_style_text_color(ui_lbl_reverb_damp, lv_color_hex(0x9395A1), LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -241,8 +241,8 @@ void ui_fx_reverb_screen_init(void)
     lv_obj_set_style_bg_opa(ui_arc_reverb_decay, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
 
     ui_lbl_reverb_decay = lv_label_create(ui_pnl_reverb_decay);
-    lv_obj_set_width(ui_lbl_reverb_decay, 68);
-    lv_obj_set_height(ui_lbl_reverb_decay, 17);
+    lv_obj_set_width(ui_lbl_reverb_decay, LV_SIZE_CONTENT);
+    lv_obj_set_height(ui_lbl_reverb_decay, LV_SIZE_CONTENT);
     lv_obj_set_align(ui_lbl_reverb_decay, LV_ALIGN_BOTTOM_MID);
     lv_label_set_text(ui_lbl_reverb_decay, "DECAY");
     lv_obj_set_style_text_color(ui_lbl_reverb_decay, lv_color_hex(0x9395A1), LV_PART_MAIN | LV_STATE_DEFAULT);
