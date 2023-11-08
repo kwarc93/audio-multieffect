@@ -21,6 +21,7 @@ enum class effect_id : uint8_t
     tremolo,
     echo,
     chorus,
+    reverb,
     overdrive,
     cabinet_sim,
 
@@ -32,6 +33,7 @@ constexpr inline std::array<const char*, static_cast<uint8_t>(effect_id::_count)
     "Tremolo",
     "Echo",
     "Chorus",
+    "Reverb",
     "Overdrive",
     "Cabinet simulator"
 }};
@@ -79,7 +81,18 @@ struct chorus_attr
         float rate; // Modulation rate, range: [0, 1.0]
         float tone; // Tone, range: [0, 1.0]
         float mix; // Wet/dry mix, range: [0, 1.0]
-        enum class mode_type {mode_1, mode_2} mode; // Mode of effect
+        enum class mode_type {white, deep} mode; // Mode of effect
+    } ctrl;
+};
+
+struct reverb_attr
+{
+    struct controls
+    {
+        float bandwidth; // Input LPF, range: [0, 1.0]
+        float damping; // Tank LPFs rate, range: [0, 1.0]
+        float decay; // Reverb time, range: [0, 0.99]
+        enum class mode_type {plate, shimmer} mode; // Mode of effect
     } ctrl;
 };
 
@@ -110,6 +123,7 @@ typedef std::variant
     tremolo_attr,
     echo_attr,
     chorus_attr,
+    reverb_attr,
     overdrive_attr,
     cabinet_sim_attr
 > effect_specific_attributes;

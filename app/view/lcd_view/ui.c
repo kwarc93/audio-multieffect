@@ -127,8 +127,39 @@ lv_obj_t * ui_lbl_chorus_depth;
 lv_obj_t * ui_pnl_chorus_mode;
 void ui_event_sw_chorus_mode(lv_event_t * e);
 lv_obj_t * ui_sw_chorus_mode;
-lv_obj_t * ui_lbl_chorus_mode_1;
-lv_obj_t * ui_lbl_chorus_mode_2;
+lv_obj_t * ui_lbl_chorus_mode_white;
+lv_obj_t * ui_lbl_chorus_mode_deep;
+
+// SCREEN: ui_fx_reverb
+void ui_fx_reverb_screen_init(void);
+void ui_event_fx_reverb(lv_event_t * e);
+lv_obj_t * ui_fx_reverb;
+lv_obj_t * ui_pnl_reverb_content;
+lv_obj_t * ui_lbl_reverb_fx_name;
+void ui_event_btn_reverb_bypass(lv_event_t * e);
+lv_obj_t * ui_btn_reverb_bypass;
+lv_obj_t * ui_lbl_btn_reverb_bypass;
+lv_obj_t * ui_pnl_reverb_controls;
+lv_obj_t * ui_pnl_reverb_bw;
+lv_obj_t * ui_img_reverb_bw;
+void ui_event_arc_reverb_bw(lv_event_t * e);
+lv_obj_t * ui_arc_reverb_bw;
+lv_obj_t * ui_lbl_reverb_bw;
+lv_obj_t * ui_pnl_reverb_damp;
+lv_obj_t * ui_img_reverb_damp;
+void ui_event_arc_reverb_damp(lv_event_t * e);
+lv_obj_t * ui_arc_reverb_damp;
+lv_obj_t * ui_lbl_reverb_damp;
+lv_obj_t * ui_pnl_reverb_decay;
+lv_obj_t * ui_img_reverb_decay;
+void ui_event_arc_reverb_decay(lv_event_t * e);
+lv_obj_t * ui_arc_reverb_decay;
+lv_obj_t * ui_lbl_reverb_decay;
+lv_obj_t * ui_pnl_reverb_mode;
+void ui_event_sw_reverb_mode(lv_event_t * e);
+lv_obj_t * ui_sw_reverb_mode;
+lv_obj_t * ui_lbl_reverb_mode_plate;
+lv_obj_t * ui_lbl_reverb_mode_shimmer;
 
 // SCREEN: ui_fx_overdrive
 void ui_fx_overdrive_screen_init(void);
@@ -408,8 +439,54 @@ void ui_event_sw_chorus_mode(lv_event_t * e)
 
     if(event_code == LV_EVENT_VALUE_CHANGED) {
         ui_chorus_mode_changed(e);
-        _ui_state_modify(ui_lbl_chorus_mode_1, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
-        _ui_state_modify(ui_lbl_chorus_mode_2, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
+        _ui_state_modify(ui_lbl_chorus_mode_white, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
+        _ui_state_modify(ui_lbl_chorus_mode_deep, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
+    }
+}
+void ui_event_fx_reverb(lv_event_t * e)
+{
+    ui_screen_gesture_handler(e);
+}
+void ui_event_btn_reverb_bypass(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_CLICKED) {
+        ui_reverb_bypass(e);
+    }
+}
+void ui_event_arc_reverb_bw(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_reverb_bw_changed(e);
+    }
+}
+void ui_event_arc_reverb_damp(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_reverb_damp_changed(e);
+    }
+}
+void ui_event_arc_reverb_decay(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_reverb_decay_changed(e);
+    }
+}
+void ui_event_sw_reverb_mode(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_reverb_mode_changed(e);
+        _ui_state_modify(ui_lbl_reverb_mode_plate, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
+        _ui_state_modify(ui_lbl_reverb_mode_shimmer, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
     }
 }
 void ui_event_fx_overdrive(lv_event_t * e)

@@ -279,30 +279,30 @@ void ui_fx_chorus_screen_init(void)
     lv_obj_set_style_bg_color(ui_sw_chorus_mode, lv_color_hex(0x4C4E5B), LV_PART_KNOB | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_sw_chorus_mode, 255, LV_PART_KNOB | LV_STATE_DEFAULT);
 
-    ui_lbl_chorus_mode_1 = lv_label_create(ui_pnl_chorus_mode);
-    lv_obj_set_width(ui_lbl_chorus_mode_1, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_lbl_chorus_mode_1, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_align(ui_lbl_chorus_mode_1, LV_ALIGN_LEFT_MID);
-    lv_label_set_text(ui_lbl_chorus_mode_1, "MODE 1");
-    lv_obj_set_style_text_color(ui_lbl_chorus_mode_1, lv_color_hex(0x9395A1), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_lbl_chorus_mode_1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_align(ui_lbl_chorus_mode_1, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_lbl_chorus_mode_1, &ui_font_14_bold, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_color(ui_lbl_chorus_mode_1, lv_color_hex(0x50FF7D), LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_text_opa(ui_lbl_chorus_mode_1, 255, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_add_state(ui_lbl_chorus_mode_1, LV_STATE_CHECKED);
+    ui_lbl_chorus_mode_white = lv_label_create(ui_pnl_chorus_mode);
+    lv_obj_set_width(ui_lbl_chorus_mode_white, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_lbl_chorus_mode_white, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_lbl_chorus_mode_white, LV_ALIGN_LEFT_MID);
+    lv_label_set_text(ui_lbl_chorus_mode_white, "WHITE");
+    lv_obj_set_style_text_color(ui_lbl_chorus_mode_white, lv_color_hex(0x9395A1), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_lbl_chorus_mode_white, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui_lbl_chorus_mode_white, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_lbl_chorus_mode_white, &ui_font_14_bold, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui_lbl_chorus_mode_white, lv_color_hex(0x50FF7D), LV_PART_MAIN | LV_STATE_CHECKED);
+    lv_obj_set_style_text_opa(ui_lbl_chorus_mode_white, 255, LV_PART_MAIN | LV_STATE_CHECKED);
+    lv_obj_add_state(ui_lbl_chorus_mode_white, LV_STATE_CHECKED);
 
-    ui_lbl_chorus_mode_2 = lv_label_create(ui_pnl_chorus_mode);
-    lv_obj_set_width(ui_lbl_chorus_mode_2, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_lbl_chorus_mode_2, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_align(ui_lbl_chorus_mode_2, LV_ALIGN_RIGHT_MID);
-    lv_label_set_text(ui_lbl_chorus_mode_2, "MODE 2");
-    lv_obj_set_style_text_color(ui_lbl_chorus_mode_2, lv_color_hex(0x9395A1), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_lbl_chorus_mode_2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_align(ui_lbl_chorus_mode_2, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_lbl_chorus_mode_2, &ui_font_14_bold, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_color(ui_lbl_chorus_mode_2, lv_color_hex(0x50FF7D), LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_text_opa(ui_lbl_chorus_mode_2, 255, LV_PART_MAIN | LV_STATE_CHECKED);
+    ui_lbl_chorus_mode_deep = lv_label_create(ui_pnl_chorus_mode);
+    lv_obj_set_width(ui_lbl_chorus_mode_deep, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_lbl_chorus_mode_deep, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_lbl_chorus_mode_deep, LV_ALIGN_RIGHT_MID);
+    lv_label_set_text(ui_lbl_chorus_mode_deep, "DEEP  ");
+    lv_obj_set_style_text_color(ui_lbl_chorus_mode_deep, lv_color_hex(0x9395A1), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_lbl_chorus_mode_deep, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui_lbl_chorus_mode_deep, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_lbl_chorus_mode_deep, &ui_font_14_bold, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui_lbl_chorus_mode_deep, lv_color_hex(0x50FF7D), LV_PART_MAIN | LV_STATE_CHECKED);
+    lv_obj_set_style_text_opa(ui_lbl_chorus_mode_deep, 255, LV_PART_MAIN | LV_STATE_CHECKED);
 
     lv_obj_add_event_cb(ui_btn_chorus_bypass, ui_event_btn_chorus_bypass, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_arc_chorus_mix, ui_event_arc_chorus_mix, LV_EVENT_ALL, NULL);

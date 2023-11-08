@@ -45,7 +45,7 @@ attr {}
     this->set_rate(rate);
     this->set_tone(tone);
     this->set_mix(mix);
-    this->set_mode(chorus_attr::controls::mode_type::mode_1);
+    this->set_mode(chorus_attr::controls::mode_type::white);
 }
 
 chorus::~chorus()
@@ -62,7 +62,7 @@ void chorus::process(const dsp_input& in, dsp_output& out)
     {
         const float depth = 0.0001f + this->attr.ctrl.depth * 0.0015f;
 
-        if (this->attr.ctrl.mode == chorus_attr::controls::mode_type::mode_1)
+        if (this->attr.ctrl.mode == chorus_attr::controls::mode_type::white)
         {
             this->delay_line.set_delay(delay_line_center_tap + this->lfo.generate() * depth);
             const float delayed = this->delay_line.get();

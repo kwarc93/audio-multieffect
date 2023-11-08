@@ -26,6 +26,7 @@
 #include "app/model/tremolo/tremolo.hpp"
 #include "app/model/echo/echo.hpp"
 #include "app/model/chorus/chorus.hpp"
+#include "app/model/reverb/reverb.hpp"
 #include "app/model/overdrive/overdrive.hpp"
 #include "app/model/cabinet_sim/cabinet_sim.hpp"
 
@@ -207,6 +208,19 @@ void effect_processor::set_controls(const chorus_attr::controls &ctrl)
     chorus_effect->set_mode(ctrl.mode);
 }
 
+void effect_processor::set_controls(const reverb_attr::controls &ctrl)
+{
+    auto reverb_effect = static_cast<reverb*>(this->find_effect(effect_id::reverb));
+
+    if (reverb_effect == nullptr)
+        return;
+
+    reverb_effect->set_bandwidth(ctrl.bandwidth);
+    reverb_effect->set_damping(ctrl.damping);
+    reverb_effect->set_decay(ctrl.decay);
+    reverb_effect->set_mode(ctrl.mode);
+}
+
 void effect_processor::set_controls(const overdrive_attr::controls &ctrl)
 {
     auto overdrive_effect = static_cast<overdrive*>(this->find_effect(effect_id::overdrive));
@@ -243,6 +257,7 @@ std::unique_ptr<effect> effect_processor::create_new(effect_id id)
         { effect_id::tremolo,       []() { return std::make_unique<tremolo>(); } },
         { effect_id::echo,          []() { return std::make_unique<echo>(); } },
         { effect_id::chorus,        []() { return std::make_unique<chorus>(); } },
+        { effect_id::reverb,        []() { return std::make_unique<reverb>(); } },
         { effect_id::overdrive,     []() { return std::make_unique<overdrive>(); } },
         { effect_id::cabinet_sim,   []() { return std::make_unique<cabinet_sim>(); } }
     };
@@ -281,6 +296,7 @@ void effect_processor::audio_capture_cb(const hal::audio_devices::codec::input_s
         this->audio_input.sample_index = this->audio_input.buffer.size() / 2;
 
     /* Transform RAW samples to DSP buffer */
+    /* FIXME: numeric_limits wont work in case of 24bit resolution */
     constexpr float scale = 1.0f / -std::numeric_limits<hal::audio_devices::codec::input_sample_t>::min();
     for (unsigned i = this->audio_input.sample_index, j = 0; i < this->audio_input.sample_index + this->audio_input.buffer.size() / 2; i+=2, j++)
     {

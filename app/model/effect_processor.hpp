@@ -76,6 +76,7 @@ struct set_effect_controls
         tremolo_attr::controls,
         echo_attr::controls,
         chorus_attr::controls,
+        reverb_attr::controls,
         overdrive_attr::controls,
         cabinet_sim_attr::controls
     >
@@ -143,6 +144,7 @@ private:
     void set_controls(const tremolo_attr::controls &ctrl);
     void set_controls(const echo_attr::controls &ctrl);
     void set_controls(const chorus_attr::controls &ctrl);
+    void set_controls(const reverb_attr::controls &ctrl);
     void set_controls(const overdrive_attr::controls &ctrl);
     void set_controls(const cabinet_sim_attr::controls &ctrl);
 

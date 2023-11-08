@@ -87,6 +87,7 @@ struct effect_controls_changed
         tremolo_attr::controls,
         echo_attr::controls,
         chorus_attr::controls,
+        reverb_attr::controls,
         overdrive_attr::controls,
         cabinet_sim_attr::controls
     >
@@ -161,6 +162,7 @@ private:
     void set_effect_attr(const effect_attr &basic, const tremolo_attr &specific);
     void set_effect_attr(const effect_attr &basic, const echo_attr &specific);
     void set_effect_attr(const effect_attr &basic, const chorus_attr &specific);
+    void set_effect_attr(const effect_attr &basic, const reverb_attr &specific);
     void set_effect_attr(const effect_attr &basic, const overdrive_attr &specific);
     void set_effect_attr(const effect_attr &basic, const cabinet_sim_attr &specific);
 

@@ -78,13 +78,32 @@ void notify_chorus_controls_changed(void)
         0, // Not used
         lv_arc_get_value(mix_knob) * 0.01f,
         lv_obj_has_state(mode_sw, LV_STATE_CHECKED) ?
-        mfx::chorus_attr::controls::mode_type::mode_2 :
-        mfx::chorus_attr::controls::mode_type::mode_1
+        mfx::chorus_attr::controls::mode_type::deep :
+        mfx::chorus_attr::controls::mode_type::white
     };
 
     view->notify(events::effect_controls_changed {ctrl});
 }
 
+void notify_reverb_controls_changed(void)
+{
+    lv_obj_t *bw_knob = ui_arc_reverb_bw;
+    lv_obj_t *damp_knob = ui_arc_reverb_damp;
+    lv_obj_t *decay_knob = ui_arc_reverb_decay;
+    lv_obj_t *mode_sw = ui_sw_reverb_mode;
+
+    const mfx::reverb_attr::controls ctrl
+    {
+        lv_arc_get_value(bw_knob) * 0.01f,
+        lv_arc_get_value(damp_knob) * 0.01f,
+        lv_arc_get_value(decay_knob) * 0.01f,
+        lv_obj_has_state(mode_sw, LV_STATE_CHECKED) ?
+        mfx::reverb_attr::controls::mode_type::shimmer :
+        mfx::reverb_attr::controls::mode_type::plate
+    };
+
+    view->notify(events::effect_controls_changed {ctrl});
+}
 
 void notify_overdrive_controls_changed(void)
 {
@@ -268,6 +287,31 @@ void ui_chorus_depth_changed(lv_event_t * e)
 void ui_chorus_mode_changed(lv_event_t * e)
 {
     notify_chorus_controls_changed();
+}
+
+void ui_reverb_bypass(lv_event_t * e)
+{
+    notify_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::reverb);
+}
+
+void ui_reverb_bw_changed(lv_event_t * e)
+{
+    notify_reverb_controls_changed();
+}
+
+void ui_reverb_damp_changed(lv_event_t * e)
+{
+    notify_reverb_controls_changed();
+}
+
+void ui_reverb_decay_changed(lv_event_t * e)
+{
+    notify_reverb_controls_changed();
+}
+
+void ui_reverb_mode_changed(lv_event_t * e)
+{
+    notify_reverb_controls_changed();
 }
 
 void ui_overdrive_bypass(lv_event_t * e)
