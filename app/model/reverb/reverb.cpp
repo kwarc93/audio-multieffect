@@ -67,8 +67,8 @@ void reverb::process(const dsp_input& in, dsp_output& out)
     [this](auto input)
     {
         /* Input diffusers */
-        float sample = this->pdel.get();
-        this->pdel.put(input);
+        float sample = input;/*this->pdel.get();
+        this->pdel.put(input);*/
         this->lpf1.process(&sample, &sample, 1);
         sample = this->apf4.process(this->apf3.process(this->apf2.process(this->apf1.process(sample))));
 
@@ -127,7 +127,6 @@ void reverb::set_bandwidth(float bandwidth)
 
     /* Calculate coefficient for 1-st order low-pass IIR (0kHz - 24kHz range) */
     const float fc = bandwidth * config::sampling_frequency_hz * 0.5f;
-
     this->lpf1.calc_coeffs(fc, config::sampling_frequency_hz, true);
 }
 
@@ -142,8 +141,8 @@ void reverb::set_damping(float damping)
 
     /* Calculate coefficient for 1-st order low-pass IIR (0kHz - 24kHz range) */
     const float fc = (1 - damping) * config::sampling_frequency_hz * 0.5f;
-
-    this->lpf1.calc_coeffs(fc, config::sampling_frequency_hz, true);
+    this->lpf2.calc_coeffs(fc, config::sampling_frequency_hz, true);
+    this->lpf3.calc_coeffs(fc, config::sampling_frequency_hz, true);
 }
 
 void reverb::set_decay(float decay)

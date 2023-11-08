@@ -33,20 +33,19 @@ private:
     class allpass
     {
     public:
-        allpass(float delay, float gain) : h{0}, g{gain}, del{delay, config::sampling_frequency_hz} {}
+        allpass(float delay, float gain) : g{gain}, del{delay, config::sampling_frequency_hz} {}
         float process(float in)
         {
             const float d = this->del.get();
-            this->h = in - this->g * d;
-            this->del.put(this->h);
-            return d + this->g * this->h;
+            const float h = in - this->g * d;
+            this->del.put(h);
+            return d + this->g * h;
         }
         float at(float delay)
         {
             return this->del.at(delay);
         }
     private:
-        float h;
         float g;
         libs::adsp::delay_line<libs::adsp::delay_line_intrpl::none> del;
     };
@@ -54,22 +53,21 @@ private:
     class mod_allpass
     {
     public:
-        mod_allpass(float delay, float depth, float gain) : del_tap{delay - depth}, del_depth{depth}, h{0}, g{gain}, osc{libs::adsp::oscillator::shape::sine, config::sampling_frequency_hz}, del{delay, config::sampling_frequency_hz}
+        mod_allpass(float delay, float depth, float gain) : del_tap{delay - depth}, del_depth{depth}, g{gain}, osc{libs::adsp::oscillator::shape::sine, config::sampling_frequency_hz}, del{delay, config::sampling_frequency_hz}
         {
-            this->osc.set_frequency(1.0f);
+            this->osc.set_frequency(0.33f);
         }
         float process(float in)
         {
             this->del.set_delay(this->del_tap + this->osc.generate() * this->del_depth);
             const float d = this->del.get();
-            this->h = in - this->g * d;
-            this->del.put(this->h);
-            return d + this->g * this->h;
+            const float h = in - this->g * d;
+            this->del.put(h);
+            return d + this->g * h;
         }
     private:
         const float del_tap;
         const float del_depth;
-        float h;
         float g;
         libs::adsp::oscillator osc;
         libs::adsp::delay_line<libs::adsp::delay_line_intrpl::allpass> del;
