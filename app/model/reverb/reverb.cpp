@@ -19,6 +19,12 @@ namespace
 {
 __attribute__((section(".sdram")))
 std::array<float, 1 * config::sampling_frequency_hz + 1> predelay_line_memory; // Maximum delay time: 1s
+
+constexpr float excursion = 0.00026881f;
+constexpr float decay_diffusion_1 = 0.7f;
+constexpr float decay_diffusion_2 = 0.5f;
+constexpr float input_diffusion_1 = 0.23f;
+constexpr float input_diffusion_2 = 0.667f;
 }
 
 //-----------------------------------------------------------------------------
@@ -30,21 +36,21 @@ std::array<float, 1 * config::sampling_frequency_hz + 1> predelay_line_memory; /
 
 reverb::reverb(float bandwidth, float damping, float decay) : effect { effect_id::reverb },
 pdel {predelay_line_memory.data(), predelay_line_memory.size(), config::sampling_frequency_hz},
-del1 {0.149625348610598f, config::sampling_frequency_hz},
-del2 {0.124995799872316f, config::sampling_frequency_hz},
-del3 {0.141695507543429f, config::sampling_frequency_hz},
-del4 {0.105372803333221f, config::sampling_frequency_hz},
+del1 {0.14169551f, config::sampling_frequency_hz},
+del2 {0.10628003f, config::sampling_frequency_hz},
+del3 {0.14962535f, config::sampling_frequency_hz},
+del4 {0.12499580f, config::sampling_frequency_hz},
 lpf1 {},
 lpf2 {},
 lpf3 {},
-apf1 {0.00477134504888949f, 0.75f},
-apf2 {0.00359530929740264f, 0.75f},
-apf3 {0.012734787137529f, 0.625f},
-apf4 {0.0093074829474816f, 0.625f},
-apf5 {0.0604818386478949f, 0.5f},
-apf6 {0.089244313027116f, 0.5f},
-mapf1 {0.0225798864285474f + 0.000268808171768422f, 0.000268808171768422f, 0.7f},
-mapf2 {0.0305097274957159f + 0.000268808171768422f, 0.000268808171768422f, 0.7f},
+apf1 {0.00477135f, input_diffusion_1},
+apf2 {0.00359531f, input_diffusion_1},
+apf3 {0.01273479f, input_diffusion_2},
+apf4 {0.00930748f, input_diffusion_2},
+apf5 {0.08924431f, decay_diffusion_2},
+apf6 {0.06048184f, decay_diffusion_2},
+mapf1 {0.03050973f + excursion, excursion, 0.55f, decay_diffusion_1},
+mapf2 {0.02257989f + excursion * 0.63f, excursion * 0.63f, 0.333f, decay_diffusion_1},
 attr {}
 {
     this->set_bandwidth(bandwidth);
@@ -73,12 +79,15 @@ void reverb::process(const dsp_input& in, dsp_output& out)
         sample = this->apf4.process(this->apf3.process(this->apf2.process(this->apf1.process(sample))));
 
         /* 8-figure "tank" */
+
+        /* right loop */
         float mod1 = this->mapf1.process(sample + this->del4.get() * this->attr.ctrl.decay);
         float sample1 = this->del1.get();
         this->del1.put(mod1);
         this->lpf2.process(&sample1, &sample1, 1);
         sample1 = this->apf5.process(sample1);
 
+        /* left loop */
         float mod2 = this->mapf2.process(sample + this->del2.get() * this->attr.ctrl.decay);
         float sample2 = this->del3.get();
         this->del3.put(mod2);
@@ -89,24 +98,26 @@ void reverb::process(const dsp_input& in, dsp_output& out)
         this->del4.put(sample2);
 
         /* Left output */
-        float left_sample = this->del1.at(0.00893787171130002f) +
-                            this->del1.at(0.0999294378549108f) -
-                            this->apf5.at(0.0642787540741239f) +
-                            this->del2.at(0.0670676388562212f) -
-                            this->del3.at(0.0668660327273949f) -
-                            this->apf6.at(0.00628339101508686f) -
-                            this->del4.at(0.0358186888881422f);
+        float left_sample = this->del1.at(0.00893787f) +
+                            this->del1.at(0.09992944f) -
+                            this->apf5.at(0.06427875f) +
+                            this->del2.at(0.06706764f) -
+                            this->del3.at(0.06686603f) -
+                            this->apf6.at(0.00628339f) -
+                            this->del4.at(0.03581869f);
 
         /* Right output */
-        float right_sample = this->del1.at(0.0118611605792816f) +
-                             this->del1.at(0.121870904875508f) -
-                             this->apf5.at(0.0412620543664527f) +
-                             this->del2.at(0.0898155303921239f) -
-                             this->del3.at(0.0709317563253923f) -
-                             this->apf6.at(0.0112563421928027f) -
-                             this->del4.at(0.00406572359799738f);
+        float right_sample = this->del1.at(0.01186116f) +
+                             this->del1.at(0.12187090f) -
+                             this->apf5.at(0.04126205f) +
+                             this->del2.at(0.08981553f) -
+                             this->del3.at(0.07093176f) -
+                             this->apf6.at(0.01125634f) -
+                             this->del4.at(0.00406572f);
 
-        return 0.5f * left_sample + 0.5f * right_sample;
+        /* L/R mix & wet/dry mix */
+        const float lr_mix = 0.5f * (left_sample + right_sample);
+        return 0.3f * lr_mix + 0.5f * input;
     }
     );
 }

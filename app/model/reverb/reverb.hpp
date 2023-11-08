@@ -53,17 +53,17 @@ private:
     class mod_allpass
     {
     public:
-        mod_allpass(float delay, float depth, float gain) : del_tap{delay - depth}, del_depth{depth}, g{gain}, osc{libs::adsp::oscillator::shape::sine, config::sampling_frequency_hz}, del{delay, config::sampling_frequency_hz}
+        mod_allpass(float delay, float depth, float freq, float gain) : del_tap{delay - depth}, del_depth{depth}, g{gain}, osc{libs::adsp::oscillator::shape::sine, config::sampling_frequency_hz}, del{delay, config::sampling_frequency_hz}
         {
-            this->osc.set_frequency(0.33f);
+            this->osc.set_frequency(freq);
         }
         float process(float in)
         {
             this->del.set_delay(this->del_tap + this->osc.generate() * this->del_depth);
             const float d = this->del.get();
-            const float h = in - this->g * d;
+            const float h = in + this->g * d;
             this->del.put(h);
-            return d + this->g * h;
+            return d - this->g * h;
         }
     private:
         const float del_tap;
