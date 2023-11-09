@@ -57,7 +57,7 @@ private:
 class oscillator
 {
 public:
-    enum class shape {sawtooth, square, triangle, sine, noise};
+    enum class shape {sawtooth, square, triangle, sine, cosine, noise};
 
     oscillator(shape shape, uint32_t fs) : fs{fs}
     {
@@ -89,7 +89,7 @@ public:
     {
         /* Unipolar sawtooth counter */
         this->counter %= this->counter_limit;
-        float out = static_cast<float>(this->counter++ % this->counter_limit) / this->counter_limit;
+        float out = static_cast<float>(this->counter++) / this->counter_limit;
 
         if (this->wave_shape == shape::sawtooth)
         {
@@ -106,6 +106,10 @@ public:
         else if (this->wave_shape == shape::sine)
         {
             out = arm_sin_f32(-2 * pi * out + pi);
+        }
+        else if (this->wave_shape == shape::cosine)
+        {
+            out = arm_cos_f32(-2 * pi * out + pi);
         }
         else if (this->wave_shape == shape::noise)
         {
@@ -135,7 +139,7 @@ public:
 
     delay_line(float max_delay, uint32_t fs) : fs{fs}, allocated{true}
     {
-        this->memory_length = std::ceil(fs * max_delay) + 1;
+        this->memory_length = std::ceil(fs * max_delay);
         this->memory = new float [this->memory_length];
         this->write_idx = this->read_idx = 0;
         this->frac = 0;
@@ -237,6 +241,55 @@ public:
 private:
     arm_fir_instance_f32 instance;
     std::array<float, block_size + taps - 1> state;
+};
+
+//-----------------------------------------------------------------------------
+
+enum class basic_iir_type {allpass, lowpass, highpass};
+
+template<basic_iir_type type>
+class basic_iir
+{
+public:
+    basic_iir() : c{0}, h{0} {}
+
+    void calc_coeff(float fc, float fs)
+    {
+        const float wc = fc / fs;
+        const float k = std::tan(pi * wc);
+        this->c = (k - 1) / (k + 1);
+    }
+
+    void set_coeff(float c)
+    {
+        this->c = c;
+    }
+
+    float process(float x)
+    {
+        float y = 0;
+
+        /* Allpass */
+        const float xh = x - this->c * this->h;
+        y = this->c * xh + this->h;
+        this->h = xh;
+
+        if constexpr (type == basic_iir_type::lowpass)
+        {
+            y = 0.5f * (x + y);
+//          y = x * this->c + this->h * (1 - this->c);
+//          this->h = y;
+        }
+        else if constexpr (type == basic_iir_type::highpass)
+        {
+            y = 0.5f * (x - y);
+        }
+
+        return y;
+    }
+private:
+    float c;
+    float h;
 };
 
 //-----------------------------------------------------------------------------

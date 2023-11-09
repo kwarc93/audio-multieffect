@@ -33,7 +33,11 @@ private:
     class allpass
     {
     public:
-        allpass(float delay, float gain) : g{gain}, del{delay, config::sampling_frequency_hz} {}
+        allpass(float delay, float gain) : g{gain}, del{delay, config::sampling_frequency_hz}
+        {
+            this->del.set_delay(delay);
+        }
+
         float process(float in)
         {
             const float d = this->del.get();
@@ -53,9 +57,10 @@ private:
     class mod_allpass
     {
     public:
-        mod_allpass(float delay, float depth, float freq, float gain) : del_tap{delay - depth}, del_depth{depth}, g{gain}, osc{libs::adsp::oscillator::shape::sine, config::sampling_frequency_hz}, del{delay, config::sampling_frequency_hz}
+        mod_allpass(float delay, float depth, float freq, float gain) : del_tap{delay}, del_depth{depth}, g{gain}, osc{libs::adsp::oscillator::shape::sine, config::sampling_frequency_hz}, del{delay + 2 * depth, config::sampling_frequency_hz}
         {
             this->osc.set_frequency(freq);
+            this->del.set_delay(delay);
         }
         float process(float in)
         {
@@ -74,7 +79,7 @@ private:
     };
 
     libs::adsp::delay_line<libs::adsp::delay_line_intrpl::none> pdel, del1, del2, del3, del4;
-    libs::adsp::iir_lowpass lpf1, lpf2, lpf3;
+    libs::adsp::basic_iir<libs::adsp::basic_iir_type::lowpass> lpf1, lpf2, lpf3;
     allpass apf1, apf2, apf3, apf4, apf5, apf6;
     mod_allpass mapf1, mapf2;
 
