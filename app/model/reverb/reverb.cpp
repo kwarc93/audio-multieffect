@@ -101,39 +101,36 @@ void reverb::process(const dsp_input& in, dsp_output& out)
         /* 8-figure "tank" */
 
         /* right loop */
-        float mod1 = this->mapf1.process(sample + this->del4.get() * this->attr.ctrl.decay);
-        float sample1 = this->del1.get();
-        this->del1.put(mod1);
-        sample1 = this->apf5.process(this->lpf2.process(sample1) * this->attr.ctrl.decay);
+        float rl_sample = this->del1.get();
+        this->del1.put(this->mapf1.process(sample + this->del4.get() * this->attr.ctrl.decay));
+        rl_sample = this->apf5.process(this->lpf2.process(rl_sample) * this->attr.ctrl.decay);
 
         /* left loop */
-        float mod2 = this->mapf2.process(sample + this->del2.get() * this->attr.ctrl.decay);
-        float sample2 = this->del3.get();
-        this->del3.put(mod2);
-        sample2 = this->apf6.process(this->lpf3.process(sample2) * this->attr.ctrl.decay);
+        float ll_sample = this->del3.get();
+        this->del3.put(this->mapf2.process(sample + this->del2.get() * this->attr.ctrl.decay));
+        ll_sample = this->apf6.process(this->lpf3.process(ll_sample) * this->attr.ctrl.decay);
 
-        this->del2.put(sample1);
-        this->del4.put(sample2);
+        this->del2.put(rl_sample);
+        this->del4.put(ll_sample);
 
-        /* Left output */
-        float left_sample = this->del1.at(0.00893787f) +
-                            this->del1.at(0.09992944f) -
-                            this->apf5.at(0.06427875f) +
-                            this->del2.at(0.06706764f) -
-                            this->del3.at(0.06686603f) -
-                            this->apf6.at(0.00628339f) -
-                            this->del4.at(0.03581869f);
+        /* Output taps */
+        float left_out = this->del1.at(0.00893787f) +
+                         this->del1.at(0.09992944f) -
+                         this->apf5.at(0.06427875f) +
+                         this->del2.at(0.06706764f) -
+                         this->del3.at(0.06686603f) -
+                         this->apf6.at(0.00628339f) -
+                         this->del4.at(0.03581869f);
 
-        /* Right output */
-        float right_sample = this->del3.at(0.01186116f) +
-                             this->del3.at(0.12187090f) -
-                             this->apf6.at(0.04126205f) +
-                             this->del4.at(0.08981553f) -
-                             this->del1.at(0.07093176f) -
-                             this->apf5.at(0.01125634f) -
-                             this->del2.at(0.00406572f);
+        float right_out = this->del3.at(0.01186116f) +
+                          this->del3.at(0.12187090f) -
+                          this->apf6.at(0.04126205f) +
+                          this->del4.at(0.08981553f) -
+                          this->del1.at(0.07093176f) -
+                          this->apf5.at(0.01125634f) -
+                          this->del2.at(0.00406572f);
 
-        return pr_wet * 0.6f * 0.5f * (left_sample + right_sample) + pr_dry * input;
+        return pr_wet * 0.6f * 0.5f * (left_out + right_out) + pr_dry * input;
     }
     );
 }
@@ -157,14 +154,14 @@ void reverb::set_bandwidth(float bandwidth)
 
 void reverb::set_damping(float damping)
 {
-    damping = 1 - std::clamp(damping, 0.0f, 0.9999f);
+    damping = std::clamp(damping, 0.0f, 0.9999f);
 
     if (this->attr.ctrl.damping == damping)
         return;
 
     this->attr.ctrl.damping = damping;
 
-    const float d = damping * config::sampling_frequency_hz * 0.5f;
+    const float d = (1 - damping) * config::sampling_frequency_hz * 0.5f;
     this->lpf2.calc_coeff(d, config::sampling_frequency_hz);
     this->lpf3.calc_coeff(d, config::sampling_frequency_hz);
 }
