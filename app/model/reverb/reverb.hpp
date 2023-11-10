@@ -18,7 +18,7 @@ namespace mfx
 class reverb : public effect
 {
 public:
-    reverb(float bandwidth = 0.99f, float damping = 0.3f, float decay = 0.86f);
+    reverb(float bandwidth = 0.9995f, float damping = 0.0005f, float decay = 0.5f);
     virtual ~reverb();
 
     void process(const dsp_input &in, dsp_output &out) override;
