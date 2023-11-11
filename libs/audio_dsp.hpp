@@ -82,7 +82,7 @@ public:
         if (this->wave_shape == s)
             return;
 
-        this->wave_shape = wave_shape;
+        this->wave_shape = s;
     }
 
     float generate(void)
