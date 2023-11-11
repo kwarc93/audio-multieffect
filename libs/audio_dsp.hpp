@@ -139,24 +139,24 @@ public:
 
     delay_line(float max_delay, uint32_t fs) : fs{fs}, allocated{true}
     {
-        this->memory_length = std::ceil(fs * max_delay);
+        this->memory_length = this->delay = std::ceil(fs * max_delay);
         this->memory = new float [this->memory_length];
         this->write_idx = this->read_idx = 0;
         this->frac = 0;
         this->aph = 0;
 
-        arm_fill_f32(0, this->memory, this->memory_length);
+        memset(this->memory, 0, sizeof(float) * this->memory_length);
     }
 
     delay_line(float *samples_memory, uint32_t memory_length, uint32_t fs) : fs{fs}, allocated{false}
     {
-        this->memory_length = memory_length;
+        this->memory_length = this->delay = memory_length;
         this->memory = samples_memory;
         this->write_idx = this->read_idx = 0;
         this->frac = 0;
         this->aph = 0;
 
-        arm_fill_f32(0, this->memory, this->memory_length);
+        memset(this->memory, 0, sizeof(float) * this->memory_length);
     }
 
     ~delay_line()
@@ -167,43 +167,76 @@ public:
 
     void set_delay(float d)
     {
-        const float delay_samples = d * this->fs;
-        const uint32_t delay_samples_int = delay_samples;
-
-        this->frac = delay_samples - delay_samples_int;
-        this->read_idx = this->write_idx - delay_samples_int;
+    	d *= this->fs;
+    	if (d < 1)
+    	{
+			/* Zero delay is not allowed */
+        	this->delay = 1;
+        	this->frac = 0;
+    	}
+    	else
+    	{
+			this->delay = d;
+			this->frac = d - this->delay;
+    	}
     }
 
     float get(void)
     {
+    	this->read_idx = this->write_idx - this->delay;
+    	if (static_cast<int32_t>(this->read_idx) < 0)
+    		this->read_idx += this->memory_length;
+
         if constexpr (intrpl == delay_line_intrpl::linear)
         {
-            const float s1 = this->memory[(this->read_idx - 1) % this->memory_length];
-            const float s0 = this->memory[this->read_idx++ % this->memory_length];
+        	int32_t intrpl_idx = this->read_idx - 1;
+        	if (intrpl_idx < 0)
+        		intrpl_idx += this->memory_length;
+
+            const float s1 = this->memory[intrpl_idx];
+            const float s0 = this->memory[this->read_idx];
             return s0 + this->frac * (s1 - s0);
         }
         else if constexpr (intrpl == delay_line_intrpl::allpass)
         {
-            const float s1 = this->memory[(this->read_idx - 1) % this->memory_length];
-            const float s0 = this->memory[this->read_idx++ % this->memory_length];
+        	int32_t intrpl_idx = this->read_idx - 1;
+        	if (intrpl_idx < 0)
+        		intrpl_idx += this->memory_length;
+
+            const float s1 = this->memory[intrpl_idx];
+            const float s0 = this->memory[this->read_idx];
             const float d = (1 - this->frac) / (1 + this->frac); // Or just '(1 - this->frac)'
             return this->aph = s1 + d * (s0 - this->aph);
         }
         else
         {
-            return this->memory[this->read_idx++ % this->memory_length];
+            return this->memory[this->read_idx];
         }
-    }
-
-    float at(float d)
-    {
-        const uint32_t read_idx = this->write_idx - static_cast<uint32_t>(d * this->fs);
-        return this->memory[read_idx % this->memory_length];
     }
 
     void put(float sample)
     {
-        this->memory[++this->write_idx % this->memory_length] = sample;
+        this->memory[this->write_idx++] = sample;
+        if (this->write_idx == this->memory_length)
+            this->write_idx = 0;
+    }
+
+    float at(float d)
+    {
+        int32_t read_idx = this->write_idx - std::lround(d * this->fs);
+        if (read_idx < 0)
+        	read_idx += this->memory_length;
+
+        return this->memory[read_idx];
+    }
+
+    float at(uint32_t d)
+    {
+        int32_t read_idx = this->write_idx - d;
+        if (read_idx < 0)
+        	read_idx += this->memory_length;
+
+        return this->memory[read_idx];
     }
 private:
     const uint32_t fs;
@@ -212,6 +245,7 @@ private:
     float *memory;
     uint32_t memory_length;
     uint32_t write_idx, read_idx;
+    uint32_t delay;
     float frac;
     float aph;
 };
@@ -277,8 +311,6 @@ public:
         if constexpr (type == basic_iir_type::lowpass)
         {
             y = 0.5f * (x + y);
-//          y = x * this->c + this->h * (1 - this->c);
-//          this->h = y;
         }
         else if constexpr (type == basic_iir_type::highpass)
         {

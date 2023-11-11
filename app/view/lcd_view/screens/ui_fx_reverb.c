@@ -251,6 +251,7 @@ void ui_fx_reverb_screen_init(void)
     lv_obj_set_style_text_font(ui_lbl_reverb_decay, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_pnl_reverb_mode = lv_obj_create(ui_pnl_reverb_content);
+    lv_obj_add_flag(ui_pnl_reverb_mode, LV_OBJ_FLAG_HIDDEN);
     lv_obj_set_width(ui_pnl_reverb_mode, lv_pct(45));
     lv_obj_set_height(ui_pnl_reverb_mode, lv_pct(14));
     lv_obj_set_x(ui_pnl_reverb_mode, 0);

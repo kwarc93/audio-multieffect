@@ -43,21 +43,21 @@ constexpr float input_diffusion_1 = 0.75f;
 constexpr float input_diffusion_2 = 0.625f;
 
 constexpr float lr_out_scale = 0.6f;
-constexpr float left_out_del1_tap1 = 0.00893787f;
-constexpr float left_out_del1_tap2 = 0.09992944f;
-constexpr float left_out_apf5_tap = 0.06427875f;
-constexpr float left_out_del2_tap = 0.06706764f;
-constexpr float left_out_del3_tap = 0.06686603f;
-constexpr float left_out_apf6_tap = 0.00628339f;
-constexpr float left_out_del4_tap = 0.03581869f;
+constexpr uint32_t left_out_del1_tap1 = config::sampling_frequency_hz * 0.00893787f;
+constexpr uint32_t left_out_del1_tap2 = config::sampling_frequency_hz * 0.09992944f;
+constexpr uint32_t left_out_apf5_tap =  config::sampling_frequency_hz * 0.06427875f;
+constexpr uint32_t left_out_del2_tap =  config::sampling_frequency_hz * 0.06706764f;
+constexpr uint32_t left_out_del3_tap =  config::sampling_frequency_hz * 0.06686603f;
+constexpr uint32_t left_out_apf6_tap =  config::sampling_frequency_hz * 0.00628339f;
+constexpr uint32_t left_out_del4_tap =  config::sampling_frequency_hz * 0.03581869f;
 
-constexpr float right_out_del3_tap1 = 0.01186116f;
-constexpr float right_out_del3_tap2 = 0.12187090f;
-constexpr float right_out_apf6_tap = 0.04126205f;
-constexpr float right_out_del4_tap = 0.08981553f;
-constexpr float right_out_del1_tap = 0.07093176f;
-constexpr float right_out_apf5_tap = 0.01125634f;
-constexpr float right_out_del2_tap = 0.00406572f;
+constexpr uint32_t right_out_del3_tap1 = config::sampling_frequency_hz * 0.01186116f;
+constexpr uint32_t right_out_del3_tap2 = config::sampling_frequency_hz * 0.12187090f;
+constexpr uint32_t right_out_apf6_tap =  config::sampling_frequency_hz * 0.04126205f;
+constexpr uint32_t right_out_del4_tap =  config::sampling_frequency_hz * 0.08981553f;
+constexpr uint32_t right_out_del1_tap =  config::sampling_frequency_hz * 0.07093176f;
+constexpr uint32_t right_out_apf5_tap =  config::sampling_frequency_hz * 0.01125634f;
+constexpr uint32_t right_out_del2_tap =  config::sampling_frequency_hz * 0.00406572f;
 
 /* Large delay lines are placed in SDRAM to save internal RAM */
 __attribute__((section(".sdram")))

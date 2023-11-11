@@ -45,7 +45,8 @@ private:
             this->del.put(h);
             return d + this->g * h;
         }
-        float at(float delay)
+
+        float at(uint32_t delay)
         {
             return this->del.at(delay);
         }
@@ -57,11 +58,17 @@ private:
     class mod_allpass
     {
     public:
-        mod_allpass(float delay, float depth, float freq, float gain) : del_tap{delay}, del_depth{depth}, g{gain}, osc{libs::adsp::oscillator::shape::sine, config::sampling_frequency_hz}, del{delay + 2 * depth, config::sampling_frequency_hz}
+        mod_allpass(float delay, float depth, float freq, float gain) :
+        del_tap {delay},
+        del_depth {depth},
+        g {gain},
+        osc {libs::adsp::oscillator::shape::sine, config::sampling_frequency_hz},
+        del {delay + depth, config::sampling_frequency_hz}
         {
             this->osc.set_frequency(freq);
             this->del.set_delay(delay);
         }
+
         float process(float in)
         {
             this->del.set_delay(this->del_tap + this->osc.generate() * this->del_depth);

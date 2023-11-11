@@ -95,12 +95,12 @@ void controller::event_handler(const events::led_toggle &e)
 
 void controller::event_handler(const events::button_state_changed &e)
 {
-    printf("Button %s\n", e.state ? "pressed" : "released");
+    printf("Button %s\r\n", e.state ? "pressed" : "released");
 }
 
 void controller::event_handler(const events::effect_processor_load &e)
 {
-    printf("Effect processor load: %u%%\n", e.load);
+    printf("Effect processor load: %u%%\r\n", e.load);
 }
 
 void controller::event_handler(const events::load_preset &e)

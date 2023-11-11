@@ -34,7 +34,7 @@ int main(void)
 {
     hal::system::init();
 
-    printf("System started\n");
+    printf("System started\r\n");
 
     osKernelInitialize();
     osThreadNew(init_thread, NULL, NULL);
