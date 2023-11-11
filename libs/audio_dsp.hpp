@@ -141,7 +141,7 @@ public:
     {
         this->memory_length = this->delay = std::ceil(fs * max_delay);
         this->memory = new float [this->memory_length];
-        this->write_idx = this->read_idx = 0;
+        this->write_idx = 0;
         this->frac = 0;
         this->aph = 0;
 
@@ -152,7 +152,7 @@ public:
     {
         this->memory_length = this->delay = memory_length;
         this->memory = samples_memory;
-        this->write_idx = this->read_idx = 0;
+        this->write_idx = 0;
         this->frac = 0;
         this->aph = 0;
 
@@ -183,34 +183,34 @@ public:
 
     float get(void)
     {
-    	this->read_idx = this->write_idx - this->delay;
-    	if (static_cast<int32_t>(this->read_idx) < 0)
-    		this->read_idx += this->memory_length;
+    	int32_t read_idx = this->write_idx - this->delay;
+    	if (read_idx < 0)
+    		read_idx += this->memory_length;
 
         if constexpr (intrpl == delay_line_intrpl::linear)
         {
-        	int32_t intrpl_idx = this->read_idx - 1;
+        	int32_t intrpl_idx = read_idx - 1;
         	if (intrpl_idx < 0)
         		intrpl_idx += this->memory_length;
 
             const float s1 = this->memory[intrpl_idx];
-            const float s0 = this->memory[this->read_idx];
+            const float s0 = this->memory[read_idx];
             return s0 + this->frac * (s1 - s0);
         }
         else if constexpr (intrpl == delay_line_intrpl::allpass)
         {
-        	int32_t intrpl_idx = this->read_idx - 1;
+        	int32_t intrpl_idx = read_idx - 1;
         	if (intrpl_idx < 0)
         		intrpl_idx += this->memory_length;
 
             const float s1 = this->memory[intrpl_idx];
-            const float s0 = this->memory[this->read_idx];
+            const float s0 = this->memory[read_idx];
             const float d = (1 - this->frac) / (1 + this->frac); // Or just '(1 - this->frac)'
             return this->aph = s1 + d * (s0 - this->aph);
         }
         else
         {
-            return this->memory[this->read_idx];
+            return this->memory[read_idx];
         }
     }
 
@@ -244,7 +244,7 @@ private:
 
     float *memory;
     uint32_t memory_length;
-    uint32_t write_idx, read_idx;
+    uint32_t write_idx;
     uint32_t delay;
     float frac;
     float aph;
