@@ -30,65 +30,11 @@ public:
     void set_mode(reverb_attr::controls::mode_type mode);
 
 private:
-    class allpass
-    {
-    public:
-        allpass(float delay, float gain) : g{gain}, del{delay, config::sampling_frequency_hz}
-        {
-            this->del.set_delay(delay);
-        }
-
-        float process(float in)
-        {
-            const float d = this->del.get();
-            const float h = in - this->g * d;
-            this->del.put(h);
-            return d + this->g * h;
-        }
-
-        float at(uint32_t delay)
-        {
-            return this->del.at(delay);
-        }
-    private:
-        float g;
-        libs::adsp::delay_line<libs::adsp::delay_line_intrpl::none> del;
-    };
-
-    class mod_allpass
-    {
-    public:
-        mod_allpass(float delay, float depth, float freq, float gain) :
-        del_tap {delay},
-        del_depth {depth},
-        g {gain},
-        osc {libs::adsp::oscillator::shape::sine, config::sampling_frequency_hz},
-        del {delay + depth, config::sampling_frequency_hz}
-        {
-            this->osc.set_frequency(freq);
-            this->del.set_delay(delay);
-        }
-
-        float process(float in)
-        {
-            this->del.set_delay(this->del_tap + this->osc.generate() * this->del_depth);
-            const float d = this->del.get();
-            const float h = in + this->g * d;
-            this->del.put(h);
-            return d - this->g * h;
-        }
-    private:
-        const float del_tap;
-        const float del_depth;
-        float g;
-        libs::adsp::oscillator osc;
-        libs::adsp::delay_line<libs::adsp::delay_line_intrpl::allpass> del;
-    };
-
-    libs::adsp::delay_line<libs::adsp::delay_line_intrpl::none> pdel, del1, del2, del3, del4;
+    libs::adsp::delay_line pdel, del1, del2, del3, del4;
     libs::adsp::basic_iir<libs::adsp::basic_iir_type::lowpass> lpf1, lpf2, lpf3;
-    allpass apf1, apf2, apf3, apf4, apf5, apf6;
-    mod_allpass mapf1, mapf2;
+    libs::adsp::unicomb apf1, apf2, apf3, apf4, apf5, apf6;
+    libs::adsp::unicomb mapf1, mapf2;
+    libs::adsp::oscillator lfo1, lfo2;
 
     reverb_attr attr;
 };

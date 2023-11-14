@@ -90,21 +90,21 @@ del1 { del1_line_memory.data(), del1_line_memory.size(), config::sampling_freque
 del2 { del2_line_memory.data(), del2_line_memory.size(), config::sampling_frequency_hz },
 del3 { del3_line_memory.data(), del3_line_memory.size(), config::sampling_frequency_hz },
 del4 { del4_line_memory.data(), del4_line_memory.size(), config::sampling_frequency_hz },
-apf1 { apf1_del_len, input_diffusion_1 },
-apf2 { apf2_del_len, input_diffusion_1 },
-apf3 { apf3_del_len, input_diffusion_2 },
-apf4 { apf4_del_len, input_diffusion_2 },
-apf5 { apf5_del_len, decay_diffusion_2 },
-apf6 { apf6_del_len, decay_diffusion_2 },
-mapf1 { mapf1_del_len, mapf_excursion, 0.55f, decay_diffusion_1 },
-mapf2 { mapf2_del_len, mapf_excursion, 0.333f, decay_diffusion_1 },
+apf1 { input_diffusion_1, -input_diffusion_1, 1, apf1_del_len, config::sampling_frequency_hz },
+apf2 { input_diffusion_1, -input_diffusion_1, 1, apf2_del_len, config::sampling_frequency_hz },
+apf3 { input_diffusion_2, -input_diffusion_2, 1, apf3_del_len, config::sampling_frequency_hz },
+apf4 { input_diffusion_2, -input_diffusion_2, 1, apf4_del_len, config::sampling_frequency_hz },
+apf5 { decay_diffusion_2, -decay_diffusion_2, 1, apf5_del_len, config::sampling_frequency_hz },
+apf6 { decay_diffusion_2, -decay_diffusion_2, 1, apf6_del_len, config::sampling_frequency_hz },
+mapf1 { -decay_diffusion_1, decay_diffusion_1, 1, mapf1_del_len + mapf_excursion, config::sampling_frequency_hz },
+mapf2 { -decay_diffusion_1, decay_diffusion_1, 1, mapf2_del_len + mapf_excursion, config::sampling_frequency_hz },
+lfo1 { libs::adsp::oscillator::shape::sine, config::sampling_frequency_hz },
+lfo2 { libs::adsp::oscillator::shape::cosine, config::sampling_frequency_hz },
 attr {}
 {
     this->pdel.set_delay(0);
-    this->del1.set_delay(del1_len);
-    this->del2.set_delay(del2_len);
-    this->del3.set_delay(del3_len);
-    this->del4.set_delay(del4_len);
+    this->lfo1.set_frequency(0.555f);
+    this->lfo2.set_frequency(0.333f);
 
     this->set_bandwidth(bandwidth);
     this->set_damping(damping);
@@ -132,13 +132,15 @@ void reverb::process(const dsp_input& in, dsp_output& out)
         /* 8-figure "tank" */
 
         /* right loop */
+        this->mapf1.set_delay(mapf1_del_len + this->lfo1.generate() * mapf_excursion);
         float rl_sample = this->del1.get();
-        this->del1.put(this->mapf1.process(sample + this->del4.get() * this->attr.ctrl.decay));
+        this->del1.put(this->mapf1.process<false, true, 0>(sample + this->del4.get() * this->attr.ctrl.decay));
         rl_sample = this->apf5.process(this->lpf2.process(rl_sample) * this->attr.ctrl.decay);
 
         /* left loop */
+        this->mapf2.set_delay(mapf2_del_len + this->lfo2.generate() * mapf_excursion);
         float ll_sample = this->del3.get();
-        this->del3.put(this->mapf2.process(sample + this->del2.get() * this->attr.ctrl.decay));
+        this->del3.put(this->mapf2.process<false, true, 0>(sample + this->del2.get() * this->attr.ctrl.decay));
         ll_sample = this->apf6.process(this->lpf3.process(ll_sample) * this->attr.ctrl.decay);
 
         this->del2.put(rl_sample);

@@ -29,7 +29,8 @@ std::array<float, 1 * config::sampling_frequency_hz + 1> delay_line_memory; // M
 
 
 echo::echo(float blur, float time, float feedback, echo_attr::controls::mode_type mode) : effect { effect_id::echo },
-delay_line{delay_line_memory.data(), delay_line_memory.size(), config::sampling_frequency_hz}, attr {}
+unicomb { 0, 0, 0, delay_line_memory.data(), delay_line_memory.size(), config::sampling_frequency_hz },
+attr {}
 {
     this->set_mode(mode);
     this->set_blur(blur);
@@ -47,13 +48,7 @@ void echo::process(const dsp_input& in, dsp_output& out)
     std::transform(in.begin(), in.end(), out.begin(),
     [this](auto input)
     {
-        /* Universal comb filter with LP in feedback */
-        const float in_d = this->delay_line.get();
-        float in_df = in_d;
-        if (this->attr.ctrl.blur > 0) this->iir_lp.process(&in_d, &in_df, 1);
-        const float in_h = input + this->feedback * in_df;
-        this->delay_line.put(in_h);
-        return this->feedforward * in_df + this->blend * in_h;
+        return this->unicomb.process<true>(input);
     }
     );
 }
@@ -72,11 +67,8 @@ void echo::set_blur(float blur)
 
     this->attr.ctrl.blur = blur;
 
-    /* Calculate coefficient for 1-st order low-pass IIR (2kHz - 8kHz range) */
     const float fc = 2000 + (1 - blur) * 6000;
-
-    this->iir_lp.calc_coeffs(fc, config::sampling_frequency_hz, true);
-
+    this->unicomb.set_lowpass(fc);
 }
 
 void echo::set_time(float time)
@@ -88,7 +80,7 @@ void echo::set_time(float time)
 
     this->attr.ctrl.time = time;
 
-    this->delay_line.set_delay(this->attr.ctrl.time);
+    this->unicomb.set_delay(this->attr.ctrl.time);
 }
 
 void echo::set_feedback(float feedback)
@@ -102,12 +94,12 @@ void echo::set_feedback(float feedback)
 
     if (this->attr.ctrl.mode == echo_attr::controls::mode_type::delay)
     {
-        this->feedforward = this->attr.ctrl.feedback;
+        this->unicomb.set_feedforward(this->attr.ctrl.feedback);
     }
     else if (this->attr.ctrl.mode == echo_attr::controls::mode_type::echo)
     {
-        this->feedback = this->attr.ctrl.feedback;
-        this->blend = std::sqrt(1 - this->attr.ctrl.feedback * this->attr.ctrl.feedback); // L2 normalization
+        this->unicomb.set_feedback(this->attr.ctrl.feedback);
+        this->unicomb.normalize();
     }
 }
 
@@ -116,19 +108,19 @@ void echo::set_mode(echo_attr::controls::mode_type mode)
     if (this->attr.ctrl.mode == mode)
         return;
 
+    this->attr.ctrl.mode = mode;
+
     if (mode == echo_attr::controls::mode_type::delay)
     {
-        this->feedback = 0;
-        this->feedforward = this->attr.ctrl.feedback;
-        this->blend = 1;
+        this->unicomb.set_feedback(0);
+        this->unicomb.set_feedforward(this->attr.ctrl.feedback);
+        this->unicomb.set_blend(1);
     }
     else if (mode == echo_attr::controls::mode_type::echo)
     {
-        this->feedback = this->attr.ctrl.feedback;
-        this->feedforward = 0;
-        this->blend = std::sqrt(1 - this->attr.ctrl.feedback * this->attr.ctrl.feedback); // L2 normalization
+        this->unicomb.set_feedback(this->attr.ctrl.feedback);
+        this->unicomb.set_feedforward(0);
+        this->unicomb.normalize();
     }
-
-    this->attr.ctrl.mode = mode;
 }
 

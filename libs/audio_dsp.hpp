@@ -130,9 +130,6 @@ private:
 
 //-----------------------------------------------------------------------------
 
-enum class delay_line_intrpl {none, linear, allpass};
-
-template<delay_line_intrpl intrpl = delay_line_intrpl::none>
 class delay_line
 {
 public:
@@ -167,51 +164,39 @@ public:
 
     void set_delay(float d)
     {
-    	d *= this->fs;
-    	if (d < 1)
-    	{
-			/* Zero delay is not allowed */
-        	this->delay = 1;
-        	this->frac = 0;
-    	}
-    	else
-    	{
-			this->delay = d;
-			this->frac = d - this->delay;
-    	}
-    }
-
-    float get(void)
-    {
-    	int32_t read_idx = this->write_idx - this->delay;
-    	if (read_idx < 0)
-    		read_idx += this->memory_length;
-
-        if constexpr (intrpl == delay_line_intrpl::linear)
+        d *= this->fs;
+        if (d < 1)
         {
-        	int32_t intrpl_idx = read_idx - 1;
-        	if (intrpl_idx < 0)
-        		intrpl_idx += this->memory_length;
-
-            const float s1 = this->memory[intrpl_idx];
-            const float s0 = this->memory[read_idx];
-            return s0 + this->frac * (s1 - s0);
-        }
-        else if constexpr (intrpl == delay_line_intrpl::allpass)
-        {
-        	int32_t intrpl_idx = read_idx - 1;
-        	if (intrpl_idx < 0)
-        		intrpl_idx += this->memory_length;
-
-            const float s1 = this->memory[intrpl_idx];
-            const float s0 = this->memory[read_idx];
-            const float d = (1 - this->frac) / (1 + this->frac); // Or just '(1 - this->frac)'
-            return this->aph = s1 + d * (s0 - this->aph);
+            /* Zero delay is not allowed */
+            this->delay = 1;
+            this->frac = 0;
         }
         else
         {
-            return this->memory[read_idx];
+            this->delay = d;
+            this->frac = d - this->delay;
         }
+    }
+
+    template<bool interpolate = false>
+    float get(void)
+    {
+        const float s0 = this->at(this->delay);
+        if constexpr (!interpolate) return s0;
+
+        /* Allpass interpolation */
+        const float s1 = this->at(this->delay + 1);
+        const float d = (1 - this->frac) / (1 + this->frac); // Or just '(1 - this->frac)'
+        return this->aph = s1 + d * (s0 - this->aph);
+    }
+
+    float at(uint32_t d)
+    {
+        int32_t read_idx = this->write_idx - d;
+        if (read_idx < 0)
+            read_idx += this->memory_length;
+
+        return this->memory[read_idx];
     }
 
     void put(float sample)
@@ -219,24 +204,6 @@ public:
         this->memory[this->write_idx++] = sample;
         if (this->write_idx == this->memory_length)
             this->write_idx = 0;
-    }
-
-    float at(float d)
-    {
-        int32_t read_idx = this->write_idx - std::lround(d * this->fs);
-        if (read_idx < 0)
-        	read_idx += this->memory_length;
-
-        return this->memory[read_idx];
-    }
-
-    float at(uint32_t d)
-    {
-        int32_t read_idx = this->write_idx - d;
-        if (read_idx < 0)
-        	read_idx += this->memory_length;
-
-        return this->memory[read_idx];
     }
 private:
     const uint32_t fs;
@@ -520,6 +487,81 @@ private:
     std::array<float, 2 * fft_size> ir_fft;
     std::array<float, 2 * fft_size> input_fft;
     std::array<float, fft_size> input;
+};
+
+//-----------------------------------------------------------------------------
+
+/* Universal comb filter with optional lowpass filter, delay tap, delay modulation & interpolation */
+class unicomb
+{
+public:
+    unicomb(float bl, float fb, float ff, float delay, uint32_t fs) :
+    fs{fs}, bl{bl}, fb{fb}, ff{ff}, delay{delay, fs}
+    {
+        this->normalize();
+    }
+
+    unicomb(float bl, float fb, float ff, float *delay_line_mem, uint32_t del_line_len, uint32_t fs) :
+    fs{fs}, bl{bl}, fb{fb}, ff{ff}, delay{delay_line_mem, del_line_len, fs}
+    {
+        this->normalize();
+    }
+
+    void set_blend(float bl)
+    {
+        this->bl = bl;
+    }
+
+    void set_feedback(float fb)
+    {
+        this->fb = fb;
+    }
+
+    void set_feedforward(float ff)
+    {
+        this->ff = ff;
+    }
+
+    void set_delay(float d)
+    {
+        this->delay.set_delay(d);
+    }
+
+    void set_lowpass(float fc)
+    {
+        this->lowpass.calc_coeff(fc, this->fs);
+    }
+
+    float at(uint32_t d)
+    {
+        return this->delay.at(d);
+    }
+
+    void normalize(void)
+    {
+        /* L2 normalization (in case when unicomb acts as IIR, needs update after coeffs change) */
+        if (this->fb > 0 && this->ff == 0)
+            this->bl = std::sqrt(1 - this->fb * this->fb);
+    }
+
+    template<bool lowpass_enabled = false, bool intrpl_enabled = false, uint32_t delay_tap = 0>
+    float process(float in)
+    {
+        const float del = this->delay.get<intrpl_enabled>();
+        float tap = del;
+        if constexpr (delay_tap > 0) tap = this->delay.at(delay_tap);
+        if constexpr (lowpass_enabled) tap = this->lowpass.process(tap);
+        const float h = in + this->fb * tap;
+        this->delay.put(h);
+        return this->ff * del + this->bl * h;
+    }
+
+private:
+    const uint32_t fs;
+
+    float bl, fb, ff;
+    delay_line delay;
+    basic_iir<basic_iir_type::lowpass> lowpass;
 };
 
 }

@@ -31,10 +31,8 @@ public:
     void set_mode(chorus_attr::controls::mode_type mode);
 
 private:
-    libs::adsp::oscillator lfo;
-    libs::adsp::oscillator lfo2;
-    libs::adsp::delay_line<libs::adsp::delay_line_intrpl::allpass> delay_line;
-    libs::adsp::delay_line<libs::adsp::delay_line_intrpl::allpass> delay_line2;
+    libs::adsp::oscillator lfo1, lfo2;
+    libs::adsp::unicomb unicomb1, unicomb2;
 
     chorus_attr attr;
 };

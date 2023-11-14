@@ -30,12 +30,7 @@ public:
     void set_mode(echo_attr::controls::mode_type mode);
 
 private:
-    float blend;
-    float feedforward;
-    float feedback;
-
-    libs::adsp::iir_lowpass iir_lp;
-    libs::adsp::delay_line<libs::adsp::delay_line_intrpl::none> delay_line;
+    libs::adsp::unicomb unicomb;
 
     echo_attr attr;
 };
