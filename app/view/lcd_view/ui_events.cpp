@@ -37,8 +37,8 @@ void notify_tremolo_controls_changed(void)
         static_cast<float>(lv_arc_get_value(rate_knob)),
         static_cast<float>(lv_arc_get_value(depth_knob)) * 0.01f,
         lv_obj_has_state(shape_sw, LV_STATE_CHECKED) ?
-        mfx::tremolo_attr::controls::shape_type::sine :
-        mfx::tremolo_attr::controls::shape_type::triangle
+        mfx::tremolo_attr::controls::shape_type::square :
+        mfx::tremolo_attr::controls::shape_type::sine
     };
 
     view->notify(events::effect_controls_changed {ctrl});

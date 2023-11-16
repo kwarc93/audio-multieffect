@@ -19,7 +19,7 @@ namespace
 {
 
 /* Delay lines sizes, delay taps & other constants (according to J. Dattorro's reverb) */
-constexpr float pdel_len = 1.0f;
+constexpr float pdel_len = 0.023f;
 
 constexpr float del1_len = 0.14169551f;
 constexpr float del2_len = 0.10628003f;
@@ -102,7 +102,6 @@ lfo1 { libs::adsp::oscillator::shape::sine, config::sampling_frequency_hz },
 lfo2 { libs::adsp::oscillator::shape::cosine, config::sampling_frequency_hz },
 attr {}
 {
-    this->pdel.set_delay(0);
     this->lfo1.set_frequency(0.555f);
     this->lfo2.set_frequency(0.333f);
 

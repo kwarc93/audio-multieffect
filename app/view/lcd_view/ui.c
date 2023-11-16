@@ -65,7 +65,7 @@ lv_obj_t * ui_pnl_trem_shape;
 lv_obj_t * ui_lbl_trem_shape;
 void ui_event_sw_tremolo_shape(lv_event_t * e);
 lv_obj_t * ui_sw_trem_shape;
-lv_obj_t * ui_lbl_trem_triangle;
+lv_obj_t * ui_lbl_trem_square;
 lv_obj_t * ui_lbl_trem_sine;
 
 // SCREEN: ui_fx_echo
@@ -348,7 +348,7 @@ void ui_event_sw_tremolo_shape(lv_event_t * e)
     if(event_code == LV_EVENT_VALUE_CHANGED) {
         ui_tremolo_shape_changed(e);
         _ui_state_modify(ui_lbl_trem_sine, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
-        _ui_state_modify(ui_lbl_trem_triangle, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
+        _ui_state_modify(ui_lbl_trem_square, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
     }
 }
 void ui_event_fx_echo(lv_event_t * e)

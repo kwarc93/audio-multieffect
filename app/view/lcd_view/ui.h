@@ -73,7 +73,7 @@ extern lv_obj_t * ui_pnl_trem_shape;
 extern lv_obj_t * ui_lbl_trem_shape;
 void ui_event_sw_tremolo_shape(lv_event_t * e);
 extern lv_obj_t * ui_sw_trem_shape;
-extern lv_obj_t * ui_lbl_trem_triangle;
+extern lv_obj_t * ui_lbl_trem_square;
 extern lv_obj_t * ui_lbl_trem_sine;
 // SCREEN: ui_fx_echo
 void ui_fx_echo_screen_init(void);

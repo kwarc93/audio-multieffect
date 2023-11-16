@@ -140,17 +140,17 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const tremolo_attr &spe
     lv_arc_set_value(ui_arc_trem_rate, map_range<float>(1, 20, lv_arc_get_min_value(ui_arc_trem_rate), lv_arc_get_max_value(ui_arc_trem_rate), specific.ctrl.rate));
     lv_arc_set_value(ui_arc_trem_depth, map_range<float>(0, 0.5, lv_arc_get_min_value(ui_arc_trem_depth), lv_arc_get_max_value(ui_arc_trem_depth), specific.ctrl.depth));
 
-    if (specific.ctrl.shape == tremolo_attr::controls::shape_type::triangle)
+    if (specific.ctrl.shape == tremolo_attr::controls::shape_type::sine)
     {
         lv_obj_clear_state(ui_sw_trem_shape, LV_STATE_CHECKED);
-        lv_obj_clear_state(ui_lbl_trem_sine, LV_STATE_CHECKED);
-        lv_obj_add_state(ui_lbl_trem_triangle, LV_STATE_CHECKED);
+        lv_obj_clear_state(ui_lbl_trem_square, LV_STATE_CHECKED);
+        lv_obj_add_state(ui_lbl_trem_sine, LV_STATE_CHECKED);
     }
     else
     {
         lv_obj_add_state(ui_sw_trem_shape, LV_STATE_CHECKED);
-        lv_obj_add_state(ui_lbl_trem_sine, LV_STATE_CHECKED);
-        lv_obj_clear_state(ui_lbl_trem_triangle, LV_STATE_CHECKED);
+        lv_obj_add_state(ui_lbl_trem_square, LV_STATE_CHECKED);
+        lv_obj_clear_state(ui_lbl_trem_sine, LV_STATE_CHECKED);
     }
 }
 

@@ -283,7 +283,7 @@ effect* effect_processor::find_effect(effect_id id)
 
 void effect_processor::audio_capture_cb(const hal::audio_devices::codec::input_sample_t *input, uint16_t length)
 {
-    /* WARINING: This method could have been called from interrupt */
+    /* WARNING: This method could have been called from interrupt */
 
     // If D-Cache is enabled, it must be cleaned/invalidated for buffers used by DMA.
     // Moreover, functions 'SCB_*_by_Addr()' require address alignment of 32 bytes.
@@ -311,7 +311,7 @@ void effect_processor::audio_capture_cb(const hal::audio_devices::codec::input_s
 
 void effect_processor::audio_play_cb(uint16_t sample_index)
 {
-    /* WARINING: This method could have been called from interrupt */
+    /* WARNING: This method could have been called from interrupt */
 
     /* Set current write index for output buffer (double buffering) */
     if (sample_index == this->audio_output.buffer.size())

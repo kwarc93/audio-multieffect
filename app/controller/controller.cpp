@@ -65,14 +65,16 @@ void controller::dispatch(const event& e)
 
 void controller::update(const effect_processor_events::outgoing &e)
 {
-    /* WARINING: This method could have been called from another thread */
+    /* WARNING: This method could have been called from another thread */
+    /* FIXME: Forward this event dispatching to the controller thread (to avoid race conditions) */
 
     std::visit([this](auto &&e) { this->model_event_handler(e); }, e);
 }
 
 void controller::update(const lcd_view_events::outgoing &e)
 {
-    /* WARINING: This method could have been called from another thread */
+    /* WARNING: This method could have been called from another thread */
+    /* FIXME: Forward this event dispatching to the controller thread (to avoid race conditions) */
 
     std::visit([this](auto &&e) { this->view_event_handler(e); }, e);
 }

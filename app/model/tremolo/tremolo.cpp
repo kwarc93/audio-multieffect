@@ -29,7 +29,8 @@ namespace
 /* public */
 
 tremolo::tremolo(float rate, float depth, tremolo_attr::controls::shape_type shape) : effect { effect_id::tremolo },
-lfo { libs::adsp::oscillator::shape::sine, config::sampling_frequency_hz }, attr {}
+lfo { libs::adsp::oscillator::shape::sine, config::sampling_frequency_hz },
+attr {}
 {
     this->set_shape(shape);
     this->set_depth(depth);
@@ -47,7 +48,10 @@ void tremolo::process(const dsp_input& in, dsp_output& out)
     [this](auto input)
     {
         /* Modulate output signal: y[n] = x[n] * ((1 - d) + d * m[n]) */
-        return input * ((1.0f - this->attr.ctrl.depth) + this->attr.ctrl.depth * this->lfo.generate());
+        float mod = this->lfo.generate();
+        if (this->attr.ctrl.shape == tremolo_attr::controls::shape_type::square)
+            mod = this->lpf.process(mod);
+        return input * ((1.0f - this->attr.ctrl.depth) + this->attr.ctrl.depth * mod);
     }
     );
 }
@@ -64,7 +68,7 @@ void tremolo::set_depth(float depth)
     if (this->attr.ctrl.depth == depth)
         return;
 
-    this->attr.ctrl.depth = std::clamp(depth, 0.0f, 0.5f);
+    this->attr.ctrl.depth = depth;
 }
 
 void tremolo::set_rate(float rate)
@@ -74,8 +78,9 @@ void tremolo::set_rate(float rate)
     if (this->attr.ctrl.rate == rate)
         return;
 
-    this->attr.ctrl.rate = std::clamp(rate, 1.0f, 20.0f);
-    this->lfo.set_frequency(this->attr.ctrl.rate);
+    this->attr.ctrl.rate = rate;
+    this->lfo.set_frequency(rate);
+    this->lpf.calc_coeff(3 * rate, config::sampling_frequency_hz);
 }
 
 void tremolo::set_shape(tremolo_attr::controls::shape_type shape)
@@ -90,8 +95,8 @@ void tremolo::set_shape(tremolo_attr::controls::shape_type shape)
     case tremolo_attr::controls::shape_type::sine:
         this->lfo.set_shape(libs::adsp::oscillator::shape::sine);
         break;
-    case tremolo_attr::controls::shape_type::triangle:
-        this->lfo.set_shape(libs::adsp::oscillator::shape::triangle);
+    case tremolo_attr::controls::shape_type::square:
+        this->lfo.set_shape(libs::adsp::oscillator::shape::square);
         break;
     default:
         break;

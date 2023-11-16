@@ -58,7 +58,7 @@ struct tremolo_attr
     {
         float rate; // LFO frequency in Hz, range: [1, 20]
         float depth; // Effect depth, range: [0, 0.5]
-        enum class shape_type {sine, triangle} shape; // LFO shape
+        enum class shape_type {sine, square} shape; // LFO shape
     } ctrl;
 };
 

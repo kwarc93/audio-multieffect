@@ -230,27 +230,27 @@ void ui_fx_tremolo_screen_init(void)
     lv_obj_set_style_bg_color(ui_sw_trem_shape, lv_color_hex(0x4C4E5B), LV_PART_KNOB | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_sw_trem_shape, 255, LV_PART_KNOB | LV_STATE_DEFAULT);
 
-    ui_lbl_trem_triangle = lv_label_create(ui_pnl_trem_shape);
-    lv_obj_set_width(ui_lbl_trem_triangle, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_lbl_trem_triangle, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_lbl_trem_triangle, 0);
-    lv_obj_set_y(ui_lbl_trem_triangle, -10);
-    lv_obj_set_align(ui_lbl_trem_triangle, LV_ALIGN_LEFT_MID);
-    lv_label_set_text(ui_lbl_trem_triangle, "TRI");
-    lv_obj_set_style_text_color(ui_lbl_trem_triangle, lv_color_hex(0x9395A1), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_lbl_trem_triangle, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_align(ui_lbl_trem_triangle, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_lbl_trem_triangle, &ui_font_14_bold, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_color(ui_lbl_trem_triangle, lv_color_hex(0x50FF7D), LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_set_style_text_opa(ui_lbl_trem_triangle, 255, LV_PART_MAIN | LV_STATE_CHECKED);
-    lv_obj_add_state(ui_lbl_trem_triangle, LV_STATE_CHECKED);
+    ui_lbl_trem_square = lv_label_create(ui_pnl_trem_shape);
+    lv_obj_set_width(ui_lbl_trem_square, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_lbl_trem_square, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_lbl_trem_square, 0);
+    lv_obj_set_y(ui_lbl_trem_square, -10);
+    lv_obj_set_align(ui_lbl_trem_square, LV_ALIGN_RIGHT_MID);
+    lv_label_set_text(ui_lbl_trem_square, "SQ ");
+    lv_obj_set_style_text_color(ui_lbl_trem_square, lv_color_hex(0x9395A1), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_lbl_trem_square, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui_lbl_trem_square, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_lbl_trem_square, &ui_font_14_bold, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui_lbl_trem_square, lv_color_hex(0x50FF7D), LV_PART_MAIN | LV_STATE_CHECKED);
+    lv_obj_set_style_text_opa(ui_lbl_trem_square, 255, LV_PART_MAIN | LV_STATE_CHECKED);
+    lv_obj_add_state(ui_lbl_trem_square, LV_STATE_CHECKED);
 
     ui_lbl_trem_sine = lv_label_create(ui_pnl_trem_shape);
     lv_obj_set_width(ui_lbl_trem_sine, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_lbl_trem_sine, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_lbl_trem_sine, 0);
     lv_obj_set_y(ui_lbl_trem_sine, -10);
-    lv_obj_set_align(ui_lbl_trem_sine, LV_ALIGN_RIGHT_MID);
+    lv_obj_set_align(ui_lbl_trem_sine, LV_ALIGN_LEFT_MID);
     lv_label_set_text(ui_lbl_trem_sine, "SIN");
     lv_obj_set_style_text_color(ui_lbl_trem_sine, lv_color_hex(0x9395A1), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_lbl_trem_sine, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
