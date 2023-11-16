@@ -104,7 +104,7 @@ lfo2 { libs::adsp::oscillator::shape::cosine, 0.95f * mapf_rate, config::samplin
 mix { 0.35f },
 attr {}
 {
-    this->pdel.set_delay(0.026f);
+    this->pdel.set_delay(0.006f);
     this->mapf1.set_delay(mapf1_del_len);
     this->mapf2.set_delay(mapf2_del_len);
 
@@ -223,14 +223,14 @@ void reverb::set_mode(reverb_attr::controls::mode_type mode)
     if (mode == reverb_attr::controls::mode_type::plate)
     {
         this->mix = 0.35f;
-        this->pdel.set_delay(0.026f);
+        this->pdel.set_delay(0.006f);
         this->mapf1.set_delay(mapf1_del_len);
         this->mapf2.set_delay(mapf2_del_len);
     }
     else if (mode == reverb_attr::controls::mode_type::mod)
     {
         this->mix = 0.4f;
-        this->pdel.set_delay(0.006f);
+        this->pdel.set_delay(0.09f);
     }
 }
 
