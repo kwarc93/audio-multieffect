@@ -218,13 +218,13 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const reverb_attr &spec
     if (specific.ctrl.mode == reverb_attr::controls::mode_type::plate)
     {
         lv_obj_clear_state(ui_sw_reverb_mode, LV_STATE_CHECKED);
-        lv_obj_clear_state(ui_lbl_reverb_mode_shimmer, LV_STATE_CHECKED);
+        lv_obj_clear_state(ui_lbl_reverb_mode_mod, LV_STATE_CHECKED);
         lv_obj_add_state(ui_lbl_reverb_mode_plate, LV_STATE_CHECKED);
     }
     else
     {
         lv_obj_add_state(ui_sw_reverb_mode, LV_STATE_CHECKED);
-        lv_obj_add_state(ui_lbl_reverb_mode_shimmer, LV_STATE_CHECKED);
+        lv_obj_add_state(ui_lbl_reverb_mode_mod, LV_STATE_CHECKED);
         lv_obj_clear_state(ui_lbl_reverb_mode_plate, LV_STATE_CHECKED);
     }
 }

@@ -164,7 +164,7 @@ extern lv_obj_t * ui_pnl_reverb_mode;
 void ui_event_sw_reverb_mode(lv_event_t * e);
 extern lv_obj_t * ui_sw_reverb_mode;
 extern lv_obj_t * ui_lbl_reverb_mode_plate;
-extern lv_obj_t * ui_lbl_reverb_mode_shimmer;
+extern lv_obj_t * ui_lbl_reverb_mode_mod;
 // SCREEN: ui_fx_overdrive
 void ui_fx_overdrive_screen_init(void);
 void ui_event_fx_overdrive(lv_event_t * e);

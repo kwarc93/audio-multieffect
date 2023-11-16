@@ -59,10 +59,10 @@ class oscillator
 public:
     enum class shape {sawtooth, square, triangle, sine, cosine, noise};
 
-    oscillator(shape shape, uint32_t fs) : fs{fs}
+    oscillator(shape shape, float freq, uint32_t fs) : fs{fs}
     {
         this->wave_shape = shape;
-        this->frequency = 1;
+        this->frequency = freq;
 
         this->counter = 0;
         this->counter_limit = this->fs / this->frequency;
@@ -70,7 +70,7 @@ public:
 
     void set_frequency(float f)
     {
-        if (this->frequency == f)
+        if (this->frequency == f || f <= 0)
             return;
 
         this->frequency = f;

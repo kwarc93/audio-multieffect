@@ -19,7 +19,7 @@ namespace
 {
 
 /* Delay lines sizes, delay taps & other constants (according to J. Dattorro's reverb) */
-constexpr float pdel_len = 0.023f;
+constexpr float pdel_len = 0.1f;
 
 constexpr float del1_len = 0.14169551f;
 constexpr float del2_len = 0.10628003f;
@@ -33,6 +33,7 @@ constexpr float apf4_del_len = 0.00930748f;
 constexpr float apf5_del_len = 0.08924431f;
 constexpr float apf6_del_len = 0.06048184f;
 
+constexpr float mapf_rate = 0.618f;
 constexpr float mapf_excursion = 0.00053762f;
 constexpr float mapf1_del_len = 0.03050973f;
 constexpr float mapf2_del_len = 0.02257989f;
@@ -84,7 +85,7 @@ std::array<float, static_cast<uint32_t>(del4_len * config::sampling_frequency_hz
 /* public */
 
 
-reverb::reverb(float bandwidth, float damping, float decay) : effect { effect_id::reverb },
+reverb::reverb(float bandwidth, float damping, float decay, reverb_attr::controls::mode_type mode) : effect { effect_id::reverb },
 pdel { pdel_line_memory.data(), pdel_line_memory.size(), config::sampling_frequency_hz },
 del1 { del1_line_memory.data(), del1_line_memory.size(), config::sampling_frequency_hz },
 del2 { del2_line_memory.data(), del2_line_memory.size(), config::sampling_frequency_hz },
@@ -98,17 +99,19 @@ apf5 { decay_diffusion_2, -decay_diffusion_2, 1, apf5_del_len, config::sampling_
 apf6 { decay_diffusion_2, -decay_diffusion_2, 1, apf6_del_len, config::sampling_frequency_hz },
 mapf1 { -decay_diffusion_1, decay_diffusion_1, 1, mapf1_del_len + mapf_excursion, config::sampling_frequency_hz },
 mapf2 { -decay_diffusion_1, decay_diffusion_1, 1, mapf2_del_len + mapf_excursion, config::sampling_frequency_hz },
-lfo1 { libs::adsp::oscillator::shape::sine, config::sampling_frequency_hz },
-lfo2 { libs::adsp::oscillator::shape::cosine, config::sampling_frequency_hz },
+lfo1 { libs::adsp::oscillator::shape::sine, mapf_rate, config::sampling_frequency_hz },
+lfo2 { libs::adsp::oscillator::shape::cosine, 0.95f * mapf_rate, config::sampling_frequency_hz },
+mix { 0.35f },
 attr {}
 {
-    this->lfo1.set_frequency(0.555f);
-    this->lfo2.set_frequency(0.333f);
+    this->pdel.set_delay(0.026f);
+    this->mapf1.set_delay(mapf1_del_len);
+    this->mapf2.set_delay(mapf2_del_len);
 
     this->set_bandwidth(bandwidth);
     this->set_damping(damping);
     this->set_decay(decay);
-    this->set_mode(reverb_attr::controls::mode_type::plate);
+    this->set_mode(mode);
 }
 
 reverb::~reverb()
@@ -131,13 +134,15 @@ void reverb::process(const dsp_input& in, dsp_output& out)
         /* 8-figure "tank" */
 
         /* right loop */
-        this->mapf1.set_delay(mapf1_del_len + this->lfo1.generate() * mapf_excursion);
+        if (this->attr.ctrl.mode == reverb_attr::controls::mode_type::mod)
+            this->mapf1.set_delay(mapf1_del_len + this->lfo1.generate() * mapf_excursion);
         float rl_sample = this->del1.get();
         this->del1.put(this->mapf1.process<false, true, 0>(sample + this->del4.get() * this->attr.ctrl.decay));
         rl_sample = this->apf5.process(this->lpf2.process(rl_sample) * this->attr.ctrl.decay);
 
         /* left loop */
-        this->mapf2.set_delay(mapf2_del_len + this->lfo2.generate() * mapf_excursion);
+        if (this->attr.ctrl.mode == reverb_attr::controls::mode_type::mod)
+            this->mapf2.set_delay(mapf2_del_len + this->lfo2.generate() * mapf_excursion);
         float ll_sample = this->del3.get();
         this->del3.put(this->mapf2.process<false, true, 0>(sample + this->del2.get() * this->attr.ctrl.decay));
         ll_sample = this->apf6.process(this->lpf3.process(ll_sample) * this->attr.ctrl.decay);
@@ -162,8 +167,7 @@ void reverb::process(const dsp_input& in, dsp_output& out)
                                 this->apf5.at(right_out_apf5_tap) -
                                 this->del2.at(right_out_del2_tap);
 
-        constexpr float wet_dry_mix = 0.5f;
-        return wet_dry_mix * lr_out_scale * 0.5f * (left_out + right_out) + (1 - wet_dry_mix) * input;
+        return this->mix * lr_out_scale * 0.5f * (left_out + right_out) + (1 - this->mix) * input;
     }
     );
 }
@@ -215,6 +219,19 @@ void reverb::set_mode(reverb_attr::controls::mode_type mode)
         return;
 
     this->attr.ctrl.mode = mode;
+
+    if (mode == reverb_attr::controls::mode_type::plate)
+    {
+        this->mix = 0.35f;
+        this->pdel.set_delay(0.026f);
+        this->mapf1.set_delay(mapf1_del_len);
+        this->mapf2.set_delay(mapf2_del_len);
+    }
+    else if (mode == reverb_attr::controls::mode_type::mod)
+    {
+        this->mix = 0.4f;
+        this->pdel.set_delay(0.006f);
+    }
 }
 
 

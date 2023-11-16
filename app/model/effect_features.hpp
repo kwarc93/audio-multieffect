@@ -92,7 +92,7 @@ struct reverb_attr
         float bandwidth; // Input LPF, range: [0, 1.0]
         float damping; // Tank LPFs rate, range: [0, 1.0]
         float decay; // Reverb time, range: [0, 0.99]
-        enum class mode_type {plate, shimmer} mode; // Mode of effect
+        enum class mode_type {plate, mod} mode; // Mode of effect
     } ctrl;
 };
 

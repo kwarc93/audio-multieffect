@@ -159,7 +159,7 @@ lv_obj_t * ui_pnl_reverb_mode;
 void ui_event_sw_reverb_mode(lv_event_t * e);
 lv_obj_t * ui_sw_reverb_mode;
 lv_obj_t * ui_lbl_reverb_mode_plate;
-lv_obj_t * ui_lbl_reverb_mode_shimmer;
+lv_obj_t * ui_lbl_reverb_mode_mod;
 
 // SCREEN: ui_fx_overdrive
 void ui_fx_overdrive_screen_init(void);
@@ -486,7 +486,7 @@ void ui_event_sw_reverb_mode(lv_event_t * e)
     if(event_code == LV_EVENT_VALUE_CHANGED) {
         ui_reverb_mode_changed(e);
         _ui_state_modify(ui_lbl_reverb_mode_plate, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
-        _ui_state_modify(ui_lbl_reverb_mode_shimmer, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
+        _ui_state_modify(ui_lbl_reverb_mode_mod, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
     }
 }
 void ui_event_fx_overdrive(lv_event_t * e)

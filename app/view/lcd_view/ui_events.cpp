@@ -98,7 +98,7 @@ void notify_reverb_controls_changed(void)
         lv_arc_get_value(damp_knob) * 0.01f,
         lv_arc_get_value(decay_knob) * 0.01f,
         lv_obj_has_state(mode_sw, LV_STATE_CHECKED) ?
-        mfx::reverb_attr::controls::mode_type::shimmer :
+        mfx::reverb_attr::controls::mode_type::mod :
         mfx::reverb_attr::controls::mode_type::plate
     };
 

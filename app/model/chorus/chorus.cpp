@@ -37,8 +37,8 @@ std::array<float, static_cast<unsigned>(2 * delay_line2_tap_samples)> delay_line
 
 
 chorus::chorus(float depth, float rate, float tone, float mix) : effect { effect_id::chorus },
-lfo1 { libs::adsp::oscillator::shape::sine, config::sampling_frequency_hz },
-lfo2 { libs::adsp::oscillator::shape::cosine, config::sampling_frequency_hz },
+lfo1 { libs::adsp::oscillator::shape::sine, 0.2f, config::sampling_frequency_hz },
+lfo2 { libs::adsp::oscillator::shape::cosine, 0.2f, config::sampling_frequency_hz },
 unicomb1 { 0.7f, -0.7f, 1, delay_line1_memory.data(), delay_line1_memory.size(), config::sampling_frequency_hz},
 unicomb2 { 0, 0, 1, delay_line2_memory.data(), delay_line2_memory.size(), config::sampling_frequency_hz},
 attr {}
@@ -108,7 +108,7 @@ void chorus::set_rate(float rate)
     rate = 0.05f + rate * 3.95f;
 
     this->lfo1.set_frequency(rate);
-    this->lfo2.set_frequency(rate * 0.333f);
+    this->lfo2.set_frequency(0.333f * rate);
 }
 
 void chorus::set_tone(float tone)
