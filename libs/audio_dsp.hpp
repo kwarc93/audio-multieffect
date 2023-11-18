@@ -246,6 +246,75 @@ private:
 
 //-----------------------------------------------------------------------------
 
+template<uint8_t factor, uint32_t block_size>
+class interpolator
+{
+public:
+    interpolator()
+    {
+        arm_fir_interpolate_init_f32
+        (
+            &this->instance,
+            factor,
+            this->fir_taps,
+            const_cast<float*>((factor == 2) ? this->intrpl_x2_fir_coeffs.data() : this->intrpl_x4_fir_coeffs.data()),
+            this->state.data(),
+            block_size
+        );
+    }
+
+    void process(const float *in, float *out)
+    {
+        arm_fir_interpolate_f32(&this->instance, const_cast<float*>(in), out, block_size);
+    }
+
+private:
+    constexpr static std::array<float, 16> intrpl_x2_fir_coeffs{-0.00677751,0.00000000,0.03945777,-0.00000000,-0.14265809,0.00000000,0.60983636,1.00000000,0.60983636,0.00000000,-0.14265809,-0.00000000,0.03945777,0.00000000,-0.00677751,-0.00000000};
+    constexpr static std::array<float, 32> intrpl_x4_fir_coeffs{-0.00455932,-0.00677751,-0.00517776,-0.00000000,0.02578440,0.03945777,0.03118661,0.00000000,-0.08770110,-0.14265809,-0.12204653,-0.00000000,0.29100579,0.60983636,0.87130542,1.00000000,0.87130542,0.60983636,0.29100579,-0.00000000,-0.12204653,-0.14265809,-0.08770110,0.00000000,0.03118661,0.03945777,0.02578440,-0.00000000,-0.00517776,-0.00677751,-0.00455932,0.00000000};
+    constexpr static uint32_t fir_taps = (factor == 2) ? intrpl_x2_fir_coeffs.size() : intrpl_x4_fir_coeffs.size();
+
+    arm_fir_interpolate_instance_f32 instance;
+    std::array<float, (fir_taps / factor) + block_size - 1> state;
+
+    static_assert(factor == 2 || factor == 4);
+    static_assert(fir_taps % factor == 0);
+};
+
+template<uint8_t factor, uint32_t block_size>
+class decimator
+{
+public:
+    decimator()
+    {
+        arm_fir_decimate_init_f32
+        (
+            &this->instance,
+            fir_taps,
+            factor,
+            const_cast<float*>((factor == 2) ? this->decim_x2_fir_coeffs.data() : this->decim_x4_fir_coeffs.data()),
+            this->state.data(),
+            block_size
+        );
+    }
+
+    void process(const float *in, float *out)
+    {
+        arm_fir_decimate_f32(&this->instance, const_cast<float*>(in), out, block_size);
+    }
+
+private:
+    constexpr static std::array<float, 31> decim_x2_fir_coeffs{-0.00170040,0.00000000,0.00293733,-0.00000000,-0.00673009,0.00000000,0.01409389,-0.00000000,-0.02678504,0.00000000,0.04909896,-0.00000000,-0.09693833,0.00000000,0.31561956,0.50080823,0.31561956,0.00000000,-0.09693833,-0.00000000,0.04909896,0.00000000,-0.02678504,-0.00000000,0.01409389,0.00000000,-0.00673009,-0.00000000,0.00293733,0.00000000,-0.00170040};
+    constexpr static std::array<float, 31> decim_x4_fir_coeffs{-0.00120388,-0.00205336,-0.00207963,0.00000000,0.00476490,0.00989603,0.00997846,-0.00000000,-0.01896379,-0.03629332,-0.03476203,0.00000000,0.06863228,0.15326576,0.22345846,0.25072021,0.22345846,0.15326576,0.06863228,0.00000000,-0.03476203,-0.03629332,-0.01896379,-0.00000000,0.00997846,0.00989603,0.00476490,0.00000000,-0.00207963,-0.00205336,-0.00120388};
+    constexpr static uint32_t fir_taps = (factor == 2) ? decim_x2_fir_coeffs.size() : decim_x4_fir_coeffs.size();
+
+    arm_fir_decimate_instance_f32 instance;
+    std::array<float, fir_taps + block_size - 1> state;
+
+    static_assert(factor == 2 || factor == 4);
+};
+
+//-----------------------------------------------------------------------------
+
 enum class basic_iir_type {allpass, lowpass, highpass};
 
 template<basic_iir_type type>
