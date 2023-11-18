@@ -296,8 +296,7 @@ void effect_processor::audio_capture_cb(const hal::audio_devices::codec::input_s
         this->audio_input.sample_index = this->audio_input.buffer.size() / 2;
 
     /* Transform RAW samples to DSP buffer */
-    /* FIXME: numeric_limits wont work in case of 24bit resolution */
-    constexpr float scale = 1.0f / -std::numeric_limits<hal::audio_devices::codec::input_sample_t>::min();
+    constexpr float scale = 1.0f / (static_cast<unsigned>(std::numeric_limits<hal::audio_devices::codec::input_sample_t>::max()) + 1);
     for (unsigned i = this->audio_input.sample_index, j = 0; i < this->audio_input.sample_index + this->audio_input.buffer.size() / 2; i+=2, j++)
     {
         /* Copy only left channel */

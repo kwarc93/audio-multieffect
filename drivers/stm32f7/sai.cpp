@@ -209,8 +209,8 @@ void sai_base::block::configure(const config &cfg)
 
     /* Configure SAI_Block_x Frame */
     this->hw.reg->FRCR = 0;
-    this->hw.reg->FRCR |= ((64 - 1) << SAI_xFRCR_FRL_Pos); // Frame length: 64
-    this->hw.reg->FRCR |= ((32 - 1) << SAI_xFRCR_FSALL_Pos); // Frame active Length: 32
+    this->hw.reg->FRCR |= ((128 - 1) << SAI_xFRCR_FRL_Pos); // Frame length: 128
+    this->hw.reg->FRCR |= ((64 - 1) << SAI_xFRCR_FSALL_Pos); // Frame active Length: 64
     this->hw.reg->FRCR |= SAI_xFRCR_FSDEF; // FS Definition: Start frame + Channel Side identification
     this->hw.reg->FRCR |= SAI_xFRCR_FSOFF; // FS Offset: FS asserted one bit before the first bit of slot 0
 

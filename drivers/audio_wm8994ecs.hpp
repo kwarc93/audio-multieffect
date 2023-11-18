@@ -15,7 +15,7 @@
 namespace drivers
 {
 
-class audio_wm8994ecs : public hal::interface::audio_input<int16_t>, public hal::interface::audio_output<int16_t>
+class audio_wm8994ecs : public hal::interface::audio_input<int32_t>, public hal::interface::audio_output<int32_t>
 {
 public:
     static constexpr uint8_t i2c_address = 0b00011010;
@@ -41,8 +41,8 @@ public:
 private:
     hal::interface::i2c_device &i2c_dev;
     const uint8_t i2c_addr;
-    typedef sai<int16_t> sai_16bit;
-    sai_16bit sai_drv;
+    typedef sai<int32_t> sai_32bit;
+    sai_32bit sai_drv;
 
     capture_cb_t capture_callback;
     play_cb_t play_callback;
