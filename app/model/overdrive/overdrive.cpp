@@ -56,6 +56,26 @@ float overdrive::soft_clip(float in)
 overdrive::overdrive(float low, float high, float gain, float mix, overdrive_attr::controls::mode_type mode) : effect { effect_id::overdrive },
 attr {}
 {
+    arm_fir_interpolate_init_f32
+    (
+        &this->intrpl,
+        this->oversampling_factor,
+        this->intrpl_x4_fir_coeffs.size() - 1,
+        const_cast<float*>(this->intrpl_x4_fir_coeffs.data()),
+        this->intrpl_state.data(),
+        config::dsp_vector_size
+    );
+
+    arm_fir_decimate_init_f32
+    (
+        &this->decim,
+        this->decim_x4_fir_coeffs.size(),
+        this->oversampling_factor,
+        const_cast<float*>(this->decim_x4_fir_coeffs.data()),
+        this->decim_state.data(),
+        this->oversampling_factor * config::dsp_vector_size
+     );
+
     this->set_mode(mode);
     this->set_low(low);
     this->set_high(high);
@@ -70,28 +90,30 @@ overdrive::~overdrive()
 
 void overdrive::process(const dsp_input& in, dsp_output& out)
 {
-    /* 1. Low-pass filter for anti-aliasing. Filter whole block using FIR filter. */
-    this->fir_lp.process(in.data(), out.data());
+    /* 1. Apply 1-st order high-pass IIR filter (in-place) */
+    this->iir_hp.process(in.data(), const_cast<float*>(in.data()), in.size());
 
-    /* 2. Apply 1-st order high-pass IIR filter (in-place) */
-    this->iir_hp.process(out.data(), out.data(), out.size());
+    /* 2. Interpolate */
+    arm_fir_interpolate_f32(&this->intrpl, const_cast<float*>(in.data()), this->os_buffer.data(), in.size());
 
-    std::transform(in.begin(), in.end(), out.begin(), out.begin(),
-    [this](auto input, auto output)
+    std::transform(this->os_buffer.begin(), this->os_buffer.end(), this->os_buffer.begin(),
+    [this](auto input)
     {
-        auto sample = output;
-
         /* 3. Apply gain, clip & mix */
+        float sample;
         if (this->attr.ctrl.mode == overdrive_attr::controls::mode_type::hard)
-            sample = this->hard_clip(sample * this->attr.ctrl.gain);
+            sample = this->hard_clip(input * this->attr.ctrl.gain);
         else
-            sample = this->soft_clip(sample * this->attr.ctrl.gain);
+            sample = this->soft_clip(input * this->attr.ctrl.gain);
 
         return this->attr.ctrl.mix * sample + (1.0f - this->attr.ctrl.mix) * input;
     }
     );
 
-    /* 4. Apply 2-nd order low-pass IIR filter (in-place) */
+    /* 4. Decimate */
+    arm_fir_decimate_f32(&this->decim, this->os_buffer.data(), out.data(), this->os_buffer.size());
+
+    /* 5. Apply 2-nd order low-pass IIR filter (in-place) */
     this->iir_lp.process(out.data(), out.data(), out.size());
 }
 
