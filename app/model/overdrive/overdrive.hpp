@@ -37,7 +37,7 @@ private:
     float hard_clip(float in);
 
     /* Interpolator & decimator for oversampling & decimation*/
-    constexpr static uint8_t oversampling_factor = 2;
+    constexpr static uint8_t oversampling_factor = 4;
     libs::adsp::interpolator<oversampling_factor, config::dsp_vector_size> intrpl;
     libs::adsp::decimator<oversampling_factor, oversampling_factor * config::dsp_vector_size> decim;
     std::array<float, oversampling_factor * config::dsp_vector_size> sample_buffer;

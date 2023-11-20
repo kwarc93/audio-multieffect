@@ -761,7 +761,7 @@ i2c_dev {dev}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}
     }
     else
     {
-        /* AIF1 Word Length = 32-bits, AIF1 Format = I2S (Default Register Value) */
+        /* AIF1 Word Length = 32-bits, AIF1 Format = I2S */
         this->write_reg(0x300, 0x4070);
     }
 
