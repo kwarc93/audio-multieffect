@@ -55,6 +55,7 @@ namespace hal
 
 namespace audio_devices
 {
+    /* WM8994 audio codec configuration: stereo 24bit/48kHz */
     class codec : public audio<drivers::audio_wm8994ecs::audio_input::sample_t, drivers::audio_wm8994ecs::audio_output::sample_t>
     {
     public:

@@ -129,20 +129,22 @@ void effect_processor::event_handler(const events::process_data &e)
     /* Set correct output buffer after all processing */
     current_output = current_input;
 
-    /* Transform DSP samples to RAW buffer */
+    /* Transform normalized DSP samples to RAW buffer (signed 24bit on MSB 32bit) */
     hal::audio_devices::codec::output_sample_t sample;
-    constexpr auto min = std::numeric_limits<decltype(sample)>::min();
-    constexpr auto max = std::numeric_limits<decltype(sample)>::max();
-    constexpr auto scale = (max + 1u);
+    constexpr decltype(sample) min = -(1 << (24 - 1));
+    constexpr decltype(sample) max = -min - 1;
+    constexpr decltype(sample) scale = -min;
     for (unsigned i = 0; i < current_output->size(); i++)
     {
-        sample = current_output->at(i) * scale;
-        sample = std::clamp(sample, min, max);
+        /* Clamp & shift to MSB of 32bit */
+        sample = std::clamp(static_cast<decltype(sample)>(current_output->at(i) * scale), min, max) << 8;
+
+        const unsigned index = this->audio_output.sample_index + 2 * i;
 
         /* Left */
-        this->audio_output.buffer[this->audio_output.sample_index + 2 * i] = sample;
+        this->audio_output.buffer[index] = sample;
         /* Right */
-        this->audio_output.buffer[this->audio_output.sample_index + 2 * i + 1] = sample;
+        this->audio_output.buffer[index + 1] = sample;
     }
 
     // If D-Cache is enabled, it must be cleaned/invalidated for buffers used by DMA.
@@ -297,12 +299,12 @@ void effect_processor::audio_capture_cb(const hal::audio_devices::codec::input_s
     else
         this->audio_input.sample_index = this->audio_input.buffer.size() / 2;
 
-    /* Transform RAW samples to DSP buffer */
-    constexpr float scale = 1.0f / (std::numeric_limits<hal::audio_devices::codec::input_sample_t>::max() + 1u);
+    /* Transform RAW samples (signed 24bit on MSB 32bits) to normalized DSP buffer */
+    constexpr float scale = 1.0f / (1 << (24 - 1));
     for (unsigned i = this->audio_input.sample_index, j = 0; i < this->audio_input.sample_index + this->audio_input.buffer.size() / 2; i+=2, j++)
     {
         /* Copy only left channel */
-        this->dsp_input[j] = this->audio_input.buffer[i] * scale;
+        this->dsp_input[j] = (this->audio_input.buffer[i] >> 8) * scale;
     }
 
     /* Send event to process data */
