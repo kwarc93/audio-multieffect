@@ -161,6 +161,7 @@ static void fx_ops_add_fx_handler(lv_event_t * e)
     {
         uint32_t index = lv_obj_get_child_cnt(ui_list_sett_fx_chain);
 
+        /* Add effect after selected one */
 //        if (ui_btn_sett_curr_fx != NULL)
 //            index = lv_obj_get_index(ui_btn_sett_curr_fx) + 1;
 
@@ -326,6 +327,7 @@ void ui_settings_screen_init(void)
 
     /* Create menu */
     lv_obj_t * menu = lv_menu_create(ui_settings);
+    const lv_coord_t menu_pad_hor = lv_obj_get_style_pad_left(lv_menu_get_main_header(menu),0);
 
     lv_obj_set_style_bg_color(menu, lv_color_lighten(lv_color_black(), 25), 0);
     lv_menu_set_mode_root_back_btn(menu, LV_MENU_ROOT_BACK_BTN_ENABLED);
@@ -336,14 +338,14 @@ void ui_settings_screen_init(void)
 
     /* Modify the back button */
     lv_obj_t * back_btn = lv_menu_get_main_header_back_btn(menu);
-    lv_obj_set_style_pad_hor(back_btn, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
+    lv_obj_set_style_pad_hor(back_btn, menu_pad_hor, 0);
 
     lv_obj_t * cont;
     lv_obj_t * section;
 
     /* Create sub pages */
     lv_obj_t * sub_audio_page = lv_menu_page_create(menu, "Audio");
-    lv_obj_set_style_pad_hor(sub_audio_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
+    lv_obj_set_style_pad_hor(sub_audio_page, menu_pad_hor, 0);
     section = lv_menu_section_create(sub_audio_page);
     cont = menu_create_slider(section, NULL, "Input volume", 0, 31, 11, ui_event_sld_in_vol);
     ui_sld_sett_in_vol = lv_obj_get_child(cont, -1);
@@ -353,7 +355,7 @@ void ui_settings_screen_init(void)
     ui_sw_sett_mute_audio = lv_obj_get_child(cont, -1);
 
     lv_obj_t * sub_effects_page = lv_menu_page_create(menu, "Effects");
-    lv_obj_set_style_pad_hor(sub_effects_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
+    lv_obj_set_style_pad_hor(sub_effects_page, menu_pad_hor, 0);
     cont = lv_menu_cont_create(sub_effects_page);
     lv_obj_set_style_pad_top(cont, 0, 0);
     lv_obj_set_style_pad_hor(cont, 0, 0);
@@ -361,30 +363,30 @@ void ui_settings_screen_init(void)
     create_effects_management_lists(cont);
 
     lv_obj_t * sub_presets_page = lv_menu_page_create(menu, "Presets");
-    lv_obj_set_style_pad_hor(sub_presets_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
+    lv_obj_set_style_pad_hor(sub_presets_page, menu_pad_hor, 0);
     section = lv_menu_section_create(sub_presets_page);
     menu_create_text(section, NULL, "Load preset");
     menu_create_text(section, NULL, "Save preset");
     menu_create_text(section, NULL, "Remove all");
 
     lv_obj_t * sub_display_page = lv_menu_page_create(menu, "Display");
-    lv_obj_set_style_pad_hor(sub_display_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
+    lv_obj_set_style_pad_hor(sub_display_page, menu_pad_hor, 0);
     section = lv_menu_section_create(sub_display_page);
     menu_create_slider(section, NULL, "Brightness", 0, 150, 100, NULL);
     cont = menu_create_switch(section, NULL, "Dark mode", true, menu_set_theme_handler);
 
     lv_obj_t * sub_software_page = lv_menu_page_create(menu, "Software");
-    lv_obj_set_style_pad_hor(sub_software_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
+    lv_obj_set_style_pad_hor(sub_software_page, menu_pad_hor, 0);
     section = lv_menu_section_create(sub_software_page);
     menu_create_text(section, NULL, "Version: v0.0.1");
 
     lv_obj_t * sub_hardware_page = lv_menu_page_create(menu, "Hardware");
-    lv_obj_set_style_pad_hor(sub_hardware_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
+    lv_obj_set_style_pad_hor(sub_hardware_page, menu_pad_hor, 0);
     section = lv_menu_section_create(sub_hardware_page);
     menu_create_text(section, NULL, "Board: STM32F746G-DISCO MB1191B\nCPU: ARM Cortex-M7 200MHz\nRAM: 8MB");
 
     lv_obj_t * sub_about_page = lv_menu_page_create(menu, "About");
-    lv_obj_set_style_pad_hor(sub_about_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
+    lv_obj_set_style_pad_hor(sub_about_page, menu_pad_hor, 0);
     cont = menu_create_text(sub_about_page, NULL, "Guitar MFX - Guitar Multi Effect Processor\nCopyright 2023 Kamil Worek. All rights reserved.");
     section = lv_menu_section_create(sub_about_page);
     cont = menu_create_text(section, NULL, "Software information");
@@ -394,7 +396,7 @@ void ui_settings_screen_init(void)
 
     /* Create a root page */
     lv_obj_t * menu_root_page = lv_menu_page_create(menu, "Settings");
-    lv_obj_set_style_pad_hor(menu_root_page, lv_obj_get_style_pad_left(lv_menu_get_main_header(menu), 0), 0);
+    lv_obj_set_style_pad_hor(menu_root_page, menu_pad_hor, 0);
     section = lv_menu_section_create(menu_root_page);
     cont = menu_create_text(section, LV_SYMBOL_AUDIO, "Effects");
     lv_menu_set_load_page_event(menu, cont, sub_effects_page);
@@ -412,6 +414,13 @@ void ui_settings_screen_init(void)
 
     lv_menu_set_sidebar_page(menu, NULL);
     lv_menu_set_page(menu, menu_root_page);
+
+    /* Create CPU load indicator label */
+    ui_lbl_sett_cpu_load = lv_label_create(menu);
+    lv_obj_add_flag(ui_lbl_sett_cpu_load, LV_OBJ_FLAG_IGNORE_LAYOUT);
+    lv_obj_set_align(ui_lbl_sett_cpu_load, LV_ALIGN_TOP_RIGHT);
+    lv_obj_set_style_pad_all(ui_lbl_sett_cpu_load, lv_obj_get_style_pad_right(lv_menu_get_main_header(menu), 0), 0);
+    lv_label_set_text_fmt(ui_lbl_sett_cpu_load, "CPU load: %2u%%", 0);
 
     lv_obj_add_event_cb(ui_settings, ui_event_settings, LV_EVENT_ALL, NULL);
 }

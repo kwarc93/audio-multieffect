@@ -35,6 +35,7 @@ lv_obj_t * ui_btn_sett_curr_fx;
 lv_obj_t * ui_sld_sett_in_vol;
 lv_obj_t * ui_sld_sett_out_vol;
 lv_obj_t * ui_sw_sett_mute_audio;
+lv_obj_t * ui_lbl_sett_cpu_load;
 const char * const* ui_fx_names;
 size_t ui_fx_names_size;
 void ui_event_sld_in_vol(lv_event_t * e);

@@ -117,6 +117,11 @@ struct set_effect_attributes
     effect_specific_attributes specific;
 };
 
+struct update_processor_load
+{
+    uint8_t value;
+};
+
 using outgoing = std::variant
 <
     splash_loaded,
@@ -138,7 +143,8 @@ using incoming = std::variant
     show_blank_screen,
     show_next_effect_screen,
     show_prev_effect_screen,
-    set_effect_attributes
+    set_effect_attributes,
+    update_processor_load
 >;
 
 }
@@ -158,6 +164,7 @@ private:
     void event_handler(const lcd_view_events::show_next_effect_screen &e);
     void event_handler(const lcd_view_events::show_prev_effect_screen &e);
     void event_handler(const lcd_view_events::set_effect_attributes &e);
+    void event_handler(const lcd_view_events::update_processor_load &e);
 
     void set_effect_attr(const effect_attr &basic, const tremolo_attr &specific);
     void set_effect_attr(const effect_attr &basic, const echo_attr &specific);

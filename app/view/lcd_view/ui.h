@@ -44,6 +44,7 @@ extern lv_obj_t * ui_btn_sett_curr_fx;
 extern lv_obj_t * ui_sld_sett_in_vol;
 extern lv_obj_t * ui_sld_sett_out_vol;
 extern lv_obj_t * ui_sw_sett_mute_audio;
+extern lv_obj_t * ui_lbl_sett_cpu_load;
 extern const char * const *ui_fx_names;
 extern size_t ui_fx_names_size;
 void ui_event_sld_in_vol(lv_event_t * e);
