@@ -378,7 +378,7 @@ void ui_settings_screen_init(void)
     lv_obj_t * sub_software_page = lv_menu_page_create(menu, "Software");
     lv_obj_set_style_pad_hor(sub_software_page, menu_pad_hor, 0);
     section = lv_menu_section_create(sub_software_page);
-    menu_create_text(section, NULL, "Version: v0.0.1");
+    menu_create_text(section, NULL, "Version: v1.0.0");
 
     lv_obj_t * sub_hardware_page = lv_menu_page_create(menu, "Hardware");
     lv_obj_set_style_pad_hor(sub_hardware_page, menu_pad_hor, 0);
