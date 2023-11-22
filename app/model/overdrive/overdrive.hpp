@@ -20,7 +20,7 @@ namespace mfx
 class overdrive : public effect
 {
 public:
-    overdrive(float low = 0.5f, float high = 0.5f, float gain = 40.0f, float mix = 0.5f, overdrive_attr::controls::mode_type mode = overdrive_attr::controls::mode_type::soft);
+    overdrive(float low = 0.5f, float high = 0.5f, float gain = 80.0f, float mix = 0.5f, overdrive_attr::controls::mode_type mode = overdrive_attr::controls::mode_type::soft);
     virtual ~overdrive();
 
     void process(const dsp_input &in, dsp_output &out) override;

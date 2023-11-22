@@ -237,7 +237,7 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const overdrive_attr &s
         lv_obj_add_state(ui_btn_od_bypass, LV_STATE_CHECKED);
 
     lv_arc_set_value(ui_arc_od_mix, map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_od_mix), lv_arc_get_max_value(ui_arc_od_mix), specific.ctrl.mix));
-    lv_arc_set_value(ui_arc_od_gain, map_range<float>(1, 100, lv_arc_get_min_value(ui_arc_od_gain), lv_arc_get_max_value(ui_arc_od_gain), specific.ctrl.gain));
+    lv_arc_set_value(ui_arc_od_gain, map_range<float>(1, 200, lv_arc_get_min_value(ui_arc_od_gain), lv_arc_get_max_value(ui_arc_od_gain), specific.ctrl.gain));
     lv_arc_set_value(ui_arc_od_tone, map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_od_tone), lv_arc_get_max_value(ui_arc_od_tone), specific.ctrl.high));
 
     if (specific.ctrl.mode == overdrive_attr::controls::mode_type::soft)

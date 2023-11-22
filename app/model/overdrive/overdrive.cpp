@@ -135,7 +135,7 @@ void overdrive::set_low(float low)
 
 void overdrive::set_gain(float gain)
 {
-    gain = std::clamp(gain, 1.0f, 100.0f);
+    gain = std::clamp(gain, 1.0f, 200.0f);
 
     if (this->attr.ctrl.gain == gain)
         return;

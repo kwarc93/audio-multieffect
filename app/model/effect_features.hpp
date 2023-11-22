@@ -101,7 +101,7 @@ struct overdrive_attr
     struct controls
     {
         float low; // High pass filter cutoff, range [0, 1.0]
-        float gain; // Gain, range: [1, 100]
+        float gain; // Gain, range: [1, 200]
         float high; // Low pass filter cutoff, range [0, 1.0]
         float mix; // Wet/dry mix, range: [0, 1.0]
         enum class mode_type {soft, hard} mode; // Clip mode
