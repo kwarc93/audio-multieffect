@@ -410,7 +410,7 @@ void audio_wm8994ecs::reset(void)
 /* public */
 
 audio_wm8994ecs::audio_wm8994ecs(hal::interface::i2c_device &dev, uint8_t addr, input in, output out) :
-i2c_dev {dev}, i2c_addr {addr}, sai_drv{sai_16bit::id::sai2}
+i2c_dev {dev}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}
 {
     constexpr uint32_t audio_freq = 48000;
     constexpr uint8_t output_vol = 57; // 0dB
@@ -420,14 +420,14 @@ i2c_dev {dev}, i2c_addr {addr}, sai_drv{sai_16bit::id::sai2}
 
     if (out != output::none)
     {
-        static const sai_16bit::block::config sai_a_cfg
+        static const sai_32bit::block::config sai_a_cfg
         {
-            sai_16bit::block::mode_type::master_tx,
-            sai_16bit::block::protocol_type::generic,
-            sai_16bit::block::data_size::_16bit,
-            sai_16bit::block::sync_type::none,
-            sai_16bit::block::frame_type::stereo,
-            sai_16bit::block::audio_freq::_48kHz,
+            sai_32bit::block::mode_type::master_tx,
+            sai_32bit::block::protocol_type::generic,
+            sai_32bit::block::data_size::_32bit,
+            sai_32bit::block::sync_type::none,
+            sai_32bit::block::frame_type::stereo,
+            sai_32bit::block::audio_freq::_48kHz,
             WM8994_SLOTS_NUMBER, // 4 slots
             slots_0_2 // active slots: 0 & 2
         };
@@ -438,16 +438,16 @@ i2c_dev {dev}, i2c_addr {addr}, sai_drv{sai_16bit::id::sai2}
 
     if (in != input::none)
     {
-        static const sai_16bit::block::config sai_b_cfg
+        static const sai_32bit::block::config sai_b_cfg
         {
             out != output::none ?
-            sai_16bit::block::mode_type::slave_rx : sai_16bit::block::mode_type::master_rx,
-            sai_16bit::block::protocol_type::generic,
-            sai_16bit::block::data_size::_16bit,
+            sai_32bit::block::mode_type::slave_rx : sai_32bit::block::mode_type::master_rx,
+            sai_32bit::block::protocol_type::generic,
+            sai_32bit::block::data_size::_32bit,
             out != output::none ?
-            sai_16bit::block::sync_type::internal : sai_16bit::block::sync_type::none,
-            sai_16bit::block::frame_type::stereo,
-            sai_16bit::block::audio_freq::_48kHz,
+            sai_32bit::block::sync_type::internal : sai_32bit::block::sync_type::none,
+            sai_32bit::block::frame_type::stereo,
+            sai_32bit::block::audio_freq::_48kHz,
             WM8994_SLOTS_NUMBER,
             (in == input::mic2 || in == input::line2) ? slots_1_3 : slots_0_2,
         };
@@ -756,13 +756,13 @@ i2c_dev {dev}, i2c_addr {addr}, sai_drv{sai_16bit::id::sai2}
 
     if (in == input::mic1_mic2)
     {
-        /* AIF1 Word Length = 16-bits, AIF1 Format = DSP mode */
-        this->write_reg(0x300, 0x4018);
+        /* AIF1 Word Length = 32-bits, AIF1 Format = DSP mode */
+        this->write_reg(0x300, 0x4078);
     }
     else
     {
-        /* AIF1 Word Length = 16-bits, AIF1 Format = I2S (Default Register Value) */
-        this->write_reg(0x300, 0x4010);
+        /* AIF1 Word Length = 32-bits, AIF1 Format = I2S */
+        this->write_reg(0x300, 0x4070);
     }
 
     /* slave mode */
@@ -953,9 +953,9 @@ void audio_wm8994ecs::capture(audio_input::sample_t *input, uint16_t length, con
     this->capture_callback = cb;
     this->sai_drv.loop_read(loop);
     this->sai_drv.read(input, length * sizeof(*input),
-    [this](const int16_t *data, std::size_t bytes_read)
+    [this](const audio_input::sample_t *data, std::size_t bytes_read)
     {
-        this->capture_callback(data, bytes_read / sizeof(audio_wm8994ecs::audio_input::sample_t));
+        this->capture_callback(data, bytes_read / sizeof(*input));
     }
     );
 }
@@ -986,7 +986,7 @@ void audio_wm8994ecs::play(const audio_output::sample_t *output, uint16_t length
     this->sai_drv.write(output, length * sizeof(*output),
     [this](std::size_t bytes_written)
     {
-        this->play_callback(bytes_written / sizeof(audio_wm8994ecs::audio_output::sample_t));
+        this->play_callback(bytes_written / sizeof(*output));
     }
     );
 }

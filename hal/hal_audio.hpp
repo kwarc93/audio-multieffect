@@ -25,10 +25,10 @@ namespace hal
         using output_sample_t = T2;
 
         template <uint16_t N>
-        using input_buffer_t = hal::interface::audio_buffer<input_sample_t, N, 2, 16>;
+        using input_buffer_t = hal::interface::audio_buffer<input_sample_t, N, 2, 24>;
 
         template <uint16_t N>
-        using output_buffer_t = hal::interface::audio_buffer<output_sample_t, N, 2, 16>;
+        using output_buffer_t = hal::interface::audio_buffer<output_sample_t, N, 2, 24>;
 
         audio(hal::interface::audio_input<T1> *in_interface, hal::interface::audio_output<T2> *out_interface);
         virtual ~audio();
@@ -55,6 +55,7 @@ namespace hal
 
 namespace audio_devices
 {
+    /* Audio codec WM8994 configuration: stereo 24bit 48kHz */
     class codec : public audio<drivers::audio_wm8994ecs::audio_input::sample_t, drivers::audio_wm8994ecs::audio_output::sample_t>
     {
     public:

@@ -9,12 +9,10 @@
 
 #include <cstring>
 #include <cmath>
-#include <limits>
 #include <functional>
 #include <algorithm>
 #include <memory>
 #include <vector>
-#include <tuple>
 #include <map>
 
 #include <hal/hal_system.hpp>
@@ -129,22 +127,26 @@ void effect_processor::event_handler(const events::process_data &e)
     /* Set correct output buffer after all processing */
     current_output = current_input;
 
-    /* Transform DSP samples to RAW buffer */
-    constexpr float min = std::numeric_limits<hal::audio_devices::codec::output_sample_t>::min();
-    constexpr float max = std::numeric_limits<hal::audio_devices::codec::output_sample_t>::max();
-    constexpr float scale = -min;
+    /* Transform normalized DSP samples to RAW buffer (24bit onto 32bit MSB) */
     for (unsigned i = 0; i < current_output->size(); i++)
     {
-        auto sample = std::clamp(current_output->at(i) * scale, min, max);
+        decltype(this->audio_output.buffer)::value_type sample;
 
-        /* Left */
-        this->audio_output.buffer[this->audio_output.sample_index + 2 * i] = sample;
-        /* Right */
-        this->audio_output.buffer[this->audio_output.sample_index + 2 * i + 1] = sample;
+        constexpr decltype(sample) min = -(1 << (this->audio_input.bps - 1));
+        constexpr decltype(sample) max = -min - 1;
+        constexpr decltype(sample) scale = -min;
+
+        sample = current_output->at(i) * scale;
+        sample = std::clamp(sample, min, max) << 8;
+
+        /* Duplicate left channel to right channel */
+        const auto index = this->audio_output.sample_index + 2 * i;
+        this->audio_output.buffer[index] = sample;
+        this->audio_output.buffer[index + 1] = sample;
     }
 
-    // If D-Cache is enabled, it must be cleaned/invalidated for buffers used by DMA.
-    // Moreover, functions 'SCB_*_by_Addr()' require address alignment of 32 bytes.
+    /* If D-Cache is enabled, it must be cleaned/invalidated for buffers used by DMA.
+       Moreover, functions 'SCB_*_by_Addr()' require address alignment of 32 bytes. */
     SCB_CleanDCache_by_Addr(&this->audio_output.buffer[this->audio_output.sample_index], sizeof(this->audio_output.buffer) / 2);
 
     const uint32_t cycles_end = hal::system::clock::cycles();
@@ -285,8 +287,8 @@ void effect_processor::audio_capture_cb(const hal::audio_devices::codec::input_s
 {
     /* WARNING: This method could have been called from interrupt */
 
-    // If D-Cache is enabled, it must be cleaned/invalidated for buffers used by DMA.
-    // Moreover, functions 'SCB_*_by_Addr()' require address alignment of 32 bytes.
+    /* If D-Cache is enabled, it must be cleaned/invalidated for buffers used by DMA.
+       Moreover, functions 'SCB_*_by_Addr()' require address alignment of 32 bytes. */
     SCB_InvalidateDCache_by_Addr(const_cast<hal::audio_devices::codec::input_sample_t*>(input), length * sizeof(*input));
 
     /* Set current read index for input buffer (double buffering) */
@@ -295,13 +297,12 @@ void effect_processor::audio_capture_cb(const hal::audio_devices::codec::input_s
     else
         this->audio_input.sample_index = this->audio_input.buffer.size() / 2;
 
-    /* Transform RAW samples to DSP buffer */
-    /* FIXME: numeric_limits wont work in case of 24bit resolution */
-    constexpr float scale = 1.0f / -std::numeric_limits<hal::audio_devices::codec::input_sample_t>::min();
+    /* Transform RAW samples (24bit extended onto 32bit MSB) to normalized DSP buffer */
     for (unsigned i = this->audio_input.sample_index, j = 0; i < this->audio_input.sample_index + this->audio_input.buffer.size() / 2; i+=2, j++)
     {
         /* Copy only left channel */
-        this->dsp_input[j] = this->audio_input.buffer[i] * scale;
+        constexpr float scale = 1.0f / (1 << (this->audio_input.bps - 1));
+        this->dsp_input[j] = (this->audio_input.buffer[i] >> 8) * scale;
     }
 
     /* Send event to process data */
