@@ -21,8 +21,7 @@ using namespace drivers;
 //-----------------------------------------------------------------------------
 
 /*
- * In W8994 codec the Audio frame contains 4 slots : TDM Mode
- * TDM format:
+ * In W8994 codec the audio frame contains 4 slots:
  * +------------------|------------------|--------------------|-------------------+
  * | CODEC_SLOT0 Left | CODEC_SLOT1 Left | CODEC_SLOT0 Right  | CODEC_SLOT1 Right |
  * +------------------------------------------------------------------------------+

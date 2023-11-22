@@ -207,10 +207,31 @@ void sai_base::block::configure(const config &cfg)
     this->hw.reg->CR2 = 0;
     this->hw.reg->CR2 |= SAI_xCR2_FFLUSH | SAI_xCR2_FTH_1; // Flush FIFO, FIFO threshold 1/2
 
-    /* Configure SAI_Block_x Frame */
+    /* Configure SAI_Block_x Frame (assumming stereo mode) */
+    uint8_t frame_len = 0;
+    switch (cfg.data)
+    {
+        case data_size::_8bit:
+            frame_len = 8 * cfg.slots;
+            break;
+
+        case data_size::_10bit:
+        case data_size::_16bit:
+            frame_len = 16 * cfg.slots;
+            break;
+
+        case data_size::_20bit:
+        case data_size::_24bit:
+        case data_size::_32bit:
+            frame_len = 32 * cfg.slots;
+            break;
+        default:
+            break;
+    }
+
     this->hw.reg->FRCR = 0;
-    this->hw.reg->FRCR |= ((64 - 1) << SAI_xFRCR_FRL_Pos); // Frame length: 64
-    this->hw.reg->FRCR |= ((32 - 1) << SAI_xFRCR_FSALL_Pos); // Frame active Length: 32
+    this->hw.reg->FRCR |= ((frame_len - 1) << SAI_xFRCR_FRL_Pos); // Frame length
+    this->hw.reg->FRCR |= (((frame_len / 2) - 1) << SAI_xFRCR_FSALL_Pos); // Frame active length
     this->hw.reg->FRCR |= SAI_xFRCR_FSDEF; // FS Definition: Start frame + Channel Side identification
     this->hw.reg->FRCR |= SAI_xFRCR_FSOFF; // FS Offset: FS asserted one bit before the first bit of slot 0
 
