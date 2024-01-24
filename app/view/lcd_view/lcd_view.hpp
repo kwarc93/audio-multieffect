@@ -89,7 +89,8 @@ struct effect_controls_changed
         chorus_attr::controls,
         reverb_attr::controls,
         overdrive_attr::controls,
-        cabinet_sim_attr::controls
+        cabinet_sim_attr::controls,
+        vocoder_attr::controls
     >
     ctrl;
 };
@@ -172,6 +173,7 @@ private:
     void set_effect_attr(const effect_attr &basic, const reverb_attr &specific);
     void set_effect_attr(const effect_attr &basic, const overdrive_attr &specific);
     void set_effect_attr(const effect_attr &basic, const cabinet_sim_attr &specific);
+    void set_effect_attr(const effect_attr &basic, const vocoder_attr &specific);
 
     void change_effect_screen(effect_id id, int dir);
 

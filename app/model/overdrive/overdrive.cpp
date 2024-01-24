@@ -76,7 +76,6 @@ void overdrive::process(const dsp_input& in, dsp_output& out)
     /* 2. Interpolate */
     this->intrpl.process(const_cast<float*>(in.data()), this->sample_buffer.data());
 
-//    std::transform(in.begin(), in.end(), out.begin(),
     std::transform(this->sample_buffer.begin(), this->sample_buffer.end(), this->sample_buffer.begin(),
     [this](auto input)
     {

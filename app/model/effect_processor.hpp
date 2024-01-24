@@ -78,7 +78,8 @@ struct set_effect_controls
         chorus_attr::controls,
         reverb_attr::controls,
         overdrive_attr::controls,
-        cabinet_sim_attr::controls
+        cabinet_sim_attr::controls,
+        vocoder_attr::controls
     >
     ctrl;
 };
@@ -147,6 +148,7 @@ private:
     void set_controls(const reverb_attr::controls &ctrl);
     void set_controls(const overdrive_attr::controls &ctrl);
     void set_controls(const cabinet_sim_attr::controls &ctrl);
+    void set_controls(const vocoder_attr::controls &ctrl);
 
     void notify_effect_attributes_changed(effect *eff);
 
@@ -166,6 +168,7 @@ private:
     hal::audio_devices::codec::output_buffer_t<2 * config::dsp_vector_size> audio_output;
 
     effect::dsp_input dsp_input;
+    effect::dsp_input dsp_aux_input;
     effect::dsp_output dsp_output;
 
     uint32_t processing_time_us;

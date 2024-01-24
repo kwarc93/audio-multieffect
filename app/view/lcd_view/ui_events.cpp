@@ -349,4 +349,9 @@ void ui_cab_sim_ir(lv_event_t * e)
     notify_cabinet_sim_controls_changed();
 }
 
+void ui_vocoder_bypass(lv_event_t * e)
+{
+    notify_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::vocoder);
+}
+
 

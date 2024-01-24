@@ -24,6 +24,7 @@ enum class effect_id : uint8_t
     reverb,
     overdrive,
     cabinet_sim,
+    vocoder,
 
     _count // Indicates total number of effects
 };
@@ -35,7 +36,8 @@ constexpr inline std::array<const char*, static_cast<uint8_t>(effect_id::_count)
     "Chorus",
     "Reverb",
     "Overdrive",
-    "Cabinet simulator"
+    "Cabinet simulator",
+    "Vocoder"
 }};
 
 //-----------------------------------------------------------------------------
@@ -118,6 +120,14 @@ struct cabinet_sim_attr
     } ctrl;
 };
 
+struct vocoder_attr
+{
+    struct controls
+    {
+        /* TODO */
+    } ctrl;
+};
+
 typedef std::variant
 <
     tremolo_attr,
@@ -125,7 +135,8 @@ typedef std::variant
     chorus_attr,
     reverb_attr,
     overdrive_attr,
-    cabinet_sim_attr
+    cabinet_sim_attr,
+    vocoder_attr
 > effect_specific_attributes;
 
 }

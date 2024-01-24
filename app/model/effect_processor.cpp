@@ -27,6 +27,7 @@
 #include "app/model/reverb/reverb.hpp"
 #include "app/model/overdrive/overdrive.hpp"
 #include "app/model/cabinet_sim/cabinet_sim.hpp"
+#include "app/model/vocoder/vocoder.hpp"
 
 using namespace mfx;
 namespace events = effect_processor_events;
@@ -115,6 +116,7 @@ void effect_processor::event_handler(const events::process_data &e)
     {
         if (!effect->is_bypassed())
         {
+            effect->set_aux_input(this->dsp_aux_input);
             effect->process(*current_input, *current_output);
 
             /* Swap current buffers pointers after each effect process so that old output is new input */
@@ -247,6 +249,16 @@ void effect_processor::set_controls(const cabinet_sim_attr::controls &ctrl)
     cab_sim_effect->set_ir(ctrl.ir_idx);
 }
 
+void effect_processor::set_controls(const vocoder_attr::controls &ctrl)
+{
+    auto vocoder_effect = static_cast<vocoder*>(this->find_effect(effect_id::vocoder));
+
+    if (vocoder_effect == nullptr)
+        return;
+
+    /* TODO */
+}
+
 void effect_processor::notify_effect_attributes_changed(effect *e)
 {
     this->notify(events::effect_attributes_changed {e->get_basic_attributes(), e->get_specific_attributes()});
@@ -261,7 +273,8 @@ std::unique_ptr<effect> effect_processor::create_new(effect_id id)
         { effect_id::chorus,        []() { return std::make_unique<chorus>(); } },
         { effect_id::reverb,        []() { return std::make_unique<reverb>(); } },
         { effect_id::overdrive,     []() { return std::make_unique<overdrive>(); } },
-        { effect_id::cabinet_sim,   []() { return std::make_unique<cabinet_sim>(); } }
+        { effect_id::cabinet_sim,   []() { return std::make_unique<cabinet_sim>(); } },
+        { effect_id::vocoder,       []() { return std::make_unique<vocoder>(); } }
     };
 
     return effect_factory.at(id)();
@@ -300,9 +313,11 @@ void effect_processor::audio_capture_cb(const hal::audio_devices::codec::input_s
     /* Transform RAW samples (24bit extended onto 32bit MSB) to normalized DSP buffer */
     for (unsigned i = this->audio_input.sample_index, j = 0; i < this->audio_input.sample_index + this->audio_input.buffer.size() / 2; i+=2, j++)
     {
-        /* Copy only left channel */
         constexpr float scale = 1.0f / (1 << (this->audio_input.bps - 1));
+        /* Left channel */
         this->dsp_input[j] = (this->audio_input.buffer[i] >> 8) * scale;
+        /* Right channel */
+        this->dsp_aux_input[j] = (this->audio_input.buffer[i + 1] >> 8) * scale;
     }
 
     /* Send event to process data */
@@ -335,8 +350,9 @@ audio{middlewares::i2c_managers::main::get_instance()}
 {
     this->processing_time_us = 0;
 
-    /* DSP buffers contain only one channel (left) */
+    /* DSP buffers contain only one channel */
     this->dsp_input.resize(config::dsp_vector_size);
+    this->dsp_aux_input.resize(config::dsp_vector_size);
     this->dsp_output.resize(config::dsp_vector_size);
 
     /* Start audio capture */

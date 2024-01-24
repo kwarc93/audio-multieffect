@@ -208,6 +208,15 @@ extern lv_obj_t * ui_lbl_btn_cab_sim_bypass;
 void ui_event_roller_cab_sim_ir(lv_event_t * e);
 extern lv_obj_t * ui_roller_cab_sim_ir;
 extern lv_obj_t * ui_lbl_cab_sim_ir;
+// SCREEN: ui_fx_vocoder
+void ui_fx_vocoder_screen_init(void);
+void ui_event_fx_vocoder(lv_event_t * e);
+extern lv_obj_t * ui_fx_vocoder;
+extern lv_obj_t * ui_pnl_vocoder_content;
+extern lv_obj_t * ui_lbl_vocoder_fx_name;
+void ui_event_btn_vocoder_bypass(lv_event_t * e);
+extern lv_obj_t * ui_btn_vocoder_bypass;
+extern lv_obj_t * ui_lbl_btn_vocoder_bypass;
 
 LV_IMG_DECLARE(ui_img_pot_ver_line_png);    // assets/pot_ver_line.png
 LV_IMG_DECLARE(ui_img_pot_ver_knob_png);    // assets/pot_ver_knob.png

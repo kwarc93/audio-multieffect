@@ -207,6 +207,16 @@ void ui_event_roller_cab_sim_ir(lv_event_t * e);
 lv_obj_t * ui_roller_cab_sim_ir;
 lv_obj_t * ui_lbl_cab_sim_ir;
 
+// SCREEN: ui_fx_vocoder
+void ui_fx_vocoder_screen_init(void);
+void ui_event_fx_vocoder(lv_event_t * e);
+lv_obj_t * ui_fx_vocoder;
+lv_obj_t * ui_pnl_vocoder_content;
+lv_obj_t * ui_lbl_vocoder_fx_name;
+void ui_event_btn_vocoder_bypass(lv_event_t * e);
+lv_obj_t * ui_btn_vocoder_bypass;
+lv_obj_t * ui_lbl_btn_vocoder_bypass;
+
 ///////////////////// TEST LVGL SETTINGS ////////////////////
 #if LV_COLOR_DEPTH != 16
     #error "LV_COLOR_DEPTH should be 16bit to match SquareLine Studio's settings"
@@ -552,6 +562,17 @@ void ui_event_roller_cab_sim_ir(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
     if(event_code == LV_EVENT_VALUE_CHANGED) {
         ui_cab_sim_ir(e);
+    }
+}
+void ui_event_fx_vocoder(lv_event_t * e)
+{
+    ui_screen_gesture_handler(e);
+}
+void ui_event_btn_vocoder_bypass(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    if(event_code == LV_EVENT_CLICKED) {
+        ui_vocoder_bypass(e);
     }
 }
 

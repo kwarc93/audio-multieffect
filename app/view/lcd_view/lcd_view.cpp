@@ -276,6 +276,16 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const cabinet_sim_attr 
     lv_roller_set_selected(ui_roller_cab_sim_ir, specific.ctrl.ir_idx, LV_ANIM_OFF);
 }
 
+void lcd_view::set_effect_attr(const effect_attr &basic, const vocoder_attr &specific)
+{
+    if (basic.bypassed)
+        lv_obj_clear_state(ui_btn_vocoder_bypass, LV_STATE_CHECKED);
+    else
+        lv_obj_add_state(ui_btn_vocoder_bypass, LV_STATE_CHECKED);
+
+    /* TODO */
+}
+
 void lcd_view::change_effect_screen(effect_id id, int dir)
 {
     lv_obj_t *new_screen = nullptr;
@@ -305,6 +315,10 @@ void lcd_view::change_effect_screen(effect_id id, int dir)
     case effect_id::cabinet_sim:
         ui_fx_cabinet_sim_screen_init();
         new_screen = ui_fx_cabinet_sim;
+        break;
+    case effect_id::vocoder:
+        ui_fx_vocoder_screen_init();
+        new_screen = ui_fx_vocoder;
         break;
     default:
         return;
