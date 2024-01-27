@@ -24,7 +24,6 @@ void init_thread(void *arg)
 
     auto model = std::make_unique<mfx::effect_processor>();
     auto lcd_view = std::make_unique<mfx::lcd_view>();
-//    auto console_view = std::make_unique<mfx::console_view>();
     auto ctrl = std::make_unique<mfx::controller>(std::move(model), std::move(lcd_view));
 
     osThreadSuspend(osThreadGetId());

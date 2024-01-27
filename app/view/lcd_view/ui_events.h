@@ -41,6 +41,7 @@ void ui_reverb_damp_changed(lv_event_t * e);
 void ui_reverb_decay_changed(lv_event_t * e);
 void ui_reverb_mode_changed(lv_event_t * e);
 void ui_overdrive_bypass(lv_event_t * e);
+void ui_overdrive_mix_changed(lv_event_t * e);
 void ui_overdrive_low_changed(lv_event_t * e);
 void ui_overdrive_gain_changed(lv_event_t * e);
 void ui_overdrive_high_changed(lv_event_t * e);
@@ -48,6 +49,7 @@ void ui_overdrive_mode_changed(lv_event_t * e);
 void ui_cab_sim_bypass(lv_event_t * e);
 void ui_cab_sim_ir(lv_event_t * e);
 void ui_vocoder_bypass(lv_event_t * e);
+void ui_vocoder_clarity_changed(lv_event_t * e);
 
 #ifdef __cplusplus
 } /*extern "C"*/

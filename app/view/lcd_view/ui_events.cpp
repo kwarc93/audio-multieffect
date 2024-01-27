@@ -139,6 +139,18 @@ void notify_cabinet_sim_controls_changed(void)
     view->notify(events::effect_controls_changed {ctrl});
 }
 
+void notify_vocoder_controls_changed(void)
+{
+    lv_obj_t *clarity_knob = ui_arc_voc_clarity;
+
+    const mfx::vocoder_attr::controls ctrl
+    {
+        static_cast<float>(lv_arc_get_value(clarity_knob) * 0.01f),
+    };
+
+    view->notify(events::effect_controls_changed {ctrl});
+}
+
 }
 
 //-----------------------------------------------------------------------------
@@ -319,6 +331,11 @@ void ui_overdrive_bypass(lv_event_t * e)
     notify_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::overdrive);
 }
 
+void ui_overdrive_mix_changed(lv_event_t * e)
+{
+    notify_overdrive_controls_changed();
+}
+
 void ui_overdrive_low_changed(lv_event_t * e)
 {
     notify_overdrive_controls_changed();
@@ -352,6 +369,11 @@ void ui_cab_sim_ir(lv_event_t * e)
 void ui_vocoder_bypass(lv_event_t * e)
 {
     notify_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::vocoder);
+}
+
+void ui_vocoder_clarity_changed(lv_event_t * e)
+{
+    notify_vocoder_controls_changed();
 }
 
 

@@ -20,14 +20,15 @@ namespace mfx
 class vocoder : public effect
 {
 public:
-    vocoder ();
+    vocoder (float clarity = 0.5f);
     virtual ~vocoder ();
 
     void process(const dsp_input &in, dsp_output &out) override;
     const effect_specific_attributes get_specific_attributes(void) const override;
 
-private:
+    void set_clarity(float clarity);
 
+private:
     class filter_bank
     {
     public:
@@ -53,7 +54,7 @@ private:
         static constexpr uint32_t bands {16};
 
     private:
-        /* Coeffs for lowpass filter (RMS envelope) */
+        /* Lowpass filter (RMS envelope) */
         static constexpr std::array<float, 5> lowpass_coeffs { 0, 0, 1, 1.98f, -0.9801f};
 
         /* Band: 1: 50 - 159[Hz] */
@@ -177,8 +178,21 @@ private:
         std::array<libs::adsp::iir_biquad<1>, bands> lowpass_filters;
     };
 
-    std::array<float, mfx::config::dsp_vector_size> source_env_buf, source_bp_buf, filter_env_buf;
-    filter_bank source_fb, filter_fb;
+    /* Lowpass filter (RMS envelope) */
+    static constexpr std::array<float, 5> lowpass_coeffs { 0, 0, 1, 1.98f, -0.9801f};
+
+    /* Highpass filter, fc = 5088Hz*/
+    static constexpr std::array<float, 10> highpass_coeffs
+    {
+        0.2529996995574256,-0.5059993991148511,0.2529996995574256,0.3334617277963257,-0.3786640264144165,
+        1.0000000000000000,-2.0000000000000000,1.0000000000000000,1.4486195475185251,-0.8910563941509072
+    };
+
+    libs::adsp::random noise_generator;
+    libs::adsp::iir_biquad<1> lowpass_filter;
+    libs::adsp::iir_biquad<2> highpass_filter, highpass_filter2;
+    std::array<float, mfx::config::dsp_vector_size> carrier_env_buf, carrier_bp_buf, carrier_and_noise_buf, modulator_env_buf, hiss_env_buf, hiss_hp_buf;
+    filter_bank carrier_fb, modulator_fb;
 
     vocoder_attr attr;
 };

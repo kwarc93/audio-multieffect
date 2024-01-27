@@ -124,7 +124,7 @@ struct vocoder_attr
 {
     struct controls
     {
-        /* TODO */
+        float clarity; // Speech clarity, range [0, 1.0]
     } ctrl;
 };
 

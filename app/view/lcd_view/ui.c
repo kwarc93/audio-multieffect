@@ -171,7 +171,6 @@ lv_obj_t * ui_lbl_od_fx_name;
 void ui_event_btn_overdrive_bypass(lv_event_t * e);
 lv_obj_t * ui_btn_od_bypass;
 lv_obj_t * ui_lbl_btn_od_bypass;
-
 lv_obj_t * ui_pnl_od_controls;
 lv_obj_t * ui_pnl_od_mix;
 lv_obj_t * ui_img_od_mix;
@@ -211,11 +210,17 @@ lv_obj_t * ui_lbl_cab_sim_ir;
 void ui_fx_vocoder_screen_init(void);
 void ui_event_fx_vocoder(lv_event_t * e);
 lv_obj_t * ui_fx_vocoder;
-lv_obj_t * ui_pnl_vocoder_content;
-lv_obj_t * ui_lbl_vocoder_fx_name;
+lv_obj_t * ui_pnl_voc_content;
+lv_obj_t * ui_lbl_voc_fx_name;
 void ui_event_btn_vocoder_bypass(lv_event_t * e);
-lv_obj_t * ui_btn_vocoder_bypass;
-lv_obj_t * ui_lbl_btn_vocoder_bypass;
+lv_obj_t * ui_btn_voc_bypass;
+lv_obj_t * ui_lbl_btn_voc_bypass;
+lv_obj_t * ui_pnl_voc_controls;
+lv_obj_t * ui_pnl_voc_clarity;
+lv_obj_t * ui_img_voc_clarity;
+void ui_event_arc_vocoder_clarity(lv_event_t * e);
+lv_obj_t * ui_arc_voc_clarity;
+lv_obj_t * ui_lbl_voc_clarity;
 
 ///////////////////// TEST LVGL SETTINGS ////////////////////
 #if LV_COLOR_DEPTH != 16
@@ -517,7 +522,7 @@ void ui_event_arc_overdrive_mix(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_VALUE_CHANGED) {
-        ui_overdrive_low_changed(e);
+        ui_overdrive_mix_changed(e);
     }
 }
 void ui_event_arc_overdrive_gain(lv_event_t * e)
@@ -525,7 +530,7 @@ void ui_event_arc_overdrive_gain(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_VALUE_CHANGED) {
-        ui_overdrive_high_changed(e);
+        ui_overdrive_gain_changed(e);
     }
 }
 void ui_event_arc_overdrive_tone(lv_event_t * e)
@@ -533,7 +538,7 @@ void ui_event_arc_overdrive_tone(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_VALUE_CHANGED) {
-        ui_overdrive_gain_changed(e);
+        ui_overdrive_high_changed(e);
     }
 }
 void ui_event_sw_overdrive_mode(lv_event_t * e)
@@ -553,6 +558,7 @@ void ui_event_fx_cabinet_sim(lv_event_t * e)
 void ui_event_btn_cab_sim_bypass(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
+
     if(event_code == LV_EVENT_CLICKED) {
         ui_cab_sim_bypass(e);
     }
@@ -560,6 +566,7 @@ void ui_event_btn_cab_sim_bypass(lv_event_t * e)
 void ui_event_roller_cab_sim_ir(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
+
     if(event_code == LV_EVENT_VALUE_CHANGED) {
         ui_cab_sim_ir(e);
     }
@@ -571,8 +578,18 @@ void ui_event_fx_vocoder(lv_event_t * e)
 void ui_event_btn_vocoder_bypass(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
+
     if(event_code == LV_EVENT_CLICKED) {
         ui_vocoder_bypass(e);
+    }
+}
+
+void ui_event_arc_vocoder_clarity(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_vocoder_clarity_changed(e);
     }
 }
 

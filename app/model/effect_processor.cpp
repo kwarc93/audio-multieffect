@@ -256,7 +256,7 @@ void effect_processor::set_controls(const vocoder_attr::controls &ctrl)
     if (vocoder_effect == nullptr)
         return;
 
-    /* TODO */
+    vocoder_effect->set_clarity(ctrl.clarity);
 }
 
 void effect_processor::notify_effect_attributes_changed(effect *e)

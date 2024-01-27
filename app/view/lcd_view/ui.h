@@ -212,11 +212,17 @@ extern lv_obj_t * ui_lbl_cab_sim_ir;
 void ui_fx_vocoder_screen_init(void);
 void ui_event_fx_vocoder(lv_event_t * e);
 extern lv_obj_t * ui_fx_vocoder;
-extern lv_obj_t * ui_pnl_vocoder_content;
-extern lv_obj_t * ui_lbl_vocoder_fx_name;
+extern lv_obj_t * ui_pnl_voc_content;
+extern lv_obj_t * ui_lbl_voc_fx_name;
 void ui_event_btn_vocoder_bypass(lv_event_t * e);
-extern lv_obj_t * ui_btn_vocoder_bypass;
-extern lv_obj_t * ui_lbl_btn_vocoder_bypass;
+extern lv_obj_t * ui_btn_voc_bypass;
+extern lv_obj_t * ui_lbl_btn_voc_bypass;
+extern lv_obj_t * ui_pnl_voc_controls;
+extern lv_obj_t * ui_pnl_voc_clarity;
+extern lv_obj_t * ui_img_voc_clarity;
+void ui_event_arc_vocoder_clarity(lv_event_t * e);
+extern lv_obj_t * ui_arc_voc_clarity;
+extern lv_obj_t * ui_lbl_voc_clarity;
 
 LV_IMG_DECLARE(ui_img_pot_ver_line_png);    // assets/pot_ver_line.png
 LV_IMG_DECLARE(ui_img_pot_ver_knob_png);    // assets/pot_ver_knob.png
