@@ -283,6 +283,11 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const vocoder_attr &spe
     else
         lv_obj_add_state(ui_btn_voc_bypass, LV_STATE_CHECKED);
 
+    if (specific.ctrl.hold)
+        lv_obj_add_state(ui_btn_voc_hold, LV_STATE_CHECKED);
+    else
+        lv_obj_clear_state(ui_btn_voc_hold, LV_STATE_CHECKED);
+
     lv_arc_set_value(ui_arc_voc_clarity, map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_voc_clarity), lv_arc_get_max_value(ui_arc_voc_clarity), specific.ctrl.clarity));
 }
 

@@ -131,8 +131,32 @@ void ui_fx_vocoder_screen_init(void)
     lv_obj_set_style_text_align(ui_lbl_voc_clarity, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_lbl_voc_clarity, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+    ui_btn_voc_hold = lv_imgbtn_create(ui_pnl_voc_content);
+    lv_imgbtn_set_src(ui_btn_voc_hold, LV_IMGBTN_STATE_RELEASED, NULL, &ui_img_btn_1_inact_png, NULL);
+    lv_imgbtn_set_src(ui_btn_voc_hold, LV_IMGBTN_STATE_PRESSED, NULL, &ui_img_btn_1_act_png, NULL);
+    lv_imgbtn_set_src(ui_btn_voc_hold, LV_IMGBTN_STATE_DISABLED, NULL, &ui_img_btn_1_inact_png, NULL);
+    lv_imgbtn_set_src(ui_btn_voc_hold, LV_IMGBTN_STATE_CHECKED_PRESSED, NULL, &ui_img_btn_1_act_png, NULL);
+    lv_imgbtn_set_src(ui_btn_voc_hold, LV_IMGBTN_STATE_CHECKED_RELEASED, NULL, &ui_img_btn_1_act_png, NULL);
+    lv_imgbtn_set_src(ui_btn_voc_hold, LV_IMGBTN_STATE_CHECKED_DISABLED, NULL, &ui_img_btn_1_inact_png, NULL);
+    lv_obj_set_height(ui_btn_voc_hold, 70);
+    lv_obj_set_width(ui_btn_voc_hold, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_x(ui_btn_voc_hold, -15);
+    lv_obj_set_y(ui_btn_voc_hold, 0);
+    lv_obj_set_align(ui_btn_voc_hold, LV_ALIGN_BOTTOM_RIGHT);
+    lv_obj_add_flag(ui_btn_voc_hold, LV_OBJ_FLAG_CHECKABLE);     /// Flags
+    lv_obj_clear_flag(ui_btn_voc_hold, LV_OBJ_FLAG_GESTURE_BUBBLE);      /// Flags
+
+    ui_lbl_btn_voc_hold = lv_label_create(ui_btn_voc_hold);
+    lv_obj_set_width(ui_lbl_btn_voc_hold, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_lbl_btn_voc_hold, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_lbl_btn_voc_hold, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_lbl_btn_voc_hold, "H");
+    lv_obj_set_style_text_color(ui_lbl_btn_voc_hold, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_lbl_btn_voc_hold, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_lbl_btn_voc_hold, &ui_font_14_bold, LV_PART_MAIN | LV_STATE_DEFAULT);
+
     lv_obj_add_event_cb(ui_btn_voc_bypass, ui_event_btn_vocoder_bypass, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_btn_voc_hold, ui_event_btn_vocoder_hold, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_arc_voc_clarity, ui_event_arc_vocoder_clarity, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_fx_vocoder, ui_event_fx_cabinet_sim, LV_EVENT_ALL, NULL);
-
 }

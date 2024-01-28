@@ -50,6 +50,7 @@ void ui_cab_sim_bypass(lv_event_t * e);
 void ui_cab_sim_ir(lv_event_t * e);
 void ui_vocoder_bypass(lv_event_t * e);
 void ui_vocoder_clarity_changed(lv_event_t * e);
+void ui_vocoder_hold_changed(lv_event_t * e);
 
 #ifdef __cplusplus
 } /*extern "C"*/

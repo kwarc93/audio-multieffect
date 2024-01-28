@@ -221,6 +221,9 @@ lv_obj_t * ui_img_voc_clarity;
 void ui_event_arc_vocoder_clarity(lv_event_t * e);
 lv_obj_t * ui_arc_voc_clarity;
 lv_obj_t * ui_lbl_voc_clarity;
+void ui_event_btn_vocoder_hold(lv_event_t * e);
+lv_obj_t * ui_btn_voc_hold;
+lv_obj_t * ui_lbl_btn_voc_hold;
 
 ///////////////////// TEST LVGL SETTINGS ////////////////////
 #if LV_COLOR_DEPTH != 16
@@ -590,6 +593,15 @@ void ui_event_arc_vocoder_clarity(lv_event_t * e)
 
     if(event_code == LV_EVENT_VALUE_CHANGED) {
         ui_vocoder_clarity_changed(e);
+    }
+}
+
+void ui_event_btn_vocoder_hold(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_vocoder_hold_changed(e);
     }
 }
 

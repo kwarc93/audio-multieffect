@@ -142,10 +142,12 @@ void notify_cabinet_sim_controls_changed(void)
 void notify_vocoder_controls_changed(void)
 {
     lv_obj_t *clarity_knob = ui_arc_voc_clarity;
+    lv_obj_t *hold_btn = ui_btn_voc_hold;
 
     const mfx::vocoder_attr::controls ctrl
     {
         static_cast<float>(lv_arc_get_value(clarity_knob) * 0.01f),
+        lv_obj_has_state(hold_btn, LV_STATE_CHECKED)
     };
 
     view->notify(events::effect_controls_changed {ctrl});
@@ -372,6 +374,11 @@ void ui_vocoder_bypass(lv_event_t * e)
 }
 
 void ui_vocoder_clarity_changed(lv_event_t * e)
+{
+    notify_vocoder_controls_changed();
+}
+
+void ui_vocoder_hold_changed(lv_event_t * e)
 {
     notify_vocoder_controls_changed();
 }

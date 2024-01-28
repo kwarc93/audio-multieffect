@@ -125,6 +125,7 @@ struct vocoder_attr
     struct controls
     {
         float clarity; // Speech clarity, range [0, 1.0]
+        bool hold; // Holds modulator envelope, true/false
     } ctrl;
 };
 

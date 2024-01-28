@@ -257,6 +257,7 @@ void effect_processor::set_controls(const vocoder_attr::controls &ctrl)
         return;
 
     vocoder_effect->set_clarity(ctrl.clarity);
+    vocoder_effect->hold(ctrl.hold);
 }
 
 void effect_processor::notify_effect_attributes_changed(effect *e)

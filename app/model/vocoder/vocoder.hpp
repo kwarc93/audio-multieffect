@@ -20,13 +20,14 @@ namespace mfx
 class vocoder : public effect
 {
 public:
-    vocoder (float clarity = 0.5f);
+    vocoder (float clarity = 0.5f, bool hold = false);
     virtual ~vocoder ();
 
     void process(const dsp_input &in, dsp_output &out) override;
     const effect_specific_attributes get_specific_attributes(void) const override;
 
     void set_clarity(float clarity);
+    void hold(bool state);
 
 private:
     class filter_bank
@@ -188,10 +189,9 @@ private:
         1.0000000000000000,-2.0000000000000000,1.0000000000000000,1.4486195475185251,-0.8910563941509072
     };
 
-    libs::adsp::random noise_generator;
-    libs::adsp::iir_biquad<1> lowpass_filter;
-    libs::adsp::iir_biquad<2> highpass_filter, highpass_filter2;
-    std::array<float, mfx::config::dsp_vector_size> carrier_env_buf, carrier_bp_buf, carrier_and_noise_buf, modulator_env_buf, hiss_env_buf, hiss_hp_buf;
+    libs::adsp::iir_biquad<2> highpass_filter;
+    std::array<float, filter_bank::bands> modulator_hold;
+    std::array<float, mfx::config::dsp_vector_size> carrier_env_buf, carrier_bp_buf, modulator_env_buf;
     filter_bank carrier_fb, modulator_fb;
 
     vocoder_attr attr;

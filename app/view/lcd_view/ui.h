@@ -223,6 +223,9 @@ extern lv_obj_t * ui_img_voc_clarity;
 void ui_event_arc_vocoder_clarity(lv_event_t * e);
 extern lv_obj_t * ui_arc_voc_clarity;
 extern lv_obj_t * ui_lbl_voc_clarity;
+void ui_event_btn_vocoder_hold(lv_event_t * e);
+extern lv_obj_t * ui_btn_voc_hold;
+extern lv_obj_t * ui_lbl_btn_voc_hold;
 
 LV_IMG_DECLARE(ui_img_pot_ver_line_png);    // assets/pot_ver_line.png
 LV_IMG_DECLARE(ui_img_pot_ver_knob_png);    // assets/pot_ver_knob.png
