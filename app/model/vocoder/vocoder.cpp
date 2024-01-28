@@ -28,10 +28,18 @@ namespace
 
 vocoder::vocoder(float clarity, bool hold) : effect {effect_id::vocoder}
 {
+#if 0
     this->highpass_filter.set_coeffs(this->highpass_coeffs);
+#endif
 
     this->set_clarity(clarity);
     this->hold(hold);
+
+//    constexpr uint8_t lpc_ord = 4;
+//    std::array<float, 6> x {{1, 2, 3, 4, 5, 6}};
+//    std::array<float, lpc_ord + 1> a;
+//    float g;
+//    this->lpc.process(x.data(), x.size(), lpc_ord, a.data(), &g);
 }
 
 vocoder::~vocoder()
@@ -44,6 +52,7 @@ void vocoder::process(const dsp_input& in, dsp_output& out)
     if (this->aux_in == nullptr)
         return;
 
+#if 0 /* Channel vocoder */
     /* Add highpassed modulator to the output */
     this->highpass_filter.process(this->aux_in->data(), out.data(), out.size());
     for (auto &&s : out) s *= this->attr.ctrl.clarity;
@@ -74,6 +83,29 @@ void vocoder::process(const dsp_input& in, dsp_output& out)
             out[i] += this->carrier_bp_buf[i] * this->modulator_env_buf[i] / this->carrier_env_buf[i];
         }
     }
+#else /* LPC based vocoder */
+    float *envelope = const_cast<float*>(this->aux_in->data());
+    float *carrier = const_cast<float*>(in.data());
+    constexpr uint32_t samples = config::dsp_vector_size;
+
+    /* Window the signals */
+    arm_mult_f32(envelope, const_cast<float*>(this->hanning.data()), envelope, samples);
+    arm_mult_f32(carrier, const_cast<float*>(this->hanning.data()), carrier, samples);
+
+    /* Calculate LPC */
+    this->envelope_lpc.process(envelope, samples, this->envelope_lpc_ord, this->envelope_lpc_coeffs.data(), &this->envelope_lpc_gain);
+    this->carrier_lpc.process(carrier, samples, this->carrier_lpc_ord, this->carrier_lpc_coeffs.data(), &this->carrier_lpc_gain);
+
+    float *ae = this->envelope_lpc_coeffs.data() + 1;
+    arm_negate_f32(ae, ae, this->envelope_lpc_ord);
+
+    constexpr uint32_t hop_size = config::dsp_vector_size / 4;
+//    for (unsigned i = 0; i < hop_size, i++)
+//    {
+//        float excitation1 =
+//    }
+
+#endif
 }
 
 const effect_specific_attributes vocoder::get_specific_attributes(void) const

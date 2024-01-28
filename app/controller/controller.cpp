@@ -102,7 +102,7 @@ void controller::event_handler(const events::button_state_changed &e)
 
 void controller::event_handler(const events::effect_processor_load &e)
 {
-    printf("Effect processor load: %u%%\r\n", e.load);
+//    printf("Effect processor load: %u%%\r\n", e.load);
     this->view->send({lcd_view_events::update_processor_load {e.load}});
 }
 

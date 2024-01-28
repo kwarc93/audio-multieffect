@@ -9,9 +9,11 @@
 #define AUDIO_DSP_HPP_
 
 #include <cstdint>
+#include <cassert>
 #include <cmath>
 #include <algorithm>
 #include <array>
+#include <vector>
 #include <random>
 
 /* CMSIS DSP library */
@@ -669,6 +671,130 @@ private:
     float bl, fb, ff;
     delay_line delay;
     basic_iir<basic_iir_type::lowpass> lowpass;
+};
+
+class lpc
+{
+public:
+    lpc()
+    {
+
+    }
+
+    void process(const float *x, uint32_t x_len, uint8_t ord, float *a, float *g)
+    {
+        assert(ord < x_len);
+
+        /* Resize if x length is changed */
+        if (x_len != this->autocorr.size())
+            this->autocorr.resize(2 * x_len - 1);
+
+        /* Autocorrelation with lag (ord) */
+        arm_correlate_f32(const_cast<float*>(x), x_len, const_cast<float*>(x), x_len, this->autocorr.data());
+
+//        printf("autocorr: [");
+//        for(auto &&e : this->autocorr)
+//            printf("%.2f ", e);
+//        printf("]\n");
+//
+//        printf("lagged autocorr: [");
+//        for(unsigned i = x_len - ord - 1; i < (x_len + ord); i++)
+//            printf("%.2f ", this->autocorr[i]);
+//        printf("]\n");
+//
+//        printf("lagged & trimmed autocorr: [");
+//        for(unsigned i = x_len - 1; i < (x_len + ord); i++)
+//            printf("%.2f ", this->autocorr[i]);
+//        printf("]\n");
+
+        float *r = this->autocorr.data() + (x_len - 1);
+
+        /* Norm */
+        float norm;
+        arm_power_f32(r, ord + 1, &norm);
+        arm_sqrt_f32(norm, &norm);
+
+//        printf("norm: %.2f\n", norm);
+
+        if (norm != 0)
+        {
+            arm_levinson_durbin(r, a + 1, g, ord);
+            arm_negate_f32(a + 1, a + 1, ord);
+        }
+        else
+        {
+            arm_fill_f32(0, a + 1, ord + 1);
+        }
+
+        a[0] = 1;
+
+        arm_dot_prod_f32(a, r, ord + 1, g);
+        arm_sqrt_f32(*g, g);
+
+//        printf("a coeffs: [");
+//        for(unsigned i = 0; i < (ord + 1UL); i++)
+//            printf("%f ", a[i]);
+//        printf("]\n");
+//
+//        printf("g gain: %f\n", *g);
+    }
+private:
+
+    /* Taken from CMSIS DSP */
+    void arm_levinson_durbin(const float *phi, float *a, float *err, int nbCoefs)
+    {
+       float e;
+       int p;
+
+       a[0] = phi[1] / phi[0];
+
+       e = phi[0] - phi[1] * a[0];
+       for(p=1; p < nbCoefs; p++)
+       {
+          float suma=0.0f;
+          float sumb=0.0f;
+          float k;
+          int nb,j,i;
+
+          for(i=0; i < p; i++)
+          {
+             suma += a[i] * phi[p - i];
+             sumb += a[i] * phi[i + 1];
+          }
+
+          k = (phi[p+1]-suma)/(phi[0] - sumb);
+
+
+          nb = p >> 1;
+          j=0;
+          for(i =0; i < nb ; i++)
+          {
+              float x,y;
+
+              x=a[j] - k * a[p-1-j];
+              y=a[p-1-j] - k * a[j];
+
+              a[j] = x;
+              a[p-1-j] = y;
+
+              j++;
+          }
+
+          nb = p & 1;
+          if (nb)
+          {
+                a[j]=a[j]- k * a[p-1-j];
+          }
+
+          a[p] = k;
+          e = e * (1.0f - k*k);
+
+
+       }
+       *err = e;
+    }
+
+    std::vector<float> autocorr;
 };
 
 }
