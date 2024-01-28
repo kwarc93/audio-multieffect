@@ -84,6 +84,7 @@ void vocoder::process(const dsp_input& in, dsp_output& out)
         }
     }
 #else /* LPC based vocoder */
+
     float *envelope = const_cast<float*>(this->aux_in->data());
     float *carrier = const_cast<float*>(in.data());
     constexpr uint32_t samples = config::dsp_vector_size;
@@ -100,10 +101,15 @@ void vocoder::process(const dsp_input& in, dsp_output& out)
     arm_negate_f32(ae, ae, this->envelope_lpc_ord);
 
     constexpr uint32_t hop_size = config::dsp_vector_size / 4;
-//    for (unsigned i = 0; i < hop_size, i++)
-//    {
-//        float excitation1 =
-//    }
+    for (unsigned i = 0; i < hop_size; i++)
+    {
+        float e1;
+        float g = 1.0f / this->carrier_lpc_gain;
+        arm_scale_f32(this->carrier_lpc_coeffs.data(), g, this->carrier_lpc_coeffs.data(), this->carrier_lpc_coeffs.size());
+        arm_dot_prod_f32(this->carrier_lpc_coeffs.data(), carrier + i, this->carrier_lpc_coeffs.size(), &e1);
+        arm_dot_prod_f32(ae, out.data(), this->envelope_lpc_ord, &out[i]);
+        out[i] += this->envelope_lpc_gain * e1;
+    }
 
 #endif
 }
