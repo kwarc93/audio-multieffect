@@ -32,6 +32,9 @@ vocoder::vocoder(float clarity, bool hold) : effect {effect_id::vocoder}
     this->highpass_filter.set_coeffs(this->highpass_coeffs);
 #endif
 
+    arm_fir_init_f32(&this->pred_filt, this->carrier_lpc_ord + 1, this->carrier_lpc_coeffs.data(), this->pred_filt_state.data(), 1);
+    arm_fir_init_f32(&this->inv_filt, this->envelope_lpc_ord, this->envelope_lpc_coeffs.data() + 1, this->inv_filt_state.data(), 1);
+
     this->set_clarity(clarity);
     this->hold(hold);
 
@@ -85,31 +88,39 @@ void vocoder::process(const dsp_input& in, dsp_output& out)
     }
 #else /* LPC based vocoder */
 
-    float *envelope = const_cast<float*>(this->aux_in->data());
-    float *carrier = const_cast<float*>(in.data());
-    constexpr uint32_t samples = config::dsp_vector_size;
+    constexpr uint32_t hop_size = config::dsp_vector_size;
+    const uint32_t move_size = this->envelope.size() - hop_size;
 
-    /* Window the signals */
-    arm_mult_f32(envelope, const_cast<float*>(this->hanning.data()), envelope, samples);
-    arm_mult_f32(carrier, const_cast<float*>(this->hanning.data()), carrier, samples);
+//    /* Sliding window of input blocks */
+//    arm_copy_f32(this->envelope.data() + hop_size, this->envelope.data(), move_size);
+//    arm_copy_f32(const_cast<float*>(this->aux_in->data()), this->envelope.data() + move_size, hop_size);
+//    arm_copy_f32(this->carrier.data() + hop_size, this->carrier.data(), move_size);
+//    arm_copy_f32(const_cast<float*>(in.data()), this->carrier.data() + move_size, hop_size);
+//
+//    /* Window the signals */
+//    arm_mult_f32(this->envelope.data(), const_cast<float*>(this->hanning.data()), this->envelope.data(), this->envelope.size());
+//    arm_mult_f32(this->carrier.data(), const_cast<float*>(this->hanning.data()), this->carrier.data(), this->carrier.size());
 
     /* Calculate LPC */
-    this->envelope_lpc.process(envelope, samples, this->envelope_lpc_ord, this->envelope_lpc_coeffs.data(), &this->envelope_lpc_gain);
-    this->carrier_lpc.process(carrier, samples, this->carrier_lpc_ord, this->carrier_lpc_coeffs.data(), &this->carrier_lpc_gain);
+    this->envelope_lpc.process(this->envelope.data(), this->envelope.size()/8, this->envelope_lpc_ord, this->envelope_lpc_coeffs.data(), &this->envelope_lpc_gain);
+    this->carrier_lpc.process(this->carrier.data(), this->carrier.size()/8, this->carrier_lpc_ord, this->carrier_lpc_coeffs.data(), &this->carrier_lpc_gain);
 
-    float *ae = this->envelope_lpc_coeffs.data() + 1;
-    arm_negate_f32(ae, ae, this->envelope_lpc_ord);
-
-    constexpr uint32_t hop_size = config::dsp_vector_size / 4;
-    for (unsigned i = 0; i < hop_size; i++)
-    {
-        float e1;
-        float g = 1.0f / this->carrier_lpc_gain;
-        arm_scale_f32(this->carrier_lpc_coeffs.data(), g, this->carrier_lpc_coeffs.data(), this->carrier_lpc_coeffs.size());
-        arm_dot_prod_f32(this->carrier_lpc_coeffs.data(), carrier + i, this->carrier_lpc_coeffs.size(), &e1);
-        arm_dot_prod_f32(ae, out.data(), this->envelope_lpc_ord, &out[i]);
-        out[i] += this->envelope_lpc_gain * e1;
-    }
+//    float *ae = this->envelope_lpc_coeffs.data() + 1;
+//    arm_negate_f32(ae, ae, this->envelope_lpc_ord);
+//
+//    float g = 1.0f / this->carrier_lpc_gain;
+//    arm_scale_f32(this->carrier_lpc_coeffs.data(), g, this->carrier_lpc_coeffs.data(), this->carrier_lpc_coeffs.size());
+//
+//    for (unsigned i = 0; i < hop_size; i++)
+//    {
+//        float e1, o;
+//        arm_fir_f32(&this->pred_filt, &this->carrier[i], &e1, 1);
+//        arm_fir_f32(&this->inv_filt, &this->out_save[i], &o, 1);
+//        this->out_save[i] = o + this->envelope_lpc_gain * e1;
+//    }
+//
+//    /* Copy result to output */
+//    arm_copy_f32(this->out_save.data(), out.data(), hop_size);
 
 #endif
 }

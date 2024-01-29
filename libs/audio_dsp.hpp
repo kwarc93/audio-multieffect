@@ -686,7 +686,7 @@ public:
         assert(ord < x_len);
 
         /* Resize if x length is changed */
-        if (x_len != this->autocorr.size())
+        if ((2 * x_len - 1) != this->autocorr.size())
             this->autocorr.resize(2 * x_len - 1);
 
         /* Autocorrelation with lag (ord) */
