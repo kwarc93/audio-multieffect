@@ -123,11 +123,13 @@ void vocoder::process(const dsp_input& in, dsp_output& out)
 
     /* Envelope calculation (circular convolution) */
     arm_rfft_fast_f32(&this->fft, this->carrier_fft.data(), this->carrier_fft.data() + this->fft_size, 0);
-    arm_cmplx_mult_cmplx_f32(this->carrier_fft.data() + this->fft_size, this->ir_fft.data() + this->fft_size, this->carrier_fft.data(), this->fft_size / 4);
+//    arm_cmplx_mult_cmplx_f32(this->carrier_fft.data() + this->fft_size, this->ir_fft.data() + this->fft_size, this->carrier_fft.data(), this->fft_size / 4);
+    arm_scale_f32(this->carrier_fft.data() + this->fft_size, 1, this->carrier_fft.data(), this->fft_size / 2);
     arm_rfft_fast_f32(&this->fft, this->carrier_fft.data(), this->carrier_fft.data() + this->fft_size, 1);
 
     arm_rfft_fast_f32(&this->fft, this->modulator_fft.data(), this->modulator_fft.data() + this->fft_size, 0);
-    arm_cmplx_mult_cmplx_f32(this->modulator_fft.data() + this->fft_size, this->ir_fft.data() + this->fft_size, this->modulator_fft.data(), this->fft_size / 4);
+//    arm_cmplx_mult_cmplx_f32(this->modulator_fft.data() + this->fft_size, this->ir_fft.data() + this->fft_size, this->modulator_fft.data(), this->fft_size / 4);
+    arm_scale_f32(this->modulator_fft.data() + this->fft_size, 1, this->modulator_fft.data(), this->fft_size / 2);
     arm_rfft_fast_f32(&this->fft, this->modulator_fft.data(), this->modulator_fft.data() + this->fft_size, 1);
 
     for (unsigned i = this->fft_size; i < (this->fft_size + this->fft_size / 2); i++)
