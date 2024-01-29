@@ -673,6 +673,7 @@ private:
     basic_iir<basic_iir_type::lowpass> lowpass;
 };
 
+/* Linear Predictive Coding */
 class lpc
 {
 public:
@@ -686,26 +687,10 @@ public:
         assert(ord < x_len);
 
         /* Resize if x length is changed */
-        if ((2 * x_len - 1) != this->autocorr.size())
-            this->autocorr.resize(2 * x_len - 1);
+        this->autocorr.resize(2 * x_len - 1);
 
         /* Autocorrelation with lag (ord) */
         arm_correlate_f32(const_cast<float*>(x), x_len, const_cast<float*>(x), x_len, this->autocorr.data());
-
-//        printf("autocorr: [");
-//        for(auto &&e : this->autocorr)
-//            printf("%.2f ", e);
-//        printf("]\n");
-//
-//        printf("lagged autocorr: [");
-//        for(unsigned i = x_len - ord - 1; i < (x_len + ord); i++)
-//            printf("%.2f ", this->autocorr[i]);
-//        printf("]\n");
-//
-//        printf("lagged & trimmed autocorr: [");
-//        for(unsigned i = x_len - 1; i < (x_len + ord); i++)
-//            printf("%.2f ", this->autocorr[i]);
-//        printf("]\n");
 
         float *r = this->autocorr.data() + (x_len - 1);
 
@@ -713,8 +698,6 @@ public:
         float norm;
         arm_power_f32(r, ord + 1, &norm);
         arm_sqrt_f32(norm, &norm);
-
-//        printf("norm: %.2f\n", norm);
 
         if (norm != 0)
         {
@@ -731,67 +714,58 @@ public:
         arm_dot_prod_f32(a, r, ord + 1, g);
         arm_sqrt_f32(*g, g);
 
-//        printf("a coeffs: [");
-//        for(unsigned i = 0; i < (ord + 1UL); i++)
-//            printf("%f ", a[i]);
-//        printf("]\n");
-//
-//        printf("g gain: %f\n", *g);
     }
 private:
-
-    /* Taken from CMSIS DSP */
-    void arm_levinson_durbin(const float *phi, float *a, float *err, int nbCoefs)
+    /* Levinson-Durbin algorithm from CMSIS DSP library */
+    void arm_levinson_durbin (const float *phi, float *a, float *err, int nbCoefs)
     {
-       float e;
-       int p;
+        float e;
+        int p;
 
-       a[0] = phi[1] / phi[0];
+        a[0] = phi[1] / phi[0];
 
-       e = phi[0] - phi[1] * a[0];
-       for(p=1; p < nbCoefs; p++)
-       {
-          float suma=0.0f;
-          float sumb=0.0f;
-          float k;
-          int nb,j,i;
+        e = phi[0] - phi[1] * a[0];
+        for (p = 1; p < nbCoefs; p++)
+        {
+            float suma = 0.0f;
+            float sumb = 0.0f;
+            float k;
+            int nb, j, i;
 
-          for(i=0; i < p; i++)
-          {
-             suma += a[i] * phi[p - i];
-             sumb += a[i] * phi[i + 1];
-          }
+            for (i = 0; i < p; i++)
+            {
+                suma += a[i] * phi[p - i];
+                sumb += a[i] * phi[i + 1];
+            }
 
-          k = (phi[p+1]-suma)/(phi[0] - sumb);
+            k = (phi[p + 1] - suma) / (phi[0] - sumb);
 
+            nb = p >> 1;
+            j = 0;
+            for (i = 0; i < nb; i++)
+            {
+                float x, y;
 
-          nb = p >> 1;
-          j=0;
-          for(i =0; i < nb ; i++)
-          {
-              float x,y;
+                x = a[j] - k * a[p - 1 - j];
+                y = a[p - 1 - j] - k * a[j];
 
-              x=a[j] - k * a[p-1-j];
-              y=a[p-1-j] - k * a[j];
+                a[j] = x;
+                a[p - 1 - j] = y;
 
-              a[j] = x;
-              a[p-1-j] = y;
+                j++;
+            }
 
-              j++;
-          }
+            nb = p & 1;
+            if (nb)
+            {
+                a[j] = a[j] - k * a[p - 1 - j];
+            }
 
-          nb = p & 1;
-          if (nb)
-          {
-                a[j]=a[j]- k * a[p-1-j];
-          }
+            a[p] = k;
+            e = e * (1.0f - k * k);
 
-          a[p] = k;
-          e = e * (1.0f - k*k);
-
-
-       }
-       *err = e;
+        }
+        *err = e;
     }
 
     std::vector<float> autocorr;

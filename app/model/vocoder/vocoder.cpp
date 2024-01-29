@@ -28,21 +28,27 @@ namespace
 
 vocoder::vocoder(float clarity, bool hold) : effect {effect_id::vocoder}
 {
-#if 0
+#ifndef VOCODER_ALG_FFT
     this->highpass_filter.set_coeffs(this->highpass_coeffs);
-#endif
+#else
+    arm_rfft_fast_init_f32(&this->fft, this->fft_size);
+    arm_fill_f32(0, this->ir_fft.data(), this->ir_fft.size());
+    arm_fill_f32(0, this->carrier_input.data(), this->carrier_input.size());
+    arm_fill_f32(0, this->modulator_input.data(), this->modulator_input.size());
+    arm_fill_f32(0, this->output.data(), this->output.size());
 
-    arm_fir_init_f32(&this->pred_filt, this->carrier_lpc_ord + 1, this->carrier_lpc_coeffs.data(), this->pred_filt_state.data(), 1);
-    arm_fir_init_f32(&this->inv_filt, this->envelope_lpc_ord, this->envelope_lpc_coeffs.data() + 1, this->inv_filt_state.data(), 1);
+    /* Precompute FFT of IR */
+//    constexpr uint32_t offset = (this->fft_size - this->fft_size / this->bands) / 2;
+    arm_rfft_fast_init_f32(&this->fft, this->fft_size / 2);
+    arm_fill_f32(0, this->ir_fft.data(), this->ir_fft.size());
+    arm_copy_f32(const_cast<float*>(this->band_hann.data()), this->ir_fft.data(), this->band_hann.size());
+    arm_rfft_fast_f32(&this->fft, this->ir_fft.data(), this->ir_fft.data() + this->fft_size / 2, 0); // fftshift?
+
+    arm_rfft_fast_init_f32(&this->fft, this->fft_size);
+#endif
 
     this->set_clarity(clarity);
     this->hold(hold);
-
-//    constexpr uint8_t lpc_ord = 4;
-//    std::array<float, 6> x {{1, 2, 3, 4, 5, 6}};
-//    std::array<float, lpc_ord + 1> a;
-//    float g;
-//    this->lpc.process(x.data(), x.size(), lpc_ord, a.data(), &g);
 }
 
 vocoder::~vocoder()
@@ -54,8 +60,7 @@ void vocoder::process(const dsp_input& in, dsp_output& out)
 {
     if (this->aux_in == nullptr)
         return;
-
-#if 0 /* Channel vocoder */
+#ifndef VOCODER_ALG_FFT
     /* Add highpassed modulator to the output */
     this->highpass_filter.process(this->aux_in->data(), out.data(), out.size());
     for (auto &&s : out) s *= this->attr.ctrl.clarity;
@@ -86,41 +91,69 @@ void vocoder::process(const dsp_input& in, dsp_output& out)
             out[i] += this->carrier_bp_buf[i] * this->modulator_env_buf[i] / this->carrier_env_buf[i];
         }
     }
-#else /* LPC based vocoder */
+#else
+    constexpr uint32_t block_size = config::dsp_vector_size;
 
-    constexpr uint32_t hop_size = config::dsp_vector_size;
-    const uint32_t move_size = this->envelope.size() - hop_size;
+    const uint32_t move_size = this->carrier_input.size() - block_size;
 
-//    /* Sliding window of input blocks */
-//    arm_copy_f32(this->envelope.data() + hop_size, this->envelope.data(), move_size);
-//    arm_copy_f32(const_cast<float*>(this->aux_in->data()), this->envelope.data() + move_size, hop_size);
-//    arm_copy_f32(this->carrier.data() + hop_size, this->carrier.data(), move_size);
-//    arm_copy_f32(const_cast<float*>(in.data()), this->carrier.data() + move_size, hop_size);
-//
-//    /* Window the signals */
-//    arm_mult_f32(this->envelope.data(), const_cast<float*>(this->hanning.data()), this->envelope.data(), this->envelope.size());
-//    arm_mult_f32(this->carrier.data(), const_cast<float*>(this->hanning.data()), this->carrier.data(), this->carrier.size());
+    /* Sliding window of input blocks */
+    arm_copy_f32(this->carrier_input.data() + block_size, this->carrier_input.data(), move_size);
+    arm_copy_f32(const_cast<float*>(in.data()), this->carrier_input.data() + move_size, block_size);
 
-    /* Calculate LPC */
-    this->envelope_lpc.process(this->envelope.data(), this->envelope.size()/8, this->envelope_lpc_ord, this->envelope_lpc_coeffs.data(), &this->envelope_lpc_gain);
-    this->carrier_lpc.process(this->carrier.data(), this->carrier.size()/8, this->carrier_lpc_ord, this->carrier_lpc_coeffs.data(), &this->carrier_lpc_gain);
+    arm_copy_f32(this->modulator_input.data() + block_size, this->modulator_input.data(), move_size);
+    arm_copy_f32(const_cast<float*>(this->aux_in->data()), this->modulator_input.data() + move_size, block_size);
 
-//    float *ae = this->envelope_lpc_coeffs.data() + 1;
-//    arm_negate_f32(ae, ae, this->envelope_lpc_ord);
-//
-//    float g = 1.0f / this->carrier_lpc_gain;
-//    arm_scale_f32(this->carrier_lpc_coeffs.data(), g, this->carrier_lpc_coeffs.data(), this->carrier_lpc_coeffs.size());
-//
-//    for (unsigned i = 0; i < hop_size; i++)
-//    {
-//        float e1, o;
-//        arm_fir_f32(&this->pred_filt, &this->carrier[i], &e1, 1);
-//        arm_fir_f32(&this->inv_filt, &this->out_save[i], &o, 1);
-//        this->out_save[i] = o + this->envelope_lpc_gain * e1;
-//    }
-//
-//    /* Copy result to output */
-//    arm_copy_f32(this->out_save.data(), out.data(), hop_size);
+    /* Windowing */
+    arm_mult_f32(this->carrier_input.data(), const_cast<float*>(this->window_hann.data()), this->carrier_fft.data(), this->fft_size);
+    arm_mult_f32(this->modulator_input.data(), const_cast<float*>(this->window_hann.data()), this->modulator_fft.data(), this->fft_size);
+
+    /* FFT of sliding window */
+    arm_rfft_fast_f32(&this->fft, this->carrier_fft.data(), this->carrier_fft.data() + this->fft_size, 0);
+    arm_rfft_fast_f32(&this->fft, this->modulator_fft.data(), this->modulator_fft.data() + this->fft_size, 0);
+
+    /* Save carrier spectrum */
+    arm_copy_f32(this->carrier_fft.data() + this->fft_size, this->carrier_spectrum.data(), this->fft_size);
+
+    /* Squared FFT */
+    arm_cmplx_mag_squared_f32(this->carrier_fft.data() + this->fft_size, this->carrier_fft.data(), this->fft_size / 2);
+    arm_cmplx_mag_squared_f32(this->modulator_fft.data() + this->fft_size, this->modulator_fft.data(), this->fft_size / 2);
+
+    /* Switch to 512 FFT */
+    arm_rfft_fast_init_f32(&this->fft, this->fft_size / 2);
+
+    /* Envelope calculation (circular convolution) */
+    arm_rfft_fast_f32(&this->fft, this->carrier_fft.data(), this->carrier_fft.data() + this->fft_size, 0);
+    arm_cmplx_mult_cmplx_f32(this->carrier_fft.data() + this->fft_size, this->ir_fft.data() + this->fft_size, this->carrier_fft.data(), this->fft_size / 4);
+    arm_rfft_fast_f32(&this->fft, this->carrier_fft.data(), this->carrier_fft.data() + this->fft_size, 1);
+
+    arm_rfft_fast_f32(&this->fft, this->modulator_fft.data(), this->modulator_fft.data() + this->fft_size, 0);
+    arm_cmplx_mult_cmplx_f32(this->modulator_fft.data() + this->fft_size, this->ir_fft.data() + this->fft_size, this->modulator_fft.data(), this->fft_size / 4);
+    arm_rfft_fast_f32(&this->fft, this->modulator_fft.data(), this->modulator_fft.data() + this->fft_size, 1);
+
+    for (unsigned i = this->fft_size; i < (this->fft_size + this->fft_size / 2); i++)
+    {
+        arm_sqrt_f32(0.00001f + this->carrier_fft[i], &this->carrier_fft[i]);
+        arm_sqrt_f32(this->modulator_fft[i], &this->modulator_fft[i]);
+        this->carrier_fft[i] = 1.0f / this->carrier_fft[i];
+    }
+
+    /* Synthesis */
+    arm_cmplx_mult_real_f32(this->carrier_spectrum.data(), this->modulator_fft.data() + this->fft_size, this->modulator_fft.data(), this->fft_size / 2);
+    arm_cmplx_mult_real_f32(this->modulator_fft.data(), this->carrier_fft.data() + this->fft_size, this->carrier_fft.data(), this->fft_size / 2);
+
+    /* Switch back to 1024 FFT */
+    arm_rfft_fast_init_f32(&this->fft, this->fft_size);
+
+    /* Final inverse FFT & windowing  */
+    arm_rfft_fast_f32(&this->fft, this->carrier_fft.data(), this->carrier_fft.data() + this->fft_size, 1);
+    arm_mult_f32(this->carrier_fft.data() + this->fft_size, const_cast<float*>(this->window_hann.data()), this->carrier_fft.data(), this->fft_size);
+
+    /* Overlap add */
+    arm_copy_f32(this->output.data() + block_size, this->output.data(), move_size); arm_fill_f32(0, this->output.data() + move_size, block_size);
+    arm_add_f32(this->output.data(), this->carrier_fft.data(), this->output.data(), this->fft_size);
+
+    /* Copy result to output */
+    arm_copy_f32(this->output.data(), out.data(), block_size);
 
 #endif
 }
