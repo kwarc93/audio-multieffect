@@ -198,10 +198,10 @@ private:
     filter_bank carrier_fb, modulator_fb;
 #else
     constexpr static uint32_t fft_size {1024};
-    constexpr static uint32_t bands {64};
+    constexpr static uint32_t bands {32};
 
-    /* Hanning window */
-    constexpr static std::array<float, 512> band_hann
+    /* Hanning window (32 channels) */
+    constexpr static std::array<float, 512> channel_hann
     {
         0.1250000000000000,    0.1202424707819554,    0.1066941738241592,
         0.0864177145228181,    0.0625000000000000,    0.0385822854771819,
@@ -371,11 +371,10 @@ private:
         0.0000000000000000,    0.0000000000000000,    0.0000000000000000,
         0.0000000000000000,    0.0000000000000000,    0.0000000000000000,
         0.0000000000000000,    0.0000000000000000,    0.0000000000000000,
-        0.0000000000000000,    0.0000000000000000,    0.0000000000000000,
-        0.0000000000000000,    0.0000000000000000,    0.0000000000000000,
-        0.0000000000000000,    0.0000000000000000
+        0.0000000000000000,    0.0047575292180446,    0.0183058261758408,
+        0.0385822854771819,    0.0625000000000000,    0.0864177145228181,
+        0.1066941738241592,    0.1202424707819554
     };
-
 
     /* Hanning window */
     constexpr static std::array<float, 1024> window_hann
@@ -727,8 +726,8 @@ private:
 
     arm_rfft_fast_instance_f32 fft;
 
-    std::array<float, fft_size> ir_fft;
     std::array<float, 2 * fft_size> carrier_fft, modulator_fft;
+    std::array<float, fft_size> ir_fft;
     std::array<float, fft_size> carrier_input, carrier_spectrum, modulator_input, output;
 #endif
     vocoder_attr attr;

@@ -41,7 +41,7 @@ vocoder::vocoder(float clarity, bool hold) : effect {effect_id::vocoder}
 //    constexpr uint32_t offset = (this->fft_size - this->fft_size / this->bands) / 2;
     arm_rfft_fast_init_f32(&this->fft, this->fft_size / 2);
     arm_fill_f32(0, this->ir_fft.data(), this->ir_fft.size());
-    arm_copy_f32(const_cast<float*>(this->band_hann.data()), this->ir_fft.data(), this->band_hann.size());
+    arm_copy_f32(const_cast<float*>(this->channel_hann.data()), this->ir_fft.data(), this->channel_hann.size());
     arm_rfft_fast_f32(&this->fft, this->ir_fft.data(), this->ir_fft.data() + this->fft_size / 2, 0); // fftshift?
 
     arm_rfft_fast_init_f32(&this->fft, this->fft_size);
@@ -96,6 +96,8 @@ void vocoder::process(const dsp_input& in, dsp_output& out)
 
     const uint32_t move_size = this->carrier_input.size() - block_size;
 
+    /* 1. ANALYSIS */
+
     /* Sliding window of input blocks */
     arm_copy_f32(this->carrier_input.data() + block_size, this->carrier_input.data(), move_size);
     arm_copy_f32(const_cast<float*>(in.data()), this->carrier_input.data() + move_size, block_size);
@@ -123,36 +125,32 @@ void vocoder::process(const dsp_input& in, dsp_output& out)
 
     /* Envelope calculation (circular convolution) */
     arm_rfft_fast_f32(&this->fft, this->carrier_fft.data(), this->carrier_fft.data() + this->fft_size, 0);
-//    arm_cmplx_mult_cmplx_f32(this->carrier_fft.data() + this->fft_size, this->ir_fft.data() + this->fft_size, this->carrier_fft.data(), this->fft_size / 4);
-    arm_scale_f32(this->carrier_fft.data() + this->fft_size, 1, this->carrier_fft.data(), this->fft_size / 2);
+    arm_cmplx_mult_cmplx_f32(this->carrier_fft.data() + this->fft_size, this->ir_fft.data() + this->fft_size / 2, this->carrier_fft.data(), this->fft_size / 4);
     arm_rfft_fast_f32(&this->fft, this->carrier_fft.data(), this->carrier_fft.data() + this->fft_size, 1);
 
     arm_rfft_fast_f32(&this->fft, this->modulator_fft.data(), this->modulator_fft.data() + this->fft_size, 0);
-//    arm_cmplx_mult_cmplx_f32(this->modulator_fft.data() + this->fft_size, this->ir_fft.data() + this->fft_size, this->modulator_fft.data(), this->fft_size / 4);
-    arm_scale_f32(this->modulator_fft.data() + this->fft_size, 1, this->modulator_fft.data(), this->fft_size / 2);
+    arm_cmplx_mult_cmplx_f32(this->modulator_fft.data() + this->fft_size, this->ir_fft.data() + this->fft_size / 2, this->modulator_fft.data(), this->fft_size / 4);
     arm_rfft_fast_f32(&this->fft, this->modulator_fft.data(), this->modulator_fft.data() + this->fft_size, 1);
 
+    /* 2. TRANSFORMATION */
+    const float epsi = (1 - this->attr.ctrl.clarity);
     for (unsigned i = this->fft_size; i < (this->fft_size + this->fft_size / 2); i++)
-    {
-        arm_sqrt_f32(0.00001f + this->carrier_fft[i], &this->carrier_fft[i]);
-        arm_sqrt_f32(this->modulator_fft[i], &this->modulator_fft[i]);
-        this->carrier_fft[i] = 1.0f / this->carrier_fft[i];
-    }
+        arm_sqrt_f32(this->modulator_fft[i] / (this->carrier_fft[i] + epsi), &this->carrier_fft[i - this->fft_size]);
 
-    /* Synthesis */
-    arm_cmplx_mult_real_f32(this->carrier_spectrum.data(), this->modulator_fft.data() + this->fft_size, this->modulator_fft.data(), this->fft_size / 2);
-    arm_cmplx_mult_real_f32(this->modulator_fft.data(), this->carrier_fft.data() + this->fft_size, this->carrier_fft.data(), this->fft_size / 2);
+    arm_cmplx_mult_real_f32(this->carrier_spectrum.data(), this->carrier_fft.data(), this->carrier_fft.data() + this->fft_size, this->fft_size / 2);
+
+    /* 3. SYNTHESIS */
 
     /* Switch back to 1024 FFT */
     arm_rfft_fast_init_f32(&this->fft, this->fft_size);
 
     /* Final inverse FFT & windowing  */
-    arm_rfft_fast_f32(&this->fft, this->carrier_fft.data(), this->carrier_fft.data() + this->fft_size, 1);
-    arm_mult_f32(this->carrier_fft.data() + this->fft_size, const_cast<float*>(this->window_hann.data()), this->carrier_fft.data(), this->fft_size);
+    arm_rfft_fast_f32(&this->fft, this->carrier_fft.data() + this->fft_size, this->carrier_fft.data(), 1);
+    arm_mult_f32(this->carrier_fft.data(), const_cast<float*>(this->window_hann.data()), this->carrier_fft.data() + this->fft_size, this->fft_size);
 
     /* Overlap add */
     arm_copy_f32(this->output.data() + block_size, this->output.data(), move_size); arm_fill_f32(0, this->output.data() + move_size, block_size);
-    arm_add_f32(this->output.data(), this->carrier_fft.data(), this->output.data(), this->fft_size);
+    arm_add_f32(this->output.data(), this->carrier_fft.data() + this->fft_size, this->output.data(), this->fft_size);
 
     /* Copy result to output */
     arm_copy_f32(this->output.data(), out.data(), block_size);
