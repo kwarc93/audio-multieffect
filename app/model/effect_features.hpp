@@ -125,7 +125,9 @@ struct vocoder_attr
     struct controls
     {
         float clarity; // Speech clarity, range [0, 1.0]
+        unsigned channels; // Number of bandpass channels, range: 16 for vintage, 8-256 for modern
         bool hold; // Holds modulator envelope, true/false
+        enum class mode_type {vintage, modern} mode; // Vocoder type, bandpass filters or FFT
     } ctrl;
 };
 
