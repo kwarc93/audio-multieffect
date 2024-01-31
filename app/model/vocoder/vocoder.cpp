@@ -118,31 +118,44 @@ void vocoder::process(const dsp_input& in, dsp_output& out)
     /* Save carrier spectrum */
     arm_copy_f32(cenv_in, this->carrier_stfft.data(), this->window_size);
 
-    /* Squared FFT */
-    arm_cmplx_mag_squared_f32(cenv_in, cenv_out, this->window_size / 2);
-    arm_cmplx_mag_squared_f32(menv_in, menv_out, this->window_size / 2);
+    /* Squared FFT magnitude (care must be taken here, due to special packing of RFFT data) */
+    arm_cmplx_mag_squared_f32(cenv_in + 2, cenv_out + 1, this->window_size / 2 - 1);
+    arm_cmplx_mag_squared_f32(menv_in + 2, menv_out + 1, this->window_size / 2 - 1);
+    cenv_out[0] = cenv_in[0] * cenv_in[0];
+//    cenv_out[this->window_size / 4] = cenv_in[1] * cenv_in[1];
+    menv_out[0] = menv_in[0] * menv_in[0];
+//    menv_out[this->window_size / 4] = menv_in[1] * menv_in[1];
     std::swap(cenv_in, cenv_out);
     std::swap(menv_in, menv_out);
 
     /* Envelope calculation (circular convolution, half the window size) */
+    float *ch_fft = this->channel_fft.data() + this->window_size / 2;
+
     arm_rfft_fast_f32(&this->fft_conv, cenv_in, cenv_out, 0);
     std::swap(cenv_in, cenv_out);
-    arm_cmplx_mult_cmplx_f32(cenv_in, this->channel_fft.data() + this->window_size / 2, cenv_out, this->window_size / 4);
+    arm_cmplx_mult_cmplx_f32(cenv_in, ch_fft, cenv_out, this->window_size / 4);
     std::swap(cenv_in, cenv_out);
     arm_rfft_fast_f32(&this->fft_conv, cenv_in, cenv_out, 1);
     std::swap(cenv_in, cenv_out);
 
     arm_rfft_fast_f32(&this->fft_conv, menv_in, menv_out, 0);
     std::swap(menv_in, menv_out);
-    arm_cmplx_mult_cmplx_f32(menv_in, this->channel_fft.data() + this->window_size / 2, menv_out, this->window_size / 4);
+    arm_cmplx_mult_cmplx_f32(menv_in, ch_fft, menv_out, this->window_size / 4);
     std::swap(menv_in, menv_out);
     arm_rfft_fast_f32(&this->fft_conv, menv_in, menv_out, 1);
     std::swap(menv_in, menv_out);
 
     /* 2. TRANSFORMATION */
-    const float epsi = /*(1 - this->attr.ctrl.clarity)*/0.00001f;
+    const float epsi = (1 - this->attr.ctrl.clarity);
     for (unsigned i = 0; i < (this->window_size / 2); i++)
+    {
+        /* TODO: Check why there are some negative values of envelopes... */
+//        if (arm_sqrt_f32(menv_in[i] / (cenv_in[i] + epsi), &cenv_out[i]) == ARM_MATH_ARGUMENT_ERROR)
+//            asm volatile ("BKPT 0");
+
         arm_sqrt_f32(menv_in[i] / (cenv_in[i] + epsi), &cenv_out[i]);
+    }
+
     std::swap(cenv_in, cenv_out);
     arm_cmplx_mult_real_f32(this->carrier_stfft.data(), cenv_in, cenv_out, this->window_size / 2);
     std::swap(cenv_in, cenv_out);
@@ -191,8 +204,8 @@ void vocoder::set_channels(unsigned ch_num)
 {
     ch_num = std::clamp(ch_num, 8U, 256U);
 
-    if (this->attr.ctrl.channels == ch_num)
-        return;
+//    if (this->attr.ctrl.channels == ch_num)
+//        return;
 
     if (this->attr.ctrl.mode == vocoder_attr::controls::mode_type::vintage)
     {
@@ -220,14 +233,15 @@ void vocoder::set_channels(unsigned ch_num)
         assert(nob % 2 == 0);
 
         const float k = 2.0f / nob;
+        const unsigned half_nob = nob / 2;
         for (unsigned i = 0; i < nob; i++)
         {
-            float w = libs::adsp::pi * i * k;
+            float w = libs::adsp::pi * (i + 1) * k;
             w = 0.5f * (1.0f - std::cos(w));
-            if (i < nob / 2)
-                this->channel_fft[nob / 2 - 1 - i] = w;
+            if (i < half_nob)
+                this->channel_fft[half_nob - 1 - i] = w;
             else
-                this->channel_fft[window_half_size - 1 - i] = w;
+                this->channel_fft[window_half_size + half_nob - 1 - i] = w;
         }
 
         arm_rfft_fast_f32(&this->fft_conv, this->channel_fft.data(), this->channel_fft.data() + window_half_size, 0);
