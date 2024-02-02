@@ -182,7 +182,7 @@ void vocoder::set_mode(vocoder_attr::controls::mode_type mode)
 
 void vocoder::set_clarity(float clarity)
 {
-    clarity = std::clamp(clarity, 0.0f, 0.999f);
+    clarity = std::clamp(clarity, 0.0f, 0.99999f);
 
     if (this->attr.ctrl.clarity == clarity)
         return;
