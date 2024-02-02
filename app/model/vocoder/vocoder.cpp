@@ -142,7 +142,7 @@ void vocoder::process(const dsp_input& in, dsp_output& out)
     std::swap(menv_in, menv_out);
 
     /* 2. TRANSFORMATION */
-    const float epsi = (1 - this->attr.ctrl.clarity);
+    const float epsi = (1.0f - this->attr.ctrl.clarity);
     for (unsigned i = 0; i < (this->window_size / 2); i++)
         arm_sqrt_f32(std::abs(menv_in[i]) / (std::abs(cenv_in[i]) + epsi), &cenv_out[i]);
     std::swap(cenv_in, cenv_out);
@@ -182,7 +182,10 @@ void vocoder::set_mode(vocoder_attr::controls::mode_type mode)
 
 void vocoder::set_clarity(float clarity)
 {
-    clarity = std::clamp(clarity, 0.0f, 0.99999f);
+    clarity = std::clamp(clarity, 0.0f, 0.99f);
+
+    /* Approx. log curve by two lines */
+    clarity = (clarity < 0.5f) ? clarity * 1.8f : 0.9f + clarity * 0.101f;
 
     if (this->attr.ctrl.clarity == clarity)
         return;
@@ -194,8 +197,8 @@ void vocoder::set_channels(unsigned ch_num)
 {
     ch_num = std::clamp(ch_num, 8U, 256U);
 
-//    if (this->attr.ctrl.channels == ch_num)
-//        return;
+    if (this->attr.ctrl.channels == ch_num)
+        return;
 
     if (this->attr.ctrl.mode == vocoder_attr::controls::mode_type::vintage)
     {
