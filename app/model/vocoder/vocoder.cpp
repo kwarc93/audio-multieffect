@@ -118,13 +118,9 @@ void vocoder::process(const dsp_input& in, dsp_output& out)
     /* Save carrier spectrum */
     arm_copy_f32(cenv_in, this->carrier_stfft.data(), this->window_size);
 
-    /* Squared FFT magnitude (care must be taken here, due to special packing of RFFT data) */
-    arm_cmplx_mag_squared_f32(cenv_in + 2, cenv_out + 1, this->window_size / 2 - 1);
-    arm_cmplx_mag_squared_f32(menv_in + 2, menv_out + 1, this->window_size / 2 - 1);
-    cenv_out[0] = cenv_in[0] * cenv_in[0];
-//    cenv_out[this->window_size / 4] = cenv_in[1] * cenv_in[1];
-    menv_out[0] = menv_in[0] * menv_in[0];
-//    menv_out[this->window_size / 4] = menv_in[1] * menv_in[1];
+    /* Squared FFT magnitude */
+    arm_cmplx_mag_squared_f32(cenv_in, cenv_out, this->window_size / 2);
+    arm_cmplx_mag_squared_f32(menv_in, menv_out, this->window_size / 2);
     std::swap(cenv_in, cenv_out);
     std::swap(menv_in, menv_out);
 
@@ -148,15 +144,9 @@ void vocoder::process(const dsp_input& in, dsp_output& out)
     /* 2. TRANSFORMATION */
     const float epsi = (1 - this->attr.ctrl.clarity);
     for (unsigned i = 0; i < (this->window_size / 2); i++)
-    {
-        /* TODO: Check why there are some negative values of envelopes... */
-//        if (arm_sqrt_f32(menv_in[i] / (cenv_in[i] + epsi), &cenv_out[i]) == ARM_MATH_ARGUMENT_ERROR)
-//            asm volatile ("BKPT 0");
-
-        arm_sqrt_f32(menv_in[i] / (cenv_in[i] + epsi), &cenv_out[i]);
-    }
-
+        arm_sqrt_f32(std::abs(menv_in[i]) / (std::abs(cenv_in[i]) + epsi), &cenv_out[i]);
     std::swap(cenv_in, cenv_out);
+
     arm_cmplx_mult_real_f32(this->carrier_stfft.data(), cenv_in, cenv_out, this->window_size / 2);
     std::swap(cenv_in, cenv_out);
 
@@ -192,7 +182,7 @@ void vocoder::set_mode(vocoder_attr::controls::mode_type mode)
 
 void vocoder::set_clarity(float clarity)
 {
-    clarity = std::clamp(clarity, 0.0f, 0.99999f);
+    clarity = std::clamp(clarity, 0.0f, 0.999f);
 
     if (this->attr.ctrl.clarity == clarity)
         return;
@@ -217,19 +207,17 @@ void vocoder::set_channels(unsigned ch_num)
         /* Ceil to next power of 2 */
         this->attr.ctrl.channels = 1U << static_cast<unsigned>(std::floor(std::log2(static_cast<float>(ch_num - 1))) + 1);
 
-        constexpr unsigned window_half_size = this->window_size / 2;
-        arm_fill_f32(0, this->channel_fft.data(), window_half_size);
+        arm_fill_f32(0, this->channel_fft.data(), this->window_size);
 
         /*
-         * Hanning window generation for bandpass filtering in frequency domain.
+         * Hanning window generation for bandpass filtering in frequency domain. Channel bandwidth is: nch * fs / window_size
          * It's equivalent to MATLAB's syntax:
          *
          * h = hanning(nob, 'periodic')
-         * fftshift([zeros((window_half_size-nob)/2,1); h; zeros((window_half_size-nob)/2,1)])
+         * fftshift([zeros((window_size/2-nob)/2,1); h/sum(h); zeros((window_size/2-nob)/2,1)])
          */
 
-        const unsigned bandwidth = this->attr.ctrl.channels * config::sampling_frequency_hz / window_half_size; // Channel bandwidth
-        const unsigned nob = window_half_size / this->attr.ctrl.channels; // Number of FFT bins in channel
+        const unsigned nob = this->window_size / this->attr.ctrl.channels;
         assert(nob % 2 == 0);
 
         const float k = 2.0f / nob;
@@ -237,14 +225,14 @@ void vocoder::set_channels(unsigned ch_num)
         for (unsigned i = 0; i < nob; i++)
         {
             float w = libs::adsp::pi * (i + 1) * k;
-            w = 0.5f * (1.0f - std::cos(w));
+            w = (0.5f * (1.0f - std::cos(w))) * k;
             if (i < half_nob)
                 this->channel_fft[half_nob - 1 - i] = w;
             else
-                this->channel_fft[window_half_size + half_nob - 1 - i] = w;
+                this->channel_fft[this->window_size / 2 + half_nob - 1 - i] = w;
         }
 
-        arm_rfft_fast_f32(&this->fft_conv, this->channel_fft.data(), this->channel_fft.data() + window_half_size, 0);
+        arm_rfft_fast_f32(&this->fft_conv, this->channel_fft.data(), this->channel_fft.data() + this->window_size / 2, 0);
     }
 }
 
