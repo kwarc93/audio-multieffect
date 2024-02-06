@@ -29,7 +29,7 @@ namespace
 
 vocoder::vocoder(float clarity, float tone, unsigned channels, vocoder_attr::controls::mode_type mode) : effect {effect_id::vocoder}
 {
-    this->highpass_filter.set_coeffs(this->highpass_coeffs);
+//    this->highpass_filter.set_coeffs(this->highpass_coeffs);
 
     arm_rfft_fast_init_f32(&this->fft, this->window_size);
     arm_rfft_fast_init_f32(&this->fft_conv, this->window_size / 2);
@@ -61,6 +61,7 @@ void vocoder::process(const dsp_input& in, dsp_output& out)
 //        /* Add highpassed modulator to the output */
 //        this->highpass_filter.process(this->aux_in->data(), out.data(), out.size());
 //        for (auto &&s : out) s *= this->attr.ctrl.clarity * 0.5f;
+        arm_fill_f32(0, out.data(), out.size());
         this->hp.process(this->aux_in->data(), const_cast<float*>(this->aux_in->data()), this->aux_in->size());
 
         const auto bands = this->carrier_fb.bands;
@@ -163,8 +164,6 @@ void vocoder::process(const dsp_input& in, dsp_output& out)
         /* Final inverse FFT & optional windowing  */
         arm_rfft_fast_f32(&this->fft, cenv_in, cenv_out, 1);
         std::swap(cenv_in, cenv_out);
-    //    arm_mult_f32(cenv_in, const_cast<float*>(this->window_hann.data()), cenv_out, this->window_size);
-    //    std::swap(cenv_in, cenv_out);
 
         /* Overlap add */
         arm_copy_f32(this->output.data() + block_size, this->output.data(), move_size); arm_fill_f32(0, this->output.data() + move_size, block_size);

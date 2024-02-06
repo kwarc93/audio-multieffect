@@ -290,7 +290,7 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const vocoder_attr &spe
     lv_roller_set_selected(ui_roller_voc_bands, pos, LV_ANIM_OFF);
 
     lv_arc_set_value(ui_arc_voc_clarity, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_voc_clarity), lv_arc_get_max_value(ui_arc_voc_clarity), utils::inv_log_to_lin(specific.ctrl.clarity)));
-    lv_arc_set_value(ui_arc_voc_tone, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_voc_tone), lv_arc_get_max_value(ui_arc_voc_tone), utils::inv_log_to_lin(specific.ctrl.tone)));
+    lv_arc_set_value(ui_arc_voc_tone, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_voc_tone), lv_arc_get_max_value(ui_arc_voc_tone), utils::log_to_lin(specific.ctrl.tone)));
 
     if (specific.ctrl.mode == vocoder_attr::controls::mode_type::vintage)
     {

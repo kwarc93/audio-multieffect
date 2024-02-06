@@ -157,8 +157,8 @@ void notify_vocoder_controls_changed(void)
     const mfx::vocoder_attr::controls ctrl
     {
         bands,
-        static_cast<float>(mfx::utils::lin_to_inv_log(lv_arc_get_value(clarity_knob) * 0.01f)),
-        static_cast<float>(mfx::utils::lin_to_inv_log(lv_arc_get_value(tone_knob) * 0.01f)),
+        mfx::utils::lin_to_inv_log(lv_arc_get_value(clarity_knob) * 0.01f),
+        mfx::utils::lin_to_log(lv_arc_get_value(tone_knob) * 0.01f),
         lv_obj_has_state(hold_btn, LV_STATE_CHECKED),
         lv_obj_has_state(mode_sw, LV_STATE_CHECKED) ?
         mfx::vocoder_attr::controls::mode_type::modern :
