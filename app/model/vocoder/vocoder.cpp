@@ -27,7 +27,7 @@ namespace
 //-----------------------------------------------------------------------------
 /* public */
 
-vocoder::vocoder(float clarity, unsigned channels, vocoder_attr::controls::mode_type mode) : effect {effect_id::vocoder}
+vocoder::vocoder(float clarity, float tone, unsigned channels, vocoder_attr::controls::mode_type mode) : effect {effect_id::vocoder}
 {
 #ifndef VOCODER_ALG_FFT
     this->highpass_filter.set_coeffs(this->highpass_coeffs);
@@ -41,15 +41,13 @@ vocoder::vocoder(float clarity, unsigned channels, vocoder_attr::controls::mode_
     arm_fill_f32(0, this->modulator_input.data(), this->modulator_input.size());
     arm_fill_f32(0, this->output.data(), this->output.size());
 
-    this->attr.bands_list.reserve(this->bands_variants);
-    for (unsigned i = 0; i < this->bands_variants; i++)
-        this->attr.bands_list.push_back(1U << (3U + i));
 #endif
 
     this->set_mode(mode);
+    this->hold(false);
+    this->set_tone(tone);
     this->set_clarity(clarity);
     this->set_channels(channels);
-    this->hold(false);
 }
 
 vocoder::~vocoder()
@@ -107,8 +105,11 @@ void vocoder::process(const dsp_input& in, dsp_output& out)
     arm_copy_f32(this->carrier_input.data() + block_size, this->carrier_input.data(), move_size);
     arm_copy_f32(const_cast<float*>(in.data()), this->carrier_input.data() + move_size, block_size);
 
-    arm_copy_f32(this->modulator_input.data() + block_size, this->modulator_input.data(), move_size);
-    arm_copy_f32(const_cast<float*>(this->aux_in->data()), this->modulator_input.data() + move_size, block_size);
+    if (!this->attr.ctrl.hold)
+    {
+        arm_copy_f32(this->modulator_input.data() + block_size, this->modulator_input.data(), move_size);
+        arm_copy_f32(const_cast<float*>(this->aux_in->data()), this->modulator_input.data() + move_size, block_size);
+    }
 
     /* Windowing */
     arm_mult_f32(this->carrier_input.data(), const_cast<float*>(this->window_hann.data()), cenv_in, this->window_size);
@@ -129,7 +130,8 @@ void vocoder::process(const dsp_input& in, dsp_output& out)
     std::swap(cenv_in, cenv_out);
     std::swap(menv_in, menv_out);
 
-    /* Envelope calculation (circular convolution, half the window size) */
+    /* Envelope smoothing (circular convolution using FFT, half the window size) */
+    /* TODO: Check if normal FIR filter or convolution will be sufficient here */
     float *ch_fft = this->channel_fft.data() + this->window_size / 2;
 
     arm_rfft_fast_f32(&this->fft_conv, cenv_in, cenv_out, 0);
@@ -181,6 +183,18 @@ void vocoder::set_mode(vocoder_attr::controls::mode_type mode)
 {
     if (this->attr.ctrl.mode == mode)
         return;
+
+    if (mode == vocoder_attr::controls::mode_type::vintage)
+    {
+        this->attr.bands_list.resize(1);
+        this->attr.bands_list.at(0) = this->bands;
+    }
+    else
+    {
+        this->attr.bands_list.resize(this->bands_variants);
+        for (unsigned i = 0; i < this->bands_variants; i++)
+            this->attr.bands_list.at(i) = (1U << (3U + i));
+    }
 
     this->attr.ctrl.mode = mode;
 }

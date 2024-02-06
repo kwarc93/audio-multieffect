@@ -39,14 +39,13 @@ constexpr float lin_to_inv_log(float x)
 constexpr float log_to_lin(float x)
 {
     x = std::clamp(x, 0.0f, 1.0f);
-    return (x < 0.1f) ? x * 5.0f : 0.45 + x * 0.55f;
+    return (x < 0.1f) ? x * 5.0f : (1.0f/2.25f) + x * (1.0f/1.8f);
 }
-
 
 constexpr float inv_log_to_lin(float x)
 {
     x = std::clamp(x, 0.0f, 1.0f);
-    return (x < 0.9f) ? x * 0.55f : -4.0f + x * 5.0f;
+    return (x < 0.9f) ? x * (1.0f/1.8f) : -4.0f + x * 5.0f;
 }
 
 }

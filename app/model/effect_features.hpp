@@ -115,8 +115,8 @@ struct cabinet_sim_attr
 {
     struct controls
     {
-        enum class resolution {standart = 1024, high = 2048} ir_res; // IR resolution in samples
         uint8_t ir_idx; // Currently selected IR index
+        enum class resolution {standart = 1024, high = 2048} ir_res; // IR resolution in samples
     } ctrl;
 
     std::vector<const char *> ir_names; // List of available impulses

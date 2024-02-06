@@ -34,7 +34,7 @@ private:
     libs::adsp::oscillator lfo1, lfo2;
     libs::adsp::unicomb unicomb1, unicomb2;
 
-    chorus_attr attr;
+    chorus_attr attr {0};
 };
 
 }

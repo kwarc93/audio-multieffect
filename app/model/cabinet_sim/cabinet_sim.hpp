@@ -36,7 +36,7 @@ private:
     /* FFT based convolution */
     libs::adsp::fast_convolution<config::dsp_vector_size, ir_size> fast_conv;
 
-    cabinet_sim_attr attr;
+    cabinet_sim_attr attr {0};
 };
 
 }

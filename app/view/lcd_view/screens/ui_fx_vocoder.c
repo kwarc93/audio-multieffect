@@ -202,7 +202,7 @@ void ui_fx_vocoder_screen_init(void)
 
     ui_roller_voc_bands = lv_roller_create(ui_pnl_voc_bands);
     lv_obj_set_height( ui_roller_voc_bands, 95);
-    lv_obj_set_width( ui_roller_voc_bands, LV_SIZE_CONTENT);  /// 1
+    lv_obj_set_width( ui_roller_voc_bands, 65);
     lv_obj_set_x( ui_roller_voc_bands, 0 );
     lv_obj_set_y( ui_roller_voc_bands, -12 );
     lv_obj_set_align( ui_roller_voc_bands, LV_ALIGN_CENTER );
@@ -217,6 +217,7 @@ void ui_fx_vocoder_screen_init(void)
     lv_obj_set_style_text_opa(ui_roller_voc_bands, 255, LV_PART_SELECTED| LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(ui_roller_voc_bands, lv_color_hex(0x50FF7D), LV_PART_SELECTED | LV_STATE_DEFAULT );
     lv_obj_set_style_bg_opa(ui_roller_voc_bands, 255, LV_PART_SELECTED| LV_STATE_DEFAULT);
+    lv_obj_clear_flag(ui_roller_voc_bands, LV_OBJ_FLAG_GESTURE_BUBBLE);      /// Flags
 
     ui_lbl_voc_bands = lv_label_create(ui_pnl_voc_bands);
     lv_obj_set_width( ui_lbl_voc_bands, 68);

@@ -38,7 +38,7 @@ private:
 
     float mix;
 
-    reverb_attr attr;
+    reverb_attr attr {0};
 };
 
 }

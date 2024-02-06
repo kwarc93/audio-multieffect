@@ -22,7 +22,7 @@ namespace mfx
 class vocoder : public effect
 {
 public:
-    vocoder (float clarity = 0.7f, unsigned channels = 64, vocoder_attr::controls::mode_type mode = vocoder_attr::controls::mode_type::modern);
+    vocoder (float clarity = 0.7f,float tone = 0.3f, unsigned channels = 64, vocoder_attr::controls::mode_type mode = vocoder_attr::controls::mode_type::modern);
     virtual ~vocoder ();
 
     void process(const dsp_input &in, dsp_output &out) override;
@@ -556,7 +556,7 @@ private:
     std::array<float, 2 * window_size> carrier_env, modulator_env;
     std::array<float, window_size> carrier_input, carrier_stfft, modulator_input, output, channel_fft;
 #endif
-    vocoder_attr attr;
+    vocoder_attr attr {0};
 };
 
 }

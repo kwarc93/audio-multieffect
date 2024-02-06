@@ -256,14 +256,19 @@ void effect_processor::set_controls(const vocoder_attr::controls &ctrl)
     if (vocoder_effect == nullptr)
         return;
 
-    vocoder_effect->set_channels(ctrl.bands);
-    vocoder_effect->set_clarity(ctrl.clarity);
-    vocoder_effect->set_tone(ctrl.tone);
+    const auto current_mode = std::get<vocoder_attr>(vocoder_effect->get_specific_attributes()).ctrl.mode;
+
     vocoder_effect->set_mode(ctrl.mode);
     vocoder_effect->hold(ctrl.hold);
+    vocoder_effect->set_tone(ctrl.tone);
+    vocoder_effect->set_clarity(ctrl.clarity);
+    vocoder_effect->set_channels(ctrl.bands);
 
-    /* Notify about change in internal structure of effect */
-//    this->notify_effect_attributes_changed(vocoder_effect);
+    if (current_mode != ctrl.mode)
+    {
+        /* Notify about change in internal structure of effect */
+        this->notify_effect_attributes_changed(vocoder_effect);
+    }
 }
 
 void effect_processor::notify_effect_attributes_changed(effect *e)

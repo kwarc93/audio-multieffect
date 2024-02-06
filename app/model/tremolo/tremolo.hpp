@@ -31,7 +31,7 @@ private:
     libs::adsp::oscillator lfo;
     libs::adsp::basic_iir<libs::adsp::basic_iir_type::lowpass> lpf;
 
-    tremolo_attr attr;
+    tremolo_attr attr {0};
 };
 
 }

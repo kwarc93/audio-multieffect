@@ -48,7 +48,7 @@ private:
     /* Tunable low-pass 2-nd order IIR filter */
     libs::adsp::iir_lowpass iir_lp;
 
-    overdrive_attr attr;
+    overdrive_attr attr {0};
 };
 
 }

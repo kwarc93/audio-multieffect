@@ -32,7 +32,7 @@ public:
 private:
     libs::adsp::unicomb unicomb;
 
-    echo_attr attr;
+    echo_attr attr {0};
 };
 
 }
