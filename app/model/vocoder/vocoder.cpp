@@ -29,10 +29,8 @@ namespace
 
 vocoder::vocoder(float clarity, float tone, unsigned channels, vocoder_attr::controls::mode_type mode) : effect {effect_id::vocoder}
 {
-#ifndef VOCODER_ALG_FFT
     this->highpass_filter.set_coeffs(this->highpass_coeffs);
-    this->attr.bands_list.push_back(this->bands);
-#else
+
     arm_rfft_fast_init_f32(&this->fft, this->window_size);
     arm_rfft_fast_init_f32(&this->fft_conv, this->window_size / 2);
 
@@ -40,8 +38,6 @@ vocoder::vocoder(float clarity, float tone, unsigned channels, vocoder_attr::con
     arm_fill_f32(0, this->carrier_input.data(), this->carrier_input.size());
     arm_fill_f32(0, this->modulator_input.data(), this->modulator_input.size());
     arm_fill_f32(0, this->output.data(), this->output.size());
-
-#endif
 
     this->set_mode(mode);
     this->hold(false);
@@ -59,119 +55,124 @@ void vocoder::process(const dsp_input& in, dsp_output& out)
 {
     if (this->aux_in == nullptr)
         return;
-#ifndef VOCODER_ALG_FFT
-    /* Add highpassed modulator to the output */
-    this->highpass_filter.process(this->aux_in->data(), out.data(), out.size());
-    for (auto &&s : out) s *= this->attr.ctrl.clarity * 0.5f;
 
-    const auto bands = this->carrier_fb.bands;
-    for (unsigned band = 0; band < bands; band++)
+    if (this->attr.ctrl.mode == vocoder_attr::controls::mode_type::vintage)
     {
-        this->carrier_fb.bandpass(band, in.data(), this->carrier_bp_buf.data(), in.size());
-        arm_mult_f32(this->carrier_bp_buf.data(), this->carrier_bp_buf.data(), this->carrier_env_buf.data(), this->carrier_env_buf.size());
-        this->carrier_fb.lowpass(band, this->carrier_env_buf.data(), this->carrier_env_buf.data(), this->carrier_env_buf.size());
+//        /* Add highpassed modulator to the output */
+//        this->highpass_filter.process(this->aux_in->data(), out.data(), out.size());
+//        for (auto &&s : out) s *= this->attr.ctrl.clarity * 0.5f;
+        this->hp.process(this->aux_in->data(), const_cast<float*>(this->aux_in->data()), this->aux_in->size());
+
+        const auto bands = this->carrier_fb.bands;
+        for (unsigned band = 0; band < bands; band++)
+        {
+            this->carrier_fb.bandpass(band, in.data(), this->carrier_bp_buf.data(), in.size());
+            arm_mult_f32(this->carrier_bp_buf.data(), this->carrier_bp_buf.data(), this->carrier_env_buf.data(), this->carrier_env_buf.size());
+            this->carrier_fb.lowpass(band, this->carrier_env_buf.data(), this->carrier_env_buf.data(), this->carrier_env_buf.size());
+
+            if (!this->attr.ctrl.hold)
+            {
+                this->modulator_fb.bandpass(band, this->aux_in->data(), this->modulator_env_buf.data(), this->modulator_env_buf.size());
+                arm_mult_f32(this->modulator_env_buf.data(), this->modulator_env_buf.data(), this->modulator_env_buf.data(), this->modulator_env_buf.size());
+                this->modulator_fb.lowpass(band, this->modulator_env_buf.data(), this->modulator_env_buf.data(), this->modulator_env_buf.size());
+                arm_sqrt_f32(this->modulator_env_buf[0], &this->modulator_hold[band]);
+            }
+
+            for (unsigned i = 0; i < out.size(); i++)
+            {
+                arm_sqrt_f32((1 - this->attr.ctrl.clarity) + this->carrier_env_buf[i], &this->carrier_env_buf[i]);
+                if (!this->attr.ctrl.hold)
+                    arm_sqrt_f32(this->modulator_env_buf[i], &this->modulator_env_buf[i]);
+                else
+                    this->modulator_env_buf[i] = this->modulator_hold[band];
+
+                out[i] += this->carrier_bp_buf[i] * this->modulator_env_buf[i] / this->carrier_env_buf[i];
+            }
+        }
+    }
+    else
+    {
+        constexpr unsigned block_size = config::dsp_vector_size;
+        constexpr unsigned move_size = this->window_size - block_size;
+
+        float *cenv_in = this->carrier_env.data();
+        float *cenv_out = this->carrier_env.data() + this->window_size;
+        float *menv_in = this->modulator_env.data();
+        float *menv_out = this->modulator_env.data() + this->window_size;
+
+        /* 1. ANALYSIS */
+
+        /* Sliding window of input blocks */
+        arm_copy_f32(this->carrier_input.data() + block_size, this->carrier_input.data(), move_size);
+        arm_copy_f32(const_cast<float*>(in.data()), this->carrier_input.data() + move_size, block_size);
 
         if (!this->attr.ctrl.hold)
         {
-            this->modulator_fb.bandpass(band, this->aux_in->data(), this->modulator_env_buf.data(), this->modulator_env_buf.size());
-            arm_mult_f32(this->modulator_env_buf.data(), this->modulator_env_buf.data(), this->modulator_env_buf.data(), this->modulator_env_buf.size());
-            this->modulator_fb.lowpass(band, this->modulator_env_buf.data(), this->modulator_env_buf.data(), this->modulator_env_buf.size());
-            arm_sqrt_f32(this->modulator_env_buf[0], &this->modulator_hold[band]);
+            arm_copy_f32(this->modulator_input.data() + block_size, this->modulator_input.data(), move_size);
+            this->hp.process(this->aux_in->data(), this->modulator_input.data() + move_size, block_size);
         }
 
-        for (unsigned i = 0; i < out.size(); i++)
-        {
-            arm_sqrt_f32((1 - this->attr.ctrl.clarity) + this->carrier_env_buf[i], &this->carrier_env_buf[i]);
-            if (!this->attr.ctrl.hold)
-                arm_sqrt_f32(this->modulator_env_buf[i], &this->modulator_env_buf[i]);
-            else
-                this->modulator_env_buf[i] = this->modulator_hold[band];
+        /* Windowing */
+        arm_mult_f32(this->carrier_input.data(), const_cast<float*>(this->window_hann.data()), cenv_in, this->window_size);
+        arm_mult_f32(this->modulator_input.data(), const_cast<float*>(this->window_hann.data()), menv_in, this->window_size);
 
-            out[i] += this->carrier_bp_buf[i] * this->modulator_env_buf[i] / this->carrier_env_buf[i];
-        }
+        /* FFT of sliding window */
+        arm_rfft_fast_f32(&this->fft, cenv_in, cenv_out, 0);
+        arm_rfft_fast_f32(&this->fft, menv_in, menv_out, 0);
+        std::swap(cenv_in, cenv_out);
+        std::swap(menv_in, menv_out);
+
+        /* Save carrier spectrum */
+        arm_copy_f32(cenv_in, this->carrier_stfft.data(), this->window_size);
+
+        /* Squared FFT magnitude */
+        arm_cmplx_mag_squared_f32(cenv_in, cenv_out, this->window_size / 2);
+        arm_cmplx_mag_squared_f32(menv_in, menv_out, this->window_size / 2);
+        std::swap(cenv_in, cenv_out);
+        std::swap(menv_in, menv_out);
+
+        /* Envelope smoothing (circular convolution using FFT, half the window size) */
+        /* TODO: Check if normal FIR filter or convolution will be sufficient here */
+        float *ch_fft = this->channel_fft.data() + this->window_size / 2;
+
+        arm_rfft_fast_f32(&this->fft_conv, cenv_in, cenv_out, 0);
+        std::swap(cenv_in, cenv_out);
+        arm_cmplx_mult_cmplx_f32(cenv_in, ch_fft, cenv_out, this->window_size / 4);
+        std::swap(cenv_in, cenv_out);
+        arm_rfft_fast_f32(&this->fft_conv, cenv_in, cenv_out, 1);
+        std::swap(cenv_in, cenv_out);
+
+        arm_rfft_fast_f32(&this->fft_conv, menv_in, menv_out, 0);
+        std::swap(menv_in, menv_out);
+        arm_cmplx_mult_cmplx_f32(menv_in, ch_fft, menv_out, this->window_size / 4);
+        std::swap(menv_in, menv_out);
+        arm_rfft_fast_f32(&this->fft_conv, menv_in, menv_out, 1);
+        std::swap(menv_in, menv_out);
+
+        /* 2. TRANSFORMATION */
+        const float epsi = (1.0f - this->attr.ctrl.clarity);
+        for (unsigned i = 0; i < (this->window_size / 2); i++)
+            arm_sqrt_f32(std::abs(menv_in[i]) / (std::abs(cenv_in[i]) + epsi), &cenv_out[i]);
+        std::swap(cenv_in, cenv_out);
+
+        arm_cmplx_mult_real_f32(this->carrier_stfft.data(), cenv_in, cenv_out, this->window_size / 2);
+        std::swap(cenv_in, cenv_out);
+
+        /* 3. SYNTHESIS */
+
+        /* Final inverse FFT & optional windowing  */
+        arm_rfft_fast_f32(&this->fft, cenv_in, cenv_out, 1);
+        std::swap(cenv_in, cenv_out);
+    //    arm_mult_f32(cenv_in, const_cast<float*>(this->window_hann.data()), cenv_out, this->window_size);
+    //    std::swap(cenv_in, cenv_out);
+
+        /* Overlap add */
+        arm_copy_f32(this->output.data() + block_size, this->output.data(), move_size); arm_fill_f32(0, this->output.data() + move_size, block_size);
+        arm_add_f32(this->output.data(), cenv_in, this->output.data(), this->window_size);
+
+        /* Copy result to output */
+        arm_copy_f32(this->output.data(), out.data(), block_size);
     }
-#else
-    constexpr unsigned block_size = config::dsp_vector_size;
-    constexpr unsigned move_size = this->window_size - block_size;
-
-    float *cenv_in = this->carrier_env.data();
-    float *cenv_out = this->carrier_env.data() + this->window_size;
-    float *menv_in = this->modulator_env.data();
-    float *menv_out = this->modulator_env.data() + this->window_size;
-
-    /* 1. ANALYSIS */
-
-    /* Sliding window of input blocks */
-    arm_copy_f32(this->carrier_input.data() + block_size, this->carrier_input.data(), move_size);
-    arm_copy_f32(const_cast<float*>(in.data()), this->carrier_input.data() + move_size, block_size);
-
-    if (!this->attr.ctrl.hold)
-    {
-        arm_copy_f32(this->modulator_input.data() + block_size, this->modulator_input.data(), move_size);
-        arm_copy_f32(const_cast<float*>(this->aux_in->data()), this->modulator_input.data() + move_size, block_size);
-    }
-
-    /* Windowing */
-    arm_mult_f32(this->carrier_input.data(), const_cast<float*>(this->window_hann.data()), cenv_in, this->window_size);
-    arm_mult_f32(this->modulator_input.data(), const_cast<float*>(this->window_hann.data()), menv_in, this->window_size);
-
-    /* FFT of sliding window */
-    arm_rfft_fast_f32(&this->fft, cenv_in, cenv_out, 0);
-    arm_rfft_fast_f32(&this->fft, menv_in, menv_out, 0);
-    std::swap(cenv_in, cenv_out);
-    std::swap(menv_in, menv_out);
-
-    /* Save carrier spectrum */
-    arm_copy_f32(cenv_in, this->carrier_stfft.data(), this->window_size);
-
-    /* Squared FFT magnitude */
-    arm_cmplx_mag_squared_f32(cenv_in, cenv_out, this->window_size / 2);
-    arm_cmplx_mag_squared_f32(menv_in, menv_out, this->window_size / 2);
-    std::swap(cenv_in, cenv_out);
-    std::swap(menv_in, menv_out);
-
-    /* Envelope smoothing (circular convolution using FFT, half the window size) */
-    /* TODO: Check if normal FIR filter or convolution will be sufficient here */
-    float *ch_fft = this->channel_fft.data() + this->window_size / 2;
-
-    arm_rfft_fast_f32(&this->fft_conv, cenv_in, cenv_out, 0);
-    std::swap(cenv_in, cenv_out);
-    arm_cmplx_mult_cmplx_f32(cenv_in, ch_fft, cenv_out, this->window_size / 4);
-    std::swap(cenv_in, cenv_out);
-    arm_rfft_fast_f32(&this->fft_conv, cenv_in, cenv_out, 1);
-    std::swap(cenv_in, cenv_out);
-
-    arm_rfft_fast_f32(&this->fft_conv, menv_in, menv_out, 0);
-    std::swap(menv_in, menv_out);
-    arm_cmplx_mult_cmplx_f32(menv_in, ch_fft, menv_out, this->window_size / 4);
-    std::swap(menv_in, menv_out);
-    arm_rfft_fast_f32(&this->fft_conv, menv_in, menv_out, 1);
-    std::swap(menv_in, menv_out);
-
-    /* 2. TRANSFORMATION */
-    const float epsi = (1.0f - this->attr.ctrl.clarity);
-    for (unsigned i = 0; i < (this->window_size / 2); i++)
-        arm_sqrt_f32(std::abs(menv_in[i]) / (std::abs(cenv_in[i]) + epsi), &cenv_out[i]);
-    std::swap(cenv_in, cenv_out);
-
-    arm_cmplx_mult_real_f32(this->carrier_stfft.data(), cenv_in, cenv_out, this->window_size / 2);
-    std::swap(cenv_in, cenv_out);
-
-    /* 3. SYNTHESIS */
-
-    /* Final inverse FFT & optional windowing  */
-    arm_rfft_fast_f32(&this->fft, cenv_in, cenv_out, 1);
-    std::swap(cenv_in, cenv_out);
-//    arm_mult_f32(cenv_in, const_cast<float*>(this->window_hann.data()), cenv_out, this->window_size);
-//    std::swap(cenv_in, cenv_out);
-
-    /* Overlap add */
-    arm_copy_f32(this->output.data() + block_size, this->output.data(), move_size); arm_fill_f32(0, this->output.data() + move_size, block_size);
-    arm_add_f32(this->output.data(), cenv_in, this->output.data(), this->window_size);
-
-    /* Copy result to output */
-    arm_copy_f32(this->output.data(), out.data(), block_size);
-#endif
 }
 
 const effect_specific_attributes vocoder::get_specific_attributes(void) const
@@ -215,6 +216,10 @@ void vocoder::set_tone(float tone)
 
     if (this->attr.ctrl.tone == tone)
         return;
+
+    /* Calculate coefficient for 2nd order high-pass IIR (50Hz - 950Hz range) */
+    const float fc = 50 + tone * 900;
+    this->hp.calc_coeffs(fc, config::sampling_frequency_hz);
 
     this->attr.ctrl.tone = tone;
 }

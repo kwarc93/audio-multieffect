@@ -14,8 +14,6 @@
 
 #include <libs/audio_dsp.hpp>
 
-#define VOCODER_ALG_FFT
-
 namespace mfx
 {
 
@@ -37,7 +35,8 @@ public:
 private:
     constexpr static unsigned bands {16};
 
-#ifndef VOCODER_ALG_FFT
+    libs::adsp::iir_highpass hp;
+
     class filter_bank
     {
     public:
@@ -201,7 +200,7 @@ private:
     std::array<float, filter_bank::bands> modulator_hold;
     std::array<float, mfx::config::dsp_vector_size> carrier_env_buf, carrier_bp_buf, modulator_env_buf;
     filter_bank carrier_fb, modulator_fb;
-#else
+
     constexpr static unsigned bands_variants {6};
     constexpr static unsigned window_size {1024};
 
@@ -555,7 +554,7 @@ private:
     arm_rfft_fast_instance_f32 fft, fft_conv;
     std::array<float, 2 * window_size> carrier_env, modulator_env;
     std::array<float, window_size> carrier_input, carrier_stfft, modulator_input, output, channel_fft;
-#endif
+
     vocoder_attr attr {0};
 };
 
