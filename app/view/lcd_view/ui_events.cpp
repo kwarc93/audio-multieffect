@@ -7,7 +7,10 @@
 
 #include "lcd_view.hpp"
 
+#include "app/utils.hpp"
+
 #include <cassert>
+#include <string>
 
 //-----------------------------------------------------------------------------
 /* private */
@@ -142,12 +145,24 @@ void notify_cabinet_sim_controls_changed(void)
 void notify_vocoder_controls_changed(void)
 {
     lv_obj_t *clarity_knob = ui_arc_voc_clarity;
+    lv_obj_t *bands_list = ui_roller_voc_bands;
+    lv_obj_t *tone_knob = ui_arc_voc_tone;
     lv_obj_t *hold_btn = ui_btn_voc_hold;
+    lv_obj_t *mode_sw = ui_sw_voc_mode;
+
+    char band_str[4] {0};
+    lv_roller_get_selected_str(bands_list, band_str, sizeof(band_str));
+    auto bands = std::stoul(std::string(band_str));
 
     const mfx::vocoder_attr::controls ctrl
     {
-        static_cast<float>(lv_arc_get_value(clarity_knob) * 0.01f),
-        lv_obj_has_state(hold_btn, LV_STATE_CHECKED)
+        bands,
+        static_cast<float>(mfx::utils::lin_to_inv_log(lv_arc_get_value(clarity_knob) * 0.01f)),
+        static_cast<float>(mfx::utils::lin_to_inv_log(lv_arc_get_value(tone_knob) * 0.01f)),
+        lv_obj_has_state(hold_btn, LV_STATE_CHECKED),
+        lv_obj_has_state(mode_sw, LV_STATE_CHECKED) ?
+        mfx::vocoder_attr::controls::mode_type::modern :
+        mfx::vocoder_attr::controls::mode_type::vintage
     };
 
     view->notify(events::effect_controls_changed {ctrl});
@@ -363,7 +378,7 @@ void ui_cab_sim_bypass(lv_event_t * e)
     notify_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::cabinet_sim);
 }
 
-void ui_cab_sim_ir(lv_event_t * e)
+void ui_cab_sim_ir_changed(lv_event_t * e)
 {
     notify_cabinet_sim_controls_changed();
 }
@@ -374,6 +389,21 @@ void ui_vocoder_bypass(lv_event_t * e)
 }
 
 void ui_vocoder_clarity_changed(lv_event_t * e)
+{
+    notify_vocoder_controls_changed();
+}
+
+void ui_vocoder_tone_changed(lv_event_t * e)
+{
+    notify_vocoder_controls_changed();
+}
+
+void ui_vocoder_bands_changed(lv_event_t * e)
+{
+    notify_vocoder_controls_changed();
+}
+
+void ui_vocoder_mode_changed(lv_event_t * e)
 {
     notify_vocoder_controls_changed();
 }

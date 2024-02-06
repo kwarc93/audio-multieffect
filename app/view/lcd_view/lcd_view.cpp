@@ -10,6 +10,7 @@
 #include "libs/lvgl/lvgl.h"
 
 #include "ui.h"
+#include "app/utils.hpp"
 
 #include <string>
 #include <middlewares/i2c_manager.hpp>
@@ -67,15 +68,6 @@ void lcd_view_timer_callback(void *arg)
 
     static const lcd_view::event e { events::timer{}, lcd_view::event::flags::immutable };
     lcd_view_ao->send(e);
-}
-
-template<typename T>
-T map_range(T in_start, T in_end, T out_start, T out_end, T in_value)
-{
-    const T in_range = in_end - in_start;
-    const T out_range = out_end - out_start;
-
-    return (in_value - in_start) * out_range / in_range + out_start;
 }
 
 }
@@ -143,8 +135,8 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const tremolo_attr &spe
     else
         lv_obj_add_state(ui_btn_trem_bypass, LV_STATE_CHECKED);
 
-    lv_arc_set_value(ui_arc_trem_rate, map_range<float>(1, 20, lv_arc_get_min_value(ui_arc_trem_rate), lv_arc_get_max_value(ui_arc_trem_rate), specific.ctrl.rate));
-    lv_arc_set_value(ui_arc_trem_depth, map_range<float>(0, 0.5, lv_arc_get_min_value(ui_arc_trem_depth), lv_arc_get_max_value(ui_arc_trem_depth), specific.ctrl.depth));
+    lv_arc_set_value(ui_arc_trem_rate, utils::map_range<float>(1, 20, lv_arc_get_min_value(ui_arc_trem_rate), lv_arc_get_max_value(ui_arc_trem_rate), specific.ctrl.rate));
+    lv_arc_set_value(ui_arc_trem_depth, utils::map_range<float>(0, 0.5, lv_arc_get_min_value(ui_arc_trem_depth), lv_arc_get_max_value(ui_arc_trem_depth), specific.ctrl.depth));
 
     if (specific.ctrl.shape == tremolo_attr::controls::shape_type::sine)
     {
@@ -167,9 +159,9 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const echo_attr &specif
     else
         lv_obj_add_state(ui_btn_echo_bypass, LV_STATE_CHECKED);
 
-    lv_arc_set_value(ui_arc_echo_blur, map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_echo_blur), lv_arc_get_max_value(ui_arc_echo_blur), specific.ctrl.blur));
-    lv_arc_set_value(ui_arc_echo_time, map_range<float>(0.05f, 1, lv_arc_get_min_value(ui_arc_echo_time), lv_arc_get_max_value(ui_arc_echo_time), specific.ctrl.time));
-    lv_arc_set_value(ui_arc_echo_feedb, map_range<float>(0, 0.9f, lv_arc_get_min_value(ui_arc_echo_feedb), lv_arc_get_max_value(ui_arc_echo_feedb), specific.ctrl.feedback));
+    lv_arc_set_value(ui_arc_echo_blur, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_echo_blur), lv_arc_get_max_value(ui_arc_echo_blur), specific.ctrl.blur));
+    lv_arc_set_value(ui_arc_echo_time, utils::map_range<float>(0.05f, 1, lv_arc_get_min_value(ui_arc_echo_time), lv_arc_get_max_value(ui_arc_echo_time), specific.ctrl.time));
+    lv_arc_set_value(ui_arc_echo_feedb, utils::map_range<float>(0, 0.9f, lv_arc_get_min_value(ui_arc_echo_feedb), lv_arc_get_max_value(ui_arc_echo_feedb), specific.ctrl.feedback));
 
     if (specific.ctrl.mode == echo_attr::controls::mode_type::echo)
     {
@@ -192,9 +184,9 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const chorus_attr &spec
     else
         lv_obj_add_state(ui_btn_chorus_bypass, LV_STATE_CHECKED);
 
-    lv_arc_set_value(ui_arc_chorus_depth, map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_chorus_depth), lv_arc_get_max_value(ui_arc_chorus_depth), specific.ctrl.depth));
-    lv_arc_set_value(ui_arc_chorus_rate, map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_chorus_rate), lv_arc_get_max_value(ui_arc_chorus_rate), specific.ctrl.rate));
-    lv_arc_set_value(ui_arc_chorus_mix, map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_chorus_mix), lv_arc_get_max_value(ui_arc_chorus_mix), specific.ctrl.mix));
+    lv_arc_set_value(ui_arc_chorus_depth, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_chorus_depth), lv_arc_get_max_value(ui_arc_chorus_depth), specific.ctrl.depth));
+    lv_arc_set_value(ui_arc_chorus_rate, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_chorus_rate), lv_arc_get_max_value(ui_arc_chorus_rate), specific.ctrl.rate));
+    lv_arc_set_value(ui_arc_chorus_mix, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_chorus_mix), lv_arc_get_max_value(ui_arc_chorus_mix), specific.ctrl.mix));
 
     if (specific.ctrl.mode == chorus_attr::controls::mode_type::white)
     {
@@ -217,9 +209,9 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const reverb_attr &spec
     else
         lv_obj_add_state(ui_btn_reverb_bypass, LV_STATE_CHECKED);
 
-    lv_arc_set_value(ui_arc_reverb_bw, map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_reverb_bw), lv_arc_get_max_value(ui_arc_reverb_bw), specific.ctrl.bandwidth));
-    lv_arc_set_value(ui_arc_reverb_damp, map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_reverb_damp), lv_arc_get_max_value(ui_arc_reverb_damp), specific.ctrl.damping));
-    lv_arc_set_value(ui_arc_reverb_decay, map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_reverb_decay), lv_arc_get_max_value(ui_arc_reverb_decay), specific.ctrl.decay));
+    lv_arc_set_value(ui_arc_reverb_bw, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_reverb_bw), lv_arc_get_max_value(ui_arc_reverb_bw), specific.ctrl.bandwidth));
+    lv_arc_set_value(ui_arc_reverb_damp, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_reverb_damp), lv_arc_get_max_value(ui_arc_reverb_damp), specific.ctrl.damping));
+    lv_arc_set_value(ui_arc_reverb_decay, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_reverb_decay), lv_arc_get_max_value(ui_arc_reverb_decay), specific.ctrl.decay));
 
     if (specific.ctrl.mode == reverb_attr::controls::mode_type::plate)
     {
@@ -242,9 +234,9 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const overdrive_attr &s
     else
         lv_obj_add_state(ui_btn_od_bypass, LV_STATE_CHECKED);
 
-    lv_arc_set_value(ui_arc_od_mix, map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_od_mix), lv_arc_get_max_value(ui_arc_od_mix), specific.ctrl.mix));
-    lv_arc_set_value(ui_arc_od_gain, map_range<float>(1, 200, lv_arc_get_min_value(ui_arc_od_gain), lv_arc_get_max_value(ui_arc_od_gain), specific.ctrl.gain));
-    lv_arc_set_value(ui_arc_od_tone, map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_od_tone), lv_arc_get_max_value(ui_arc_od_tone), specific.ctrl.high));
+    lv_arc_set_value(ui_arc_od_mix, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_od_mix), lv_arc_get_max_value(ui_arc_od_mix), specific.ctrl.mix));
+    lv_arc_set_value(ui_arc_od_gain, utils::map_range<float>(1, 200, lv_arc_get_min_value(ui_arc_od_gain), lv_arc_get_max_value(ui_arc_od_gain), specific.ctrl.gain));
+    lv_arc_set_value(ui_arc_od_tone, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_od_tone), lv_arc_get_max_value(ui_arc_od_tone), specific.ctrl.high));
 
     if (specific.ctrl.mode == overdrive_attr::controls::mode_type::soft)
     {
@@ -268,7 +260,7 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const cabinet_sim_attr 
         lv_obj_add_state(ui_btn_cab_sim_bypass, LV_STATE_CHECKED);
 
     std::string options;
-    for (const auto &ir : specific.ctrl.ir_names)
+    for (const auto &ir : specific.ir_names)
         options += std::string(ir) + "\n";
     options.erase(options.end() - 1);
 
@@ -288,7 +280,30 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const vocoder_attr &spe
     else
         lv_obj_clear_state(ui_btn_voc_hold, LV_STATE_CHECKED);
 
-    lv_arc_set_value(ui_arc_voc_clarity, map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_voc_clarity), lv_arc_get_max_value(ui_arc_voc_clarity), specific.ctrl.clarity));
+    std::string options;
+    for (const auto &band : specific.bands_list)
+        options += std::to_string(band) + "\n";
+    options.erase(options.end() - 1);
+
+    lv_roller_set_options(ui_roller_voc_bands, options.c_str(), LV_ROLLER_MODE_NORMAL);
+    const auto pos = std::distance(specific.bands_list.begin(), find(specific.bands_list.begin(), specific.bands_list.end(), specific.ctrl.bands));
+    lv_roller_set_selected(ui_roller_voc_bands, pos, LV_ANIM_OFF);
+
+    lv_arc_set_value(ui_arc_voc_clarity, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_voc_clarity), lv_arc_get_max_value(ui_arc_voc_clarity), utils::inv_log_to_lin(specific.ctrl.clarity)));
+    lv_arc_set_value(ui_arc_voc_tone, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_voc_tone), lv_arc_get_max_value(ui_arc_voc_tone), utils::inv_log_to_lin(specific.ctrl.tone)));
+
+    if (specific.ctrl.mode == vocoder_attr::controls::mode_type::vintage)
+    {
+        lv_obj_clear_state(ui_sw_voc_mode, LV_STATE_CHECKED);
+        lv_obj_clear_state(ui_lbl_voc_mode_mod, LV_STATE_CHECKED);
+        lv_obj_add_state(ui_lbl_voc_mode_vin, LV_STATE_CHECKED);
+    }
+    else
+    {
+        lv_obj_add_state(ui_sw_voc_mode, LV_STATE_CHECKED);
+        lv_obj_add_state(ui_lbl_voc_mode_mod, LV_STATE_CHECKED);
+        lv_obj_clear_state(ui_lbl_voc_mode_vin, LV_STATE_CHECKED);
+    }
 }
 
 void lcd_view::change_effect_screen(effect_id id, int dir)

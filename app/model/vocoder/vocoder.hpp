@@ -30,6 +30,7 @@ public:
 
     void set_mode(vocoder_attr::controls::mode_type mode);
     void set_clarity(float clarity);
+    void set_tone(float tone);
     void set_channels(unsigned ch_num);
     void hold(bool state);
 
@@ -201,6 +202,7 @@ private:
     std::array<float, mfx::config::dsp_vector_size> carrier_env_buf, carrier_bp_buf, modulator_env_buf;
     filter_bank carrier_fb, modulator_fb;
 #else
+    constexpr static unsigned bands_variants {6};
     constexpr static unsigned window_size {1024};
 
     /* Hanning window for 7/8 overlap */

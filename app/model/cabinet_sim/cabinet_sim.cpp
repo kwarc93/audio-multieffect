@@ -38,8 +38,9 @@ attr {}
     this->attr.ctrl.ir_idx = 0;
     this->fast_conv.set_ir(ir_map.at(0).second->data());
 
+    this->attr.ir_names.reserve(ir_map.size());
     for (unsigned i = 0; i < ir_map.size(); i++)
-        this->attr.ctrl.ir_names.at(i) = ir_map.at(i).first;
+        this->attr.ir_names.push_back(ir_map.at(i).first);
 
 }
 
@@ -65,7 +66,7 @@ void cabinet_sim::set_ir(const ir_t &ir)
 
 void cabinet_sim::set_ir(uint8_t idx)
 {
-    if (idx >= this->attr.ctrl.ir_names.size())
+    if (idx >= this->attr.ir_names.size())
         return;
 
     this->attr.ctrl.ir_idx = idx;

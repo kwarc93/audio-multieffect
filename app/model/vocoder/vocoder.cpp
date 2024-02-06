@@ -31,6 +31,7 @@ vocoder::vocoder(float clarity, unsigned channels, vocoder_attr::controls::mode_
 {
 #ifndef VOCODER_ALG_FFT
     this->highpass_filter.set_coeffs(this->highpass_coeffs);
+    this->attr.bands_list.push_back(this->bands);
 #else
     arm_rfft_fast_init_f32(&this->fft, this->window_size);
     arm_rfft_fast_init_f32(&this->fft_conv, this->window_size / 2);
@@ -39,6 +40,10 @@ vocoder::vocoder(float clarity, unsigned channels, vocoder_attr::controls::mode_
     arm_fill_f32(0, this->carrier_input.data(), this->carrier_input.size());
     arm_fill_f32(0, this->modulator_input.data(), this->modulator_input.size());
     arm_fill_f32(0, this->output.data(), this->output.size());
+
+    this->attr.bands_list.reserve(this->bands_variants);
+    for (unsigned i = 0; i < this->bands_variants; i++)
+        this->attr.bands_list.push_back(1U << (3U + i));
 #endif
 
     this->set_mode(mode);
@@ -182,10 +187,7 @@ void vocoder::set_mode(vocoder_attr::controls::mode_type mode)
 
 void vocoder::set_clarity(float clarity)
 {
-    clarity = std::clamp(clarity, 0.0f, 0.99f);
-
-    /* Approx. log curve by two lines */
-    clarity = (clarity < 0.5f) ? clarity * 1.8f : 0.9f + clarity * 0.101f;
+    clarity = std::clamp(clarity, 0.0f, 0.9999f);
 
     if (this->attr.ctrl.clarity == clarity)
         return;
@@ -193,22 +195,32 @@ void vocoder::set_clarity(float clarity)
     this->attr.ctrl.clarity = clarity;
 }
 
+void vocoder::set_tone(float tone)
+{
+    tone = std::clamp(tone, 0.0f, 1.0f);
+
+    if (this->attr.ctrl.tone == tone)
+        return;
+
+    this->attr.ctrl.tone = tone;
+}
+
 void vocoder::set_channels(unsigned ch_num)
 {
     ch_num = std::clamp(ch_num, 8U, 256U);
 
-    if (this->attr.ctrl.channels == ch_num)
+    if (this->attr.ctrl.bands == ch_num)
         return;
 
     if (this->attr.ctrl.mode == vocoder_attr::controls::mode_type::vintage)
     {
         /* Number of bands is fixed */
-        this->attr.ctrl.channels = this->bands;
+        this->attr.ctrl.bands = this->bands;
     }
     else
     {
         /* Ceil to next power of 2 */
-        this->attr.ctrl.channels = 1U << static_cast<unsigned>(std::floor(std::log2(static_cast<float>(ch_num - 1))) + 1);
+        this->attr.ctrl.bands = 1U << static_cast<unsigned>(std::floor(std::log2(static_cast<float>(ch_num - 1))) + 1);
 
         arm_fill_f32(0, this->channel_fft.data(), this->window_size);
 
@@ -220,7 +232,7 @@ void vocoder::set_channels(unsigned ch_num)
          * fftshift([zeros((window_size/2-nob)/2,1); h/sum(h); zeros((window_size/2-nob)/2,1)])
          */
 
-        const unsigned nob = this->window_size / this->attr.ctrl.channels;
+        const unsigned nob = this->window_size / this->attr.ctrl.bands;
         assert(nob % 2 == 0);
 
         const float k = 2.0f / nob;

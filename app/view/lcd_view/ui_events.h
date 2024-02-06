@@ -47,9 +47,12 @@ void ui_overdrive_gain_changed(lv_event_t * e);
 void ui_overdrive_high_changed(lv_event_t * e);
 void ui_overdrive_mode_changed(lv_event_t * e);
 void ui_cab_sim_bypass(lv_event_t * e);
-void ui_cab_sim_ir(lv_event_t * e);
+void ui_cab_sim_ir_changed(lv_event_t * e);
 void ui_vocoder_bypass(lv_event_t * e);
 void ui_vocoder_clarity_changed(lv_event_t * e);
+void ui_vocoder_tone_changed(lv_event_t * e);
+void ui_vocoder_bands_changed(lv_event_t * e);
+void ui_vocoder_mode_changed(lv_event_t * e);
 void ui_vocoder_hold_changed(lv_event_t * e);
 
 #ifdef __cplusplus

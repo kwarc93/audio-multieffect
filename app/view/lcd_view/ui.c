@@ -221,6 +221,20 @@ lv_obj_t * ui_img_voc_clarity;
 void ui_event_arc_vocoder_clarity(lv_event_t * e);
 lv_obj_t * ui_arc_voc_clarity;
 lv_obj_t * ui_lbl_voc_clarity;
+lv_obj_t * ui_pnl_voc_tone;
+lv_obj_t * ui_img_voc_tone;
+void ui_event_arc_vocoder_tone(lv_event_t * e);
+lv_obj_t * ui_arc_voc_tone;
+lv_obj_t * ui_lbl_voc_tone;
+lv_obj_t * ui_pnl_voc_bands;
+void ui_event_roller_vocoder_bands(lv_event_t * e);
+lv_obj_t * ui_roller_voc_bands;
+lv_obj_t * ui_lbl_voc_bands;
+lv_obj_t * ui_pnl_voc_mode;
+void ui_event_sw_vocoder_mode(lv_event_t * e);
+lv_obj_t * ui_sw_voc_mode;
+lv_obj_t * ui_lbl_voc_mode_vin;
+lv_obj_t * ui_lbl_voc_mode_mod;
 void ui_event_btn_vocoder_hold(lv_event_t * e);
 lv_obj_t * ui_btn_voc_hold;
 lv_obj_t * ui_lbl_btn_voc_hold;
@@ -571,7 +585,7 @@ void ui_event_roller_cab_sim_ir(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_VALUE_CHANGED) {
-        ui_cab_sim_ir(e);
+        ui_cab_sim_ir_changed(e);
     }
 }
 void ui_event_fx_vocoder(lv_event_t * e)
@@ -586,7 +600,6 @@ void ui_event_btn_vocoder_bypass(lv_event_t * e)
         ui_vocoder_bypass(e);
     }
 }
-
 void ui_event_arc_vocoder_clarity(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
@@ -595,7 +608,32 @@ void ui_event_arc_vocoder_clarity(lv_event_t * e)
         ui_vocoder_clarity_changed(e);
     }
 }
+void ui_event_arc_vocoder_tone(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
 
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_vocoder_tone_changed(e);
+    }
+}
+void ui_event_roller_vocoder_bands(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_vocoder_bands_changed(e);
+    }
+}
+void ui_event_sw_vocoder_mode(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_vocoder_mode_changed(e);
+        _ui_state_modify(ui_lbl_voc_mode_mod, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
+        _ui_state_modify(ui_lbl_voc_mode_vin, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
+    }
+}
 void ui_event_btn_vocoder_hold(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
