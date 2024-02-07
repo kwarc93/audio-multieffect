@@ -31,7 +31,7 @@ public:
 
 private:
     constexpr static cabinet_sim_attr::controls::resolution ir_res {cabinet_sim_attr::controls::resolution::standart};
-    constexpr static uint32_t ir_size {static_cast<uint32_t>(ir_res) - config::dsp_vector_size + 1};
+    constexpr static uint32_t ir_size {static_cast<uint32_t>(ir_res) - config::dsp_vector_size};
 
     /* FFT based convolution */
     libs::adsp::fast_convolution<config::dsp_vector_size, ir_size> fast_conv;

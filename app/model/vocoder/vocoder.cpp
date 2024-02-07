@@ -151,7 +151,7 @@ void vocoder::process(const dsp_input& in, dsp_output& out)
         std::swap(menv_in, menv_out);
 
         /* 2. TRANSFORMATION */
-        const float epsi = (1.0f - this->attr.ctrl.clarity);
+        const float epsi = (1.0f - 0.1f * this->attr.ctrl.clarity);
         for (unsigned i = 0; i < (this->window_size / 2); i++)
             arm_sqrt_f32(std::abs(menv_in[i]) / (std::abs(cenv_in[i]) + epsi), &cenv_out[i]);
         std::swap(cenv_in, cenv_out);
@@ -194,6 +194,8 @@ void vocoder::set_mode(vocoder_attr::controls::mode_type mode)
         this->attr.bands_list.resize(this->bands_variants);
         for (unsigned i = 0; i < this->bands_variants; i++)
             this->attr.bands_list.at(i) = (1U << (3U + i));
+
+        this->attr.ctrl.bands = 0;
     }
 
     this->attr.ctrl.mode = mode;
@@ -240,8 +242,6 @@ void vocoder::set_channels(unsigned ch_num)
         /* Ceil to next power of 2 */
         this->attr.ctrl.bands = 1U << static_cast<unsigned>(std::floor(std::log2(static_cast<float>(ch_num - 1))) + 1);
 
-        arm_fill_f32(0, this->channel_fft.data(), this->window_size);
-
         /*
          * Hanning window generation for bandpass filtering in frequency domain. Channel bandwidth is: nch * fs / window_size
          * It's equivalent to MATLAB's syntax:
@@ -250,6 +250,7 @@ void vocoder::set_channels(unsigned ch_num)
          * fftshift([zeros((window_size/2-nob)/2,1); h/sum(h); zeros((window_size/2-nob)/2,1)])
          */
 
+        arm_fill_f32(0, this->channel_fft.data(), this->window_size);
         const unsigned nob = this->window_size / this->attr.ctrl.bands;
         assert(nob % 2 == 0);
 

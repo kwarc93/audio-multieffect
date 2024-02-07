@@ -159,7 +159,7 @@ void ui_fx_vocoder_screen_init(void)
     lv_obj_set_align( ui_arc_voc_tone, LV_ALIGN_CENTER );
     lv_obj_clear_flag( ui_arc_voc_tone, LV_OBJ_FLAG_GESTURE_BUBBLE );    /// Flags
     lv_arc_set_range(ui_arc_voc_tone, 0, 100);
-    lv_arc_set_value(ui_arc_voc_tone, 60);
+    lv_arc_set_value(ui_arc_voc_tone, 50);
     lv_arc_set_bg_angles(ui_arc_voc_tone,129,51);
     lv_obj_set_style_pad_left(ui_arc_voc_tone, 0, LV_PART_MAIN| LV_STATE_DEFAULT);
     lv_obj_set_style_pad_right(ui_arc_voc_tone, 0, LV_PART_MAIN| LV_STATE_DEFAULT);
