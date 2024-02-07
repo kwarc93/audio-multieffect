@@ -58,13 +58,10 @@ void vocoder::process(const dsp_input& in, dsp_output& out)
 
     if (this->attr.ctrl.mode == vocoder_attr::controls::mode_type::vintage)
     {
-//        /* Add highpassed modulator to the output */
-//        this->highpass_filter.process(this->aux_in->data(), out.data(), out.size());
-//        for (auto &&s : out) s *= this->attr.ctrl.clarity * 0.5f;
         arm_fill_f32(0, out.data(), out.size());
         this->hp.process(this->aux_in->data(), const_cast<float*>(this->aux_in->data()), this->aux_in->size());
 
-        const auto bands = this->carrier_fb.bands;
+        const auto bands = this->bands;
         for (unsigned band = 0; band < bands; band++)
         {
             this->carrier_fb.bandpass(band, in.data(), this->carrier_bp_buf.data(), in.size());
@@ -133,14 +130,16 @@ void vocoder::process(const dsp_input& in, dsp_output& out)
         std::swap(menv_in, menv_out);
 
         /* Envelope smoothing (circular convolution using FFT, half the window size) */
-        /* TODO: Check if normal FIR filter or convolution will be sufficient here */
         float *ch_fft = this->channel_fft.data() + this->window_size / 2;
+        const unsigned nob = this->window_size / this->attr.ctrl.bands / 2;
+        const unsigned offset = this->window_size / 2 - nob;
 
         arm_rfft_fast_f32(&this->fft_conv, cenv_in, cenv_out, 0);
         std::swap(cenv_in, cenv_out);
         arm_cmplx_mult_cmplx_f32(cenv_in, ch_fft, cenv_out, this->window_size / 4);
         std::swap(cenv_in, cenv_out);
         arm_rfft_fast_f32(&this->fft_conv, cenv_in, cenv_out, 1);
+        arm_fill_f32(cenv_out[offset], cenv_out + offset, nob);
         std::swap(cenv_in, cenv_out);
 
         arm_rfft_fast_f32(&this->fft_conv, menv_in, menv_out, 0);
@@ -148,6 +147,7 @@ void vocoder::process(const dsp_input& in, dsp_output& out)
         arm_cmplx_mult_cmplx_f32(menv_in, ch_fft, menv_out, this->window_size / 4);
         std::swap(menv_in, menv_out);
         arm_rfft_fast_f32(&this->fft_conv, menv_in, menv_out, 1);
+        arm_fill_f32(menv_out[offset], menv_out + offset, nob);
         std::swap(menv_in, menv_out);
 
         /* 2. TRANSFORMATION */
