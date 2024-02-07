@@ -73,18 +73,18 @@ void vocoder::process(const dsp_input& in, dsp_output& out)
                 this->modulator_fb.bandpass(band, this->aux_in->data(), this->modulator_env_buf.data(), this->modulator_env_buf.size());
                 arm_mult_f32(this->modulator_env_buf.data(), this->modulator_env_buf.data(), this->modulator_env_buf.data(), this->modulator_env_buf.size());
                 this->modulator_fb.lowpass(band, this->modulator_env_buf.data(), this->modulator_env_buf.data(), this->modulator_env_buf.size());
-                arm_sqrt_f32(this->modulator_env_buf[0], &this->modulator_hold[band]);
+                this->modulator_hold[band] = this->modulator_env_buf[0];
             }
 
+            const float epsi = (1 - this->attr.ctrl.clarity);
             for (unsigned i = 0; i < out.size(); i++)
             {
-                arm_sqrt_f32((1 - this->attr.ctrl.clarity) + this->carrier_env_buf[i], &this->carrier_env_buf[i]);
-                if (!this->attr.ctrl.hold)
-                    arm_sqrt_f32(this->modulator_env_buf[i], &this->modulator_env_buf[i]);
-                else
+                if (this->attr.ctrl.hold)
                     this->modulator_env_buf[i] = this->modulator_hold[band];
 
-                out[i] += this->carrier_bp_buf[i] * this->modulator_env_buf[i] / this->carrier_env_buf[i];
+                float env;
+                arm_sqrt_f32(this->modulator_env_buf[i] / (this->carrier_env_buf[i] + epsi), &env);
+                out[i] += this->carrier_bp_buf[i] * env;
             }
         }
     }
@@ -151,7 +151,7 @@ void vocoder::process(const dsp_input& in, dsp_output& out)
         std::swap(menv_in, menv_out);
 
         /* 2. TRANSFORMATION */
-        const float epsi = (1.0f - 0.1f * this->attr.ctrl.clarity);
+        const float epsi = (0.1f - 0.1f * this->attr.ctrl.clarity);
         for (unsigned i = 0; i < (this->window_size / 2); i++)
             arm_sqrt_f32(std::abs(menv_in[i]) / (std::abs(cenv_in[i]) + epsi), &cenv_out[i]);
         std::swap(cenv_in, cenv_out);
@@ -203,7 +203,7 @@ void vocoder::set_mode(vocoder_attr::controls::mode_type mode)
 
 void vocoder::set_clarity(float clarity)
 {
-    clarity = std::clamp(clarity, 0.0f, 0.9999f);
+    clarity = std::clamp(clarity, 0.0f, 0.999f);
 
     if (this->attr.ctrl.clarity == clarity)
         return;
