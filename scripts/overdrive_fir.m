@@ -3,7 +3,7 @@ close all
 clc
 
 pkg load signal;
-output_precision(8);
+output_precision(16);
 
 % Design a lowpass FIR filter to attenuate freqs above fs/4 
 fs = 48000;
@@ -19,5 +19,5 @@ coeffs = fliplr(b);
 vname = 'fir_coeffs';
 vtype = 'float';
 N = length(coeffs);
-fmt=['std::array<%s, %d> %s{' repmat('%.8f,',1,numel(coeffs)-1) '%.8f}'];
+fmt=['std::array<%s, %d> %s{' repmat('%.16f,',1,numel(coeffs)-1) '%.16f}'];
 c_code=sprintf(fmt,vtype,N,vname,coeffs)

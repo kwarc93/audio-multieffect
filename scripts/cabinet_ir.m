@@ -5,7 +5,7 @@ clc
 pkg load signal
 pkg load control
 
-output_precision(8)
+output_precision(16)
 
 % Script generates C++ array of samples from IR wave file
 
@@ -66,12 +66,16 @@ while rows > 0
   end
   rows = rows - 1;
   while c > 0
-    fprintf(fid, '    %.8f,', ir(i));
+    fprintf(fid, '    %.16f,', ir(i));
     c = c - 1;
     i = i + 1;
   end
   fprintf(fid, '\n');
 end
 fseek(fid, ftell(fid)-1);
-fprintf(fid, '    %.8f\n};\n', ir(i));
+if i == N
+fprintf(fid, '    %.16f\n};\n', ir(i));
+else
+fprintf(fid, '\n};\n');
+endif
 fclose(fid);
