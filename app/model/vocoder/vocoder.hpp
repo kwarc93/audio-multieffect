@@ -20,7 +20,7 @@ namespace mfx
 class vocoder : public effect
 {
 public:
-    vocoder (float clarity = 0.9f,float tone = 0.1f, unsigned channels = 64, vocoder_attr::controls::mode_type mode = vocoder_attr::controls::mode_type::modern);
+    vocoder (float clarity = 0.99f,float tone = 0.05f, unsigned channels = 64, vocoder_attr::controls::mode_type mode = vocoder_attr::controls::mode_type::modern);
     virtual ~vocoder ();
 
     void process(const dsp_input &in, dsp_output &out) override;
@@ -33,9 +33,9 @@ public:
     void hold(bool state);
 
 private:
+    //-----------------------------------------------------------------------------
+    /* Vintage vocoder (bandpass filter bank) */
     constexpr static unsigned bands {12};
-
-    libs::adsp::iir_highpass hp;
 
     class filter_bank
     {
@@ -61,7 +61,7 @@ private:
 
     private:
         /* Lowpass filter (RMS envelope) */
-        static constexpr std::array<float, 5> lowpass_coeffs { 0, 0, 1, 1.98f, -0.9801f};
+        static constexpr std::array<float, 5> lowpass_coeffs { 0, 0, 1, 1.99f, -0.990025f};
 
         /* Band 1: 40.0 Hz - 160.0 Hz */
         static constexpr std::array<float, 10> bandpass_1_coeffs
@@ -156,14 +156,12 @@ private:
         std::array<libs::adsp::iir_biquad<1>, bands> lowpass_filters;
     };
 
-    /* Lowpass filter (RMS envelope) */
-    static constexpr std::array<float, 5> lowpass_coeffs { 0, 0, 1, 1.98f, -0.9801f};
-
     std::array<float, bands> modulator_hold;
     std::array<float, mfx::config::dsp_vector_size> carrier_env_buf, carrier_bp_buf, modulator_env_buf;
     filter_bank carrier_fb, modulator_fb;
 
     //-----------------------------------------------------------------------------
+    /* Modern vocoder (STFT) */
 
     constexpr static unsigned bands_variants {6};
     constexpr static unsigned window_size {1024};
@@ -518,6 +516,8 @@ private:
     arm_rfft_fast_instance_f32 fft, fft_conv;
     std::array<float, 2 * window_size> carrier_env, modulator_env;
     std::array<float, window_size> carrier_input, carrier_stfft, modulator_input, output, channel_fft;
+
+    libs::adsp::iir_highpass hp;
 
     vocoder_attr attr {0};
 };
