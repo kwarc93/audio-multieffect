@@ -115,8 +115,8 @@ void vocoder::process(const dsp_input& in, dsp_output& out)
         arm_mult_f32(this->modulator_input.data(), const_cast<float*>(this->window_hann.data()), menv_in, this->window_size);
 
         /* FFT of sliding window */
-        arm_rfft_fast_f32(&this->fft, cenv_in, cenv_out, 0);
-        arm_rfft_fast_f32(&this->fft, menv_in, menv_out, 0);
+        arm_rfft_fast_f32(&this->fft, cenv_in, cenv_out, 0); cenv_out[1] = 0; // Clear Nyquist bin
+        arm_rfft_fast_f32(&this->fft, menv_in, menv_out, 0); menv_out[1] = 0; // Clear Nyquist bin
         std::swap(cenv_in, cenv_out);
         std::swap(menv_in, menv_out);
 
@@ -134,7 +134,7 @@ void vocoder::process(const dsp_input& in, dsp_output& out)
         const unsigned nob = this->window_size / this->attr.ctrl.bands / 2;
         const unsigned offset = this->window_size / 2 - nob;
 
-        arm_rfft_fast_f32(&this->fft_conv, cenv_in, cenv_out, 0);
+        arm_rfft_fast_f32(&this->fft_conv, cenv_in, cenv_out, 0); cenv_out[1] = 0; // Clear Nyquist bin
         std::swap(cenv_in, cenv_out);
         arm_cmplx_mult_cmplx_f32(cenv_in, ch_fft, cenv_out, this->window_size / 4);
         std::swap(cenv_in, cenv_out);
@@ -142,7 +142,7 @@ void vocoder::process(const dsp_input& in, dsp_output& out)
         arm_fill_f32(cenv_out[offset], cenv_out + offset, nob);
         std::swap(cenv_in, cenv_out);
 
-        arm_rfft_fast_f32(&this->fft_conv, menv_in, menv_out, 0);
+        arm_rfft_fast_f32(&this->fft_conv, menv_in, menv_out, 0); menv_out[1] = 0; // Clear Nyquist bin
         std::swap(menv_in, menv_out);
         arm_cmplx_mult_cmplx_f32(menv_in, ch_fft, menv_out, this->window_size / 4);
         std::swap(menv_in, menv_out);
@@ -203,7 +203,7 @@ void vocoder::set_mode(vocoder_attr::controls::mode_type mode)
 
 void vocoder::set_clarity(float clarity)
 {
-    clarity = std::clamp(clarity, 0.0f, 0.999f);
+    clarity = std::clamp(clarity, 0.0f, 0.9999f);
 
     if (this->attr.ctrl.clarity == clarity)
         return;
@@ -267,6 +267,7 @@ void vocoder::set_channels(unsigned ch_num)
         }
 
         arm_rfft_fast_f32(&this->fft_conv, this->channel_fft.data(), this->channel_fft.data() + this->window_size / 2, 0);
+        this->channel_fft[this->window_size / 2 + 1] = 0; // Clear Nyquist bin
     }
 }
 
