@@ -671,14 +671,14 @@ private:
 //-----------------------------------------------------------------------------
 /* public */
 
-vocoder::vocoder(float clarity, float tone, unsigned channels, vocoder_attr::controls::mode_type mode) : effect {effect_id::vocoder},
+vocoder::vocoder(float clarity, float tone, unsigned bands, vocoder_attr::controls::mode_type mode) : effect {effect_id::vocoder},
 vintage {std::make_unique<vintage_vocoder>(attr)}, modern {std::make_unique<modern_vocoder>(attr)}
 {
     this->set_mode(mode);
     this->hold(false);
     this->set_tone(tone);
     this->set_clarity(clarity);
-    this->set_channels(channels);
+    this->set_bands(bands);
 }
 
 vocoder::~vocoder()
@@ -724,7 +724,7 @@ void vocoder::set_mode(vocoder_attr::controls::mode_type mode)
         for (unsigned i = 0; i < this->modern->bands_variants; i++)
             this->attr.bands_list.at(i) = (1U << (3U + i));
 
-        this->attr.ctrl.bands = 0; // Reset bands number to trigger set_channels()
+        this->attr.ctrl.bands = 0; // Reset bands number to trigger set_bands()
     }
 
     this->attr.ctrl.mode = mode;
@@ -754,11 +754,11 @@ void vocoder::set_tone(float tone)
     this->attr.ctrl.tone = tone;
 }
 
-void vocoder::set_channels(unsigned ch_num)
+void vocoder::set_bands(unsigned bands)
 {
-    ch_num = std::clamp(ch_num, 8U, 256U);
+    bands = std::clamp(bands, 8U, 256U);
 
-    if (this->attr.ctrl.bands == ch_num)
+    if (this->attr.ctrl.bands == bands)
         return;
 
     if (this->attr.ctrl.mode == vocoder_attr::controls::mode_type::vintage)
@@ -769,7 +769,7 @@ void vocoder::set_channels(unsigned ch_num)
     else
     {
         /* Ceil to next power of 2 */
-        this->attr.ctrl.bands = 1U << static_cast<unsigned>(std::floor(std::log2(static_cast<float>(ch_num - 1))) + 1);
+        this->attr.ctrl.bands = 1U << static_cast<unsigned>(std::floor(std::log2(static_cast<float>(bands - 1))) + 1);
         this->modern->change_bands(this->attr.ctrl.bands);
     }
 }

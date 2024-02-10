@@ -21,7 +21,7 @@ namespace mfx
 class vocoder : public effect
 {
 public:
-    vocoder (float clarity = 0.99f,float tone = 0.05f, unsigned channels = 64, vocoder_attr::controls::mode_type mode = vocoder_attr::controls::mode_type::modern);
+    vocoder (float clarity = 0.99f,float tone = 0.05f, unsigned bands = 64, vocoder_attr::controls::mode_type mode = vocoder_attr::controls::mode_type::modern);
     virtual ~vocoder ();
 
     void process(const dsp_input &in, dsp_output &out) override;
@@ -30,7 +30,7 @@ public:
     void set_mode(vocoder_attr::controls::mode_type mode);
     void set_clarity(float clarity);
     void set_tone(float tone);
-    void set_channels(unsigned ch_num);
+    void set_bands(unsigned bands);
     void hold(bool state);
 
 private:
