@@ -326,10 +326,8 @@ void effect_processor::audio_capture_cb(const hal::audio_devices::codec::input_s
     for (unsigned i = this->audio_input.sample_index, j = 0; i < this->audio_input.sample_index + this->audio_input.buffer.size() / 2; i+=2, j++)
     {
         constexpr float scale = 1.0f / (1 << (this->audio_input.bps - 1));
-        /* Left channel */
-        this->dsp_input[j] = (this->audio_input.buffer[i] >> 8) * scale;
-        /* Right channel */
-        this->dsp_aux_input[j] = (this->audio_input.buffer[i + 1] >> 8) * scale;
+        this->dsp_input[j] = (this->audio_input.buffer[i] >> 8) * scale; // Left
+        this->dsp_aux_input[j] = (this->audio_input.buffer[i + 1] >> 8) * scale; // Right
     }
 
     /* Send event to process data */
