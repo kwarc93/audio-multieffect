@@ -7,6 +7,8 @@
 
 #include "vocoder.hpp"
 
+#include "app/utils.hpp"
+
 #include <algorithm>
 #include <cassert>
 
@@ -705,7 +707,10 @@ void vocoder::process(const dsp_input& in, dsp_output& out)
 
 const effect_specific_attributes vocoder::get_specific_attributes(void) const
 {
-    return this->attr;
+    vocoder_attr attributes { this->attr };
+    attributes.ctrl.clarity = utils::inv_log_to_lin(this->attr.ctrl.clarity);
+    attributes.ctrl.tone = utils::log_to_lin(this->attr.ctrl.tone);
+    return attributes;
 }
 
 void vocoder::set_mode(vocoder_attr::controls::mode_type mode)
@@ -732,6 +737,7 @@ void vocoder::set_mode(vocoder_attr::controls::mode_type mode)
 
 void vocoder::set_clarity(float clarity)
 {
+    clarity = utils::lin_to_inv_log(clarity);
     clarity = std::clamp(clarity, 0.0f, 0.9999f);
 
     if (this->attr.ctrl.clarity == clarity)
@@ -742,6 +748,7 @@ void vocoder::set_clarity(float clarity)
 
 void vocoder::set_tone(float tone)
 {
+    tone = utils::lin_to_log(tone);
     tone = std::clamp(tone, 0.0f, 1.0f);
 
     if (this->attr.ctrl.tone == tone)
