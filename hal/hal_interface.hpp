@@ -62,7 +62,7 @@ namespace hal::interface
 
     };
 
-    class i2c_device
+    class i2c_proxy
     {
     public:
 
@@ -78,8 +78,8 @@ namespace hal::interface
 
         typedef std::function<void(const transfer_desc &transfer)> transfer_cb_t;
 
-        i2c_device(i2c &drv) : driver {drv} {};
-        virtual ~i2c_device() {};
+        i2c_proxy(i2c &drv) : driver {drv} {};
+        virtual ~i2c_proxy() {};
         virtual void transfer(transfer_desc &descriptor) = 0;
         virtual void transfer(const transfer_desc &descriptor, const transfer_cb_t &callback)
         {

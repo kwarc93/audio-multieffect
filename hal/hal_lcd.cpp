@@ -154,10 +154,10 @@ static constexpr std::array<const drivers::gpio::io, 29> main_lcd_ios =
     {drivers::gpio::port::porti, drivers::gpio::pin::pin12}, // LCD_EN
 }};
 
-main::main(hal::interface::i2c_device &i2c_dev) : display {&lcd_drv, &backlight_drv , &touch_drv},
+main::main(hal::interface::i2c_proxy &i2c) : display {&lcd_drv, &backlight_drv , &touch_drv},
 lcd_drv {main_lcd_ios, get_frame_buffers().first},
 backlight_drv {{drivers::gpio::port::portk, drivers::gpio::pin::pin3}},
-touch_drv {i2c_dev, drivers::touch_ft5336::i2c_address, drivers::touch_ft5336::orientation::mirror_xy}
+touch_drv {i2c, drivers::touch_ft5336::i2c_address, drivers::touch_ft5336::orientation::mirror_xy}
 {
 
 };

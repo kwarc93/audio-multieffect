@@ -24,7 +24,7 @@ public:
     enum class input { none, mic1, mic2, mic1_mic2, line1, line2 };
     enum class output { none, speaker, headphone, both, automatic };
 
-    audio_wm8994ecs(hal::interface::i2c_device &dev, uint8_t addr, input in, output out);
+    audio_wm8994ecs(hal::interface::i2c_proxy &dev, uint8_t addr, input in, output out);
     ~audio_wm8994ecs();
 
     void capture(audio_input::sample_t *input, uint16_t length, const capture_cb_t &cb, bool loop) override;
@@ -39,7 +39,7 @@ public:
     void set_output_volume(uint8_t vol) override;
 
 private:
-    hal::interface::i2c_device &i2c_dev;
+    hal::interface::i2c_proxy &i2c;
     const uint8_t i2c_addr;
     typedef sai<int32_t> sai_32bit;
     sai_32bit sai_drv;

@@ -20,12 +20,12 @@ public:
 
     enum class orientation { normal, mirror_x, mirror_y, mirror_xy };
 
-    touch_ft5336(hal::interface::i2c_device &dev, uint8_t addr, orientation ori);
+    touch_ft5336(hal::interface::i2c_proxy &i2c, uint8_t addr, orientation ori);
     ~touch_ft5336();
 
     bool get_touch(int16_t &x, int16_t &y);
 private:
-    hal::interface::i2c_device &i2c_dev;
+    hal::interface::i2c_proxy &i2c;
     const uint8_t i2c_addr;
 
     orientation orient;

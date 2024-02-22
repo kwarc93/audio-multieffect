@@ -350,7 +350,7 @@ using namespace drivers;
 
 uint16_t audio_wm8994ecs::read_reg(uint16_t reg_addr)
 {
-    using transfer_desc = hal::interface::i2c_device::transfer_desc;
+    using transfer_desc = hal::interface::i2c_proxy::transfer_desc;
 
     uint8_t tx[2] {(reg_addr >> 8) & 0xFF, (reg_addr & 0xFF)};
     uint8_t rx[2] {0};
@@ -364,7 +364,7 @@ uint16_t audio_wm8994ecs::read_reg(uint16_t reg_addr)
         sizeof(rx)
     };
 
-    this->i2c_dev.transfer(desc);
+    this->i2c.transfer(desc);
     assert(desc.stat == transfer_desc::status::ok);
 
     return (rx[0] << 8) | rx[1];
@@ -372,7 +372,7 @@ uint16_t audio_wm8994ecs::read_reg(uint16_t reg_addr)
 
 void audio_wm8994ecs::write_reg(uint16_t reg_addr, uint16_t reg_val)
 {
-    using transfr_desc = hal::interface::i2c_device::transfer_desc;
+    using transfr_desc = hal::interface::i2c_proxy::transfer_desc;
 
     uint8_t tx[4] = {(reg_addr >> 8) & 0xFF, (reg_addr & 0xFF), (reg_val >> 8) & 0xFF, (reg_val & 0xFF)};
 
@@ -385,13 +385,13 @@ void audio_wm8994ecs::write_reg(uint16_t reg_addr, uint16_t reg_val)
 
     if constexpr (verify_i2c_writes)
     {
-        this->i2c_dev.transfer(desc);
+        this->i2c.transfer(desc);
         if (reg_addr != WM8994_SW_RESET)
             assert(this->read_reg(reg_addr) == reg_val);
     }
     else
     {
-        this->i2c_dev.transfer(desc, {});
+        this->i2c.transfer(desc, {});
     }
 }
 
@@ -408,8 +408,8 @@ void audio_wm8994ecs::reset(void)
 //-----------------------------------------------------------------------------
 /* public */
 
-audio_wm8994ecs::audio_wm8994ecs(hal::interface::i2c_device &dev, uint8_t addr, input in, output out) :
-i2c_dev {dev}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}
+audio_wm8994ecs::audio_wm8994ecs(hal::interface::i2c_proxy &i2c, uint8_t addr, input in, output out) :
+i2c {i2c}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}
 {
     constexpr uint32_t audio_freq = 48000;
     constexpr uint8_t output_vol = 57; // 0dB

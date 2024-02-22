@@ -58,7 +58,7 @@ namespace displays
 
         static constexpr bool use_double_framebuf = false;
 
-        main(hal::interface::i2c_device &i2c_dev);
+        main(hal::interface::i2c_proxy &i2c);
 
         void set_frame_buffer(pixel_t *addr);
         void set_draw_callback(const drivers::glcd_rk043fn48h::draw_cb_t &callback);

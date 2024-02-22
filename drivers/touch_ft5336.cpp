@@ -214,7 +214,7 @@ using namespace drivers;
 
 uint8_t touch_ft5336::read_reg(uint8_t reg_addr)
 {
-    using transfer_desc = hal::interface::i2c_device::transfer_desc;
+    using transfer_desc = hal::interface::i2c_proxy::transfer_desc;
 
     uint8_t reg_val {0};
 
@@ -227,7 +227,7 @@ uint8_t touch_ft5336::read_reg(uint8_t reg_addr)
         sizeof(reg_val)
     };
 
-    this->i2c_dev.transfer(desc);
+    this->i2c.transfer(desc);
     assert(desc.stat == transfer_desc::status::ok);
 
     return reg_val;
@@ -235,7 +235,7 @@ uint8_t touch_ft5336::read_reg(uint8_t reg_addr)
 
 void touch_ft5336::write_reg(uint8_t reg_addr, uint8_t reg_val)
 {
-    using transfr_desc = hal::interface::i2c_device::transfer_desc;
+    using transfr_desc = hal::interface::i2c_proxy::transfer_desc;
 
     std::array<uint8_t, 2> tx {{ reg_addr, reg_val }};
 
@@ -246,13 +246,13 @@ void touch_ft5336::write_reg(uint8_t reg_addr, uint8_t reg_val)
         sizeof(tx),
     };
 
-    this->i2c_dev.transfer(desc);
+    this->i2c.transfer(desc);
     assert(desc.stat == transfr_desc::status::ok);
 }
 
 void touch_ft5336::read_reg_burst(uint8_t reg_addr, std::byte *reg_val, std::size_t size)
 {
-    using transfer_desc = hal::interface::i2c_device::transfer_desc;
+    using transfer_desc = hal::interface::i2c_proxy::transfer_desc;
 
     transfer_desc desc
     {
@@ -263,7 +263,7 @@ void touch_ft5336::read_reg_burst(uint8_t reg_addr, std::byte *reg_val, std::siz
         size
     };
 
-    this->i2c_dev.transfer(desc);
+    this->i2c.transfer(desc);
     assert(desc.stat == transfer_desc::status::ok);
 }
 
@@ -300,8 +300,8 @@ void touch_ft5336::get_xy(uint16_t &x, uint16_t &y)
 //-----------------------------------------------------------------------------
 /* public */
 
-touch_ft5336::touch_ft5336(hal::interface::i2c_device &dev, uint8_t addr = i2c_address, touch_ft5336::orientation ori = orientation::mirror_xy) :
-i2c_dev {dev}, i2c_addr {addr}, orient {ori}
+touch_ft5336::touch_ft5336(hal::interface::i2c_proxy &i2c, uint8_t addr = i2c_address, touch_ft5336::orientation ori = orientation::mirror_xy) :
+i2c {i2c}, i2c_addr {addr}, orient {ori}
 {
     // Wait at least 200ms after power up before accessing registers
     // Trsi timing (Time of starting to report point after resetting) from FT5336GQQ datasheet

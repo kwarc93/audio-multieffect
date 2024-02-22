@@ -29,22 +29,22 @@ struct i2c_manager_event
         uint8_t address;
         std::vector<std::byte> tx;
         std::vector<std::byte> rx;
-        hal::interface::i2c_device::transfer_cb_t callback;
+        hal::interface::i2c_proxy::transfer_cb_t callback;
     };
 
     struct perform_transfer_evt_t
     {
-        hal::interface::i2c_device::transfer_desc &descriptor;
+        hal::interface::i2c_proxy::transfer_desc &descriptor;
         osThreadId_t caller_thread_id;
     };
 
     using holder = std::variant<schedule_transfer_evt_t, perform_transfer_evt_t>;
 };
 
-class i2c_manager : private i2c_manager_event, private active_object<i2c_manager_event::holder>, public hal::interface::i2c_device
+class i2c_manager : private i2c_manager_event, private active_object<i2c_manager_event::holder>, public hal::interface::i2c_proxy
 {
 public:
-    i2c_manager(hal::interface::i2c &drv) : active_object("i2c_manager", osPriorityHigh, 1024), i2c_device(drv)
+    i2c_manager(hal::interface::i2c &drv) : active_object("i2c_manager", osPriorityHigh, 1024), i2c_proxy(drv)
     {
 
     }
@@ -138,7 +138,7 @@ namespace i2c_managers
 {
     namespace main
     {
-        inline hal::interface::i2c_device & get_instance(void)
+        inline hal::interface::i2c_proxy & get_instance(void)
         {
             static i2c_manager i2c_main_manager { hal::i2c::main::get_instance() };
             return i2c_main_manager;

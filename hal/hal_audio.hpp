@@ -59,9 +59,9 @@ namespace audio_devices
     class codec : public audio<drivers::audio_wm8994ecs::audio_input::sample_t, drivers::audio_wm8994ecs::audio_output::sample_t>
     {
     public:
-        codec(hal::interface::i2c_device &i2c_dev) :
+        codec(hal::interface::i2c_proxy &i2c) :
         audio{&audio_drv, &audio_drv},
-        audio_drv{i2c_dev, drivers::audio_wm8994ecs::i2c_address, drivers::audio_wm8994ecs::input::line1, drivers::audio_wm8994ecs::output::headphone} {};
+        audio_drv{i2c, drivers::audio_wm8994ecs::i2c_address, drivers::audio_wm8994ecs::input::line1, drivers::audio_wm8994ecs::output::headphone} {};
     private:
         drivers::audio_wm8994ecs audio_drv;
     };
