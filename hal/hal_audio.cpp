@@ -48,12 +48,11 @@ void audio<T1, T2>::stop_capture(void)
 }
 
 template <typename T1, typename T2>
-void audio<T1, T2>::set_input_volume(uint8_t vol)
+void audio<T1, T2>::set_input_volume(uint8_t vol, uint8_t ch)
 {
     if (this->input_drv)
-        this->input_drv->set_input_volume(vol);
+        this->input_drv->set_input_volume(vol, ch);
 }
-
 
 template <typename T1, typename T2>
 void audio<T1, T2>::play(const T2 *output, uint16_t length, const typename hal::interface::audio_output<T2>::play_cb_t &cb, bool loop)

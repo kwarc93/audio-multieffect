@@ -158,9 +158,21 @@ void controller::view_event_handler(const lcd_view_events::prev_effect_screen_re
     this->update_effect_attributes(this->current_effect);
 }
 
-void controller::view_event_handler(const lcd_view_events::volume_changed &e)
+void controller::view_event_handler(const lcd_view_events::input_volume_changed &e)
 {
-    const effect_processor::event evt {effect_processor_events::set_volume {e.input_vol, e.output_vol}};
+    const effect_processor::event evt {effect_processor_events::set_input_volume {e.main_input_vol, e.aux_input_vol}};
+    this->model->send(evt);
+}
+
+void controller::view_event_handler(const lcd_view_events::output_volume_changed &e)
+{
+    const effect_processor::event evt {effect_processor_events::set_output_volume {e.output_vol}};
+    this->model->send(evt);
+}
+
+void controller::view_event_handler(const lcd_view_events::route_mic_to_aux_changed &e)
+{
+    const effect_processor::event evt {effect_processor_events::route_mic_to_aux {e.value}};
     this->model->send(evt);
 }
 
@@ -235,9 +247,14 @@ void controller::view_event_handler(const lcd_view_events::move_effect_request &
     this->model->send({effect_processor_events::move_effect {e.id, e.step}});
 }
 
-void controller::model_event_handler(const effect_processor_events::volume_changed &e)
+void controller::model_event_handler(const effect_processor_events::input_volume_changed &e)
 {
+    /* TODO */
+}
 
+void controller::model_event_handler(const effect_processor_events::output_volume_changed &e)
+{
+    /* TODO */
 }
 
 void controller::model_event_handler(const effect_processor_events::effect_attributes_changed &e)

@@ -346,12 +346,19 @@ void ui_settings_screen_init(void)
     /* Create sub pages */
     lv_obj_t * sub_audio_page = lv_menu_page_create(menu, "Audio");
     lv_obj_set_style_pad_hor(sub_audio_page, menu_pad_hor, 0);
+    lv_menu_separator_create(sub_audio_page);
     section = lv_menu_section_create(sub_audio_page);
-    cont = menu_create_slider(section, NULL, "Input volume", 0, 31, 11, ui_event_sld_in_vol);
-    ui_sld_sett_in_vol = lv_obj_get_child(cont, -1);
-    cont = menu_create_slider(section, NULL, "Output volume", 0, 63, 57, ui_event_sld_out_vol);
+    cont = menu_create_slider(section, NULL, "MAIN input volume", 0, 31, 11, ui_event_sld_in_vol);
+    ui_sld_sett_main_in_vol = lv_obj_get_child(cont, -1);
+    cont = menu_create_slider(section, NULL, "AUX input volume", 0, 31, 11, ui_event_sld_in_vol);
+    ui_sld_sett_aux_in_vol = lv_obj_get_child(cont, -1);
+    cont = menu_create_switch(section, NULL, "Route onboard microphone to AUX", false, ui_event_sw_route_mic_to_aux);
+    ui_sw_sett_route_mic_to_aux = lv_obj_get_child(cont, -1);
+    lv_menu_separator_create(sub_audio_page);
+    section = lv_menu_section_create(sub_audio_page);
+    cont = menu_create_slider(section, NULL, "OUT volume", 0, 63, 57, ui_event_sld_out_vol);
     ui_sld_sett_out_vol = lv_obj_get_child(cont, -1);
-    cont = menu_create_switch(section, NULL, "Mute", false, ui_event_sw_mute_audio);
+    cont = menu_create_switch(section, NULL, "Mute output", false, ui_event_sw_mute_audio);
     ui_sw_sett_mute_audio = lv_obj_get_child(cont, -1);
 
     lv_obj_t * sub_effects_page = lv_menu_page_create(menu, "Effects");
@@ -378,12 +385,12 @@ void ui_settings_screen_init(void)
     lv_obj_t * sub_software_page = lv_menu_page_create(menu, "Software");
     lv_obj_set_style_pad_hor(sub_software_page, menu_pad_hor, 0);
     section = lv_menu_section_create(sub_software_page);
-    menu_create_text(section, NULL, "Version: v1.0.0");
+    menu_create_text(section, NULL, "Version: v1.0.1");
 
     lv_obj_t * sub_hardware_page = lv_menu_page_create(menu, "Hardware");
     lv_obj_set_style_pad_hor(sub_hardware_page, menu_pad_hor, 0);
     section = lv_menu_section_create(sub_hardware_page);
-    menu_create_text(section, NULL, "Board: STM32F746G-DISCO MB1191B\nCPU: ARM Cortex-M7 200MHz\nRAM: 8MB");
+    menu_create_text(section, NULL, "Board: STM32F746G-DISCO MB1191B\nCPU: ARM Cortex-M7 200MHz\nRAM: 8MB\nAudio: 24bit/48kHz\nDisplay: 480x272 RGB565");
 
     lv_obj_t * sub_about_page = lv_menu_page_create(menu, "About");
     lv_obj_set_style_pad_hor(sub_about_page, menu_pad_hor, 0);

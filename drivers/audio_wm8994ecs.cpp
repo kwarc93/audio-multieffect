@@ -938,7 +938,8 @@ i2c {i2c}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}
         }
 
         /* Volume Control */
-        this->set_input_volume(input_vol);
+        this->set_input_volume(input_vol, 0);
+        this->set_input_volume(input_vol, 1);
     }
 }
 
@@ -964,7 +965,7 @@ void audio_wm8994ecs::stop_capture(void)
     /* TODO */
 }
 
-void audio_wm8994ecs::set_input_volume(uint8_t vol)
+void audio_wm8994ecs::set_input_volume(uint8_t vol, uint8_t ch)
 {
     /* Analog volume of PGA (-16.5dB to 30dB) */
 
@@ -972,10 +973,19 @@ void audio_wm8994ecs::set_input_volume(uint8_t vol)
     constexpr uint8_t vol_30db = 31;
     vol = std::clamp(vol, vol_m16_5db, vol_30db);
 
-    this->write_reg(WM8994_LEFT_LINE_IN12_VOL, vol | 0x0040);
-    this->write_reg(WM8994_RIGHT_LINE_IN12_VOL, vol | 0x0140);
-    this->write_reg(WM8994_LEFT_LINE_IN34_VOL, vol | 0x0040);
-    this->write_reg(WM8994_RIGHT_LINE_IN34_VOL, vol | 0x0140);
+    switch (ch)
+    {
+        case 0: // Left
+            this->write_reg(WM8994_LEFT_LINE_IN12_VOL, vol | 0x0040);
+            this->write_reg(WM8994_LEFT_LINE_IN34_VOL, vol | 0x0040);
+            break;
+        case 1: // Right
+            this->write_reg(WM8994_RIGHT_LINE_IN12_VOL, vol | 0x0140);
+            this->write_reg(WM8994_RIGHT_LINE_IN34_VOL, vol | 0x0140);
+            break;
+        default:
+            break;
+    }
 }
 
 void audio_wm8994ecs::play(const audio_output::sample_t *output, uint16_t length, const play_cb_t &cb, bool loop)

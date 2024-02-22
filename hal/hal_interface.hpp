@@ -65,7 +65,6 @@ namespace hal::interface
     class i2c_proxy
     {
     public:
-
         struct transfer_desc
         {
             uint8_t address {0};
@@ -160,7 +159,7 @@ namespace hal::interface
 
         virtual void capture(sample_t *input, uint16_t length, const capture_cb_t &cb, bool loop) = 0;
         virtual void stop_capture(void) = 0;
-        virtual void set_input_volume(uint8_t vol) = 0;
+        virtual void set_input_volume(uint8_t vol, uint8_t ch) = 0;
 
     protected:
         capture_cb_t capture_callback;

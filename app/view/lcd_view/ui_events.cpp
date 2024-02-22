@@ -200,31 +200,35 @@ void ui_effect_prev(lv_event_t * e)
 
 void ui_settings_in_vol_changed(lv_event_t * e)
 {
-    lv_obj_t *in_slider = ui_sld_sett_in_vol;
-    lv_obj_t *out_slider = ui_sld_sett_out_vol;
+    lv_obj_t *main_in_slider = ui_sld_sett_main_in_vol;
+    lv_obj_t *aux_in_slider = ui_sld_sett_aux_in_vol;
 
-    uint8_t in_vol = lv_slider_get_value(in_slider);
-    uint8_t out_vol = lv_slider_get_value(out_slider);
+    uint8_t main_in_vol = lv_slider_get_value(main_in_slider);
+    uint8_t aux_in_vol = lv_slider_get_value(aux_in_slider);
 
-    const events::volume_changed evt {in_vol, out_vol};
+    const events::input_volume_changed evt {main_in_vol, aux_in_vol};
     view->notify(evt);
 }
 
 void ui_settings_out_vol_changed(lv_event_t * e)
 {
-    lv_obj_t *in_slider = ui_sld_sett_in_vol;
     lv_obj_t *out_slider = ui_sld_sett_out_vol;
 
-    uint8_t in_vol = lv_slider_get_value(in_slider);
     uint8_t out_vol = lv_slider_get_value(out_slider);
 
-    const events::volume_changed evt {in_vol, out_vol};
+    const events::output_volume_changed evt {out_vol};
     view->notify(evt);
 }
 
 void ui_settings_mute_audio(lv_event_t * e)
 {
     const events::mute_changed evt {lv_obj_has_state(ui_sw_sett_mute_audio, LV_STATE_CHECKED)};
+    view->notify(evt);
+}
+
+void ui_settings_route_mic_to_aux(lv_event_t * e)
+{
+    const events::route_mic_to_aux_changed evt {lv_obj_has_state(ui_sw_sett_route_mic_to_aux, LV_STATE_CHECKED)};
     view->notify(evt);
 }
 

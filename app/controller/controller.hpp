@@ -78,7 +78,9 @@ private:
     void view_event_handler(const lcd_view_events::splash_loaded &e);
     void view_event_handler(const lcd_view_events::next_effect_screen_request &e);
     void view_event_handler(const lcd_view_events::prev_effect_screen_request &e);
-    void view_event_handler(const lcd_view_events::volume_changed &e);
+    void view_event_handler(const lcd_view_events::input_volume_changed &e);
+    void view_event_handler(const lcd_view_events::output_volume_changed &e);
+    void view_event_handler(const lcd_view_events::route_mic_to_aux_changed &e);
     void view_event_handler(const lcd_view_events::mute_changed &e);
     void view_event_handler(const lcd_view_events::effect_bypass_changed &e);
     void view_event_handler(const lcd_view_events::effect_controls_changed &e);
@@ -86,7 +88,8 @@ private:
     void view_event_handler(const lcd_view_events::remove_effect_request &e);
     void view_event_handler(const lcd_view_events::move_effect_request &e);
 
-    void model_event_handler(const effect_processor_events::volume_changed &e);
+    void model_event_handler(const effect_processor_events::input_volume_changed &e);
+    void model_event_handler(const effect_processor_events::output_volume_changed &e);
     void model_event_handler(const effect_processor_events::effect_attributes_changed &e);
 
     void update_effect_attributes(effect_id id);

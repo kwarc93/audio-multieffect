@@ -32,15 +32,18 @@ lv_obj_t * ui_list_sett_fx_chain;
 lv_obj_t * ui_list_sett_fx_ops;
 lv_obj_t * ui_list_sett_fx_items;
 lv_obj_t * ui_btn_sett_curr_fx;
-lv_obj_t * ui_sld_sett_in_vol;
+lv_obj_t * ui_sld_sett_main_in_vol;
+lv_obj_t * ui_sld_sett_aux_in_vol;
 lv_obj_t * ui_sld_sett_out_vol;
 lv_obj_t * ui_sw_sett_mute_audio;
+lv_obj_t * ui_sw_sett_route_mic_to_aux;
 lv_obj_t * ui_lbl_sett_cpu_load;
 const char * const* ui_fx_names;
 size_t ui_fx_names_size;
 void ui_event_sld_in_vol(lv_event_t * e);
 void ui_event_sld_out_vol(lv_event_t * e);
 void ui_event_sw_mute_audio(lv_event_t * e);
+void ui_event_sw_route_mic_to_aux(lv_event_t * e);
 
 // SCREEN: ui_fx_tremolo
 void ui_fx_tremolo_screen_init(void);
@@ -344,6 +347,13 @@ void ui_event_sw_mute_audio(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
     if(event_code == LV_EVENT_VALUE_CHANGED) {
         ui_settings_mute_audio(e);
+    }
+}
+void ui_event_sw_route_mic_to_aux(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_settings_route_mic_to_aux(e);
     }
 }
 void ui_event_fx_tremolo(lv_event_t * e)

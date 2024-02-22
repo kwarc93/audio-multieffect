@@ -94,10 +94,20 @@ void effect_processor::event_handler(const events::bypass_effect &e)
 
 }
 
-void effect_processor::event_handler(const events::set_volume &e)
+void effect_processor::event_handler(const events::set_input_volume &e)
 {
-    this->audio.set_input_volume(e.input_vol);
+    this->audio.set_input_volume(e.main_input_vol, 0);
+    this->audio.set_input_volume(e.aux_input_vol, 1);
+}
+
+void effect_processor::event_handler(const events::set_output_volume &e)
+{
     this->audio.set_output_volume(e.output_vol);
+}
+
+void effect_processor::event_handler(const effect_processor_events::route_mic_to_aux &e)
+{
+    this->audio.route_onboard_mic_to_aux(e.value);
 }
 
 void effect_processor::event_handler(const events::set_mute &e)
@@ -109,7 +119,7 @@ void effect_processor::event_handler(const events::process_data &e)
 {
     const uint32_t cycles_start = hal::system::clock::cycles();
 
-    effect::dsp_input *current_input {&this->dsp_input};
+    effect::dsp_input *current_input {&this->dsp_main_input};
     effect::dsp_output *current_output {&this->dsp_output};
 
     for (auto &&effect : this->effects)
@@ -326,7 +336,7 @@ void effect_processor::audio_capture_cb(const hal::audio_devices::codec::input_s
     for (unsigned i = this->audio_input.sample_index, j = 0; i < this->audio_input.sample_index + this->audio_input.buffer.size() / 2; i+=2, j++)
     {
         constexpr float scale = 1.0f / (1 << (this->audio_input.bps - 1));
-        this->dsp_input[j] = (this->audio_input.buffer[i] >> 8) * scale; // Left
+        this->dsp_main_input[j] = (this->audio_input.buffer[i] >> 8) * scale; // Left
         this->dsp_aux_input[j] = (this->audio_input.buffer[i + 1] >> 8) * scale; // Right
     }
 
@@ -361,7 +371,7 @@ audio{middlewares::i2c_managers::main::get_instance()}
     this->processing_time_us = 0;
 
     /* DSP buffers contain only one channel */
-    this->dsp_input.resize(config::dsp_vector_size);
+    this->dsp_main_input.resize(config::dsp_vector_size);
     this->dsp_aux_input.resize(config::dsp_vector_size);
     this->dsp_output.resize(config::dsp_vector_size);
 

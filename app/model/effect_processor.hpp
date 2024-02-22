@@ -58,10 +58,20 @@ struct bypass_effect
     bool bypassed;
 };
 
-struct set_volume
+struct set_input_volume
 {
-    uint8_t input_vol;
+    uint8_t main_input_vol;
+    uint8_t aux_input_vol;
+};
+
+struct set_output_volume
+{
     uint8_t output_vol;
+};
+
+struct route_mic_to_aux
+{
+    bool value;
 };
 
 struct set_mute
@@ -96,7 +106,8 @@ struct effect_attributes_changed
     effect_specific_attributes specific;
 };
 
-using volume_changed = set_volume;
+using input_volume_changed = set_input_volume;
+using output_volume_changed = set_output_volume;
 
 using incoming = std::variant
 <
@@ -106,7 +117,9 @@ using incoming = std::variant
     remove_effect,
     move_effect,
     bypass_effect,
-    set_volume,
+    set_input_volume,
+    set_output_volume,
+    route_mic_to_aux,
     set_mute,
     set_effect_controls,
     get_effect_attributes
@@ -114,7 +127,8 @@ using incoming = std::variant
 
 using outgoing = std::variant
 <
-    volume_changed,
+    input_volume_changed,
+    output_volume_changed,
     effect_attributes_changed
 >;
 
@@ -135,7 +149,9 @@ private:
     void event_handler(const effect_processor_events::remove_effect& e);
     void event_handler(const effect_processor_events::move_effect& e);
     void event_handler(const effect_processor_events::bypass_effect &e);
-    void event_handler(const effect_processor_events::set_volume &e);
+    void event_handler(const effect_processor_events::set_input_volume &e);
+    void event_handler(const effect_processor_events::set_output_volume &e);
+    void event_handler(const effect_processor_events::route_mic_to_aux &e);
     void event_handler(const effect_processor_events::set_mute &e);
     void event_handler(const effect_processor_events::process_data &e);
     void event_handler(const effect_processor_events::get_processing_load &e);
@@ -167,7 +183,7 @@ private:
     hal::audio_devices::codec::input_buffer_t<2 * config::dsp_vector_size> audio_input;
     hal::audio_devices::codec::output_buffer_t<2 * config::dsp_vector_size> audio_output;
 
-    effect::dsp_input dsp_input;
+    effect::dsp_input dsp_main_input;
     effect::dsp_input dsp_aux_input;
     effect::dsp_output dsp_output;
 

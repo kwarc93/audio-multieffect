@@ -29,7 +29,7 @@ public:
 
     void capture(audio_input::sample_t *input, uint16_t length, const capture_cb_t &cb, bool loop) override;
     void stop_capture(void) override;
-    void set_input_volume(uint8_t vol) override;
+    void set_input_volume(uint8_t vol, uint8_t ch) override;
 
     void play(const audio_output::sample_t *output, uint16_t length, const play_cb_t &cb, bool loop) override;
     void pause(void) override;
