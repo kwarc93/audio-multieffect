@@ -187,6 +187,11 @@ void sai_base::block::enable(bool state)
     }
 }
 
+bool sai_base::block::is_enabled(void)
+{
+    return this->hw.reg->CR1 & SAI_xCR1_SAIEN;
+}
+
 void sai_base::block::configure(const config &cfg)
 {
     if (cfg.sync != sync_type::none && (cfg.mode == mode_type::master_rx || cfg.mode == mode_type::master_tx))

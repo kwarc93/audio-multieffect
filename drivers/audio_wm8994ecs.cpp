@@ -26,6 +26,7 @@ using namespace drivers;
  * | CODEC_SLOT0 Left | CODEC_SLOT1 Left | CODEC_SLOT0 Right  | CODEC_SLOT1 Right |
  * +------------------------------------------------------------------------------+
  */
+
 #define WM8994_SLOTS_NUMBER           4
 
 //-----------------------------------------------------------------------------
@@ -419,7 +420,7 @@ i2c {i2c}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}
 
     if (out != output::none)
     {
-        static const sai_32bit::block::config sai_a_cfg
+        const sai_32bit::block::config sai_a_cfg
         {
             sai_32bit::block::mode_type::master_tx,
             sai_32bit::block::protocol_type::generic,
@@ -427,8 +428,8 @@ i2c {i2c}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}
             sai_32bit::block::sync_type::none,
             sai_32bit::block::frame_type::stereo,
             sai_32bit::block::audio_freq::_48kHz,
-            WM8994_SLOTS_NUMBER, // 4 slots
-            slots_0_2 // active slots: 0 & 2
+            WM8994_SLOTS_NUMBER,
+            slots_0_2
         };
 
         sai_drv.block_a.configure(sai_a_cfg);
@@ -437,7 +438,7 @@ i2c {i2c}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}
 
     if (in != input::none)
     {
-        static const sai_32bit::block::config sai_b_cfg
+        const sai_32bit::block::config sai_b_cfg
         {
             out != output::none ?
             sai_32bit::block::mode_type::slave_rx : sai_32bit::block::mode_type::master_rx,
@@ -526,46 +527,21 @@ i2c {i2c}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}
             break;
 
         case output::both:
-            if (in == input::mic1_mic2)
-            {
-                /* Enable DAC1 (Left), Enable DAC1 (Right),
-                 also Enable DAC2 (Left), Enable DAC2 (Right)*/
-                this->write_reg(0x05, 0x0303 | 0x0C0C);
+            /* Enable DAC1 (Left), Enable DAC1 (Right),
+             also Enable DAC2 (Left), Enable DAC2 (Right)*/
+            this->write_reg(0x05, 0x0303 | 0x0C0C);
 
-                /* Enable the AIF1 Timeslot 0 (Left) to DAC 1 (Left) mixer path
-                 Enable the AIF1 Timeslot 1 (Left) to DAC 1 (Left) mixer path */
-                this->write_reg(0x601, 0x0003);
+            /* Enable the AIF1 Timeslot 0 (Left) to DAC 1 (Left) mixer path */
+            this->write_reg(0x601, 0x0001);
 
-                /* Enable the AIF1 Timeslot 0 (Right) to DAC 1 (Right) mixer path
-                 Enable the AIF1 Timeslot 1 (Right) to DAC 1 (Right) mixer path */
-                this->write_reg(0x602, 0x0003);
+            /* Enable the AIF1 Timeslot 0 (Right) to DAC 1 (Right) mixer path */
+            this->write_reg(0x602, 0x0001);
 
-                /* Enable the AIF1 Timeslot 0 (Left) to DAC 2 (Left) mixer path
-                 Enable the AIF1 Timeslot 1 (Left) to DAC 2 (Left) mixer path  */
-                this->write_reg(0x604, 0x0003);
+            /* Enable the AIF1 Timeslot 1 (Left) to DAC 2 (Left) mixer path */
+            this->write_reg(0x604, 0x0002);
 
-                /* Enable the AIF1 Timeslot 0 (Right) to DAC 2 (Right) mixer path
-                 Enable the AIF1 Timeslot 1 (Right) to DAC 2 (Right) mixer path */
-                this->write_reg(0x605, 0x0003);
-            }
-            else
-            {
-                /* Enable DAC1 (Left), Enable DAC1 (Right),
-                 also Enable DAC2 (Left), Enable DAC2 (Right)*/
-                this->write_reg(0x05, 0x0303 | 0x0C0C);
-
-                /* Enable the AIF1 Timeslot 0 (Left) to DAC 1 (Left) mixer path */
-                this->write_reg(0x601, 0x0001);
-
-                /* Enable the AIF1 Timeslot 0 (Right) to DAC 1 (Right) mixer path */
-                this->write_reg(0x602, 0x0001);
-
-                /* Enable the AIF1 Timeslot 1 (Left) to DAC 2 (Left) mixer path */
-                this->write_reg(0x604, 0x0002);
-
-                /* Enable the AIF1 Timeslot 1 (Right) to DAC 2 (Right) mixer path */
-                this->write_reg(0x605, 0x0002);
-            }
+            /* Enable the AIF1 Timeslot 1 (Right) to DAC 2 (Right) mixer path */
+            this->write_reg(0x605, 0x0002);
             break;
 
         case output::automatic:
@@ -594,28 +570,6 @@ i2c {i2c}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}
     {
         switch (in)
         {
-        case input::mic2:
-            /* Enable AIF1ADC2 (Left), Enable AIF1ADC2 (Right)
-             * Enable DMICDAT2 (Left), Enable DMICDAT2 (Right)
-             * Enable Left ADC, Enable Right ADC */
-            this->write_reg(0x04, 0x0C30);
-
-            /* Enable AIF1 DRC2 Signal Detect & DRC in AIF1ADC2 Left/Right Timeslot 1 */
-            this->write_reg(0x450, 0x00DB);
-
-            /* Disable IN1L, IN1R, IN2L, IN2R, Enable Thermal sensor & shutdown */
-            this->write_reg(0x02, 0x6000);
-
-            /* Enable the DMIC2(Left) to AIF1 Timeslot 1 (Left) mixer path */
-            this->write_reg(0x608, 0x0002);
-
-            /* Enable the DMIC2(Right) to AIF1 Timeslot 1 (Right) mixer path */
-            this->write_reg(0x609, 0x0002);
-
-            /* GPIO1 pin configuration GP1_DIR = output, GP1_FN = AIF1 DRC2 signal detect */
-            this->write_reg(0x700, 0x000E);
-            break;
-
         case input::line1:
             /* IN1LN_TO_IN1L, IN1LP_TO_VMID, IN1RN_TO_IN1R, IN1RP_TO_VMID */
             this->write_reg(0x28, 0x0011);
@@ -646,6 +600,10 @@ i2c {i2c}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}
             this->write_reg(0x700, 0x000D);
             break;
 
+        case input::line2:
+            /* Not supported */
+            break;
+
         case input::mic1:
             /* Enable AIF1ADC1 (Left), Enable AIF1ADC1 (Right)
              * Enable DMICDAT1 (Left), Enable DMICDAT1 (Right)
@@ -667,25 +625,58 @@ i2c {i2c}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}
             /* GPIO1 pin configuration GP1_DIR = output, GP1_FN = AIF1 DRC1 signal detect */
             this->write_reg(0x700, 0x000D);
             break;
-        case input::mic1_mic2:
-            /* Enable AIF1ADC1 (Left), Enable AIF1ADC1 (Right)
-             * Enable DMICDAT1 (Left), Enable DMICDAT1 (Right)
+
+        case input::mic2:
+            /* Enable AIF1ADC2 (Left), Enable AIF1ADC2 (Right)
+             * Enable DMICDAT2 (Left), Enable DMICDAT2 (Right)
              * Enable Left ADC, Enable Right ADC */
-            this->write_reg(0x04, 0x0F3C);
+            this->write_reg(0x04, 0x0C30);
 
             /* Enable AIF1 DRC2 Signal Detect & DRC in AIF1ADC2 Left/Right Timeslot 1 */
             this->write_reg(0x450, 0x00DB);
 
-            /* Enable AIF1 DRC2 Signal Detect & DRC in AIF1ADC1 Left/Right Timeslot 0 */
+            /* Disable IN1L, IN1R, IN2L, IN2R, Enable Thermal sensor & shutdown */
+            this->write_reg(0x02, 0x6000);
+
+            /* Enable the DMIC2(Left) to AIF1 Timeslot 1 (Left) mixer path */
+            this->write_reg(0x608, 0x0002);
+
+            /* Enable the DMIC2(Right) to AIF1 Timeslot 1 (Right) mixer path */
+            this->write_reg(0x609, 0x0002);
+
+            /* GPIO1 pin configuration GP1_DIR = output, GP1_FN = AIF1 DRC2 signal detect */
+            this->write_reg(0x700, 0x000E);
+            break;
+
+        case input::line1_mic2:
+            /* Enable AIF1ADC1 (Left), Enable AIF1ADC1 (Right)
+             * Enable AIF1ADC2 (Left), Enable AIF1ADC2 (Right)
+             * Enable DMICDAT2 (Left), Enable DMICDAT2 (Right)
+             * Enable Left ADC, Enable Right ADC */
+            this->write_reg(0x04, 0x0303 | 0x0C30);
+
+            /* IN1LN_TO_IN1L, IN1LP_TO_VMID, IN1RN_TO_IN1R, IN1RP_TO_VMID */
+            this->write_reg(0x28, 0x0011);
+
+            /* Disable mute on IN1L_TO_MIXINL, +0dB on IN1L PGA output, mute MIXOUTL_MIXINL_VOL */
+            this->write_reg(0x29, 0x0020);
+
+            /* Disable mute on IN1R_TO_MIXINL, +0dB on IN1L PGA output, mute MIXOUTR_MIXINR_VOL  */
+            this->write_reg(0x2A, 0x0020);
+
+            /* Enable AIF1 DRC1 Signal Detect & DRC in AIF1ADC1 Left/Right Timeslot 0 */
             this->write_reg(0x440, 0x00DB);
 
-            /* Disable IN1L, IN1R, Enable IN2L, IN2R, Thermal sensor & shutdown */
-            this->write_reg(0x02, 0x63A0);
+            /* Enable AIF1 DRC2 Signal Detect & DRC in AIF1ADC2 Left/Right Timeslot 1 */
+            this->write_reg(0x450, 0x00DB);
 
-            /* Enable the DMIC1(Left) to AIF1 Timeslot 0 (Left) mixer path */
+            /* Enable IN1L and IN1R, Disable IN2L and IN2R, Enable Thermal sensor & shutdown */
+            this->write_reg(0x02, 0x6350);
+
+            /* Enable the ADCL(Left) to AIF1 Timeslot 0 (Left) mixer path */
             this->write_reg(0x606, 0x0002);
 
-            /* Enable the DMIC1(Right) to AIF1 Timeslot 0 (Right) mixer path */
+            /* Enable the ADCR(Right) to AIF1 Timeslot 0 (Right) mixer path */
             this->write_reg(0x607, 0x0002);
 
             /* Enable the DMIC2(Left) to AIF1 Timeslot 1 (Left) mixer path */
@@ -694,12 +685,11 @@ i2c {i2c}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}
             /* Enable the DMIC2(Right) to AIF1 Timeslot 1 (Right) mixer path */
             this->write_reg(0x609, 0x0002);
 
-            /* GPIO1 pin configuration GP1_DIR = output, GP1_FN = AIF1 DRC1 signal detect */
-            this->write_reg(0x700, 0x000D);
+            /* GPIO1 pin configuration GP1_DIR = output, GP1_FN = AIF1 DRC1 & DRC2 signal detect */
+            this->write_reg(0x700, 0x000D | 0x000E);
             break;
-        case input::line2:
+
         default:
-            /* Actually, no other input devices supported */
             break;
         }
     }
@@ -753,16 +743,8 @@ i2c {i2c}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}
         break;
     }
 
-    if (in == input::mic1_mic2)
-    {
-        /* AIF1 Word Length = 32-bits, AIF1 Format = DSP mode */
-        this->write_reg(0x300, 0x4078);
-    }
-    else
-    {
-        /* AIF1 Word Length = 32-bits, AIF1 Format = I2S */
-        this->write_reg(0x300, 0x4070);
-    }
+    /* AIF1 Word Length = 32-bits, AIF1 Format = I2S */
+    this->write_reg(0x300, 0x4070);
 
     /* slave mode */
     this->write_reg(0x302, 0x0000);
@@ -824,16 +806,8 @@ i2c {i2c}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}
 
         /* Headphone/Speaker Enable */
 
-        if (in == input::mic1_mic2)
-        {
-            /* Enable Class W, Class W Envelope Tracking = AIF1 Timeslots 0 and 1 */
-            this->write_reg(0x51, 0x0205);
-        }
-        else
-        {
-            /* Enable Class W, Class W Envelope Tracking = AIF1 Timeslot 0 */
-            this->write_reg(0x51, 0x0005);
-        }
+        /* Enable Class W, Class W Envelope Tracking = AIF1 Timeslot 0 */
+        this->write_reg(0x51, 0x0005);
 
         /* Enable bias generator, Enable VMID, Enable HPOUT1 (Left) and Enable HPOUT1 (Right) input stages */
         /* idem for Speaker */
@@ -897,7 +871,7 @@ i2c {i2c}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}
 
     if (in != input::none) /* Audio input selected */
     {
-        if ((in == input::mic1) || (in == input::mic2))
+        if ((in == input::mic1) || (in == input::mic2) || (in == input::line1_mic2))
         {
             /* Enable Microphone bias 1 generator, Enable VMID */
             power_mgnt_reg_1 |= 0x0013;
@@ -906,27 +880,11 @@ i2c {i2c}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}
             /* ADC oversample enable */
             this->write_reg(0x620, 0x0002);
 
-            /* AIF ADC2 HPF enable, HPF cut = voice mode 1 fc=127Hz at fs=8kHz */
-            this->write_reg(0x411, 0x3800);
-        }
-        else if (in == input::mic1_mic2)
-        {
-            /* Enable Microphone bias 1 generator, Enable VMID */
-            power_mgnt_reg_1 |= 0x0013;
-            this->write_reg(0x01, power_mgnt_reg_1);
-
-            /* ADC oversample enable */
-            this->write_reg(0x620, 0x0002);
-
-            /* AIF ADC1 HPF enable, HPF cut = voice mode 1 fc=127Hz at fs=8kHz */
-            this->write_reg(0x410, 0x1800);
-
-            /* AIF ADC2 HPF enable, HPF cut = voice mode 1 fc=127Hz at fs=8kHz */
+            /* AIF ADC2 HPF enable, HPF cut = hifi mode 1 fc=4Hz at fs=48kHz */
             this->write_reg(0x411, 0x1800);
         }
-        else if ((in == input::line1) || (in == input::line2))
+        else if ((in == input::line1) || (in == input::line2) || (in == input::line1_mic2))
         {
-
             /* Disable mute on IN1L, IN1L Volume = +0dB */
             this->write_reg(0x18, 0x000B);
 
@@ -986,6 +944,30 @@ void audio_wm8994ecs::set_input_volume(uint8_t vol, uint8_t ch)
         default:
             break;
     }
+}
+
+void audio_wm8994ecs::set_input_channels(frame_slots left_ch, frame_slots right_ch)
+{
+    const bool out_enabled = this->sai_drv.block_a.is_enabled();
+    const uint16_t left_slot = static_cast<uint16_t>(left_ch);
+    const uint16_t right_slot = static_cast<uint16_t>(right_ch);
+
+    const sai_32bit::block::config sai_b_cfg
+    {
+        out_enabled ?
+        sai_32bit::block::mode_type::slave_rx : sai_32bit::block::mode_type::master_rx,
+        sai_32bit::block::protocol_type::generic,
+        sai_32bit::block::data_size::_32bit,
+        out_enabled ?
+        sai_32bit::block::sync_type::internal : sai_32bit::block::sync_type::none,
+        sai_32bit::block::frame_type::stereo,
+        sai_32bit::block::audio_freq::_48kHz,
+        WM8994_SLOTS_NUMBER,
+        static_cast<uint16_t>((1 << left_slot) | (1U << right_slot)),
+    };
+
+    sai_drv.block_b.configure(sai_b_cfg);
+    sai_drv.block_b.enable(true);
 }
 
 void audio_wm8994ecs::play(const audio_output::sample_t *output, uint16_t length, const play_cb_t &cb, bool loop)

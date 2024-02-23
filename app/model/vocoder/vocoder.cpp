@@ -261,7 +261,7 @@ public:
         std::swap(menv_in, menv_out);
 
         /* Cross-synthesis */
-        const float epsi = (0.1f - 0.1f * this->attr.ctrl.clarity); // To avoid dividing by 0
+        const float epsi = (0.01f - 0.00999f * this->attr.ctrl.clarity); // To avoid dividing by 0
         for (unsigned i = 0; i < (this->window_size / 2); i++)
             arm_sqrt_f32(std::abs(menv_in[i]) / (std::abs(cenv_in[i]) + epsi), &cenv_out[i]);
         std::swap(cenv_in, cenv_out);

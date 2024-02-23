@@ -21,8 +21,9 @@ public:
     static constexpr uint8_t i2c_address = 0b00011010;
     static constexpr bool verify_i2c_writes = false;
 
-    enum class input { none, mic1, mic2, mic1_mic2, line1, line2 };
+    enum class input { none, mic1, mic2, line1, line2, line1_mic2 };
     enum class output { none, speaker, headphone, both, automatic };
+    enum class frame_slots { slot0_left, slot1_left, slot0_right, slot1_right };
 
     audio_wm8994ecs(hal::interface::i2c_proxy &dev, uint8_t addr, input in, output out);
     ~audio_wm8994ecs();
@@ -30,6 +31,7 @@ public:
     void capture(audio_input::sample_t *input, uint16_t length, const capture_cb_t &cb, bool loop) override;
     void stop_capture(void) override;
     void set_input_volume(uint8_t vol, uint8_t ch) override;
+    void set_input_channels(frame_slots left_ch, frame_slots right_ch);
 
     void play(const audio_output::sample_t *output, uint16_t length, const play_cb_t &cb, bool loop) override;
     void pause(void) override;

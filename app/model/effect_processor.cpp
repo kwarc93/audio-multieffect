@@ -108,6 +108,14 @@ void effect_processor::event_handler(const events::set_output_volume &e)
 void effect_processor::event_handler(const effect_processor_events::route_mic_to_aux &e)
 {
     this->audio.route_onboard_mic_to_aux(e.value);
+
+    /* Re-start audio capture */
+    this->audio.capture(this->audio_input.buffer.data(), this->audio_input.buffer.size(),
+    [this](auto && ...params)
+    {
+        this->audio_capture_cb(params...);
+    },
+    true);
 }
 
 void effect_processor::event_handler(const events::set_mute &e)

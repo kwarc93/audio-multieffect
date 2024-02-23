@@ -62,6 +62,7 @@ public:
 
         explicit block(id id, sai_base *base);
         void enable(bool state);
+        bool is_enabled(void);
         void configure(const config &cfg);
         void configure_dma(void *data, uint16_t data_len, std::size_t data_width, const dma_cb_t &cb, bool circular);
         void dma_irq_handler(void);

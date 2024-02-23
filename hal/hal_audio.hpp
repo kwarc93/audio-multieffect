@@ -61,8 +61,15 @@ namespace audio_devices
     public:
         codec(hal::interface::i2c_proxy &i2c) :
         audio{&audio_drv, &audio_drv},
-        audio_drv{i2c, drivers::audio_wm8994ecs::i2c_address, drivers::audio_wm8994ecs::input::line1, drivers::audio_wm8994ecs::output::headphone} {}
-        void route_onboard_mic_to_aux(bool enabled) { /* TODO */ }
+        audio_drv{i2c, drivers::audio_wm8994ecs::i2c_address, drivers::audio_wm8994ecs::input::line1_mic2, drivers::audio_wm8994ecs::output::headphone} {}
+        void route_onboard_mic_to_aux(bool enabled)
+        {
+            const auto left_ch = drivers::audio_wm8994ecs::frame_slots::slot0_left;
+            const auto right_ch = enabled ? drivers::audio_wm8994ecs::frame_slots::slot1_left :
+                                  drivers::audio_wm8994ecs::frame_slots::slot0_right;
+
+            audio_drv.set_input_channels(left_ch, right_ch);
+        }
     private:
         drivers::audio_wm8994ecs audio_drv;
     };
