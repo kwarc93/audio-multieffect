@@ -6,16 +6,22 @@ A concept of digital multi-effect for guitar running on STM32F746-DISCO board
 
 ## Overview
 
-Device captures audio signal from line-in jack (left channel), then processes audio samples according to selected effect and finally outputs processed audio to line-out jack. User controls device by touchscreen. It is possible to add multiple effects to signal chain. Several basic guitar effects are implemented:
+Device captures audio signal from line-in jack (left channel, labeled as MAIN), then processes audio samples according to selected effect and finally outputs processed audio to line-out jack. User controls device by touchscreen. It is possible to add multiple effects to signal chain. Several basic guitar effects are implemented:
 - tremolo
 - echo/delay
 - chorus
 - reverb
 - overdrive
 - speaker cabinet emulator
-- vocoder (needs additional signal input as modulator, which is on the right channel of line-in)
+- vocoder
 
 Effects order (in signal chain) can be changed through settings menu and each effect can be enabled/disabled separately. Changing between effects is done by left/right *swipe* gesture. Settings screen can be accessed by *swipe down* gesture.
+
+The vocoder effect needs an additional signal input as modulator, which can be:
+- right channel of the line-in, labeled as AUX (default)
+- signal form the onboard digital microphone
+
+This signal can be selected from the audio settings screen.
 
 Audio quality is set to 24bit 48kHz. Audio latency is determined by the size of audio buffer, which by default is 128 samples that gives around 6ms in-out delay.
 
@@ -25,6 +31,13 @@ https://youtu.be/xXm61wA0C68?feature=shared
 ## How to build
 
 Project was created using **Eclipse IDE for Embedded C/C++ Developers**
+
+Follow these steps:
+1. Install **Eclipse IDE for Embedded C/C++ Developers** and **gcc-arm-none-eabi** toolchain. Setup Eclipse's global ARM toolchain path in **Window->Preferences->MCU**.
+2. Clone repo: `git clone --recurse-submodules https://github.com/kwarc93/audio-multieffect.git`
+3. In Eclipse go to: **File->Import->Existing projects into workspace**, select folder with cloned repo and check **Copy projects into workspace**. Click **Finish**.
+
+Now the project should have two build configurations: **Debug** and **Release**, it should be possible to build each one with no errors.
 
 ## How to add new effect
 
