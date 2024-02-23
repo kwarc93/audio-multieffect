@@ -179,26 +179,26 @@ const effect_specific_attributes reverb::get_specific_attributes(void) const
 
 void reverb::set_bandwidth(float bandwidth)
 {
-    bandwidth = std::clamp(bandwidth, 0.0f, 0.9999f);
+    bandwidth = std::clamp(bandwidth, 0.001f, 1.0f);
 
     if (this->attr.ctrl.bandwidth == bandwidth)
         return;
 
     this->attr.ctrl.bandwidth = bandwidth;
 
-    this->lpf1.calc_coeff(bandwidth * config::sampling_frequency_hz * 0.5f, config::sampling_frequency_hz);
+    this->lpf1.calc_coeff(bandwidth * config::sampling_frequency_hz * 0.45f, config::sampling_frequency_hz);
 }
 
 void reverb::set_damping(float damping)
 {
-    damping = std::clamp(damping, 0.0f, 0.9999f);
+    damping = std::clamp(damping, 0.0f, 0.999f);
 
     if (this->attr.ctrl.damping == damping)
         return;
 
     this->attr.ctrl.damping = damping;
 
-    const float d = (1 - damping) * config::sampling_frequency_hz * 0.5f;
+    const float d = (1 - damping) * config::sampling_frequency_hz * 0.45f;
     this->lpf2.calc_coeff(d, config::sampling_frequency_hz);
     this->lpf3.calc_coeff(d, config::sampling_frequency_hz);
 }
