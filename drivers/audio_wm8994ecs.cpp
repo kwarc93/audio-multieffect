@@ -413,8 +413,6 @@ audio_wm8994ecs::audio_wm8994ecs(hal::interface::i2c_proxy &i2c, uint8_t addr, i
 i2c {i2c}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}
 {
     constexpr uint32_t audio_freq = 48000;
-    constexpr uint8_t output_vol = 57; // 0dB
-    constexpr uint8_t input_vol = 11; // 0dB
     constexpr uint16_t slots_1_3 = 0b1010;
     constexpr uint16_t slots_0_2 = 0b0101;
 
@@ -757,6 +755,9 @@ i2c {i2c}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}
 
     if (out != output::none) /* Audio output selected */
     {
+        /* ADC & DAC oversample enable */
+        this->write_reg(WM8994_OVERSAMPLING, 0x0003);
+
         if (out == output::headphone)
         {
             /* Select DAC1 (Left) to Left Headphone Output PGA (HPOUT1LVOL) path */
@@ -865,8 +866,8 @@ i2c {i2c}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}
         /* Unmute the AIF1 Timeslot 1 DAC2 path */
         this->write_reg(0x422, 0x0010);
 
-        /* Volume Control */
-        this->set_output_volume(output_vol);
+        /* Set Volume to 0dB */
+        this->set_output_volume(0x39);
     }
 
     if (in != input::none) /* Audio input selected */
@@ -877,10 +878,7 @@ i2c {i2c}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}
             power_mgnt_reg_1 |= 0x0013;
             this->write_reg(0x01, power_mgnt_reg_1);
 
-            /* ADC oversample enable */
-            this->write_reg(0x620, 0x0002);
-
-            /* AIF ADC2 HPF enable, HPF cut = hifi mode 1 fc=4Hz at fs=48kHz */
+            /* AIF ADC2 HPF enable, HPF cut = hifi mode fc=4Hz at fs=48kHz */
             this->write_reg(0x411, 0x1800);
         }
         else if ((in == input::line1) || (in == input::line2) || (in == input::line1_mic2))
@@ -895,9 +893,9 @@ i2c {i2c}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}
             this->write_reg(0x410, 0x1800);
         }
 
-        /* Volume Control */
-        this->set_input_volume(input_vol, 0);
-        this->set_input_volume(input_vol, 1);
+        /* Set Volume to 0dB */
+        this->set_input_volume(0x0B, 0);
+        this->set_input_volume(0x0B, 1);
     }
 }
 
@@ -926,20 +924,22 @@ void audio_wm8994ecs::stop_capture(void)
 void audio_wm8994ecs::set_input_volume(uint8_t vol, uint8_t ch)
 {
     /* Analog volume of PGA (-16.5dB to 30dB) */
-
     constexpr uint8_t vol_m16_5db = 0;
-    constexpr uint8_t vol_30db = 31;
+    constexpr uint8_t vol_30db = 0x1F;
     vol = std::clamp(vol, vol_m16_5db, vol_30db);
+
+    /* Digital volume of ADC2 OUT (-6.0dB to 17.25dB) */
+    const uint16_t dvol = 0xB0 + 2 * vol;
 
     switch (ch)
     {
         case 0: // Left
-            this->write_reg(WM8994_LEFT_LINE_IN12_VOL, vol | 0x0040);
-            this->write_reg(WM8994_LEFT_LINE_IN34_VOL, vol | 0x0040);
+            this->write_reg(WM8994_LEFT_LINE_IN12_VOL, vol | 0x0140);
+            this->write_reg(WM8994_AIF1_ADC2_LEFT_VOL, dvol | 0x100);
             break;
         case 1: // Right
             this->write_reg(WM8994_RIGHT_LINE_IN12_VOL, vol | 0x0140);
-            this->write_reg(WM8994_RIGHT_LINE_IN34_VOL, vol | 0x0140);
+            this->write_reg(WM8994_AIF1_ADC2_RIGHT_VOL, dvol | 0x100);
             break;
         default:
             break;
@@ -1017,7 +1017,7 @@ void audio_wm8994ecs::set_output_volume(uint8_t vol)
     /* Analog volume of PGA (-57dB to 6dB) */
 
     constexpr uint8_t vol_m57db = 0;
-    constexpr uint8_t vol_6db = 63;
+    constexpr uint8_t vol_6db = 0x3F;
     vol = std::clamp(vol, vol_m57db, vol_6db);
 
     this->write_reg(WM8994_LEFT_OUTPUT_VOL, vol | 0x00C0);

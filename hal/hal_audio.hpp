@@ -55,7 +55,10 @@ namespace hal
 
 namespace audio_devices
 {
-    /* Audio codec WM8994 configuration: stereo 24bit 48kHz */
+    /*
+     * Audio codec WM8994 configuration: stereo 24bit 48kHz
+     * NOTE: On STM32F746G-DISCO board, the digital microphone's left & right channels are swapped.
+     */
     class codec : public audio<drivers::audio_wm8994ecs::audio_input::sample_t, drivers::audio_wm8994ecs::audio_output::sample_t>
     {
     public:
@@ -65,7 +68,7 @@ namespace audio_devices
         void route_onboard_mic_to_aux(bool enabled)
         {
             const auto left_ch = drivers::audio_wm8994ecs::frame_slots::slot0_left;
-            const auto right_ch = enabled ? drivers::audio_wm8994ecs::frame_slots::slot1_left :
+            const auto right_ch = enabled ? drivers::audio_wm8994ecs::frame_slots::slot1_right :
                                   drivers::audio_wm8994ecs::frame_slots::slot0_right;
 
             audio_drv.set_input_channels(left_ch, right_ch);
