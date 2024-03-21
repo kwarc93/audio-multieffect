@@ -7,7 +7,7 @@
 
 #include "usart.hpp"
 
-#include <map>
+#include <array>
 
 #include <cmsis/stm32f7xx.h>
 
@@ -29,20 +29,21 @@ struct usart::usart_hw
     gpio::io io_rx;
 };
 
-static const std::map<usart::id, usart::usart_hw> usartx
+static constexpr std::array<usart::usart_hw, 1> usartx
 {
-    { usart::id::usart1, { usart::id::usart1, USART1, RCC_PERIPH_BUS(APB2, USART1), gpio::af::af7,
-                         { gpio::port::porta, gpio::pin::pin9 }, { gpio::port::portb, gpio::pin::pin7 }}},
+    { usart::id::usart1, USART1, RCC_PERIPH_BUS(APB2, USART1), gpio::af::af7,
+    { gpio::port::porta, gpio::pin::pin9 }, { gpio::port::portb, gpio::pin::pin7 }}
 };
 
-usart::usart(id id, uint32_t baudrate) : hw {usartx.at(id)}
+usart::usart(id hw_id, uint32_t baudrate) :
+hw {usartx.at(static_cast<std::underlying_type_t<id>>(hw_id))}
 {
     rcc::enable_periph_clock(this->hw.pbus, true);
 
     gpio::configure(this->hw.io_tx, gpio::mode::af, this->hw.io_af);
     gpio::configure(this->hw.io_rx, gpio::mode::af, this->hw.io_af);
 
-    uint8_t object_id = static_cast<uint8_t>(id);
+    size_t object_id = static_cast<std::underlying_type_t<id>>(hw_id);
     if (object_id < this->instance.size())
         this->instance[object_id] = this;
 

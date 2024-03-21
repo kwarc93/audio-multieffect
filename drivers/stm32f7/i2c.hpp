@@ -20,7 +20,7 @@ class i2c : public hal::interface::i2c
 public:
     struct i2c_hw;
 
-    enum class id { i2c1, i2c2, i2c3 };
+    enum class id { i2c3 };
     enum class mode { master, slave };
     enum class speed { standard, fast };
 

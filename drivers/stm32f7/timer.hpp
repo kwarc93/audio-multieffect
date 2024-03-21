@@ -22,8 +22,7 @@ public:
 
     enum class id
     {
-        timer1, timer2, timer3, timer4, timer5, timer6, timer7,
-        timer8, timer9, timer10, timer11, timer12, timer13, timer14,
+        timer2, timer3, timer12,
     };
 
     enum class channel

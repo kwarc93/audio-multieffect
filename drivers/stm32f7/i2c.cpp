@@ -7,7 +7,7 @@
 
 #include "i2c.hpp"
 
-#include <map>
+#include <array>
 
 #include <cmsis/stm32f7xx.h>
 
@@ -35,16 +35,17 @@ struct i2c::i2c_hw
     gpio::io io_scl;
 };
 
-static const std::map<i2c::id, i2c::i2c_hw> i2cx
+static constexpr std::array<i2c::i2c_hw, 1> i2cx
 {
-    { i2c::id::i2c3, { i2c::id::i2c3, I2C3, RCC_PERIPH_BUS(APB1, I2C3), gpio::af::af4,
-                     { gpio::port::porth, gpio::pin::pin8 }, { gpio::port::porth, gpio::pin::pin7 }}},
+    { i2c::id::i2c3, I2C3, RCC_PERIPH_BUS(APB1, I2C3), gpio::af::af4,
+    { gpio::port::porth, gpio::pin::pin8 }, { gpio::port::porth, gpio::pin::pin7 }},
 };
 
 //-----------------------------------------------------------------------------
 /* public */
 
-i2c::i2c(id id, mode mode, speed speed) : hw {i2cx.at(id)}, operating_mode {mode}, bus_speed {speed}
+i2c::i2c(id hw_id, mode mode, speed speed) :
+hw {i2cx.at(static_cast<std::underlying_type_t<id>>(hw_id))}, operating_mode {mode}, bus_speed {speed}
 {
     rcc::enable_periph_clock(this->hw.pbus, true);
 

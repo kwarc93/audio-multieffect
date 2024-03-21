@@ -7,7 +7,7 @@
 
 #include "sai.hpp"
 
-#include <map>
+#include <array>
 #include <optional>
 #include <cassert>
 
@@ -97,33 +97,33 @@ struct sai_base::base_hw
     block::block_hw block_b;
 };
 
-static const std::map<sai_base::id, sai_base::base_hw> saix
+static constexpr std::array<sai_base::base_hw, 1> saix
 {
-    { sai_base::id::sai2, { sai_base::id::sai2, SAI2, RCC_PERIPH_BUS(APB2, SAI2), gpio::af::af10,
-                          // BLOCK A
-                          {
-                            sai_base::block::id::a, SAI2_Block_A,
-                            std::optional<gpio::io>({ gpio::port::porti, gpio::pin::pin4 }),
-                            std::optional<gpio::io>({ gpio::port::porti, gpio::pin::pin5 }),
-                            std::optional<gpio::io>({ gpio::port::porti, gpio::pin::pin6 }),
-                            std::optional<gpio::io>({ gpio::port::porti, gpio::pin::pin7 })
-                          },
-                          // BLOCK B
-                          {
-                            sai_base::block::id::b, SAI2_Block_B,
-                            { /* unused */ },
-                            { /* unused */ },
-                            std::optional<gpio::io>({ gpio::port::portg, gpio::pin::pin10 }),
-                            { /* unused */ }
-                          }
-                          }
+    { sai_base::id::sai2, SAI2, RCC_PERIPH_BUS(APB2, SAI2), gpio::af::af10,
+    // BLOCK A
+    {
+      sai_base::block::id::a, SAI2_Block_A,
+      std::optional<gpio::io>({ gpio::port::porti, gpio::pin::pin4 }),
+      std::optional<gpio::io>({ gpio::port::porti, gpio::pin::pin5 }),
+      std::optional<gpio::io>({ gpio::port::porti, gpio::pin::pin6 }),
+      std::optional<gpio::io>({ gpio::port::porti, gpio::pin::pin7 })
     },
+    // BLOCK B
+    {
+      sai_base::block::id::b, SAI2_Block_B,
+      { /* unused */ },
+      { /* unused */ },
+      std::optional<gpio::io>({ gpio::port::portg, gpio::pin::pin10 }),
+      { /* unused */ }
+    }
+    }
 };
 
 //-----------------------------------------------------------------------------
 /* public */
 
-sai_base::sai_base(id id) : hw {saix.at(id)}, block_a {block::id::a, this}, block_b {block::id::b, this}
+sai_base::sai_base(id hw_id) :
+hw {saix.at(static_cast<std::underlying_type_t<id>>(hw_id))}, block_a {block::id::a, this}, block_b {block::id::b, this}
 {
     /*
      * Configure clock source for SAI at 192kHz
@@ -144,7 +144,7 @@ sai_base::sai_base(id id) : hw {saix.at(id)}, block_a {block::id::a, this}, bloc
     rcc::enable_periph_clock(this->hw.pbus, true);
     rcc::enable_periph_clock(RCC_PERIPH_BUS(AHB1, DMA2), true);
 
-    uint8_t object_id = static_cast<uint8_t>(id);
+    size_t object_id = static_cast<std::underlying_type_t<id>>(hw_id);
     if (object_id < this->instance.size())
         this->instance[object_id] = this;
 

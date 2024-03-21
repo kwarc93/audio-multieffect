@@ -7,7 +7,6 @@
 
 #include "timer.hpp"
 
-#include <map>
 #include <array>
 
 #include <cmsis/stm32f7xx.h>
@@ -39,22 +38,19 @@ struct timer::timer_hw
     std::array<timer_ch, 4> channels;
 };
 
-static const std::map<timer::id, timer::timer_hw> timerx
-{
-    { timer::id::timer2,
-    timer::timer_hw{ TIM2, RCC_PERIPH_BUS(APB1, TIM2), TIM2_IRQn, 15, UINT16_MAX, UINT16_MAX,
-    timer_ch{ true, false, gpio::af::af1, { gpio::port::porta, gpio::pin::pin15 }}}},
+static constexpr std::array<timer::timer_hw, 3> timerx
+{{
+    { TIM2, RCC_PERIPH_BUS(APB1, TIM2), TIM2_IRQn, 15, UINT16_MAX, UINT16_MAX,
+    timer_ch{ true, false, gpio::af::af1, { gpio::port::porta, gpio::pin::pin15 }}},
 
-    { timer::id::timer3,
-    timer::timer_hw{ TIM3, RCC_PERIPH_BUS(APB1, TIM3), TIM3_IRQn, 15, UINT16_MAX, UINT16_MAX,
-    timer_ch{ true, false, gpio::af::af2, { gpio::port::portb, gpio::pin::pin4 }}}},
+    { TIM3, RCC_PERIPH_BUS(APB1, TIM3), TIM3_IRQn, 15, UINT16_MAX, UINT16_MAX,
+    timer_ch{ true, false, gpio::af::af2, { gpio::port::portb, gpio::pin::pin4 }}},
 
-    { timer::id::timer12,
-    timer::timer_hw{ TIM12, RCC_PERIPH_BUS(APB1, TIM12), TIM8_BRK_TIM12_IRQn, 15, UINT16_MAX, UINT16_MAX,
-    timer_ch{ true, false, gpio::af::af9, { gpio::port::porth, gpio::pin::pin6 }}}},
-};
+    { TIM12, RCC_PERIPH_BUS(APB1, TIM12), TIM8_BRK_TIM12_IRQn, 15, UINT16_MAX, UINT16_MAX,
+    timer_ch{ true, false, gpio::af::af9, { gpio::port::porth, gpio::pin::pin6 }}}
+}};
 
-timer::timer(id id) : hw (timerx.at(id))
+timer::timer(id hw_id) : hw {timerx.at(static_cast<std::underlying_type_t<id>>(hw_id))}
 {
     rcc::enable_periph_clock(this->hw.pbus, true);
 

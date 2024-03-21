@@ -21,7 +21,7 @@ class sai_base
 public:
     struct base_hw;
 
-    enum class id { sai1, sai2 };
+    enum class id { sai2 };
 
     sai_base(id id);
     virtual ~sai_base();
