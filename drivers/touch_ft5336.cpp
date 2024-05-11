@@ -282,21 +282,21 @@ uint8_t touch_ft5336::detect_touch(void)
 
     switch (this->td_mode)
     {
-        case touch_detect_mode::reg_poll:
-            touch_points = this->read_reg(FT5336_TD_STAT_REG) & FT5336_TD_STAT_MASK;
-            break;
-        case touch_detect_mode::int_poll:
-            touch_points = !this->get_int_status();
-            break;
-        case touch_detect_mode::int_trigg:
-            if (this->int_detected)
-            {
-                this->int_detected = false;
-                touch_points = 1;
-            }
-            break;
-        default:
-            return touch_points;
+    case touch_detect_mode::reg_poll:
+        touch_points = this->read_reg(FT5336_TD_STAT_REG) & FT5336_TD_STAT_MASK;
+        break;
+    case touch_detect_mode::int_poll:
+        touch_points = !this->get_int_status();
+        break;
+    case touch_detect_mode::int_trigg:
+        if (this->int_detected)
+        {
+            this->int_detected = false;
+            touch_points = 1;
+        }
+        break;
+    default:
+        break;
     }
 
     /* If invalid number of touch detected, set it to zero */
@@ -347,7 +347,12 @@ i2c {i2c}, i2c_addr {addr}, int_io {int_io}, orient {ori}, td_mode {touch_detect
         case 1:
             this->td_mode = touch_detect_mode::int_trigg;
             gpio::configure(this->int_io, gpio::mode::input, gpio::af::af0, gpio::pupd::pu);
-            exti::configure(true, exti::line::line13, exti::port::porti, exti::mode::interrupt, exti::edge::falling, [this](){ this->int_detected = true; });
+            exti::configure(true,
+                            static_cast<exti::line>(this->int_io.pin),
+                            static_cast<exti::port>(this->int_io.port),
+                            exti::mode::interrupt,
+                            exti::edge::falling,
+                            [this](){ this->int_detected = true; });
             break;
         default:
             this->td_mode = touch_detect_mode::reg_poll;

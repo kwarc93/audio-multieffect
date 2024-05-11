@@ -8,8 +8,6 @@
 #ifndef STM32F7_GPIO_HPP_
 #define STM32F7_GPIO_HPP_
 
-#include <cmsis/stm32f7xx.h>
-
 #include <cstdint>
 
 namespace drivers
@@ -20,11 +18,10 @@ class gpio final
 public:
     gpio() = delete;
 
-    enum class port:uint32_t
+    enum class port:uint8_t
     {
-        porta = GPIOA_BASE, portb = GPIOB_BASE, portc = GPIOC_BASE, portd = GPIOD_BASE,
-        porte = GPIOE_BASE, portf = GPIOF_BASE, portg = GPIOG_BASE, porth = GPIOH_BASE,
-        porti = GPIOI_BASE, portj = GPIOJ_BASE, portk = GPIOK_BASE
+        porta = 0, portb, portc, portd, porte,
+        portf, portg, porth, porti, portj, portk
     };
     enum class pin:uint8_t
     {
