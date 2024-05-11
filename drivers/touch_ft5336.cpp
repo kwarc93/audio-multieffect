@@ -9,6 +9,8 @@
 #include "touch_ft5336.hpp"
 
 #include <drivers/stm32f7/delay.hpp>
+#include <drivers/stm32f7/rcc.hpp>
+#include <drivers/stm32f7/exti.hpp>
 
 #include <cassert>
 
@@ -276,10 +278,34 @@ uint8_t touch_ft5336::detect_touch(void)
 {
     /* TODO: Add support for multi-touch */
 
-    uint8_t touch_number = this->read_reg(FT5336_TD_STAT_REG) & FT5336_TD_STAT_MASK;
+    uint8_t touch_points = 0;
+
+    switch (this->td_mode)
+    {
+        case touch_detect_mode::reg_poll:
+            touch_points = this->read_reg(FT5336_TD_STAT_REG) & FT5336_TD_STAT_MASK;
+            break;
+        case touch_detect_mode::int_poll:
+            touch_points = !this->get_int_status();
+            break;
+        case touch_detect_mode::int_trigg:
+            if (this->int_detected)
+            {
+                this->int_detected = false;
+                touch_points = 1;
+            }
+            break;
+        default:
+            return touch_points;
+    }
 
     /* If invalid number of touch detected, set it to zero */
-    return touch_number > FT5336_MAX_NB_TOUCH ? 0 : touch_number;
+    return touch_points > FT5336_MAX_NB_TOUCH ? 0 : touch_points;
+}
+
+bool touch_ft5336::get_int_status(void)
+{
+    return gpio::read(this->int_io);
 }
 
 void touch_ft5336::get_xy(uint16_t &x, uint16_t &y)
@@ -300,14 +326,33 @@ void touch_ft5336::get_xy(uint16_t &x, uint16_t &y)
 //-----------------------------------------------------------------------------
 /* public */
 
-touch_ft5336::touch_ft5336(hal::interface::i2c_proxy &i2c, uint8_t addr = i2c_address, touch_ft5336::orientation ori = orientation::mirror_xy) :
-i2c {i2c}, i2c_addr {addr}, orient {ori}
+touch_ft5336::touch_ft5336(hal::interface::i2c_proxy &i2c, uint8_t addr, const gpio::io &int_io, touch_ft5336::orientation ori) :
+i2c {i2c}, i2c_addr {addr}, int_io {int_io}, orient {ori}, td_mode {touch_detect_mode::reg_poll}
 {
     // Wait at least 200ms after power up before accessing registers
     // Trsi timing (Time of starting to report point after resetting) from FT5336GQQ datasheet
     drivers::delay::ms(200);
     uint8_t id = this->read_id();
     assert(id == FT5336_ID);
+
+    // Check INT pin mode: poll or trigger
+    const uint8_t int_mode = this->read_reg(FT5336_GMODE_REG);
+
+    switch (int_mode)
+    {
+        case 0:
+            this->td_mode = touch_detect_mode::int_poll;
+            gpio::configure(this->int_io, gpio::mode::input, gpio::af::af0, gpio::pupd::pu);
+            break;
+        case 1:
+            this->td_mode = touch_detect_mode::int_trigg;
+            gpio::configure(this->int_io, gpio::mode::input, gpio::af::af0, gpio::pupd::pu);
+            exti::configure(true, exti::line::line13, exti::port::porti, exti::mode::interrupt, exti::edge::falling, [this](){ this->int_detected = true; });
+            break;
+        default:
+            this->td_mode = touch_detect_mode::reg_poll;
+            break;
+    }
 }
 
 touch_ft5336::~touch_ft5336()

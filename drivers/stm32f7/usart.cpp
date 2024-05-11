@@ -135,7 +135,6 @@ void usart::irq_handler(void)
         this->hw.reg->ICR |= USART_ICR_ORECF;
 
         /* TODO: Throw overrun error */
-//        asm volatile ("BKPT");
     }
 
     /* RX not empty */

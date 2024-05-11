@@ -19,6 +19,8 @@ namespace drivers
 class dma2d final
 {
 public:
+    dma2d() = delete;
+
     using transfer_cb_t = std::function<void(void)>;
 
     enum class mode
