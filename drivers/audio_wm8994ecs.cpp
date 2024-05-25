@@ -430,8 +430,8 @@ i2c {i2c}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}
             slots_0_2
         };
 
-        sai_drv.block_a.configure(sai_a_cfg);
-        sai_drv.block_a.enable(true);
+        this->sai_drv.block_a.configure(sai_a_cfg);
+        this->sai_drv.block_a.enable(true);
     }
 
     if (in != input::none)
@@ -450,8 +450,8 @@ i2c {i2c}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}
             (in == input::mic2 || in == input::line2) ? slots_1_3 : slots_0_2,
         };
 
-        sai_drv.block_b.configure(sai_b_cfg);
-        sai_drv.block_b.enable(true);
+        this->sai_drv.block_b.configure(sai_b_cfg);
+        this->sai_drv.block_b.enable(true);
     }
 
     /* Initialize wm8994 codec */
@@ -918,7 +918,7 @@ void audio_wm8994ecs::capture(audio_input::sample_t *input, uint16_t length, con
 
 void audio_wm8994ecs::stop_capture(void)
 {
-    /* TODO */
+    this->sai_drv.block_b.enable(false);
 }
 
 void audio_wm8994ecs::set_input_volume(uint8_t vol, uint8_t ch)
@@ -966,8 +966,8 @@ void audio_wm8994ecs::set_input_channels(frame_slots left_ch, frame_slots right_
         static_cast<uint16_t>((1 << left_slot) | (1U << right_slot)),
     };
 
-    sai_drv.block_b.configure(sai_b_cfg);
-    sai_drv.block_b.enable(true);
+    this->sai_drv.block_b.configure(sai_b_cfg);
+    this->sai_drv.block_b.enable(true);
 }
 
 void audio_wm8994ecs::play(const audio_output::sample_t *output, uint16_t length, const play_cb_t &cb, bool loop)
@@ -994,7 +994,10 @@ void audio_wm8994ecs::resume(void)
 
 void audio_wm8994ecs::stop(void)
 {
-    /* TODO */
+    this->sai_drv.block_a.enable(false);
+
+    /* Speaker & Headphone fast shutdown */
+    this->write_reg(WM8994_WRITE_SEQ_CTRL1, 0x8122);
 }
 
 void audio_wm8994ecs::mute(bool value)

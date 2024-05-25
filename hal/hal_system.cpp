@@ -13,6 +13,7 @@
 #include <drivers/stm32f7/core.hpp>
 #include <drivers/stm32f7/rcc.hpp>
 #include <drivers/stm32f7/flash.hpp>
+#include <drivers/stm32f7/exti.hpp>
 
 using namespace hal;
 
@@ -66,5 +67,28 @@ void system::init(void)
     SCB_EnableDCache();
 
     hal::sdram::init();
+
+    /* Enable EXTI event (wake-up from stop mode) */
+    drivers::exti::configure(true,
+                             drivers::exti::line::line11,
+                             drivers::exti::port::porti,
+                             drivers::exti::mode::event,
+                             drivers::exti::edge::rising,
+                             {});
+}
+
+void system::sleep(void)
+{
+    drivers::core::enter_sleep_mode();
+}
+
+void system::stop(void)
+{
+    drivers::core::enter_stop_mode();
+}
+
+void system::reset(void)
+{
+    NVIC_SystemReset();
 }
 

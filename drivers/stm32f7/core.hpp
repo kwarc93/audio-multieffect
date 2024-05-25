@@ -20,6 +20,8 @@ public:
 
     static void enable_cycles_counter(void);
     static uint32_t get_cycles_counter(void);
+    static void enter_sleep_mode(void);
+    static void enter_stop_mode(void);
 };
 
 class core_critical_section

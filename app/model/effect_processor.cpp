@@ -53,6 +53,13 @@ void effect_processor::dispatch(const event &e)
     std::visit([this](auto &&e) { this->event_handler(e); }, e.data);
 }
 
+void effect_processor::event_handler(const events::shutdown &e)
+{
+    this->audio.mute(true);
+    this->audio.stop();
+    this->audio.stop_capture();
+}
+
 void effect_processor::event_handler(const events::add_effect &e)
 {
     /* Don't allow duplicates */
@@ -105,7 +112,7 @@ void effect_processor::event_handler(const events::set_output_volume &e)
     this->audio.set_output_volume(e.output_vol);
 }
 
-void effect_processor::event_handler(const effect_processor_events::route_mic_to_aux &e)
+void effect_processor::event_handler(const events::route_mic_to_aux &e)
 {
     this->audio.route_onboard_mic_to_aux(e.value);
 

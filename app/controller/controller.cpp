@@ -10,6 +10,8 @@
 #include <array>
 #include <algorithm>
 
+#include <hal/hal_system.hpp>
+
 using namespace mfx;
 namespace events = controller_events;
 
@@ -28,17 +30,30 @@ void button_timer_cb(void *arg)
 
     button->debounce();
 
+    static uint32_t press_time_ms;
     static controller::event e { events::button_state_changed {}, controller::event::flags::immutable };
 
     if (button->was_pressed())
     {
-        std::get<events::button_state_changed>(e.data).state = true;
+        std::get<events::button_state_changed>(e.data).state = events::button_state_changed::state::pressed;
         controller::instance->send(e);
+        press_time_ms = 0;
     }
     else if (button->was_released())
     {
-        std::get<events::button_state_changed>(e.data).state = false;
+        std::get<events::button_state_changed>(e.data).state = events::button_state_changed::state::released;
         controller::instance->send(e);
+        press_time_ms = 0;
+    }
+
+    if (button->is_pressed() && press_time_ms < 2000)
+    {
+        press_time_ms += 20;
+        if (press_time_ms >= 2000)
+        {
+            std::get<events::button_state_changed>(e.data).state = events::button_state_changed::state::hold;
+            controller::instance->send(e);
+        }
     }
 }
 
@@ -97,13 +112,22 @@ void controller::event_handler(const events::led_toggle &e)
 
 void controller::event_handler(const events::button_state_changed &e)
 {
-    printf("Button %s\r\n", e.state ? "pressed" : "released");
+    if (e.state == events::button_state_changed::state::hold)
+    {
+        this->view->send({lcd_view_events::shutdown {}});
+        this->model->send({effect_processor_events::shutdown {}});
+        this->led.set(false);
+
+        printf("System shutdown\r\n");
+        osDelay(100);
+        hal::system::stop();
+        hal::system::reset();
+    }
 }
 
 void controller::event_handler(const events::effect_processor_load &e)
 {
-//    printf("Effect processor load: %u%%\r\n", e.load);
-    this->view->send({lcd_view_events::update_processor_load {e.load}});
+    this->view->send({lcd_view_events::update_processor_load {e.load_pct}});
 }
 
 void controller::event_handler(const events::load_preset &e)

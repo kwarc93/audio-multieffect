@@ -33,7 +33,7 @@ struct led_toggle
 
 struct button_state_changed
 {
-    bool state;
+    enum class state { released, pressed, hold } state;
 };
 
 struct load_preset
@@ -43,13 +43,13 @@ struct load_preset
 
 struct effect_processor_load
 {
-    uint8_t load;
+    uint8_t load_pct;
 };
 
 using incoming = std::variant
 <
-    button_state_changed,
     led_toggle,
+    button_state_changed,
     effect_processor_load,
     load_preset
 >;

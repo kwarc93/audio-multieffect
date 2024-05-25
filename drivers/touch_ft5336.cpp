@@ -355,7 +355,6 @@ i2c {i2c}, i2c_addr {addr}, int_io {int_io}, orient {ori}, td_mode {touch_detect
                             [this](){ this->int_detected = true; });
             break;
         default:
-            this->td_mode = touch_detect_mode::reg_poll;
             break;
     }
 }

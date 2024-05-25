@@ -28,6 +28,11 @@ struct timer
 
 };
 
+struct shutdown
+{
+
+};
+
 struct show_splash_screen
 {
 
@@ -130,7 +135,7 @@ struct set_effect_attributes
 
 struct update_processor_load
 {
-    uint8_t value;
+    uint8_t load_pct;
 };
 
 using outgoing = std::variant
@@ -152,6 +157,7 @@ using outgoing = std::variant
 using incoming = std::variant
 <
     timer,
+    shutdown,
     show_splash_screen,
     show_blank_screen,
     show_next_effect_screen,
@@ -172,6 +178,7 @@ private:
 
     /* Event handlers */
     void event_handler(const lcd_view_events::timer &e);
+    void event_handler(const lcd_view_events::shutdown &e);
     void event_handler(const lcd_view_events::show_splash_screen &e);
     void event_handler(const lcd_view_events::show_blank_screen &e);
     void event_handler(const lcd_view_events::show_next_effect_screen &e);

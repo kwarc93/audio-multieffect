@@ -25,6 +25,30 @@ uint32_t core::get_cycles_counter(void)
     return DWT->CYCCNT;
 }
 
+void core::enter_sleep_mode(void)
+{
+    __DSB();
+    __ISB();
+    __WFI();
+
+    /* Exit upon interrupt */
+}
+
+void core::enter_stop_mode(void)
+{
+    /* Set regulator & flash in low power mode (STOP LP-FPD) */
+    PWR->CR1 |= PWR_CR1_LPDS | PWR_CR1_FPDS;
+    SCB->SCR |= (1 << SCB_SCR_SLEEPDEEP_Pos);
+
+    __DSB();
+    __ISB();
+    __SEV();
+    __WFE();
+    __WFE();
+
+    /* Exit upon event */
+}
+
 core_critical_section::core_critical_section(void)
 {
     this->primask = __get_PRIMASK();

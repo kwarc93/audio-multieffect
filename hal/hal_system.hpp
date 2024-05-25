@@ -52,6 +52,9 @@ namespace hal::system
     };
 
     void init(void);
+    void sleep(void);
+    void stop(void);
+    void reset(void);
 }
 
 

@@ -26,6 +26,11 @@ namespace mfx
 namespace effect_processor_events
 {
 
+struct shutdown
+{
+
+};
+
 struct process_data
 {
 
@@ -111,6 +116,7 @@ using output_volume_changed = set_output_volume;
 
 using incoming = std::variant
 <
+    shutdown,
     process_data,
     get_processing_load,
     add_effect,
@@ -145,6 +151,7 @@ private:
     void dispatch(const event &e) override;
 
     /* Event handlers */
+    void event_handler(const effect_processor_events::shutdown &e);
     void event_handler(const effect_processor_events::add_effect &e);
     void event_handler(const effect_processor_events::remove_effect& e);
     void event_handler(const effect_processor_events::move_effect& e);

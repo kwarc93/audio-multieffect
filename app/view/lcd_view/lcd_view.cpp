@@ -80,6 +80,11 @@ void lcd_view::dispatch(const event &e)
     std::visit([this](auto &&e) { this->event_handler(e); }, e.data);
 }
 
+void lcd_view::event_handler(const events::shutdown &e)
+{
+    this->display.backlight(false);
+}
+
 void lcd_view::event_handler(const events::timer &e)
 {
     lv_timer_handler();
@@ -91,7 +96,7 @@ void lcd_view::event_handler(const events::show_splash_screen &e)
     lv_disp_load_scr(ui_splash);
 }
 
-void lcd_view::event_handler(const lcd_view_events::show_blank_screen &e)
+void lcd_view::event_handler(const events::show_blank_screen &e)
 {
     ui_blank_screen_init();
 
@@ -125,7 +130,7 @@ void lcd_view::event_handler(const events::set_effect_attributes &e)
 void lcd_view::event_handler(const events::update_processor_load &e)
 {
     if (ui_lbl_sett_cpu_load != nullptr)
-        lv_label_set_text_fmt(ui_lbl_sett_cpu_load, "CPU load: %u%%", e.value);
+        lv_label_set_text_fmt(ui_lbl_sett_cpu_load, "CPU load: %u%%", e.load_pct);
 }
 
 void lcd_view::set_effect_attr(const effect_attr &basic, const tremolo_attr &specific)
