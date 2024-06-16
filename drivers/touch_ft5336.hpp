@@ -26,7 +26,7 @@ public:
     touch_ft5336(hal::interface::i2c_proxy &i2c, uint8_t addr, const gpio::io &int_io, orientation ori);
     ~touch_ft5336();
 
-    bool get_touch(int16_t &x, int16_t &y);
+    bool get_touch(int16_t &x, int16_t &y) override;
 private:
     hal::interface::i2c_proxy &i2c;
     const uint8_t i2c_addr;

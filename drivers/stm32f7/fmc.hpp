@@ -67,7 +67,7 @@ public:
             normal, clock_cfg_enable, precharge_all, auto_refresh, load_mode_register, self_refresh, power_down
         };
 
-        struct cfg
+        struct config
         {
             sdram::bank bank;
             sdram::col_addr_width col_addr_width;
@@ -91,7 +91,7 @@ public:
 
         };
 
-        static bool init(const cfg &cfg);
+        static bool configure(const config &cfg);
         static void send_cmd(bank bank, cmd cmd, uint32_t param);
         static void set_refresh_rate(uint16_t refresh_timer_count);
     };

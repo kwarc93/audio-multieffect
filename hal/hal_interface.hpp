@@ -113,6 +113,16 @@ namespace hal::interface
         virtual bool is_pressed(void) = 0;
     };
 
+    class nvm
+    {
+    public:
+        virtual ~nvm() {};
+        virtual bool read(std::byte *data, uint32_t addr, size_t size) = 0;
+        virtual bool write(std::byte *data, uint32_t addr, size_t size) = 0;
+        virtual bool erase_block(uint32_t addr) = 0;
+        virtual bool erase_chip(void) = 0;
+    };
+
     template<typename T>
     class glcd
     {

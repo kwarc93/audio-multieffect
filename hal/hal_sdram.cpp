@@ -33,12 +33,11 @@ using namespace hal;
 #define SDRAM_MODE_REG_WRITE_BURST_MODE_Msk       (0b1u << SDRAM_MODE_REG_WRITE_BURST_MODE_Pos)
 
 /* SDRAM target setup definitions */
-#define SDRAM_START_ADDR                          (0x60000000u)
-#define SDRAM_SIZE                                (8u * 1024u * 1024u)
+#define SDRAM_START_ADDR                          (0x60000000ul)
+#define SDRAM_SIZE                                (8ul * 1024ul * 1024ul)
 #define SDRAM_SDCLK_HZ                            (100000000u)
 #define SDRAM_SDCLK_NS                            (1000000000u / SDRAM_SDCLK_HZ)
 #define NS_TO_SDCLK_CYCLES(_ns)                   ((_ns + SDRAM_SDCLK_NS - 1) / SDRAM_SDCLK_NS)
-
 
 //-----------------------------------------------------------------------------
 /* private */
@@ -94,7 +93,7 @@ static constexpr std::array<const drivers::gpio::io, 38> gpios =
 
 /* Configuration for HCLK = 100MHz */
 
-static constexpr drivers::fmc::sdram::cfg config
+static constexpr drivers::fmc::sdram::config cfg
 {
     drivers::fmc::sdram::bank::bank1,
     drivers::fmc::sdram::col_addr_width::_8bit,
@@ -133,13 +132,13 @@ void sdram::init(void)
     for (const auto &pin : gpios)
         drivers::gpio::configure(pin, drivers::gpio::mode::af, drivers::gpio::af::af12);
 
-    drivers::fmc::sdram::init(config);
-    drivers::fmc::sdram::send_cmd(config.bank, drivers::fmc::sdram::cmd::clock_cfg_enable, 0);
+    drivers::fmc::sdram::configure(cfg);
+    drivers::fmc::sdram::send_cmd(cfg.bank, drivers::fmc::sdram::cmd::clock_cfg_enable, 0);
     drivers::delay::us(100);
-    drivers::fmc::sdram::send_cmd(config.bank, drivers::fmc::sdram::cmd::precharge_all, 0);
-    drivers::fmc::sdram::send_cmd(config.bank, drivers::fmc::sdram::cmd::auto_refresh, 2);
-    const uint32_t mode_register = static_cast<uint32_t>(config.cas_latency) << SDRAM_MODE_REG_CAS_LATENCY_Pos;
-    drivers::fmc::sdram::send_cmd(config.bank, drivers::fmc::sdram::cmd::load_mode_register, mode_register);
+    drivers::fmc::sdram::send_cmd(cfg.bank, drivers::fmc::sdram::cmd::precharge_all, 0);
+    drivers::fmc::sdram::send_cmd(cfg.bank, drivers::fmc::sdram::cmd::auto_refresh, 2);
+    const uint32_t mode_register = static_cast<uint32_t>(cfg.cas_latency) << SDRAM_MODE_REG_CAS_LATENCY_Pos;
+    drivers::fmc::sdram::send_cmd(cfg.bank, drivers::fmc::sdram::cmd::load_mode_register, mode_register);
 
     /* count = SDRAM refresh period (us) / number of SDRAM rows * SDCLK (MHz) - 20 */
     constexpr uint16_t count = 64000.f / 4096.f * (SDRAM_SDCLK_HZ / 1000000.0f) - 20.f;
