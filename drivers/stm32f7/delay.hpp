@@ -24,22 +24,25 @@ namespace drivers
         __attribute__((always_inline))
         static inline void ms(uint32_t ms)
         {
-            const uint32_t end = DWT->CYCCNT + ms * cycles_per_ms;
-            while (DWT->CYCCNT < end);
+            const uint32_t start = DWT->CYCCNT;
+            const uint32_t cycles = ms * cycles_per_ms;
+            while ((DWT->CYCCNT - start) < cycles);
         }
 
         __attribute__((always_inline))
         static inline void us(uint32_t us)
         {
-            const uint32_t end = DWT->CYCCNT + us * cycles_per_us;
-            while (DWT->CYCCNT < end);
+            const uint32_t start = DWT->CYCCNT;
+            const uint32_t cycles = us * cycles_per_us;
+            while ((DWT->CYCCNT - start) < cycles);
         }
 
         __attribute__((always_inline))
         static inline void clock(uint32_t c)
         {
-            const uint32_t end = DWT->CYCCNT + c;
-            while (DWT->CYCCNT < end);
+            const uint32_t start = DWT->CYCCNT;
+            const uint32_t cycles = c;
+            while ((DWT->CYCCNT - start) < cycles);
         }
 
         template <uint32_t N>
