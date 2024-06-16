@@ -32,7 +32,7 @@ public:
     using framebuffer_t = std::array<pixel_t, width_px * height_px>;
     using draw_cb_t = std::function<void(void)>;
 
-    glcd_rk043fn48h(const std::array<const gpio::io, 29> &ios, framebuffer_t &frame_buffer, bool portrait_mode = false);
+    glcd_rk043fn48h(const gpio::io en_io, const std::array<const gpio::io, 28> &ltdc_ios, framebuffer_t &frame_buffer, bool portrait_mode = false);
     ~glcd_rk043fn48h();
 
     uint16_t width(void) override { return this->portrait_mode ? height_px : width_px; }
@@ -50,6 +50,7 @@ public:
     pixel_t *get_frame_buffer(void) const;
 
 private:
+    gpio::io enable_io;
     pixel_t *frame_buffer;
     draw_cb_t draw_callback;
     volatile bool vsync;

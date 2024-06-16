@@ -23,10 +23,6 @@ using namespace drivers;
 #define N25Q128A_SUBSECTOR_SIZE              0x1000    /* 4096 subsectors of 4kBytes */
 #define N25Q128A_PAGE_SIZE                   0x100     /* 65536 pages of 256 bytes */
 
-#define N25Q128A_SIZE_MBIT                   128
-#define N25Q128A_CS_HIGH_TIME                6
-#define N25Q128A_MAX_CLK_MHZ                 108
-
 #define N25Q128A_DUMMY_CYCLES_READ           8
 #define N25Q128A_DUMMY_CYCLES_READ_QUAD      10
 
@@ -145,7 +141,7 @@ using namespace drivers;
 
 qspi_n25q128a::qspi_n25q128a()
 {
-    /* Initialize GPIOs */
+    /* Initialize QSPI GPIOs */
     static constexpr std::array<const drivers::gpio::io, 6> gpios =
     {{
         {drivers::gpio::port::portb, drivers::gpio::pin::pin6}, // QSPI_NCS
@@ -163,11 +159,11 @@ qspi_n25q128a::qspi_n25q128a()
     /* Configure QSPI peripheral */
     static constexpr drivers::qspi::config cfg
     {
-        N25Q128A_SIZE_MBIT,
-        N25Q128A_CS_HIGH_TIME,
+        128,
+        6, // min. 50us
         drivers::qspi::clk_mode::mode0,
         drivers::qspi::io::quad,
-        2,
+        2, // max. clock: 108 MHz
         false,
         false
     };
@@ -180,28 +176,34 @@ qspi_n25q128a::~qspi_n25q128a()
 
 }
 
-bool qspi_n25q128a::read(std::byte *data, uint32_t addr, size_t size)
+bool qspi_n25q128a::read(void *data, uint32_t addr, size_t size)
 {
     // TODO
     return false;
 }
 
-bool qspi_n25q128a::write(std::byte *data, uint32_t addr, size_t size)
+bool qspi_n25q128a::write(void *data, uint32_t addr, size_t size)
 {
     // TODO
     return false;
 }
 
-bool qspi_n25q128a::erase_block(uint32_t addr)
+bool qspi_n25q128a::erase(uint32_t addr, size_t size)
 {
     // TODO
     return false;
 }
 
-bool qspi_n25q128a::erase_chip(void)
+bool qspi_n25q128a::erase(void)
 {
     // TODO
     return false;
+}
+
+qspi_n25q128a::status_t qspi_n25q128a::status(void)
+{
+    // TODO
+    return qspi_n25q128a::status_t::error;
 }
 
 

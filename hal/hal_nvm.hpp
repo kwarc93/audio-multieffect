@@ -20,30 +20,36 @@ namespace hal
 
 //-----------------------------------------------------------------------------
 
-class nvm
-{
-public:
-    nvm(hal::interface::nvm *interface);
-    virtual ~nvm();
+    class nvm
+    {
+    public:
+        nvm(hal::interface::nvm *interface);
+        virtual ~nvm();
 
-    bool read(uint8_t *data, uint32_t addr, size_t size);
-    bool write(uint8_t *data, uint32_t addr, size_t size);
-    bool erase_block(uint32_t block_addr);
-    bool erase_chip(void);
-protected:
-    hal::interface::nvm *interface;
-};
+        bool read(void *data, uint32_t addr, size_t size);
+        bool write(void *data, uint32_t addr, size_t size);
+        bool erase(uint32_t addr, size_t size);
+        bool erase(void);
+        hal::interface::nvm::status_t status(void);
+    protected:
+        hal::interface::nvm *interface;
+    };
 
 //-----------------------------------------------------------------------------
 
-namespace memories
+namespace nvms
 {
     class qspi_flash : public nvm
     {
     public:
-        qspi_flash() : nvm {&drv} {}
+        qspi_flash() : nvm{&drv} {}
     private:
         drivers::qspi_n25q128a drv;
+    };
+
+    class internal_flash : public nvm
+    {
+        // TODO
     };
 
     class eeprom : public nvm
