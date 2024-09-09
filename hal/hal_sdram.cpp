@@ -33,8 +33,8 @@ using namespace hal;
 #define SDRAM_MODE_REG_WRITE_BURST_MODE_Msk       (0b1u << SDRAM_MODE_REG_WRITE_BURST_MODE_Pos)
 
 /* SDRAM target setup definitions */
-#define SDRAM_START_ADDR                          (0x60000000ul)
-#define SDRAM_SIZE                                (8ul * 1024ul * 1024ul)
+#define SDRAM_START_ADDR                          (0x60000000u)
+#define SDRAM_SIZE                                (8u * 1024u * 1024u)
 #define SDRAM_SDCLK_HZ                            (100000000u)
 #define SDRAM_SDCLK_NS                            (1000000000u / SDRAM_SDCLK_HZ)
 #define NS_TO_SDCLK_CYCLES(_ns)                   ((_ns + SDRAM_SDCLK_NS - 1) / SDRAM_SDCLK_NS)

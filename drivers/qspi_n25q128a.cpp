@@ -163,12 +163,14 @@ qspi_n25q128a::qspi_n25q128a()
         6, // min. 50us
         drivers::qspi::clk_mode::mode0,
         drivers::qspi::io::quad,
-        2, // max. clock: 108 MHz
+        2, // 100 MHz (max. clock: 108 MHz)
         false,
         false
     };
 
     drivers::qspi::configure(cfg);
+
+    /* TODO: Configure dummy cycles on the QSPI FLASH side if needed */
 }
 
 qspi_n25q128a::~qspi_n25q128a()

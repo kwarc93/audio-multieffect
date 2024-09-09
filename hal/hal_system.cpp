@@ -59,11 +59,8 @@ void system::init(void)
     SysTick_Config(system::system_clock / system::systick_freq);
 #endif
 
-    /* Enable I & D Caches */
-
-    SCB_InvalidateICache();
+    /* Enable instruction & data caches */
     SCB_EnableICache();
-    SCB_InvalidateDCache();
     SCB_EnableDCache();
 
     hal::sdram::init();

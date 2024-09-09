@@ -7,6 +7,8 @@
 
 #include "hal_nvm.hpp"
 
+#include <cassert>
+
 using namespace hal;
 
 //-----------------------------------------------------------------------------
@@ -20,6 +22,7 @@ using namespace hal;
 
 nvm::nvm(hal::interface::nvm *interface)
 {
+    assert(interface);
     this->interface = interface;
 }
 
@@ -30,41 +33,26 @@ nvm::~nvm()
 
 bool nvm::read(void *data, uint32_t addr, size_t size)
 {
-    if (this->interface)
-        return this->interface->read(data, addr, size);
-    else
-        return false;
+    return this->interface->read(data, addr, size);
 }
 
 bool nvm::write(void *data, uint32_t addr, size_t size)
 {
-    if (this->interface)
-        return this->interface->write(data, addr, size);
-    else
-        return false;
+    return this->interface->write(data, addr, size);
 }
 
 bool nvm::erase(uint32_t addr, size_t size)
 {
-    if (this->interface)
-        return this->interface->erase(addr, size);
-    else
-        return false;
+    return this->interface->erase(addr, size);
 }
 
 bool nvm::erase(void)
 {
-    if (this->interface)
-        return this->interface->erase();
-    else
-        return false;
+    return this->interface->erase();
 }
 
 hal::interface::nvm::status_t nvm::status(void)
 {
-    if (this->interface)
-        return this->interface->status();
-    else
-        return hal::interface::nvm::status_t::error;
+    return this->interface->status();
 }
 
