@@ -458,7 +458,7 @@ i2c {i2c}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}
     assert(this->read_id() == WM8994_ID);
     this->reset();
 
-    drivers::delay::ms(10);
+    delay::ms(10);
 
     uint16_t power_mgnt_reg_1 = 0;
 

@@ -37,7 +37,7 @@ using namespace drivers;
 //-----------------------------------------------------------------------------
 /* public */
 
-glcd_rk043fn48h::glcd_rk043fn48h(const gpio::io en_io, const std::array<const drivers::gpio::io, 28> &ltdc_ios, framebuffer_t &frame_buffer, bool portrait_mode)
+glcd_rk043fn48h::glcd_rk043fn48h(const gpio::io en_io, const std::array<const gpio::io, 28> &ltdc_ios, framebuffer_t &frame_buffer, bool portrait_mode)
 {
     this->vsync = false;
     this->vsync_enabled = false;
@@ -47,11 +47,11 @@ glcd_rk043fn48h::glcd_rk043fn48h(const gpio::io en_io, const std::array<const dr
 
     /* Initialize LTDC GPIOs */
     for (const auto &pin : ltdc_ios)
-        drivers::gpio::configure(pin, drivers::gpio::mode::af, drivers::gpio::af::af14);
+        gpio::configure(pin, gpio::mode::af, gpio::af::af14);
 
     /* Initialize & set LCD display enable GPIO */
-    drivers::gpio::configure(en_io);
-    drivers::gpio::write(en_io, true);
+    gpio::configure(en_io);
+    gpio::write(en_io, true);
 
     /*
      * Configure pixel clock for LCD & LTDC
@@ -128,7 +128,7 @@ glcd_rk043fn48h::glcd_rk043fn48h(const gpio::io en_io, const std::array<const dr
 
 glcd_rk043fn48h::~glcd_rk043fn48h()
 {
-    drivers::gpio::write(this->enable_io, false);
+    gpio::write(this->enable_io, false);
     dma2d::enable(false);
     ltdc::enable(false);
 }

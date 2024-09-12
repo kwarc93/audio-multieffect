@@ -142,33 +142,32 @@ using namespace drivers;
 qspi_n25q128a::qspi_n25q128a()
 {
     /* Initialize QSPI GPIOs */
-    static constexpr std::array<const drivers::gpio::io, 6> gpios =
+    static constexpr std::array<const gpio::io, 6> gpios =
     {{
-        {drivers::gpio::port::portb, drivers::gpio::pin::pin6}, // QSPI_NCS
-        {drivers::gpio::port::portb, drivers::gpio::pin::pin2}, // QSPI_CLK
-        {drivers::gpio::port::portd, drivers::gpio::pin::pin11}, // QSPI_D0
-        {drivers::gpio::port::portd, drivers::gpio::pin::pin12}, // QSPI_D1
-        {drivers::gpio::port::porte, drivers::gpio::pin::pin2}, // QSPI_D2
-        {drivers::gpio::port::portd, drivers::gpio::pin::pin13}, // QSPI_D3
+        {gpio::port::portb, gpio::pin::pin6}, // QSPI_NCS
+        {gpio::port::portb, gpio::pin::pin2}, // QSPI_CLK
+        {gpio::port::portd, gpio::pin::pin11}, // QSPI_D0
+        {gpio::port::portd, gpio::pin::pin12}, // QSPI_D1
+        {gpio::port::porte, gpio::pin::pin2}, // QSPI_D2
+        {gpio::port::portd, gpio::pin::pin13}, // QSPI_D3
     }};
 
     for (const auto &pin : gpios)
-        drivers::gpio::configure(pin, drivers::gpio::mode::af, drivers::gpio::af::af9);
-    drivers::gpio::configure(gpios.front(), drivers::gpio::mode::af, drivers::gpio::af::af10);
+        gpio::configure(pin, gpio::mode::af, gpio::af::af9);
+    gpio::configure(gpios.front(), gpio::mode::af, gpio::af::af10);
 
     /* Configure QSPI peripheral */
-    static constexpr drivers::qspi::config cfg
+    static constexpr qspi::config cfg
     {
         128,
         6, // min. 50us
-        drivers::qspi::clk_mode::mode0,
-        drivers::qspi::io::quad,
+        qspi::clk_mode::mode0,
         2, // 100 MHz (max. clock: 108 MHz)
         false,
         false
     };
 
-    drivers::qspi::configure(cfg);
+    qspi::configure(cfg);
 
     /* TODO: Configure dummy cycles on the QSPI FLASH side if needed */
 }
@@ -178,13 +177,24 @@ qspi_n25q128a::~qspi_n25q128a()
 
 }
 
-bool qspi_n25q128a::read(void *data, uint32_t addr, size_t size)
+bool qspi_n25q128a::read(std::byte *data, uint32_t addr, size_t size)
 {
-    // TODO
-    return false;
+    qspi::command cmd {};
+
+    cmd.mode = qspi::functional_mode::indirect_read;
+    cmd.instruction.mode = qspi::io_mode::single;
+    cmd.instruction.value = QUAD_INOUT_FAST_READ_CMD;
+    cmd.address.mode = qspi::io_mode::quad;
+    cmd.address.value = addr;
+    cmd.dummy_cycles = N25Q128A_DUMMY_CYCLES_READ_QUAD;
+    cmd.data.mode = qspi::io_mode::quad;
+    cmd.data.size = size;
+    cmd.data.value = data;
+
+    return qspi::send(cmd);
 }
 
-bool qspi_n25q128a::write(void *data, uint32_t addr, size_t size)
+bool qspi_n25q128a::write(std::byte *data, uint32_t addr, size_t size)
 {
     // TODO
     return false;

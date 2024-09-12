@@ -31,12 +31,12 @@ nvm::~nvm()
 
 }
 
-bool nvm::read(void *data, uint32_t addr, size_t size)
+bool nvm::read(std::byte *data, uint32_t addr, size_t size)
 {
     return this->interface->read(data, addr, size);
 }
 
-bool nvm::write(void *data, uint32_t addr, size_t size)
+bool nvm::write(std::byte *data, uint32_t addr, size_t size)
 {
     return this->interface->write(data, addr, size);
 }

@@ -26,8 +26,8 @@ namespace hal
         nvm(hal::interface::nvm *interface);
         virtual ~nvm();
 
-        bool read(void *data, uint32_t addr, size_t size);
-        bool write(void *data, uint32_t addr, size_t size);
+        bool read(std::byte *data, uint32_t addr, size_t size);
+        bool write(std::byte *data, uint32_t addr, size_t size);
         bool erase(uint32_t addr, size_t size);
         bool erase(void);
         hal::interface::nvm::status_t status(void);

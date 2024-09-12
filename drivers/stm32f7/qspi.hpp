@@ -9,6 +9,7 @@
 #define STM32F7_QSPI_HPP_
 
 #include <cstdint>
+#include <cstddef>
 
 namespace drivers
 {
@@ -26,8 +27,7 @@ public:
     {
         uint16_t size; // FLASH size [Mbit]
         uint8_t cs_ht; // FLASH CS high time: 1 - 8 [cycles]
-        clk_mode mode; // FLASH functional mode
-
+        clk_mode mode; // FLASH clock mode
         uint16_t clk_div; // Clock divider: 1 - 256
         bool ddr; // Enable Double Data Rate
         bool dual; // Enable Dual-Flash mode
@@ -65,14 +65,22 @@ public:
 
         struct
         {
-            void *value;
+            std::byte *value;
             size_t size;
             io_mode mode;
         }
         data;
+
+        struct
+        {
+            uint32_t mask;
+            uint32_t match;
+            uint16_t interval;
+        }
+        auto_polling;
     };
 
-    static bool send(const command &cmd);
+    static bool send(command &cmd);
 
 };
 

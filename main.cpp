@@ -10,6 +10,7 @@
 #include <cstdio>
 
 #include <hal/hal_system.hpp>
+#include <hal/hal_nvm.hpp>
 
 #include "cmsis_os2.h"
 
@@ -34,6 +35,13 @@ int main(void)
     hal::system::init();
 
     printf("System started\r\n");
+
+    // QSPI FLASH TEST
+    std::byte bytes[5];
+    hal::nvms::qspi_flash storage;
+    storage.read(bytes, 0, 5);
+    for (unsigned i = 0; i < sizeof(bytes); i++)
+        printf("qspi flash[%u]: 0x%02x\n", i, static_cast<unsigned>(bytes[i]));
 
     osKernelInitialize();
     osThreadNew(init_thread, NULL, NULL);

@@ -331,7 +331,7 @@ i2c {i2c}, i2c_addr {addr}, int_io {int_io}, orient {ori}, td_mode {touch_detect
 {
     // Wait at least 200ms after power up before accessing registers
     // Trsi timing (Time of starting to report point after resetting) from FT5336GQQ datasheet
-    drivers::delay::ms(200);
+    delay::ms(200);
     uint8_t id = this->read_id();
     assert(id == FT5336_ID);
 

@@ -19,8 +19,8 @@ public:
     qspi_n25q128a();
     ~qspi_n25q128a();
 
-    bool read(void *data, uint32_t addr, size_t size) override;
-    bool write(void *data, uint32_t addr, size_t size) override;
+    bool read(std::byte *data, uint32_t addr, size_t size) override;
+    bool write(std::byte *data, uint32_t addr, size_t size) override;
     bool erase(uint32_t addr, size_t size) override;
     bool erase(void) override;
     status_t status(void) override;
