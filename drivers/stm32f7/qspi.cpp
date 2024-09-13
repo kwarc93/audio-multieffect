@@ -25,9 +25,9 @@ namespace
         return std::log2f(mbit * 1024UL * 1024UL / 8UL - 1);
     }
 
-    constexpr uint8_t value_to_size(uint32_t value)
+    constexpr uint8_t bits_to_reg(uint8_t bits)
     {
-        return value > 0x00FFFFFF ? 3 : value > UINT16_MAX ? 2 : value > UINT8_MAX ? 1 : 0;
+        return (bits > 0) ? ((bits - 1) >> 3) & 0b11 : 0;
     }
 }
 
@@ -52,14 +52,9 @@ void qspi::configure(const config &cfg)
     QUADSPI->DCR |= (std::clamp((uint32_t)cfg.cs_ht, 1ul, 8ul) - 1) << QUADSPI_DCR_CSHT_Pos;
     QUADSPI->DCR |= static_cast<uint8_t>(cfg.mode) << QUADSPI_DCR_CKMODE_Pos;
 
-    volatile uint32_t dcr = QUADSPI->DCR;
-
     QUADSPI->CR |= cfg.dual << QUADSPI_CR_DFM_Pos;
     QUADSPI->CR |= (std::clamp((uint32_t)cfg.clk_div, 1ul, 256ul) - 1) << QUADSPI_CR_PRESCALER_Pos;
     QUADSPI->CR |= QUADSPI_CR_SSHIFT;
-
-    volatile uint32_t cr = QUADSPI->CR;
-    cr = QUADSPI->CR;
 }
 
 // When writing the control register (QUADSPI_CR) the user specifies the following settings:
@@ -107,21 +102,20 @@ bool qspi::send(command &cmd)
 
     ccr |= (static_cast<uint32_t>(cmd.data.mode) << QUADSPI_CCR_DMODE_Pos);
     ccr |= (cmd.dummy_cycles << QUADSPI_CCR_DCYC_Pos);
-    ccr |= (value_to_size(cmd.address.value) << QUADSPI_CCR_ADSIZE_Pos) |
+    ccr |= (bits_to_reg(cmd.address.bits) << QUADSPI_CCR_ADSIZE_Pos) |
            (static_cast<uint32_t>(cmd.address.mode) << QUADSPI_CCR_ADMODE_Pos);
     ccr |= (cmd.instruction.value << QUADSPI_CCR_INSTRUCTION_Pos) |
            (static_cast<uint32_t>(cmd.instruction.mode) << QUADSPI_CCR_IMODE_Pos);
-    ccr |= (value_to_size(cmd.alt_bytes.value) << QUADSPI_CCR_ABSIZE_Pos) |
+    ccr |= (bits_to_reg(cmd.alt_bytes.bits) << QUADSPI_CCR_ABSIZE_Pos) |
            (static_cast<uint32_t>(cmd.alt_bytes.mode) << QUADSPI_CCR_ABMODE_Pos);
     ccr |= (static_cast<uint32_t>(cmd.mode) << QUADSPI_CCR_FMODE_Pos);
 
     if (cmd.mode == functional_mode::auto_polling)
     {
-        // Set the 'mask', 'match', and 'polling interval' values.
         QUADSPI->PSMKR = cmd.auto_polling.mask;
         QUADSPI->PSMAR = cmd.auto_polling.match;
         QUADSPI->PIR = cmd.auto_polling.interval;
-        // Set the 'auto-stop' bit to end the transaction after a match.
+
         QUADSPI->CR |= QUADSPI_CR_APMS;
     }
 
@@ -136,7 +130,7 @@ bool qspi::send(command &cmd)
         case functional_mode::indirect_write:
             while (cmd.data.size--)
             {
-                while (QUADSPI->SR & QUADSPI_SR_FTF);
+                while (!(QUADSPI->SR & QUADSPI_SR_FTF));
                 *reinterpret_cast<volatile std::byte*>(&QUADSPI->DR) = *cmd.data.value++;
             }
 
@@ -152,10 +146,8 @@ bool qspi::send(command &cmd)
             result = true;
             break;
         case functional_mode::auto_polling:
-            // Wait for a match
-            while (QUADSPI->SR & QUADSPI_SR_BUSY);
-            // Acknowledge the 'status match flag'
-            QUADSPI->FCR |= QUADSPI_FCR_CSMF;
+            while (!(QUADSPI->SR & QUADSPI_SR_SMF));
+            result = true;
             break;
         case functional_mode::memory_mapped:
             // TODO: Write implementation
@@ -165,9 +157,20 @@ bool qspi::send(command &cmd)
     }
 
     while (QUADSPI->SR & QUADSPI_SR_BUSY);
+
+    if (QUADSPI->SR & QUADSPI_SR_TEF)
+    {
+        QUADSPI->FCR |= QUADSPI_FCR_CTCF;
+        result = false;
+    }
+
+    if (QUADSPI->SR & QUADSPI_SR_SMF)
+    {
+        QUADSPI->FCR |= QUADSPI_FCR_CSMF;
+    }
+
     QUADSPI->CR &= ~QUADSPI_CR_EN;
 
-    // TODO: Check errors
     return result;
 }
 

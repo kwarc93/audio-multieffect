@@ -21,9 +21,12 @@ public:
 
     bool read(std::byte *data, uint32_t addr, size_t size) override;
     bool write(std::byte *data, uint32_t addr, size_t size) override;
-    bool erase(uint32_t addr, size_t size) override;
+    bool erase(uint32_t addr, size_t size = 4096) override;
     bool erase(void) override;
     status_t status(void) override;
+
+private:
+    bool write_enable(void);
 };
 
 }

@@ -41,23 +41,25 @@ public:
 
         struct
         {
-            uint8_t value;
             io_mode mode;
+            uint8_t value;
             bool once;
         }
         instruction;
 
         struct
         {
-            uint32_t value;
             io_mode mode;
+            uint32_t value;
+            uint8_t bits;
         }
         address;
 
         struct
         {
-            uint32_t value;
             io_mode mode;
+            uint32_t value;
+            uint8_t bits;
         }
         alt_bytes;
 
@@ -65,9 +67,9 @@ public:
 
         struct
         {
+            io_mode mode;
             std::byte *value;
             size_t size;
-            io_mode mode;
         }
         data;
 

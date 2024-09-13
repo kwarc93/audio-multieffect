@@ -37,11 +37,33 @@ int main(void)
     printf("System started\r\n");
 
     // QSPI FLASH TEST
-    std::byte bytes[5];
+    char *data = "abcde";
+    char buffer[5];
     hal::nvms::qspi_flash storage;
-    storage.read(bytes, 0, 5);
-    for (unsigned i = 0; i < sizeof(bytes); i++)
-        printf("qspi flash[%u]: 0x%02x\n", i, static_cast<unsigned>(bytes[i]));
+    uint8_t first_byte = 0xFF;
+
+    if (storage.read(reinterpret_cast<std::byte*>(&first_byte), 0, 1))
+    {
+        if (first_byte != 0)
+        {
+            printf("Erasing QSPI FLASH first subsector...\n");
+            bool result = storage.erase(0, 4096);
+            printf("QSPI FLASH erasing %s\n", result ? "done" : "error");
+        }
+    }
+
+    if (storage.write(reinterpret_cast<std::byte*>(data), 0, 5))
+    {
+        if (storage.read(reinterpret_cast<std::byte*>(buffer), 0, 5))
+        {
+            for (unsigned i = 0; i < 5; i++)
+                printf("buffer[%u]: %c\n", i, buffer[i]);
+            while (1);
+        }
+    }
+
+    printf("QSPI FLASH write-read data mismatch\n");
+    while (1);
 
     osKernelInitialize();
     osThreadNew(init_thread, NULL, NULL);
