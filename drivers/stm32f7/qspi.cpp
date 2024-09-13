@@ -57,39 +57,6 @@ void qspi::configure(const config &cfg)
     QUADSPI->CR |= QUADSPI_CR_SSHIFT;
 }
 
-// When writing the control register (QUADSPI_CR) the user specifies the following settings:
-// •The enable bit (EN) set to ‘1’
-// •The DMA enable bit (DMAEN) for transferring data to/from RAM
-// •Timeout counter enable bit (TCEN)
-// •Sample shift setting (SSHIFT)
-// •FIFO threshold level (FTRHES) to indicate when the FTF flag should be set
-// •Interrupt enables
-// •Automatic polling mode parameters: match mode and stop mode (valid when
-// FMODE = 11)
-// •Clock prescaler
-
-// When writing the communication configuration register (QUADSPI_CCR) the user specifies
-// the following parameters:
-// •The instruction byte through the INSTRUCTION bits
-// •The way the instruction has to be sent through the IMODE bits (1/2/4 lines)
-// •The way the address has to be sent through the ADMODE bits (None/1/2/4 lines)
-// •The address size (8/16/24/32-bit) through the ADSIZE bits
-// •The way the alternate bytes have to be sent through the ABMODE (None/1/2/4 lines)
-// •The alternate bytes number (1/2/3/4) through the ABSIZE bits
-// •The presence or not of dummy bytes through the DBMODE bit
-// •The number of dummy bytes through the DCYC bits
-// •The way the data have to be sent/received (None/1/2/4 lines) through the DMODE bits
-
-// If neither the address register (QUADSPI_AR) nor the data register (QUADSPI_DR) need to
-// be updated for a particular command, then the command sequence starts as soon as
-// QUADSPI_CCR is written. This is the case when both ADMODE and DMODE are 00, or if
-// just ADMODE = 00 when in indirect read mode (FMODE = 01).
-// When an address is required (ADMODE is not 00) and the data register does not need to be
-// written (when FMODE = 01 or DMODE = 00), the command sequence starts as soon as the
-// address is updated with a write to QUADSPI_AR.
-// In case of data transmission (FMODE = 00 and DMODE! = 00), the communication start is
-// triggered by a write in the FIFO through QUADSPI_DR.
-
 bool qspi::send(command &cmd)
 {
     bool result = false;
@@ -147,6 +114,7 @@ bool qspi::send(command &cmd)
             break;
         case functional_mode::auto_polling:
             while (!(QUADSPI->SR & QUADSPI_SR_SMF));
+            QUADSPI->FCR |= QUADSPI_FCR_CSMF;
             result = true;
             break;
         case functional_mode::memory_mapped:
@@ -158,15 +126,16 @@ bool qspi::send(command &cmd)
 
     while (QUADSPI->SR & QUADSPI_SR_BUSY);
 
-    if (QUADSPI->SR & QUADSPI_SR_TEF)
+    if (QUADSPI->SR & QUADSPI_SR_TCF)
     {
         QUADSPI->FCR |= QUADSPI_FCR_CTCF;
-        result = false;
     }
 
-    if (QUADSPI->SR & QUADSPI_SR_SMF)
+    if (QUADSPI->SR & QUADSPI_SR_TEF)
     {
-        QUADSPI->FCR |= QUADSPI_FCR_CSMF;
+        // Transfer error
+        QUADSPI->FCR |= QUADSPI_FCR_CTEF;
+        result = false;
     }
 
     QUADSPI->CR &= ~QUADSPI_CR_EN;
