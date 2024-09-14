@@ -23,10 +23,16 @@ public:
     bool write(std::byte *data, uint32_t addr, size_t size) override;
     bool erase(uint32_t addr, size_t size = 4096) override;
     bool erase(void) override;
+
     status_t status(void) override;
+    size_t total_size(void) const override;
+    size_t erase_size(void) const override;
+    size_t prog_size(void) const override;
 
 private:
+    bool reset(void);
     bool write_enable(void);
+    bool set_dummy_cycles(uint8_t cycles);
 };
 
 }

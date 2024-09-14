@@ -7,6 +7,8 @@
 
 #include "qspi_n25q128a.hpp"
 
+#include <cassert>
+
 #include <drivers/stm32f7/qspi.hpp>
 #include <drivers/stm32f7/gpio.hpp>
 
@@ -18,10 +20,10 @@ using namespace drivers;
 /**
   * @brief  N25Q128A Configuration
   */
-#define N25Q128A_FLASH_SIZE                  0x1000000 /* 128 MBits => 16MBytes */
-#define N25Q128A_SECTOR_SIZE                 0x10000   /* 256 sectors of 64KBytes */
-#define N25Q128A_SUBSECTOR_SIZE              0x1000    /* 4096 subsectors of 4kBytes */
-#define N25Q128A_PAGE_SIZE                   0x100     /* 65536 pages of 256 bytes */
+#define N25Q128A_FLASH_SIZE                  0x1000000 // 128 MBits (16MB)
+#define N25Q128A_SECTOR_SIZE                 0x10000   // 256 sectors of 64KB
+#define N25Q128A_SUBSECTOR_SIZE              0x1000    // 4096 subsectors of 4KB
+#define N25Q128A_PAGE_SIZE                   0x100     // 65536 pages of 256B
 
 #define N25Q128A_DUMMY_CYCLES_READ           8
 #define N25Q128A_DUMMY_CYCLES_READ_QUAD      10
@@ -29,6 +31,7 @@ using namespace drivers;
 #define N25Q128A_BULK_ERASE_MAX_TIME         250000
 #define N25Q128A_SECTOR_ERASE_MAX_TIME       3000
 #define N25Q128A_SUBSECTOR_ERASE_MAX_TIME    800
+#define N25Q128A_PAGE_PROGRAM_MAX_TIME       5
 
 #define N25Q128A_AUTOPOLLING_INTERVAL        16
 
@@ -138,6 +141,34 @@ using namespace drivers;
 //-----------------------------------------------------------------------------
 /* private */
 
+bool qspi_n25q128a::reset(void)
+{
+    qspi::command cmd {};
+
+    cmd.instruction.mode = qspi::io_mode::single;
+    cmd.instruction.value = RESET_ENABLE_CMD;
+
+    if (qspi::send(cmd))
+    {
+        cmd.instruction.value = RESET_MEMORY_CMD;
+
+        if (qspi::send(cmd))
+        {
+            cmd.mode = qspi::functional_mode::auto_polling;
+            cmd.instruction.value = READ_STATUS_REG_CMD;
+            cmd.data.mode = qspi::io_mode::single;
+            cmd.data.size = 1;
+            cmd.auto_polling.match = 0;
+            cmd.auto_polling.mask = N25Q128A_SR_WIP;
+            cmd.auto_polling.interval = N25Q128A_AUTOPOLLING_INTERVAL;
+
+            return qspi::send(cmd);
+        }
+    }
+
+    return false;
+}
+
 bool qspi_n25q128a::write_enable(void)
 {
     qspi::command cmd {};
@@ -159,6 +190,35 @@ bool qspi_n25q128a::write_enable(void)
     }
 
     return false;
+}
+
+bool qspi_n25q128a::set_dummy_cycles(uint8_t cycles)
+{
+    uint8_t reg {};
+    qspi::command cmd {};
+
+    cmd.mode = qspi::functional_mode::indirect_read;
+    cmd.instruction.mode = qspi::io_mode::single;
+    cmd.instruction.value = READ_VOL_CFG_REG_CMD;
+    cmd.data.mode = qspi::io_mode::single;
+    cmd.data.value = reinterpret_cast<std::byte*>(&reg);
+    cmd.data.size = 1;
+
+    /* Read volatile configuration register */
+    if (!qspi::send(cmd))
+        return false;
+
+    if (!this->write_enable())
+        return false;
+
+    /* Update volatile configuration register (with new dummy cycles) */
+    reg &= ~N25Q128A_VCR_NB_DUMMY;
+    reg |= cycles << 4;
+
+    /* Configure the write volatile configuration register command */
+    cmd.mode = qspi::functional_mode::indirect_write;
+    cmd.instruction.value = WRITE_VOL_CFG_REG_CMD;
+    return qspi::send(cmd);
 }
 
 //-----------------------------------------------------------------------------
@@ -184,17 +244,18 @@ qspi_n25q128a::qspi_n25q128a()
     /* Configure QSPI peripheral */
     static constexpr qspi::config cfg
     {
-        128,
+        128, // Size: 128Mbit
         6, // min. 50us
         qspi::clk_mode::mode0,
-        2, // 100 MHz (max. clock: 108 MHz)
-        false,
-        false
+        2, // AHBCLK / 2 (max. clock: 108 MHz)
+        false, // No DDR mode
+        false // No Dual-Flash mode
     };
 
     qspi::configure(cfg);
 
-    /* TODO: Configure dummy cycles on the QSPI FLASH side if needed */
+    assert(this->reset());
+    assert(this->set_dummy_cycles(N25Q128A_DUMMY_CYCLES_READ_QUAD));
 }
 
 qspi_n25q128a::~qspi_n25q128a()
@@ -222,10 +283,10 @@ bool qspi_n25q128a::read(std::byte *data, uint32_t addr, size_t size)
 
 bool qspi_n25q128a::write(std::byte *data, uint32_t addr, size_t size)
 {
-    // Calculate the size between the write address and the end of the page
+    /* Calculate the size between the write address and the end of the page */
     uint32_t current_size = N25Q128A_PAGE_SIZE - (addr % N25Q128A_PAGE_SIZE);
 
-    // Check if the size of the data is less than the remaining place in the page
+    /* Check if the size of the data is less than the remaining place in the page */
     if (current_size > size)
         current_size = size;
 
@@ -235,34 +296,37 @@ bool qspi_n25q128a::write(std::byte *data, uint32_t addr, size_t size)
     qspi::command cmd {};
 
     cmd.instruction.mode = qspi::io_mode::single;
-    cmd.address.mode = qspi::io_mode::quad;
-    cmd.address.bits = 24;
     cmd.auto_polling.match = 0;
     cmd.auto_polling.mask = N25Q128A_SR_WIP;
     cmd.auto_polling.interval = N25Q128A_AUTOPOLLING_INTERVAL;
 
-    // Perform the write page by page
+    /* Perform the write page by page */
     do
     {
+        if (!this->write_enable())
+            break;
+
         cmd.mode = qspi::functional_mode::indirect_write;
         cmd.instruction.value = EXT_QUAD_IN_FAST_PROG_CMD;
+        cmd.address.mode = qspi::io_mode::quad;
         cmd.address.value = current_addr;
+        cmd.address.bits = 24;
         cmd.data.mode = qspi::io_mode::quad;
         cmd.data.value = data;
         cmd.data.size = current_size;
-
-        if (!this->write_enable())
-            break;
 
         if (!qspi::send(cmd))
             break;
 
         cmd.mode = qspi::functional_mode::auto_polling;
         cmd.instruction.value = READ_STATUS_REG_CMD;
+        cmd.address.mode = qspi::io_mode::none;
+        cmd.address.value = 0;
+        cmd.address.bits = 0;
         cmd.data.mode = qspi::io_mode::single;
         cmd.data.size = 1;
 
-        if (!qspi::send(cmd))
+        if (!qspi::send(cmd, N25Q128A_PAGE_PROGRAM_MAX_TIME))
             break;
 
         current_addr += current_size;
@@ -276,12 +340,30 @@ bool qspi_n25q128a::write(std::byte *data, uint32_t addr, size_t size)
 
 bool qspi_n25q128a::erase(uint32_t addr, size_t size)
 {
+    uint8_t instruction;
+    uint32_t timeout;
+
+    if (size == N25Q128A_SECTOR_SIZE)
+    {
+        instruction = SECTOR_ERASE_CMD;
+        timeout = N25Q128A_SECTOR_ERASE_MAX_TIME;
+    }
+    else if (size == N25Q128A_SUBSECTOR_SIZE)
+    {
+        instruction = SUBSECTOR_ERASE_CMD;
+        timeout = N25Q128A_SUBSECTOR_ERASE_MAX_TIME;
+    }
+    else
+    {
+        return false;
+    }
+
     qspi::command cmd {};
 
     if (this->write_enable())
     {
         cmd.instruction.mode = qspi::io_mode::single;
-        cmd.instruction.value = SUBSECTOR_ERASE_CMD;
+        cmd.instruction.value = instruction;
         cmd.address.mode = qspi::io_mode::single;
         cmd.address.value = addr;
         cmd.address.bits = 24;
@@ -296,7 +378,7 @@ bool qspi_n25q128a::erase(uint32_t addr, size_t size)
             cmd.auto_polling.mask = N25Q128A_SR_WIP;
             cmd.auto_polling.interval = N25Q128A_AUTOPOLLING_INTERVAL;
 
-            return qspi::send(cmd);
+            return qspi::send(cmd, timeout);
         }
     }
 
@@ -322,7 +404,7 @@ bool qspi_n25q128a::erase(void)
             cmd.auto_polling.mask = N25Q128A_SR_WIP;
             cmd.auto_polling.interval = N25Q128A_AUTOPOLLING_INTERVAL;
 
-            return qspi::send(cmd);
+            return qspi::send(cmd, /* N25Q128A_BULK_ERASE_MAX_TIME */0);
         }
     }
 
@@ -341,27 +423,38 @@ qspi_n25q128a::status_t qspi_n25q128a::status(void)
     cmd.data.value = reinterpret_cast<std::byte*>(&reg);
     cmd.data.size = 1;
 
-    if (qspi::send(cmd))
-    {
-        if (reg & (N25Q128A_FSR_PRERR | N25Q128A_FSR_VPPERR | N25Q128A_FSR_PGERR | N25Q128A_FSR_ERERR))
-        {
-            return hal::interface::nvm::status_t::error;
-        }
-        else if (reg & (N25Q128A_FSR_PGSUS | N25Q128A_FSR_ERSUS))
-        {
-            return hal::interface::nvm::status_t::busy;
-        }
-        else if (reg & N25Q128A_FSR_READY)
-        {
-            return hal::interface::nvm::status_t::ok;
-        }
-        else
-        {
-            return hal::interface::nvm::status_t::busy;
-        }
-    }
+    if (!qspi::send(cmd))
+        return hal::interface::nvm::status_t::error;
 
-    return hal::interface::nvm::status_t::error;
+    if (reg & (N25Q128A_FSR_PRERR | N25Q128A_FSR_VPPERR | N25Q128A_FSR_PGERR | N25Q128A_FSR_ERERR))
+    {
+        return hal::interface::nvm::status_t::error;
+    }
+    else if (reg & (N25Q128A_FSR_PGSUS | N25Q128A_FSR_ERSUS))
+    {
+        return hal::interface::nvm::status_t::suspended;
+    }
+    else if (reg & N25Q128A_FSR_READY)
+    {
+        return hal::interface::nvm::status_t::ok;
+    }
+    else
+    {
+        return hal::interface::nvm::status_t::busy;
+    }
 }
 
+size_t qspi_n25q128a::total_size(void) const
+{
+    return N25Q128A_FLASH_SIZE;
+}
 
+size_t qspi_n25q128a::erase_size(void) const
+{
+    return N25Q128A_SUBSECTOR_SIZE;
+}
+
+size_t qspi_n25q128a::prog_size(void) const
+{
+    return N25Q128A_PAGE_SIZE;
+}

@@ -56,3 +56,19 @@ hal::interface::nvm::status_t nvm::status(void)
     return this->interface->status();
 }
 
+size_t nvm::total_size(void) const
+{
+    return this->interface->total_size();
+}
+
+size_t nvm::erase_size(void) const
+{
+    return this->interface->erase_size();
+}
+
+size_t nvm::prog_size(void) const
+{
+    return this->interface->prog_size();
+}
+
+

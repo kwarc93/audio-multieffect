@@ -19,16 +19,16 @@ class qspi final
 public:
     qspi() = delete;
 
-    enum class io_mode { none = 0, single, dual, quad };
-    enum class clk_mode { mode0 = 0, mode3 = 1 };
-    enum class functional_mode { indirect_write = 0, indirect_read, auto_polling, memory_mapped };
+    enum class io_mode : uint8_t { none = 0, single, dual, quad };
+    enum class clk_mode : uint8_t { mode0 = 0, mode3 = 1 };
+    enum class functional_mode : uint8_t { indirect_write = 0, indirect_read, auto_polling, memory_mapped };
 
     struct config
     {
         uint16_t size; // FLASH size [Mbit]
         uint8_t cs_ht; // FLASH CS high time: 1 - 8 [cycles]
         clk_mode mode; // FLASH clock mode
-        uint16_t clk_div; // Clock divider: 1 - 256
+        uint16_t clk_div; // AHB3 clock divider: 1 - 256
         bool ddr; // Enable Double Data Rate
         bool dual; // Enable Dual-Flash mode
     };
@@ -82,7 +82,7 @@ public:
         auto_polling;
     };
 
-    static bool send(command &cmd);
+    static bool send(const command &cmd, uint32_t timeout_ms = 1000);
 
 };
 

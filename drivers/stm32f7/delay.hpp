@@ -52,7 +52,7 @@ namespace drivers
             nop<N - 1>();
             asm volatile ("MOV R0, R0");
         }
-    private:
+
         static constexpr uint32_t cycles_per_ms = hal::system::system_clock / 1000ul;
         static constexpr uint32_t cycles_per_us = hal::system::system_clock / 1000000ul;
     };

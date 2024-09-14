@@ -329,13 +329,13 @@ void touch_ft5336::get_xy(uint16_t &x, uint16_t &y)
 touch_ft5336::touch_ft5336(hal::interface::i2c_proxy &i2c, uint8_t addr, const gpio::io &int_io, touch_ft5336::orientation ori) :
 i2c {i2c}, i2c_addr {addr}, int_io {int_io}, orient {ori}, td_mode {touch_detect_mode::reg_poll}
 {
-    // Wait at least 200ms after power up before accessing registers
-    // Trsi timing (Time of starting to report point after resetting) from FT5336GQQ datasheet
+    /* Wait at least 200ms after power up before accessing registers
+       Trsi timing (Time of starting to report point after resetting) from FT5336GQQ datasheet */
     delay::ms(200);
     uint8_t id = this->read_id();
     assert(id == FT5336_ID);
 
-    // Check INT pin mode: poll or trigger
+    /* Check INT pin mode: poll or trigger */
     const uint8_t int_mode = this->read_reg(FT5336_GMODE_REG);
 
     switch (int_mode)

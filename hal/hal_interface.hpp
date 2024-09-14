@@ -116,14 +116,18 @@ namespace hal::interface
     class nvm
     {
     public:
-        enum class status_t {ok = 0, error, busy};
+        enum class status_t {ok = 0, error, busy, suspended};
 
         virtual ~nvm() {};
         virtual bool read(std::byte *data, uint32_t addr, size_t size) = 0;
         virtual bool write(std::byte *data, uint32_t addr, size_t size) = 0;
         virtual bool erase(uint32_t addr, size_t size) = 0;
         virtual bool erase(void) = 0;
+
         virtual status_t status(void) = 0;
+        virtual size_t total_size(void) const = 0;
+        virtual size_t erase_size(void) const = 0;
+        virtual size_t prog_size(void) const = 0;
     };
 
     template<typename T>

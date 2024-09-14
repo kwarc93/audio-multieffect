@@ -30,7 +30,11 @@ namespace hal
         bool write(std::byte *data, uint32_t addr, size_t size);
         bool erase(uint32_t addr, size_t size);
         bool erase(void);
+
         hal::interface::nvm::status_t status(void);
+        size_t total_size(void) const;
+        size_t erase_size(void) const;
+        size_t prog_size(void) const;
     protected:
         hal::interface::nvm *interface;
     };
