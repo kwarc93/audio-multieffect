@@ -42,6 +42,7 @@ static void littlefs_test(void)
         printf("QSPI FLASH erasing %s\r\n", result ? "done" : "error");
     }
 
+//------------------------------------------------------------------------------
 //    uint32_t address = 4096 * 115;
 //    if (storage.erase(address, storage.erase_size()))
 //    {
@@ -61,6 +62,7 @@ static void littlefs_test(void)
 //        }
 //    }
 //------------------------------------------------------------------------------
+
     cfg.context = &storage;
 
     // block device operations
@@ -111,66 +113,42 @@ static void littlefs_test(void)
     }
 
      // Test file benchmark
-#define ORDER 0ul
-#define SIZE (128ul * 1024ul)
-#define CHUNK_SIZE (64ul)
+    #define SIZE (128ul * 1024ul)
+    #define CHUNK_SIZE (128ul)
 
     lfs_size_t chunks = (SIZE+CHUNK_SIZE-1)/CHUNK_SIZE;
 
+    static std::array<uint8_t, CHUNK_SIZE> pattern;
+    std::generate(pattern.begin(), pattern.end(), [](){ return hal::random::get() % 256; });
+
     // first write the file
-    uint8_t buffer[CHUNK_SIZE];
-    assert(lfs_file_open(&lfs, &file, "file", LFS_O_WRONLY | LFS_O_CREAT) == 0);
-    for (lfs_size_t i = 0; i < chunks; i++) {
-        for (lfs_size_t j = 0; j < CHUNK_SIZE; j++) {
-            buffer[j] = j;
-        }
-
-        assert(lfs_file_write(&lfs, &file, buffer, CHUNK_SIZE) == CHUNK_SIZE);
-    }
-    assert(lfs_file_write(&lfs, &file, buffer, CHUNK_SIZE) == CHUNK_SIZE);
-    assert(lfs_file_close(&lfs, &file) == 0);
-
-    // then read the file
     uint32_t start = hal::system::clock::cycles();
-    assert(lfs_file_open(&lfs, &file, "file", LFS_O_RDONLY) == 0);
-
-    for (lfs_size_t i = 0; i < chunks; i++) {
-        lfs_off_t i_ = (ORDER == 0) ? i : (chunks-1-i);
-        assert(lfs_file_seek(&lfs, &file, i_*CHUNK_SIZE, LFS_SEEK_SET) == (lfs_soff_t)(i_*CHUNK_SIZE));
-        assert(lfs_file_read(&lfs, &file, buffer, CHUNK_SIZE) == CHUNK_SIZE);
-
-        for (lfs_size_t j = 0; j < CHUNK_SIZE; j++) {
-            assert(buffer[j] == j);
-        }
-    }
-
+    assert(lfs_file_open(&lfs, &file, "file", LFS_O_WRONLY | LFS_O_CREAT) == 0);
+    for (lfs_size_t i = 0; i < chunks; i++)
+        assert(lfs_file_write(&lfs, &file, pattern.data(), CHUNK_SIZE) == CHUNK_SIZE);
+    assert(lfs_file_write(&lfs, &file, pattern.data(), CHUNK_SIZE) == CHUNK_SIZE);
     assert(lfs_file_close(&lfs, &file) == 0);
+
     uint32_t duration = hal::system::clock::cycles() - start;
     constexpr uint32_t cycles_per_us = hal::system::system_clock / 1000000ul;
-    printf("lfs read benchmark: %lu MBit/s\r\n", (SIZE * 8 * cycles_per_us) / (duration));
+    printf("lfs write benchmark: %.2f MBit/s\r\n", (float)(SIZE * 8 * cycles_per_us) / (duration));
+
+    // then read the file
+    start = hal::system::clock::cycles();
+    assert(lfs_file_open(&lfs, &file, "file", LFS_O_RDONLY) == 0);
+    std::array<uint8_t, CHUNK_SIZE> buffer;
+    for (lfs_size_t i = 0; i < chunks; i++)
+    {
+        assert(lfs_file_read(&lfs, &file, buffer.data(), CHUNK_SIZE) == CHUNK_SIZE);
+
+        for (lfs_size_t j = 0; j < CHUNK_SIZE; j++)
+            assert(buffer[j] == pattern[j]);
+    }
+    assert(lfs_file_close(&lfs, &file) == 0);
+    duration = hal::system::clock::cycles() - start;
+    printf("lfs read benchmark: %.1f MBit/s\r\n", (float)(SIZE * 8 * cycles_per_us) / (duration));
 
     assert(lfs_unmount(&lfs) == 0);
-//------------------------------------------------------------------------------
-//    // read current count
-//    uint32_t boot_count = 0;
-//    lfs_file_open(&lfs, &file, "boot_count", LFS_O_RDWR | LFS_O_CREAT);
-//    lfs_file_read(&lfs, &file, &boot_count, sizeof(boot_count));
-//
-//    // update boot count
-//    boot_count += 1;
-//    lfs_file_rewind(&lfs, &file);
-//    lfs_file_write(&lfs, &file, &boot_count, sizeof(boot_count));
-//
-//    // remember the storage is not updated until the file is closed successfully
-//    lfs_file_close(&lfs, &file);
-//
-//    // release any resources we were using
-//    lfs_unmount(&lfs);
-//
-//    // print the boot count
-//    printf("boot_count: %lu\n", boot_count);
-
-    while (1);
 }
 
 static void init_thread(void *arg)
