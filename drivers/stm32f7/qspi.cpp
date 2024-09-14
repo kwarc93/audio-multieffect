@@ -61,8 +61,6 @@ bool qspi::send(command &cmd)
 {
     bool result = false;
 
-    while (QUADSPI->SR & QUADSPI_SR_BUSY);
-
     uint32_t ccr = QUADSPI->CCR;
     ccr &= ~(QUADSPI_CCR_FMODE | QUADSPI_CCR_DMODE | QUADSPI_CCR_DCYC | QUADSPI_CCR_ABSIZE |
              QUADSPI_CCR_ABMODE | QUADSPI_CCR_ABSIZE | QUADSPI_CCR_ADMODE | QUADSPI_CCR_IMODE | QUADSPI_CCR_INSTRUCTION);

@@ -56,12 +56,12 @@ static void littlefs_test(void)
 
     // block device configuration
     cfg.read_size = 1;
-    cfg.prog_size = 1;
+    cfg.prog_size = 256;
     cfg.block_size = 4096;
     cfg.block_count = 512; // 2 MB
-    cfg.cache_size = 16;
-    cfg.lookahead_size = 16;
-    cfg.block_cycles = 500;
+    cfg.cache_size = cfg.prog_size;
+    cfg.lookahead_size = 64;
+    cfg.block_cycles = 512;
 
     // mount the filesystem
     int err = lfs_mount(&lfs, &cfg);
