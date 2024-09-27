@@ -278,7 +278,7 @@ bool qspi_n25q128a::read(std::byte *data, uint32_t addr, size_t size)
     cmd.data.size = size;
     cmd.data.value = data;
 
-    return qspi::send(cmd);
+    return qspi::send(cmd, 5000);
 }
 
 bool qspi_n25q128a::write(std::byte *data, uint32_t addr, size_t size)
@@ -404,7 +404,7 @@ bool qspi_n25q128a::erase(void)
             cmd.auto_polling.mask = N25Q128A_SR_WIP;
             cmd.auto_polling.interval = N25Q128A_AUTOPOLLING_INTERVAL;
 
-            return qspi::send(cmd, /* N25Q128A_BULK_ERASE_MAX_TIME */0);
+            return qspi::send(cmd, N25Q128A_BULK_ERASE_MAX_TIME);
         }
     }
 
