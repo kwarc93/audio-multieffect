@@ -23,6 +23,8 @@
 /* Includes ------------------------------------------------------------------*/
 #include "i2c_timing_utility.h"
 
+#include <cmsis/stm32f7xx.h>
+
 /** @addtogroup STM32U5xx_HAL_Examples
   * @{
   */

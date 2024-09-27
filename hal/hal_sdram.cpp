@@ -7,6 +7,8 @@
 
 #include "hal_sdram.hpp"
 
+#include <cmsis/stm32f7xx.h>
+
 #include <drivers/stm32f7/fmc.hpp>
 #include <drivers/stm32f7/rcc.hpp>
 #include <drivers/stm32f7/delay.hpp>

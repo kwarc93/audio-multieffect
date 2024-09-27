@@ -10,8 +10,6 @@
 
 #include <cstdint>
 
-#include <cmsis/stm32f7xx.h>
-
 #include <drivers/stm32f7/core.hpp>
 
 #include <hal/hal_system.hpp>

@@ -10,6 +10,8 @@
 
 #include <cassert>
 
+#include <cmsis/stm32f7xx.h>
+
 #include <drivers/stm32f7/core.hpp>
 #include <drivers/stm32f7/rcc.hpp>
 #include <drivers/stm32f7/flash.hpp>

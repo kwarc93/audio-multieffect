@@ -10,8 +10,6 @@
 
 #include <chrono>
 
-#include <cmsis/stm32f7xx.h>
-
 #include <drivers/stm32f7/core.hpp>
 
 #define HAL_SYSTEM_RTOS_ENABLED

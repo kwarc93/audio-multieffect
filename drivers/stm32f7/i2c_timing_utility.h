@@ -26,7 +26,7 @@
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include <cmsis/stm32f7xx.h>
+#include <stdint.h>
 
 /* Exported functions ------------------------------------------------------- */
 uint32_t I2C_GetTiming(uint32_t clock_src_freq, uint32_t i2c_freq);

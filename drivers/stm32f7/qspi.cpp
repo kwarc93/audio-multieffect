@@ -24,7 +24,7 @@ using namespace drivers;
 namespace
 {
 
-bool wait_for_flag(volatile uint32_t &reg, uint32_t flag, uint32_t &timeout_ms)
+inline bool wait_for_flag(volatile uint32_t &reg, uint32_t flag, uint32_t &timeout_ms)
 {
     uint32_t cycles_start = core::get_cycles_counter();
 
