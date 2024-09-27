@@ -8,8 +8,6 @@
 
 #include "core.hpp"
 
-#include <cmsis/stm32f7xx.h>
-
 using namespace drivers;
 
 void core::enable_cycles_counter(void)
@@ -21,12 +19,6 @@ void core::enable_cycles_counter(void)
     DWT->LAR = 0xC5ACCE55;
     DWT->CYCCNT = 0;
     DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
-}
-
-__attribute__((__always_inline__))
-uint32_t core::get_cycles_counter(void)
-{
-    return DWT->CYCCNT;
 }
 
 void core::enter_sleep_mode(void)

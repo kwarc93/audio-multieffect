@@ -8,6 +8,8 @@
 #ifndef STM32F7_CORE_HPP_
 #define STM32F7_CORE_HPP_
 
+#include <cmsis/stm32f7xx.h>
+
 #include <hal/hal_interface.hpp>
 
 namespace drivers
@@ -19,7 +21,7 @@ public:
     core() = delete;
 
     static void enable_cycles_counter(void);
-    static uint32_t get_cycles_counter(void);
+    static inline uint32_t get_cycles_counter(void){ return DWT->CYCCNT; };
     static void enter_sleep_mode(void);
     static void enter_stop_mode(void);
 };
