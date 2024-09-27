@@ -12,6 +12,8 @@
 
 #include <cmsis/stm32f7xx.h>
 
+#include <drivers/stm32f7/core.hpp>
+
 #include <hal/hal_system.hpp>
 
 namespace drivers
@@ -24,25 +26,25 @@ namespace drivers
         __attribute__((always_inline))
         static inline void ms(uint32_t ms)
         {
-            const uint32_t start = DWT->CYCCNT;
+            const uint32_t start = core::get_cycles_counter();
             const uint32_t cycles = ms * cycles_per_ms;
-            while ((DWT->CYCCNT - start) < cycles);
+            while ((core::get_cycles_counter() - start) < cycles);
         }
 
         __attribute__((always_inline))
         static inline void us(uint32_t us)
         {
-            const uint32_t start = DWT->CYCCNT;
+            const uint32_t start = core::get_cycles_counter();
             const uint32_t cycles = us * cycles_per_us;
-            while ((DWT->CYCCNT - start) < cycles);
+            while ((core::get_cycles_counter() - start) < cycles);
         }
 
         __attribute__((always_inline))
         static inline void clock(uint32_t c)
         {
-            const uint32_t start = DWT->CYCCNT;
+            const uint32_t start = core::get_cycles_counter();
             const uint32_t cycles = c;
-            while ((DWT->CYCCNT - start) < cycles);
+            while ((core::get_cycles_counter() - start) < cycles);
         }
 
         template <uint32_t N>

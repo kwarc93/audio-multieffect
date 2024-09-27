@@ -353,7 +353,7 @@ uint16_t audio_wm8994ecs::read_reg(uint16_t reg_addr)
 {
     using transfer_desc = hal::interface::i2c_proxy::transfer_desc;
 
-    uint8_t tx[2] {(reg_addr >> 8) & 0xFF, (reg_addr & 0xFF)};
+    uint8_t tx[2] {static_cast<uint8_t>((reg_addr >> 8) & 0xFF), static_cast<uint8_t>(reg_addr & 0xFF)};
     uint8_t rx[2] {0};
 
     transfer_desc desc
@@ -375,7 +375,13 @@ void audio_wm8994ecs::write_reg(uint16_t reg_addr, uint16_t reg_val)
 {
     using transfr_desc = hal::interface::i2c_proxy::transfer_desc;
 
-    uint8_t tx[4] = {(reg_addr >> 8) & 0xFF, (reg_addr & 0xFF), (reg_val >> 8) & 0xFF, (reg_val & 0xFF)};
+    uint8_t tx[4]
+    {
+        static_cast<uint8_t>((reg_addr >> 8) & 0xFF),
+        static_cast<uint8_t>(reg_addr & 0xFF),
+        static_cast<uint8_t>((reg_val >> 8) & 0xFF),
+        static_cast<uint8_t>(reg_val & 0xFF)
+    };
 
     transfr_desc desc
     {

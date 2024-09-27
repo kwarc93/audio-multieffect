@@ -11,6 +11,7 @@
 
 #include <drivers/stm32f7/rcc.hpp>
 #include <drivers/stm32f7/delay.hpp>
+#include <drivers/stm32f7/core.hpp>
 
 #include <cmath>
 #include <algorithm>
@@ -19,6 +20,28 @@ using namespace drivers;
 
 //-----------------------------------------------------------------------------
 /* helpers */
+
+namespace
+{
+
+bool wait_for_flag(uint32_t reg, uint32_t flag, uint32_t &timeout_ms)
+{
+    uint32_t cycles_start = core::get_cycles_counter();
+
+    while (!(reg & flag))
+    {
+        if ((core::get_cycles_counter() - cycles_start) >= delay::cycles_per_ms)
+        {
+            cycles_start = core::get_cycles_counter();
+            if (--timeout_ms == 0)
+                return false;
+        }
+    }
+
+    return true;
+}
+
+}
 
 //-----------------------------------------------------------------------------
 /* private */
@@ -51,16 +74,6 @@ void qspi::configure(const config &cfg)
 bool qspi::send(const command &cmd, uint32_t timeout_ms)
 {
     constexpr auto bits_to_size = [](uint8_t bits) -> uint8_t { return (bits > 0) ? ((bits - 1) >> 3) & 0b11 : 0; };
-    constexpr auto wait_for_flag = [](uint32_t flag, uint32_t start, uint32_t timeout)
-                                   {
-                                        while (!(QUADSPI->SR & flag))
-                                        {
-                                            if (timeout && (DWT->CYCCNT - start) >= timeout)
-                                                return false;
-                                        }
-
-                                        return true;
-                                   };
 
     /* Fill Communication Configuration Register */
     uint32_t ccr = QUADSPI->CCR;
@@ -95,10 +108,6 @@ bool qspi::send(const command &cmd, uint32_t timeout_ms)
 
     bool result = false;
 
-    /* Timeout handling */
-    const uint32_t cycles_start = DWT->CYCCNT;
-    const uint32_t cycles_timeout = timeout_ms * delay::cycles_per_ms;
-
     std::byte *data = cmd.data.value;
     size_t data_size = cmd.data.size;
 
@@ -107,27 +116,27 @@ bool qspi::send(const command &cmd, uint32_t timeout_ms)
         case functional_mode::indirect_write:
             while (data_size--)
             {
-                if (!wait_for_flag(QUADSPI_SR_FTF, cycles_start, cycles_timeout))
+                if (!wait_for_flag(QUADSPI->SR, QUADSPI_SR_FTF, timeout_ms))
                     break;
 
                 *reinterpret_cast<volatile std::byte*>(&QUADSPI->DR) = *data++;
             }
-            result = wait_for_flag(QUADSPI_SR_TCF, cycles_start, cycles_timeout);
+            result = wait_for_flag(QUADSPI->SR, QUADSPI_SR_TCF, timeout_ms);
             QUADSPI->FCR |= result << QUADSPI_FCR_CTCF_Pos;
             break;
         case functional_mode::indirect_read:
             while (data_size--)
             {
-                if (!wait_for_flag(QUADSPI_SR_FTF, cycles_start, cycles_timeout))
+                if (!wait_for_flag(QUADSPI->SR, QUADSPI_SR_FTF, timeout_ms))
                     break;
 
                 *data++ = *reinterpret_cast<volatile std::byte*>(&QUADSPI->DR);
             }
-            result = wait_for_flag(QUADSPI_SR_TCF, cycles_start, cycles_timeout);
+            result = wait_for_flag(QUADSPI->SR, QUADSPI_SR_TCF, timeout_ms);
             QUADSPI->FCR |= result << QUADSPI_FCR_CTCF_Pos;
             break;
         case functional_mode::auto_polling:
-            result = wait_for_flag(QUADSPI_SR_SMF, cycles_start, cycles_timeout);
+            result = wait_for_flag(QUADSPI->SR, QUADSPI_SR_SMF, timeout_ms);
             QUADSPI->FCR |= result << QUADSPI_FCR_CSMF_Pos;
             break;
         case functional_mode::memory_mapped:

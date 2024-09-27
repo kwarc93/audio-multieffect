@@ -14,12 +14,16 @@ using namespace drivers;
 
 void core::enable_cycles_counter(void)
 {
+    /* Current inplementation: DWT-based cycles counter.
+     * Not all Cortex-M cores have it so SysTick-based cycles
+     * counter would be more generic (but has lower, 24bit resolution). */
     CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
     DWT->LAR = 0xC5ACCE55;
     DWT->CYCCNT = 0;
     DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
 }
 
+__attribute__((__always_inline__))
 uint32_t core::get_cycles_counter(void)
 {
     return DWT->CYCCNT;

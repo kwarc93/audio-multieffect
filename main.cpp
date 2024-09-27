@@ -43,7 +43,8 @@ static void littlefs_test(void)
     }
 
 //------------------------------------------------------------------------------
-//    uint32_t address = 4096 * 115;
+//    // random subsector test
+//    uint32_t address = hal::random::get() % storage.total_size();
 //    if (storage.erase(address, storage.erase_size()))
 //    {
 //        static std::array<std::byte, 4096> data;
