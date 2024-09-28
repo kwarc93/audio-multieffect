@@ -23,6 +23,7 @@
 #include "app/controller/controller.hpp"
 
 #include "libs/littlefs/lfs.h"
+#include "nlohmann/json.hpp"
 
 static void littlefs_test(void)
 {
@@ -150,6 +151,10 @@ static void littlefs_test(void)
     printf("lfs read benchmark: %.1f MBit/s\r\n", (float)(SIZE * 8 * cycles_per_us) / (duration));
 
     assert(lfs_unmount(&lfs) == 0);
+
+    // JSON test
+    auto j = nlohmann::json::parse(R"({"happy": true, "pi": 3.141})");
+    assert(j["happy"] == true);
 }
 
 static void init_thread(void *arg)
