@@ -1,0 +1,9 @@
+# Obtain information about software using git commands
+$(info Obtaining software version information:)
+GIT_REVISION := $(shell git describe --dirty --always)
+GIT_BRANCH   := $(shell git branch --show-current)
+GIT_HASH     := $(shell git rev-parse HEAD)
+
+$(info GIT_REVISION: $(GIT_REVISION))
+$(info GIT_BRANCH: $(GIT_BRANCH))
+$(info GIT_HASH: $(GIT_HASH))
