@@ -22,6 +22,8 @@
 #include "app/model/effect_processor.hpp"
 #include "app/controller/controller.hpp"
 
+#include "version.h"
+
 #include "libs/littlefs/lfs.h"
 #include "nlohmann/json.hpp"
 
@@ -173,6 +175,7 @@ int main(void)
     hal::system::init();
 
     printf("System started\r\n");
+    printf("Software version: " SW_VERSION "\r\n");
 
     littlefs_test();
 

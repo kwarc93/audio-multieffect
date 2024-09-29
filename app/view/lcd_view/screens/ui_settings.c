@@ -9,6 +9,8 @@
 #include <string.h>
 #include <stdbool.h>
 
+#include "version.h"
+
 static void menu_exit_handler(lv_event_t * e)
 {
     lv_obj_t * obj = lv_event_get_target(e);
@@ -385,7 +387,7 @@ void ui_settings_screen_init(void)
     lv_obj_t * sub_software_page = lv_menu_page_create(menu, "Software");
     lv_obj_set_style_pad_hor(sub_software_page, menu_pad_hor, 0);
     section = lv_menu_section_create(sub_software_page);
-    menu_create_text(section, NULL, "Version: v1.0.1");
+    menu_create_text(section, NULL, SW_VERSION);
 
     lv_obj_t * sub_hardware_page = lv_menu_page_create(menu, "Hardware");
     lv_obj_set_style_pad_hor(sub_hardware_page, menu_pad_hor, 0);
