@@ -1,0 +1,28 @@
+/*
+ * flash.cpp
+ *
+ *  Created on: 8 gru 2020
+ *      Author: kwarc
+ */
+
+#include "flash.hpp"
+
+#include <cmsis/stm32h7xx.h>
+
+using namespace drivers;
+
+void flash::set_wait_states(uint32_t sysclk_freq)
+{
+    /* Calculate wait_states (30M is valid for 2.7V to 3.6V voltage range,
+       use 24M for 2.4V to 2.7V, 18M for 2.1V to 2.4V or 16M for  1.8V to 2.1V) */
+    uint32_t wait_states = sysclk_freq / 30000000ul;
+
+    /* Trim to max allowed value */
+    wait_states = wait_states > 15 ? 15 : wait_states;
+
+    /* Enable prefetch & ART accelerator & set wait states */
+    //ART->CTR |= ART_CTR_EN;
+    FLASH->ACR |= wait_states;
+
+    __ISB();
+}

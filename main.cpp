@@ -8,27 +8,23 @@
 #include <memory>
 #include <cassert>
 #include <cstdio>
-#include <array>
-#include <algorithm>
 
 #include <hal/hal_system.hpp>
-#include <hal/hal_nvm.hpp>
-#include <hal/hal_random.hpp>
 
 #include "cmsis_os2.h"
 
-#include "app/view/lcd_view/lcd_view.hpp"
-#include "app/view/console_view/console_view.hpp"
-#include "app/model/effect_processor.hpp"
-#include "app/controller/controller.hpp"
+//#include "app/view/lcd_view/lcd_view.hpp"
+//#include "app/view/console_view/console_view.hpp"
+//#include "app/model/effect_processor.hpp"
+//#include "app/controller/controller.hpp"
 
 static void init_thread(void *arg)
 {
-    /* Create active objects */
-
-    auto model = std::make_unique<mfx::effect_processor>();
-    auto lcd_view = std::make_unique<mfx::lcd_view>();
-    auto ctrl = std::make_unique<mfx::controller>(std::move(model), std::move(lcd_view));
+//    /* Create active objects */
+//
+//    auto model = std::make_unique<mfx::effect_processor>();
+//    auto lcd_view = std::make_unique<mfx::lcd_view>();
+//    auto ctrl = std::make_unique<mfx::controller>(std::move(model), std::move(lcd_view));
 
     osThreadSuspend(osThreadGetId());
 }
