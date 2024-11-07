@@ -26,6 +26,7 @@ This signal can be selected from the audio settings screen.
 Audio quality is set to 24bit 48kHz. Audio latency is determined by the size of audio buffer, which by default is 128 samples that gives around 6ms in-out delay.
 
 ## Demo
+https://soundcloud.com/kwarc-1/sets/gmfx
 https://youtu.be/xXm61wA0C68?feature=shared
 
 ## How to build
