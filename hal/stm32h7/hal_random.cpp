@@ -7,7 +7,7 @@
 
 #include "hal_random.hpp"
 
-#include <drivers/stm32f7/rng.hpp>
+#include <drivers/stm32h7/rng.hpp>
 
 using namespace hal;
 

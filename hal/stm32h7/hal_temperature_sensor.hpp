@@ -10,7 +10,7 @@
 
 #include <hal_interface.hpp>
 
-#include <drivers/stm32f7/core.hpp>
+#include <drivers/stm32h7/core.hpp>
 
 namespace hal
 {

@@ -10,12 +10,12 @@
 
 #include <cassert>
 
-#include <cmsis/stm32f7xx.h>
+#include <cmsis/stm32h7xx.h>
 
-#include <drivers/stm32f7/core.hpp>
-#include <drivers/stm32f7/rcc.hpp>
-#include <drivers/stm32f7/flash.hpp>
-#include <drivers/stm32f7/exti.hpp>
+#include <drivers/stm32h7/core.hpp>
+#include <drivers/stm32h7/rcc.hpp>
+#include <drivers/stm32h7/flash.hpp>
+#include <drivers/stm32h7/exti.hpp>
 
 using namespace hal;
 
@@ -34,25 +34,26 @@ void system::init(void)
 
     drivers::flash::set_wait_states(system::system_clock);
 
-    drivers::rcc::main_pll pll
-    {
-        RCC_PLLCFGR_PLLSRC_HSE,
-        15,
-        240,
-        2,
-        10
-    };
-
-    drivers::rcc::bus_presc presc
-    {
-        RCC_CFGR_HPRE_DIV1,
-        RCC_CFGR_PPRE1_DIV4,
-        RCC_CFGR_PPRE2_DIV4
-    };
-
-    drivers::rcc::set_main_pll(pll, presc);
-
-    assert(drivers::rcc::get_sysclk_freq() == system::system_clock);
+    // TODO H7 port
+//    drivers::rcc::main_pll pll
+//    {
+//        RCC_PLLCFGR_PLLSRC_HSE,
+//        15,
+//        240,
+//        2,
+//        10
+//    };
+//
+//    drivers::rcc::bus_presc presc
+//    {
+//        RCC_CFGR_HPRE_DIV1,
+//        RCC_CFGR_PPRE1_DIV4,
+//        RCC_CFGR_PPRE2_DIV4
+//    };
+//
+//    drivers::rcc::set_main_pll(pll, presc);
+//
+//    assert(drivers::rcc::get_sysclk_freq() == system::system_clock);
 
     SystemCoreClock = system::system_clock;
 

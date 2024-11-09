@@ -7,8 +7,8 @@
 
 #include "hal_i2c.hpp"
 
-#include <drivers/stm32f7/i2c.hpp>
-#include <drivers/stm32f7/i2c_sw.hpp>
+#include <drivers/stm32h7/i2c.hpp>
+#include <drivers/stm32h7/i2c_sw.hpp>
 
 using namespace hal;
 

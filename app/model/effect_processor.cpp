@@ -19,7 +19,7 @@
 
 #include <middlewares/i2c_manager.hpp>
 
-#include <stm32f7xx.h> // For managing D-Cache & I-Cache
+#include <cmsis_device.h> // For managing D-Cache & I-Cache
 
 #include "app/model/tremolo/tremolo.hpp"
 #include "app/model/echo/echo.hpp"

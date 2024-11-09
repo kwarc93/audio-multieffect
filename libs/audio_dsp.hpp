@@ -17,7 +17,7 @@
 #include <random>
 
 /* CMSIS DSP library */
-#include <cmsis/stm32f7xx.h>
+#include <cmsis/cmsis_device.h>
 #include <cmsis/dsp/arm_math.h>
 
 //-----------------------------------------------------------------------------

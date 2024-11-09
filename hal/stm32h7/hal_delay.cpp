@@ -7,7 +7,7 @@
 
 #include "hal_delay.hpp"
 
-#include <drivers/stm32f7/delay.hpp>
+#include <drivers/stm32h7/delay.hpp>
 
 using namespace hal;
 

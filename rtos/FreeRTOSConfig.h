@@ -42,7 +42,9 @@
 
 /* Here is a good place to include header files that are required across your application. */
 #include <assert.h>
-#include <cmsis/stm32f7xx.h>
+#include <stdint.h>
+
+extern uint32_t SystemCoreClock;
 
 #define configUSE_PREEMPTION                    1
 #define configUSE_PORT_OPTIMISED_TASK_SELECTION 0

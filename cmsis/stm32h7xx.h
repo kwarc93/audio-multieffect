@@ -282,6 +282,7 @@ typedef enum
  #include "stm32h7xx_hal.h"
 #endif /* USE_HAL_DRIVER */
 
+extern uint32_t SystemCoreClock;
 
 #ifdef __cplusplus
 }

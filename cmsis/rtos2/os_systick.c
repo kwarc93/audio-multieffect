@@ -24,7 +24,7 @@
 
 #include "os_tick.h"
 
-#include "stm32f7xx.h"
+#include "cmsis_device.h"
 
 #ifdef  SysTick
 

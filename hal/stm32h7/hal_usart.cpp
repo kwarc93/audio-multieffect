@@ -7,7 +7,7 @@
 
 #include "hal_usart.hpp"
 
-#include <drivers/stm32f7/usart.hpp>
+#include <drivers/stm32h7/usart.hpp>
 
 using namespace hal;
 

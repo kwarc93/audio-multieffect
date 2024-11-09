@@ -7,7 +7,7 @@
 
 #include "hal_lcd.hpp"
 
-#include <drivers/stm32f7/gpio.hpp>
+#include <drivers/stm32h7/gpio.hpp>
 
 #include <array>
 

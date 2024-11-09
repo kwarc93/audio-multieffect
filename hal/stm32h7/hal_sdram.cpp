@@ -7,12 +7,12 @@
 
 #include "hal_sdram.hpp"
 
-#include <cmsis/stm32f7xx.h>
+#include <cmsis/stm32h7xx.h>
 
-#include <drivers/stm32f7/fmc.hpp>
-#include <drivers/stm32f7/rcc.hpp>
-#include <drivers/stm32f7/delay.hpp>
-#include <drivers/stm32f7/gpio.hpp>
+#include <drivers/stm32h7/fmc.hpp>
+#include <drivers/stm32h7/rcc.hpp>
+#include <drivers/stm32h7/delay.hpp>
+#include <drivers/stm32h7/gpio.hpp>
 
 #include <array>
 
@@ -127,8 +127,9 @@ void sdram::init(void)
      * According to the ARMv7-M Architecture Reference Manual chapter B3.1 (table B3-1),
      * all accesses to Device Memory Types must be naturally aligned.
      * If they are not, a hard fault will execute no matter if the bit UNALIGN_TRP (bit 3) in the CCR register is enabled or not.*/
-    drivers::rcc::enable_periph_clock({drivers::rcc::bus::APB2, RCC_APB2ENR_SYSCFGEN}, true);
-    SYSCFG->MEMRMP |= SYSCFG_MEMRMP_SWP_FMC_0;
+    drivers::rcc::enable_periph_clock({drivers::rcc::bus::APB4, RCC_APB4ENR_SYSCFGEN}, true);
+    // TODO H7 port
+    //SYSCFG->MEMRMP |= SYSCFG_MEMRMP_SWP_FMC_0;
 
     /* Initialize GPIOs */
     for (const auto &pin : gpios)
