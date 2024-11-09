@@ -121,15 +121,15 @@ static constexpr drivers::fmc::sdram::config cfg
 
 void sdram::init(void)
 {
+    drivers::fmc::enable(true);
+
     /* Remap the SDRAM to a different address (0x60000000)
      *
      * NOTE: The area 0xC0000000-0xDFFFFFFF (32MB, FMC bank 5 & 6) is specified as Device Memory Type.
      * According to the ARMv7-M Architecture Reference Manual chapter B3.1 (table B3-1),
      * all accesses to Device Memory Types must be naturally aligned.
      * If they are not, a hard fault will execute no matter if the bit UNALIGN_TRP (bit 3) in the CCR register is enabled or not.*/
-    drivers::rcc::enable_periph_clock({drivers::rcc::bus::APB4, RCC_APB4ENR_SYSCFGEN}, true);
-    // TODO H7 port
-    //SYSCFG->MEMRMP |= SYSCFG_MEMRMP_SWP_FMC_0;
+    drivers::fmc::remap_bank(drivers::fmc::remap_type::swap);
 
     /* Initialize GPIOs */
     for (const auto &pin : gpios)

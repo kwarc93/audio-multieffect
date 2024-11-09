@@ -31,8 +31,8 @@ struct usart::usart_hw
 
 static constexpr std::array<usart::usart_hw, 1> usartx
 {
-    { usart::id::usart1, USART1, RCC_PERIPH_BUS(APB2, USART1), gpio::af::af7,
-    { gpio::port::porta, gpio::pin::pin9 }, { gpio::port::portb, gpio::pin::pin7 }}
+    { usart::id::usart3, USART3, RCC_PERIPH_BUS(APB1L, USART3), gpio::af::af7,
+    { gpio::port::portb, gpio::pin::pin10 }, { gpio::port::portb, gpio::pin::pin11 }}
 };
 
 usart::usart(id hw_id, uint32_t baudrate) :

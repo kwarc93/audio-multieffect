@@ -22,6 +22,16 @@ using namespace drivers;
 //-----------------------------------------------------------------------------
 /* public */
 
+void fmc::enable(bool state)
+{
+    rcc::enable_periph_clock({rcc::bus::AHB3, RCC_AHB3ENR_FMCEN}, state);
+}
+
+void fmc::remap_bank(remap_type remap)
+{
+    FMC_Bank1_R->BTCR[0] |= static_cast<uint8_t>(remap) << FMC_BCR1_BMAP_Pos;
+}
+
 bool fmc::sdram::configure(const fmc::sdram::config &cfg)
 {
     rcc::enable_periph_clock({rcc::bus::AHB3, RCC_AHB3ENR_FMCEN}, true);

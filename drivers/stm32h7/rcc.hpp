@@ -61,19 +61,22 @@ public:
     /** @brief  Structure for describing main PLL parameters. */
     struct main_pll
     {
-        uint32_t source;    /**< Clock source, use RCC_PLLCFGR_PLLSRC_HSx from CMSIS headers */
-        uint32_t m;         /**< M divider, allowed range: 2 - 63 */
-        uint32_t n;         /**< N multiplier, allowed range: 50 - 432 */
-        uint32_t p;         /**< P divider, allowed values: 2, 4, 6, 8 */
-        uint32_t q;         /**< Q divider, allowed range: 2 - 15 */
+        uint32_t source;    /**< Clock source, use RCC_PLLCKSELR_PLLSRC_HSx from CMSIS headers */
+        uint32_t m;         /**< M divider, allowed range: 0 - 63 */
+        uint32_t n;         /**< N multiplier, allowed range: 4 - 512 */
+        uint32_t p;         /**< P divider, allowed (even!) values: 2 - 128 */
+        uint32_t q;         /**< Q divider, allowed range: 1 - 128 */
+        uint32_t r;         /**< R divider, allowed range: 1 - 128 */
     };
 
     /** @brief  Struct for describing bus prescalers */
     struct bus_presc
     {
-        uint32_t ahb;       /**< AHB prescaler, use RCC_CFGR_HPRE_DIVx from CMSIS headers */
-        uint32_t apb1;      /**< APB1 prescaler, use RCC_CFGR_PPRE1_DIVx from CMSIS headers */
-        uint32_t apb2;      /**< APB1 prescaler, use RCC_CFGR_PPRE2_DIVx from CMSIS headers */
+        uint32_t sys;       /**< SYSCLK prescaler, use RCC_D1CFGR_D1CPRE_DIVx from CMSIS headers */
+        uint32_t ahb;       /**< AHB prescaler, use RCC_D1CFGR_HPRE_DIVx from CMSIS headers */
+        uint32_t apb1;      /**< APB1 prescaler, use RCC_D2CFGR_D2PPRE1_DIVx from CMSIS headers */
+        uint32_t apb2;      /**< APB2 prescaler, use RCC_D2CFGR_D2PPRE2_DIVx from CMSIS headers */
+        uint32_t apb4;      /**< APB4 prescaler, use RCC_D3CFGR_D3PPRE_DIVx from CMSIS headers */
     };
 
     /** @brief  Structure for describing SAI/I2S PLL parameters. */

@@ -30,30 +30,35 @@ void system::init(void)
     /* Number of group priorities: 16, subpriorities: 16. */
     NVIC_SetPriorityGrouping(0x07 - __NVIC_PRIO_BITS);
 
+    /* Wait until Cortex-M4 boots and enters in stop mode */
+    while (RCC->CR & RCC_CR_D2CKRDY);
+
     drivers::core::enable_cycles_counter();
 
     drivers::flash::set_wait_states(system::system_clock);
 
-    // TODO H7 port
-//    drivers::rcc::main_pll pll
-//    {
-//        RCC_PLLCFGR_PLLSRC_HSE,
-//        15,
-//        240,
-//        2,
-//        10
-//    };
-//
-//    drivers::rcc::bus_presc presc
-//    {
-//        RCC_CFGR_HPRE_DIV1,
-//        RCC_CFGR_PPRE1_DIV4,
-//        RCC_CFGR_PPRE2_DIV4
-//    };
-//
-//    drivers::rcc::set_main_pll(pll, presc);
-//
-//    assert(drivers::rcc::get_sysclk_freq() == system::system_clock);
+    drivers::rcc::main_pll pll
+    {
+        RCC_PLLCKSELR_PLLSRC_HSE,
+        5,
+        160,
+        2,
+        4,
+        2
+    };
+
+    drivers::rcc::bus_presc presc
+    {
+        RCC_D1CFGR_D1CPRE_DIV1,
+        RCC_D1CFGR_HPRE_DIV2,
+        RCC_D2CFGR_D2PPRE1_DIV2,
+        RCC_D2CFGR_D2PPRE2_DIV2,
+        RCC_D3CFGR_D3PPRE_DIV2
+    };
+
+    drivers::rcc::set_main_pll(pll, presc);
+
+    assert(drivers::rcc::get_sysclk_freq() == system::system_clock);
 
     SystemCoreClock = system::system_clock;
 
@@ -70,8 +75,8 @@ void system::init(void)
 
     /* Enable EXTI event (wake-up from stop mode) */
     drivers::exti::configure(true,
-                             drivers::exti::line::line11,
-                             drivers::exti::port::porti,
+                             drivers::exti::line::line13,
+                             drivers::exti::port::portc,
                              drivers::exti::mode::event,
                              drivers::exti::edge::rising,
                              {});

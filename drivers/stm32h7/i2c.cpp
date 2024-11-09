@@ -37,8 +37,8 @@ struct i2c::i2c_hw
 
 static constexpr std::array<i2c::i2c_hw, 1> i2cx
 {
-    { i2c::id::i2c3, I2C3, RCC_PERIPH_BUS(APB1L, I2C3), gpio::af::af4,
-    { gpio::port::porth, gpio::pin::pin8 }, { gpio::port::porth, gpio::pin::pin7 }},
+    { i2c::id::i2c4, I2C4, RCC_PERIPH_BUS(APB4, I2C4), gpio::af::af4,
+    { gpio::port::portd, gpio::pin::pin13 }, { gpio::port::portd, gpio::pin::pin12 }},
 };
 
 //-----------------------------------------------------------------------------

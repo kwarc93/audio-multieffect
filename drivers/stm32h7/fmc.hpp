@@ -18,6 +18,16 @@ class fmc final
 public:
     fmc() = delete;
 
+    enum class remap_type
+    {
+        def = 0, // Default
+        swap,    // Swap NOR/PSRAM with SDRAM banks
+        remap,   // Remap SDRAM bank 2
+    };
+
+    static void enable(bool state);
+    static void remap_bank(remap_type remap);
+
 //-----------------------------------------------------------------------------
 /* SDRAM */
 

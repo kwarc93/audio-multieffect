@@ -43,7 +43,16 @@ namespace leds
     public:
         debug(void) : led {&drv} {}
     private:
-        const drivers::gpio::io io = { drivers::gpio::port::porti, drivers::gpio::pin::pin1 };
+        const drivers::gpio::io io = { drivers::gpio::port::portj, drivers::gpio::pin::pin2 };
+        drivers::led_gpio drv {io};
+    };
+
+    class error : public led
+    {
+    public:
+        error(void) : led {&drv} {}
+    private:
+        const drivers::gpio::io io = { drivers::gpio::port::porti, drivers::gpio::pin::pin13 };
         drivers::led_gpio drv {io};
     };
 
@@ -52,7 +61,7 @@ namespace leds
     public:
         backlight(void) : led {&drv} {}
     private:
-        const drivers::gpio::io io = { drivers::gpio::port::portk, drivers::gpio::pin::pin3 };
+        const drivers::gpio::io io = { drivers::gpio::port::portk, drivers::gpio::pin::pin0 };
         drivers::led_gpio drv {io};
     };
 }

@@ -13,6 +13,6 @@ using namespace hal;
 
 interface::serial & usart::stdio::get_instance(void)
 {
-    static drivers::usart usart1 { drivers::usart::id::usart1, 115200 };
-    return usart1;
+    static drivers::usart usart3 { drivers::usart::id::usart3, 115200 };
+    return usart3;
 }

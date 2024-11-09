@@ -14,6 +14,8 @@
 
 using namespace drivers;
 
+/* TODO Add support for fractional PLL */
+
 //-----------------------------------------------------------------------------
 
 static volatile uint32_t *const bus_map[] =
@@ -41,101 +43,93 @@ static uint32_t get_ahb_freq(void)
 
 //-----------------------------------------------------------------------------
 
-static uint32_t get_apb1l_freq(void)
+static uint32_t get_apb1_freq(void)
 {
-    //return (rcc::get_sysclk_freq() >> apb_presc_table[(RCC->CFGR & RCC_D2CFGR_D2PPRE1) >> RCC_CFGR_PPRE1_Pos]);
-    return 0;
-}
-
-//-----------------------------------------------------------------------------
-
-static uint32_t get_apb1h_freq(void)
-{
-    //return (rcc::get_sysclk_freq() >> apb_presc_table[(RCC->CFGR & RCC_CFGR_PPRE1) >> RCC_CFGR_PPRE1_Pos]);
-    return 0;
+    return (rcc::get_sysclk_freq() >> apb_presc_table[(RCC->CFGR & RCC_D2CFGR_D2PPRE1) >> RCC_D2CFGR_D2PPRE1_Pos]);
 }
 
 //-----------------------------------------------------------------------------
 
 static uint32_t get_apb2_freq(void)
 {
-    //return (rcc::get_sysclk_freq() >> apb_presc_table[(RCC->CFGR & RCC_CFGR_PPRE2) >> RCC_CFGR_PPRE2_Pos]);
-    return 0;
+    return (rcc::get_sysclk_freq() >> apb_presc_table[(RCC->CFGR & RCC_D2CFGR_D2PPRE2) >> RCC_D2CFGR_D2PPRE2_Pos]);
 }
 
 //-----------------------------------------------------------------------------
 
 static uint32_t get_apb3_freq(void)
 {
-    return 0;
+    return (rcc::get_sysclk_freq() >> apb_presc_table[(RCC->CFGR & RCC_D1CFGR_D1PPRE) >> RCC_D1CFGR_D1PPRE_Pos]);
 }
 
 //-----------------------------------------------------------------------------
 
 static uint32_t get_apb4_freq(void)
 {
-    return 0;
+    return (rcc::get_sysclk_freq() >> apb_presc_table[(RCC->CFGR & RCC_D3CFGR_D3PPRE) >> RCC_D3CFGR_D3PPRE_Pos]);
 }
 
 //-----------------------------------------------------------------------------
 
 static uint8_t get_ahb_presc(void)
 {
-    //return (1 << ahb_presc_table[(RCC->CFGR & RCC_CFGR_HPRE) >> RCC_CFGR_HPRE_Pos]);
-    return 0;
+    return (1 << ahb_presc_table[(RCC->D1CFGR & RCC_D1CFGR_HPRE) >> RCC_D1CFGR_HPRE_Pos]);
 }
 
 //-----------------------------------------------------------------------------
 
-static uint8_t get_apb1l_presc(void)
+static uint8_t get_apb1_presc(void)
 {
-    //return (1 << apb_presc_table[(RCC->CFGR & RCC_CFGR_PPRE1) >> RCC_CFGR_PPRE1_Pos]);
-    return 0;
-}
-
-//-----------------------------------------------------------------------------
-
-static uint8_t get_apb1h_presc(void)
-{
-    //return (1 << apb_presc_table[(RCC->CFGR & RCC_CFGR_PPRE1) >> RCC_CFGR_PPRE1_Pos]);
-    return 0;
+    return (1 << apb_presc_table[(RCC->CFGR & RCC_D2CFGR_D2PPRE1) >> RCC_D2CFGR_D2PPRE1_Pos]);
 }
 
 //-----------------------------------------------------------------------------
 
 static uint8_t get_apb2_presc(void)
 {
-    //return (1 << apb_presc_table[(RCC->CFGR & RCC_CFGR_PPRE2) >> RCC_CFGR_PPRE2_Pos]);
-    return 0;
+    return (1 << apb_presc_table[(RCC->CFGR & RCC_D2CFGR_D2PPRE2) >> RCC_D2CFGR_D2PPRE2_Pos]);
+}
+
+//-----------------------------------------------------------------------------
+
+static uint8_t get_apb3_presc(void)
+{
+    return (1 << apb_presc_table[(RCC->CFGR & RCC_D1CFGR_D1PPRE) >> RCC_D1CFGR_D1PPRE_Pos]);
+}
+
+//-----------------------------------------------------------------------------
+
+static uint8_t get_apb4_presc(void)
+{
+    return (1 << apb_presc_table[(RCC->CFGR & RCC_D3CFGR_D3PPRE) >> RCC_D3CFGR_D3PPRE_Pos]);
 }
 
 //-----------------------------------------------------------------------------
 
 static uint32_t get_sysclk_from_pll_source(void)
 {
-//    uint32_t pllvco;
-//    uint32_t pllm;
-//    uint32_t pllp;
-//
-//    /* PLL_VCO = (HSE_VALUE or HSI_VALUE / PLLM) * PLLN, SYSCLK = PLL_VCO / PLLP */
-//    pllm = RCC->PLLCFGR & RCC_PLLCFGR_PLLM;
-//    if (((uint32_t) (RCC->PLLCFGR & RCC_PLLCFGR_PLLSRC)) != RCC_PLLCFGR_PLLSRC_HSI)
-//    {
-//        /* HSE used as PLL clock source */
-//        pllvco = (uint32_t) ((((uint64_t) hal::system::hse_clock
-//                * ((uint64_t) ((RCC->PLLCFGR & RCC_PLLCFGR_PLLN) >> RCC_PLLCFGR_PLLN_Pos)))) / (uint64_t) pllm);
-//    }
-//    else
-//    {
-//        /* HSI used as PLL clock source */
-//        pllvco = (uint32_t) ((((uint64_t) hal::system::hsi_clock
-//                * ((uint64_t) ((RCC->PLLCFGR & RCC_PLLCFGR_PLLN) >> RCC_PLLCFGR_PLLN_Pos)))) / (uint64_t) pllm);
-//    }
-//
-//    pllp = ((((RCC->PLLCFGR & RCC_PLLCFGR_PLLP) >> RCC_PLLCFGR_PLLP_Pos) + 1U) * 2U);
-//
-//    return pllvco / pllp;
-    return 0;
+    uint32_t pllvco;
+    uint32_t pllm;
+    uint32_t pllp;
+
+    /* PLL_VCO = (HSE_VALUE, CSI_VALUE or HSI_VALUE/HSIDIV) / PLLM * (PLLN + FRACN), SYSCLK = PLL_VCO / PLLP */
+    pllm = RCC->PLLCKSELR & RCC_PLLCKSELR_DIVM1;
+    if (((uint32_t) (RCC->PLLCKSELR & RCC_PLLCKSELR_PLLSRC)) != RCC_PLLCKSELR_PLLSRC_HSI)
+    {
+        /* HSE used as PLL clock source */
+        pllvco = (uint32_t) ((((uint64_t) hal::system::hse_clock
+               * ((uint64_t) ((RCC->PLL1DIVR & RCC_PLL1DIVR_N1) >> RCC_PLL1DIVR_N1_Pos)))) / (uint64_t) pllm);
+    }
+    else
+    {
+        /* HSI used as PLL clock source */
+        pllvco = (uint32_t) ((((uint64_t) hal::system::hsi_clock
+               * ((uint64_t) ((RCC->PLL1DIVR & RCC_PLL1DIVR_N1) >> RCC_PLL1DIVR_N1_Pos)))) / (uint64_t) pllm);
+    }
+
+    pllp = ((((RCC->PLL1DIVR & RCC_PLL1DIVR_P1) >> RCC_PLL1DIVR_P1_Pos) + 1U) * 2U);
+
+    return pllvco / pllp;
 }
 
 //-----------------------------------------------------------------------------
@@ -250,49 +244,54 @@ void rcc::enable_periph_clock(const periph_bus &pbus, bool en)
 
 void rcc::set_main_pll(const main_pll &pll, const bus_presc &presc)
 {
-//    /* Enable selected clock source */
-//    if (pll.source == RCC_PLLCFGR_PLLSRC_HSE)
-//        toggle_hse(true);
-//    else
-//        toggle_hsi(true);
-//
-//    /* Select regulator voltage output Scale 1 mode with overdrive, system frequency up to 216 MHz */
-//    RCC->APB1ENR |= RCC_APB1ENR_PWREN;
-//
-//    PWR->CR1 |= PWR_CR1_VOS | PWR_CR1_ODEN;
-//    while ((PWR->CSR1 & PWR_CSR1_ODRDY) == 0);
-//
-//    PWR->CR1 |= PWR_CR1_ODSWEN;
-//    while ((PWR->CSR1 & PWR_CSR1_ODSWRDY) == 0);
-//
-//    /* Set prescalers for HCLK, PCLK1 & PCLK2 */
-//    RCC->CFGR |= presc.ahb | presc.apb1 | presc.apb2;
-//
-//    /* Configure the main PLL */
-//    RCC->PLLCFGR = pll.m | (pll.n << 6) | (((pll.p >> 1) - 1) << 16) | pll.source | (pll.q << 24);
-//
-//    /* Enable the main PLL */
-//    RCC->CR |= RCC_CR_PLLON;
-//
-//    while ((RCC->CR & RCC_CR_PLLRDY) == 0)
-//    {
-//        /* Wait till the main PLL is ready */
-//    }
-//
-//    /* Select the main PLL as system clock source */
-//    RCC->CFGR &= ~RCC_CFGR_SW;
-//    RCC->CFGR |= RCC_CFGR_SW_PLL;
-//
-//    while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL)
-//    {
-//        /* Wait till the main PLL is used as system clock source */
-//    }
-//
-//    /* Disable unused clock source */
-//    if (pll.source == RCC_PLLCFGR_PLLSRC_HSE)
-//        toggle_hsi(false);
-//    else
-//        toggle_hse(false);
+    /* Enable selected clock source */
+    MODIFY_REG(RCC->PLLCKSELR, RCC_PLLCKSELR_PLLSRC, pll.source);
+    if (pll.source == RCC_PLLCKSELR_PLLSRC_HSE)
+        toggle_hse(true);
+    else
+        toggle_hsi(true);
+
+    /* Select regulator voltage output Scale 1 mode, SMPS: ON, LDO: OFF, system frequency up to 400 MHz */
+    MODIFY_REG(PWR->CR3, (PWR_CR3_SMPSLEVEL | PWR_CR3_SMPSEXTHP | PWR_CR3_SMPSEN | PWR_CR3_LDOEN | PWR_CR3_BYPASS), PWR_CR3_SMPSEN);
+    MODIFY_REG(PWR->D3CR, PWR_D3CR_VOS, PWR_D3CR_VOS_0 | PWR_D3CR_VOS_1);
+    while (READ_BIT(PWR->D3CR, PWR_D3CR_VOSRDY) == 0);
+
+    /* Set prescalers for SYSCLK, AHB & APBx buses */
+    MODIFY_REG(RCC->D1CFGR, RCC_D1CFGR_D1CPRE, RCC_D1CFGR_D1CPRE_DIV1);
+    MODIFY_REG(RCC->D1CFGR, RCC_D1CFGR_HPRE, RCC_D1CFGR_HPRE_DIV2);
+    MODIFY_REG(RCC->D2CFGR, RCC_D2CFGR_D2PPRE1, RCC_D2CFGR_D2PPRE1_DIV2);
+    MODIFY_REG(RCC->D2CFGR, RCC_D2CFGR_D2PPRE2, RCC_D2CFGR_D2PPRE2_DIV2);
+    MODIFY_REG(RCC->D3CFGR, RCC_D3CFGR_D3PPRE, RCC_D3CFGR_D3PPRE_DIV2);
+
+    /* Configure the main PLL */
+    RCC->PLLCFGR |= 0b10 << RCC_PLLCFGR_PLL1RGE_Pos; // Input range: 4 - 8 MHz
+    MODIFY_REG(RCC->PLLCKSELR, RCC_PLLCKSELR_DIVM1, pll.m << RCC_PLLCKSELR_DIVM1_Pos);
+    MODIFY_REG(RCC->PLL1DIVR, RCC_PLL1DIVR_N1, (pll.n-1UL) << RCC_PLL1DIVR_N1_Pos);
+    MODIFY_REG(RCC->PLL1DIVR, RCC_PLL1DIVR_P1, (pll.p-1UL) << RCC_PLL1DIVR_P1_Pos);
+    MODIFY_REG(RCC->PLL1DIVR, RCC_PLL1DIVR_Q1, (pll.q-1UL) << RCC_PLL1DIVR_Q1_Pos);
+    MODIFY_REG(RCC->PLL1DIVR, RCC_PLL1DIVR_R1, (pll.r-1UL) << RCC_PLL1DIVR_R1_Pos);
+
+    /* Enable the main PLL */
+    RCC->CR |= RCC_CR_PLL1ON;
+
+    while ((RCC->CR & RCC_CR_PLL1RDY) == 0)
+    {
+        /* Wait till the main PLL is ready */
+    }
+
+    /* Select the main PLL as system clock source */
+    MODIFY_REG(RCC->CFGR, RCC_CFGR_SW, RCC_CFGR_SW_PLL1);
+
+    while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL1)
+    {
+        /* Wait till the main PLL is used as system clock source */
+    }
+
+    /* Disable unused clock source */
+    if (pll.source == RCC_PLLCKSELR_PLLSRC_HSE)
+        toggle_hsi(false);
+    else
+        toggle_hse(false);
 }
 
 //-----------------------------------------------------------------------------
@@ -457,10 +456,8 @@ uint32_t rcc::get_bus_freq(rcc::bus bus)
         return get_ahb_freq();
         break;
     case rcc::bus::APB1L:
-        return get_apb1l_freq();
-        break;
     case rcc::bus::APB1H:
-        return get_apb1h_freq();
+        return get_apb1_freq();
         break;
     case rcc::bus::APB2:
         return get_apb2_freq();
@@ -489,19 +486,17 @@ int8_t rcc::get_bus_presc(rcc::bus bus)
         return get_ahb_presc();
         break;
     case rcc::bus::APB1L:
-        return get_apb1l_presc();
-        break;
     case rcc::bus::APB1H:
-        return get_apb1h_presc();
+        return get_apb1_presc();
         break;
     case rcc::bus::APB2:
         return get_apb2_presc();
         break;
     case rcc::bus::APB3:
-        return get_apb2_presc();
+        return get_apb3_presc();
         break;
     case rcc::bus::APB4:
-        return get_apb2_presc();
+        return get_apb4_presc();
         break;
     default:
         return -1;

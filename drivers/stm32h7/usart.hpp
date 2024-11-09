@@ -20,7 +20,7 @@ class usart : public hal::interface::serial
 public:
     struct usart_hw;
 
-    enum class id { usart1 };
+    enum class id { usart3 };
 
     usart(id id, uint32_t baudrate);
     ~usart();

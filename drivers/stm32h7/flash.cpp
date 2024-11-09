@@ -13,16 +13,40 @@ using namespace drivers;
 
 void flash::set_wait_states(uint32_t sysclk_freq)
 {
-    /* Calculate wait_states (30M is valid for 2.7V to 3.6V voltage range,
-       use 24M for 2.4V to 2.7V, 18M for 2.1V to 2.4V or 16M for  1.8V to 2.1V) */
-    uint32_t wait_states = sysclk_freq / 30000000ul;
+#ifdef CORE_CM7
+    /* FLASH is clocked from AXI */
+    sysclk_freq /= 2;
+#endif
 
-    /* Trim to max allowed value */
-    wait_states = wait_states > 15 ? 15 : wait_states;
+    /* Default value */
+    uint32_t wait_states = 7;
+
+    /* Calculate wait_states (valid for VOS1 core voltage range) */
+    if (sysclk_freq <= 70000000)
+    {
+        wait_states = 0;
+    }
+    else if (sysclk_freq <= 140000000)
+    {
+        wait_states = 1;
+    }
+    else if (sysclk_freq <= 185000000)
+    {
+        wait_states = 2;
+    }
+    else if (sysclk_freq <= 210000000)
+    {
+        wait_states = 3;
+    }
+    else
+    {
+        /* Unsupported */
+    }
+
 
     /* Enable prefetch & ART accelerator & set wait states */
     //ART->CTR |= ART_CTR_EN;
-    FLASH->ACR |= wait_states;
+    MODIFY_REG(FLASH->ACR, FLASH_ACR_LATENCY, wait_states);
 
     __ISB();
 }

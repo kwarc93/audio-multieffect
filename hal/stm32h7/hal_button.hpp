@@ -42,7 +42,7 @@ namespace buttons
     public:
         blue_btn(void) : button {&drv} {}
     private:
-        const drivers::gpio::io io = { drivers::gpio::port::porti, drivers::gpio::pin::pin11 };
+        const drivers::gpio::io io = { drivers::gpio::port::portc, drivers::gpio::pin::pin13 };
         drivers::button_gpio drv {io};
     };
 }
