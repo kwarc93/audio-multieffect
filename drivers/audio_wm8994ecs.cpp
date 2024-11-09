@@ -11,8 +11,6 @@
 #include <cassert>
 #include <algorithm>
 
-#include <drivers/stm32f7/delay.hpp>
-
 using namespace drivers;
 
 //-----------------------------------------------------------------------------

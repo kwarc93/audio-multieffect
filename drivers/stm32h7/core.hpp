@@ -8,7 +8,7 @@
 #ifndef STM32F7_CORE_HPP_
 #define STM32F7_CORE_HPP_
 
-#include <hal/hal_interface.hpp>
+#include <hal_interface.hpp>
 
 namespace drivers
 {

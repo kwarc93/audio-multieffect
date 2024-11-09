@@ -8,9 +8,9 @@
 #ifndef AUDIO_WM8994ECS_HPP_
 #define AUDIO_WM8994ECS_HPP_
 
-#include <hal/hal_interface.hpp>
+#include <hal_interface.hpp>
 
-#include <drivers/stm32f7/sai.hpp>
+#include <drivers/stm32.hpp>
 
 namespace drivers
 {

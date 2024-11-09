@@ -11,7 +11,7 @@
 
 #include <cmsis/stm32h7xx.h>
 
-#include <hal/hal_system.hpp>
+#include <hal_system.hpp>
 
 #include <drivers/stm32h7/gpio.hpp>
 #include <drivers/stm32h7/rcc.hpp>

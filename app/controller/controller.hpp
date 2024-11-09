@@ -11,8 +11,8 @@
 #include <memory>
 #include <vector>
 
-#include <hal/hal_led.hpp>
-#include <hal/hal_button.hpp>
+#include <hal_led.hpp>
+#include <hal_button.hpp>
 
 #include <middlewares/active_object.hpp>
 #include <middlewares/observer.hpp>

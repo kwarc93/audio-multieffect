@@ -17,7 +17,7 @@
 
 #include <libs/fast_queue.hpp>
 
-#include <hal/hal_interface.hpp>
+#include <hal_interface.hpp>
 
 namespace mfx
 {

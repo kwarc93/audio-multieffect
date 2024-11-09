@@ -12,8 +12,9 @@
 #include <cstddef>
 #include <functional>
 
-#include <hal/hal_interface.hpp>
-#include <drivers/stm32f7/gpio.hpp>
+#include <hal_interface.hpp>
+
+#include <drivers/stm32.hpp>
 
 namespace drivers
 {

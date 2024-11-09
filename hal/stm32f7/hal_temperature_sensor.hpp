@@ -8,7 +8,7 @@
 #ifndef HAL_TEMPERATURE_SENSOR_HPP_
 #define HAL_TEMPERATURE_SENSOR_HPP_
 
-#include <hal/hal_interface.hpp>
+#include <hal_interface.hpp>
 
 #include <drivers/stm32f7/core.hpp>
 

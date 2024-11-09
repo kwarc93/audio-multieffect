@@ -12,7 +12,7 @@
 
 #include <drivers/stm32f7/core.hpp>
 
-#include <hal/hal_system.hpp>
+#include <hal_system.hpp>
 
 namespace drivers
 {

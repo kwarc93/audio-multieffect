@@ -8,7 +8,7 @@
 #ifndef HAL_BUTTON_HPP_
 #define HAL_BUTTON_HPP_
 
-#include <hal/hal_interface.hpp>
+#include <hal_interface.hpp>
 
 #include <drivers/button_gpio.hpp>
 

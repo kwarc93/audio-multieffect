@@ -8,7 +8,7 @@
 #ifndef STM32F7_USART_HPP_
 #define STM32F7_USART_HPP_
 
-#include <hal/hal_interface.hpp>
+#include <hal_interface.hpp>
 
 #include <cstdint>
 

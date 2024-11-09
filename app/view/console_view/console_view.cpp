@@ -12,7 +12,7 @@
 
 #include <app/utils.hpp>
 
-#include <hal/hal_usart.hpp>
+#include <hal_usart.hpp>
 
 using namespace mfx;
 namespace events = console_view_events;

@@ -8,7 +8,7 @@
 #ifndef HAL_AUDIO_HPP_
 #define HAL_AUDIO_HPP_
 
-#include <hal/hal_interface.hpp>
+#include <hal_interface.hpp>
 
 #include <drivers/audio_wm8994ecs.hpp>
 

@@ -9,9 +9,6 @@
 
 #include <cassert>
 
-#include <drivers/stm32f7/qspi.hpp>
-#include <drivers/stm32f7/gpio.hpp>
-
 using namespace drivers;
 
 //-----------------------------------------------------------------------------

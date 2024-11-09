@@ -12,8 +12,8 @@
 #include <vector>
 #include <cassert>
 
-#include <hal/hal_interface.hpp>
-#include <hal/hal_i2c.hpp>
+#include <hal_interface.hpp>
+#include <hal_i2c.hpp>
 
 #include "cmsis_os2.h"
 

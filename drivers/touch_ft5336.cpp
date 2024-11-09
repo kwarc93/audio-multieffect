@@ -8,10 +8,6 @@
 
 #include "touch_ft5336.hpp"
 
-#include <drivers/stm32f7/delay.hpp>
-#include <drivers/stm32f7/rcc.hpp>
-#include <drivers/stm32f7/exti.hpp>
-
 #include <cassert>
 
 using namespace drivers;

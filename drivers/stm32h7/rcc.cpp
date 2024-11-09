@@ -10,7 +10,7 @@
 
 #include <cmsis/stm32h7xx.h>
 
-#include <hal/hal_system.hpp>
+#include <hal_system.hpp>
 
 using namespace drivers;
 

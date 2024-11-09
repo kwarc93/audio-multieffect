@@ -16,7 +16,7 @@
 #include <middlewares/active_object.hpp>
 #include <middlewares/observer.hpp>
 
-#include <hal/hal_audio.hpp>
+#include <hal_audio.hpp>
 
 #include "effect_interface.hpp"
 

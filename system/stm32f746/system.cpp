@@ -11,8 +11,8 @@
 #include <cassert>
 
 #include <cmsis/stm32f7xx.h>
-#include <hal/hal_system.hpp>
-#include <hal/hal_usart.hpp>
+#include <hal_system.hpp>
+#include <hal_usart.hpp>
 
 #include "cmsis_os2.h"
 

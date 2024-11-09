@@ -10,7 +10,7 @@
 
 #include <variant>
 
-#include <hal/hal_lcd.hpp>
+#include <hal_lcd.hpp>
 
 #include <middlewares/active_object.hpp>
 #include <middlewares/observer.hpp>

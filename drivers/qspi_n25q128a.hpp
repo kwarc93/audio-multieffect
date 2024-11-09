@@ -8,7 +8,9 @@
 #ifndef QSPI_N25Q128A_HPP_
 #define QSPI_N25Q128A_HPP_
 
-#include <hal/hal_interface.hpp>
+#include <hal_interface.hpp>
+
+#include <drivers/stm32.hpp>
 
 namespace drivers
 {

@@ -5,7 +5,7 @@
  *      Author: kwarc
  */
 
-#include <hal/hal_system.hpp>
+#include <hal_system.hpp>
 
 #include <drivers/stm32h7/usart.hpp>
 

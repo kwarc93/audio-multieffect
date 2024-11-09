@@ -8,7 +8,7 @@
 #ifndef STM32F7_I2C_SW_HPP_
 #define STM32F7_I2C_SW_HPP_
 
-#include <hal/hal_interface.hpp>
+#include <hal_interface.hpp>
 
 #include <drivers/stm32f7/gpio.hpp>
 #include <drivers/stm32f7/delay.hpp>

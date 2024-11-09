@@ -10,7 +10,7 @@
 
 #include <array>
 
-#include <hal/hal_interface.hpp>
+#include <hal_interface.hpp>
 
 #include <drivers/led_gpio.hpp>
 #include <drivers/led_pwm.hpp>

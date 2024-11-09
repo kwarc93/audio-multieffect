@@ -10,7 +10,7 @@
 #include <array>
 #include <algorithm>
 
-#include <hal/hal_system.hpp>
+#include <hal_system.hpp>
 
 using namespace mfx;
 namespace events = controller_events;

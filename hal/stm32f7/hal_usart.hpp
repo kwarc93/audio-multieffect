@@ -8,7 +8,7 @@
 #ifndef HAL_USART_HPP_
 #define HAL_USART_HPP_
 
-#include <hal/hal_interface.hpp>
+#include <hal_interface.hpp>
 
 namespace hal::usart
 {

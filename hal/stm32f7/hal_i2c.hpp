@@ -8,7 +8,7 @@
 #ifndef HAL_I2C_HPP_
 #define HAL_I2C_HPP_
 
-#include <hal/hal_interface.hpp>
+#include <hal_interface.hpp>
 
 namespace hal::i2c
 {

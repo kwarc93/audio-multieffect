@@ -7,12 +7,6 @@
 
 #include "lcd_rk043fn48h.hpp"
 
-#include <cmsis/stm32f7xx.h>
-
-#include <drivers/stm32f7/ltdc.hpp>
-#include <drivers/stm32f7/dma2d.hpp>
-#include <drivers/stm32f7/rcc.hpp>
-
 #include <cstring>
 
 using namespace drivers;

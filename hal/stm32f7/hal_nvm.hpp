@@ -11,7 +11,7 @@
 #include <cstdint>
 #include <cstddef>
 
-#include <hal/hal_interface.hpp>
+#include <hal_interface.hpp>
 
 #include <drivers/qspi_n25q128a.hpp>
 

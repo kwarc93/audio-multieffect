@@ -8,9 +8,9 @@
 #ifndef BUTTON_GPIO_HPP_
 #define BUTTON_GPIO_HPP_
 
-#include <hal/hal_interface.hpp>
+#include <hal_interface.hpp>
 
-#include <drivers/stm32f7/gpio.hpp>
+#include <drivers/stm32.hpp>
 
 namespace drivers
 {

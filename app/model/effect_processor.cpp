@@ -15,7 +15,7 @@
 #include <vector>
 #include <map>
 
-#include <hal/hal_system.hpp>
+#include <hal_system.hpp>
 
 #include <middlewares/i2c_manager.hpp>
 
