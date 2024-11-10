@@ -242,11 +242,11 @@ void rcc::enable_periph_clock(const periph_bus &pbus, bool en)
 
 //-----------------------------------------------------------------------------
 
-void rcc::set_main_pll(const main_pll &pll, const bus_presc &presc)
+void rcc::set_main_pll(uint32_t src, const pll_cfg &pll, const bus_presc &presc)
 {
     /* Enable selected clock source */
-    MODIFY_REG(RCC->PLLCKSELR, RCC_PLLCKSELR_PLLSRC, pll.source);
-    if (pll.source == RCC_PLLCKSELR_PLLSRC_HSE)
+    MODIFY_REG(RCC->PLLCKSELR, RCC_PLLCKSELR_PLLSRC, src);
+    if (src == RCC_PLLCKSELR_PLLSRC_HSE)
         toggle_hse(true);
     else
         toggle_hsi(true);
@@ -288,7 +288,7 @@ void rcc::set_main_pll(const main_pll &pll, const bus_presc &presc)
     }
 
     /* Disable unused clock source */
-    if (pll.source == RCC_PLLCKSELR_PLLSRC_HSE)
+    if (src == RCC_PLLCKSELR_PLLSRC_HSE)
         toggle_hsi(false);
     else
         toggle_hse(false);
@@ -296,47 +296,48 @@ void rcc::set_main_pll(const main_pll &pll, const bus_presc &presc)
 
 //-----------------------------------------------------------------------------
 
-void rcc::set_sai_pll(const sai_i2s_pll &pll)
+void rcc::set_2nd_pll(const pll_cfg &pll)
 {
-//    /* Disable the SAI PLL */
-//    RCC->CR &= ~RCC_CR_PLLSAION;
-//
-//    /* Set dividers: after-Q & after-R */
-//    RCC->DCKCFGR1 |= (pll.div_q - 1) << RCC_DCKCFGR1_PLLSAIDIVQ_Pos
-//                  |  (pll.div_r == 16 ? 0b11 : pll.div_r >> 2) << RCC_DCKCFGR1_PLLSAIDIVR_Pos;
-//
-//    /* Configure the SAI PLL */
-//    RCC->PLLSAICFGR = (pll.n << 6) | (((pll.p >> 1) - 1) << 16) | (pll.q << 24) | (pll.r << 28);
-//
-//    /* Enable the SAI PLL */
-//    RCC->CR |= RCC_CR_PLLSAION;
-//
-//    while ((RCC->CR & RCC_CR_PLLSAIRDY) == 0)
-//    {
-//        /* Wait till the SAI PLL is ready */
-//    }
+    /* Disable the PLL */
+    RCC->CR |= RCC_CR_PLL2ON;
+
+    RCC->PLLCFGR |= 0b10 << RCC_PLLCFGR_PLL2RGE_Pos; // Input range: 4 - 8 MHz
+    MODIFY_REG(RCC->PLLCKSELR, RCC_PLLCKSELR_DIVM2, pll.m << RCC_PLLCKSELR_DIVM2_Pos);
+    MODIFY_REG(RCC->PLL2DIVR, RCC_PLL2DIVR_N2, (pll.n-1UL) << RCC_PLL2DIVR_N2_Pos);
+    MODIFY_REG(RCC->PLL2DIVR, RCC_PLL2DIVR_P2, (pll.p-1UL) << RCC_PLL2DIVR_P2_Pos);
+    MODIFY_REG(RCC->PLL2DIVR, RCC_PLL2DIVR_Q2, (pll.q-1UL) << RCC_PLL2DIVR_Q2_Pos);
+    MODIFY_REG(RCC->PLL2DIVR, RCC_PLL2DIVR_R2, (pll.r-1UL) << RCC_PLL2DIVR_R2_Pos);
+
+    /* Enable the PLL */
+    RCC->CR |= RCC_CR_PLL2ON;
+
+    while ((RCC->CR & RCC_CR_PLL2RDY) == 0)
+    {
+        /* Wait till the PLL is ready */
+    }
 }
 
 //-----------------------------------------------------------------------------
 
-void rcc::set_i2s_pll(const sai_i2s_pll &pll)
+void rcc::set_3rd_pll(const pll_cfg &pll)
 {
-//    /* Disable the I2S PLL */
-//    RCC->CR &= ~RCC_CR_PLLI2SON;
-//
-//    /* Set dividers: after-Q */
-//    RCC->DCKCFGR1 |= (pll.div_q - 1) << RCC_DCKCFGR1_PLLI2SDIVQ_Pos;
-//
-//    /* Configure the I2S PLL */
-//    RCC->PLLI2SCFGR = (pll.n << 6) | (((pll.p >> 1) - 1) << 16) | (pll.q << 24) | (pll.r << 28);
-//
-//    /* Enable the I2S PLL */
-//    RCC->CR |= RCC_CR_PLLI2SON;
-//
-//    while ((RCC->CR & RCC_CR_PLLI2SRDY) == 0)
-//    {
-//        /* Wait till the I2S PLL is ready */
-//    }
+    /* Disable the PLL */
+    RCC->CR |= RCC_CR_PLL3ON;
+
+    RCC->PLLCFGR |= 0b10 << RCC_PLLCFGR_PLL3RGE_Pos; // Input range: 4 - 8 MHz
+    MODIFY_REG(RCC->PLLCKSELR, RCC_PLLCKSELR_DIVM3, pll.m << RCC_PLLCKSELR_DIVM3_Pos);
+    MODIFY_REG(RCC->PLL3DIVR, RCC_PLL3DIVR_N3, (pll.n-1UL) << RCC_PLL3DIVR_N3_Pos);
+    MODIFY_REG(RCC->PLL3DIVR, RCC_PLL3DIVR_P3, (pll.p-1UL) << RCC_PLL3DIVR_P3_Pos);
+    MODIFY_REG(RCC->PLL3DIVR, RCC_PLL3DIVR_Q3, (pll.q-1UL) << RCC_PLL3DIVR_Q3_Pos);
+    MODIFY_REG(RCC->PLL3DIVR, RCC_PLL3DIVR_R3, (pll.r-1UL) << RCC_PLL3DIVR_R3_Pos);
+
+    /* Enable the PLL */
+    RCC->CR |= RCC_CR_PLL3ON;
+
+    while ((RCC->CR & RCC_CR_PLL3RDY) == 0)
+    {
+        /* Wait till the PLL is ready */
+    }
 }
 
 //-----------------------------------------------------------------------------

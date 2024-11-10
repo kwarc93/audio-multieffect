@@ -128,21 +128,20 @@ hw {saix.at(static_cast<std::underlying_type_t<id>>(hw_id))}, block_a {block::id
     /*
      * Configure clock source for SAI at 192kHz
      * @note 1. Clock source should be set to around 256 x desired max audio frequency
-     *       2. SAI clock source is PLLI2S output Q
+     *       2. SAI clock source is PLL2 output P
      */
 
-    // TODO H7 port
-    //RCC->DCKCFGR1 |= RCC_DCKCFGR1_SAI2SEL_0;
-    static const rcc::sai_i2s_pll i2s_pll_cfg
+    RCC->D2CCIP1R |= RCC_D2CCIP1R_SAI23SEL_0;
+    static const rcc::pll_cfg pll2_cfg
     {
-        177,
-        2,
-        3,
-        2,
-        2, // 49.1(6)MHz, close to: 192kHz x 256 = 49.152MHz
+        6,
+        189,
+        16, // 49.21875MHz, close to: 192kHz x 256 = 49.152MHz
+        128,
+        128,
     };
 
-    rcc::set_i2s_pll(i2s_pll_cfg);
+    rcc::set_2nd_pll(pll2_cfg);
     rcc::enable_periph_clock(this->hw.pbus, true);
     rcc::enable_periph_clock(RCC_PERIPH_BUS(AHB1, DMA2), true);
 
@@ -262,7 +261,11 @@ void sai_base::block::configure_dma(void *data, uint16_t data_len, std::size_t d
     dma_stream->PAR = reinterpret_cast<uint32_t>(&this->hw.reg->DR);
     dma_stream->M0AR = reinterpret_cast<uint32_t>(data);
     dma_stream->NDTR = data_len;
-    //dma_stream->CR |= 3 << DMA_SxCR_CHSEL_Pos; // TODO H7 port
+    // TODO H7 port
+    //dma_stream->CR |= 3 << DMA_SxCR_CHSEL_Pos;
+    // 89 sai2a_dma
+    // 90 sai2b_dma
+    //DMAMUX1->CCR
     dma_stream->CR |= 0b11 << DMA_SxCR_PL_Pos; // Very high priority
     dma_stream->CR |= DMA_SxCR_DMEIE | DMA_SxCR_HTIE | DMA_SxCR_TCIE | circular << DMA_SxCR_CIRC_Pos | DMA_SxCR_MINC;
     dma_stream->CR |= (data_width >> 1) << DMA_SxCR_MSIZE_Pos | (data_width >> 1) << DMA_SxCR_PSIZE_Pos;

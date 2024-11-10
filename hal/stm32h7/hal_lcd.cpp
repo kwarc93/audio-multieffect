@@ -120,7 +120,7 @@ static constexpr std::array<const drivers::gpio::io, 28> main_lcd_ios
     {drivers::gpio::port::portj, drivers::gpio::pin::pin15},
     {drivers::gpio::port::portj, drivers::gpio::pin::pin0},
     {drivers::gpio::port::portj, drivers::gpio::pin::pin1},
-    {drivers::gpio::port::portj, drivers::gpio::pin::pin2},
+    {drivers::gpio::port::porth, drivers::gpio::pin::pin9},
     {drivers::gpio::port::portj, drivers::gpio::pin::pin3},
     {drivers::gpio::port::portj, drivers::gpio::pin::pin4},
     {drivers::gpio::port::portj, drivers::gpio::pin::pin5},
@@ -132,33 +132,33 @@ static constexpr std::array<const drivers::gpio::io, 28> main_lcd_ios
     {drivers::gpio::port::portj, drivers::gpio::pin::pin9},
     {drivers::gpio::port::portj, drivers::gpio::pin::pin10},
     {drivers::gpio::port::portj, drivers::gpio::pin::pin11},
-    {drivers::gpio::port::portk, drivers::gpio::pin::pin0},
-    {drivers::gpio::port::portk, drivers::gpio::pin::pin1},
+    {drivers::gpio::port::porti, drivers::gpio::pin::pin0},
+    {drivers::gpio::port::porti, drivers::gpio::pin::pin1},
     {drivers::gpio::port::portk, drivers::gpio::pin::pin2},
 
     /* B [0:7] */
-    {drivers::gpio::port::porte, drivers::gpio::pin::pin4},
+    {drivers::gpio::port::portj, drivers::gpio::pin::pin12},
     {drivers::gpio::port::portj, drivers::gpio::pin::pin13},
     {drivers::gpio::port::portj, drivers::gpio::pin::pin14},
     {drivers::gpio::port::portj, drivers::gpio::pin::pin15},
-    {drivers::gpio::port::portg, drivers::gpio::pin::pin12},
+    {drivers::gpio::port::portk, drivers::gpio::pin::pin3},
     {drivers::gpio::port::portk, drivers::gpio::pin::pin4},
     {drivers::gpio::port::portk, drivers::gpio::pin::pin5},
     {drivers::gpio::port::portk, drivers::gpio::pin::pin6},
 
     /* Control lines */
-    {drivers::gpio::port::porti, drivers::gpio::pin::pin10}, // HSYNC
+    {drivers::gpio::port::porti, drivers::gpio::pin::pin12}, // HSYNC
     {drivers::gpio::port::porti, drivers::gpio::pin::pin9},  // VSYNC
     {drivers::gpio::port::porti, drivers::gpio::pin::pin14}, // LCD_CLK
     {drivers::gpio::port::portk, drivers::gpio::pin::pin7},  // LCD_DE
 }};
 
-static constexpr drivers::gpio::io main_lcd_en_io {drivers::gpio::port::porti, drivers::gpio::pin::pin12};
+static constexpr drivers::gpio::io main_lcd_en_io {drivers::gpio::port::portd, drivers::gpio::pin::pin7};
 
 main::main(hal::interface::i2c_proxy &i2c) : display {&lcd_drv, &backlight_drv , &touch_drv},
 lcd_drv {main_lcd_en_io, main_lcd_ios, get_frame_buffers().first},
-backlight_drv {{drivers::gpio::port::portk, drivers::gpio::pin::pin3}},
-touch_drv {i2c, drivers::touch_ft5336::i2c_address, {drivers::gpio::port::porti, drivers::gpio::pin::pin13}, drivers::touch_ft5336::orientation::mirror_xy}
+backlight_drv {{drivers::gpio::port::portk, drivers::gpio::pin::pin0}},
+touch_drv {i2c, drivers::touch_ft5336::i2c_address, {drivers::gpio::port::portg, drivers::gpio::pin::pin2}, drivers::touch_ft5336::orientation::mirror_xy}
 {
 
 }

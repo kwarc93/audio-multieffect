@@ -37,9 +37,8 @@ void system::init(void)
 
     drivers::flash::set_wait_states(system::system_clock);
 
-    drivers::rcc::main_pll pll
+    drivers::rcc::pll_cfg pll
     {
-        RCC_PLLCKSELR_PLLSRC_HSE,
         5,
         160,
         2,
@@ -56,7 +55,7 @@ void system::init(void)
         RCC_D3CFGR_D3PPRE_DIV2
     };
 
-    drivers::rcc::set_main_pll(pll, presc);
+    drivers::rcc::set_main_pll(RCC_PLLCKSELR_PLLSRC_HSE, pll, presc);
 
     assert(drivers::rcc::get_sysclk_freq() == system::system_clock);
 

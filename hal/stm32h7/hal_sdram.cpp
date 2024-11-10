@@ -85,12 +85,12 @@ static constexpr std::array<const drivers::gpio::io, 38> gpios =
     {drivers::gpio::port::portg, drivers::gpio::pin::pin4},
     {drivers::gpio::port::portg, drivers::gpio::pin::pin5},
 
-    {drivers::gpio::port::portc, drivers::gpio::pin::pin3},
-    {drivers::gpio::port::portg, drivers::gpio::pin::pin8},
-    {drivers::gpio::port::portg, drivers::gpio::pin::pin15},
-    {drivers::gpio::port::porth, drivers::gpio::pin::pin3},
     {drivers::gpio::port::porth, drivers::gpio::pin::pin5},
+    {drivers::gpio::port::portg, drivers::gpio::pin::pin15},
     {drivers::gpio::port::portf, drivers::gpio::pin::pin11},
+    {drivers::gpio::port::porth, drivers::gpio::pin::pin6},
+    {drivers::gpio::port::porth, drivers::gpio::pin::pin7},
+    {drivers::gpio::port::portg, drivers::gpio::pin::pin8},
 }};
 
 /* Configuration for HCLK = 100MHz */
@@ -125,7 +125,7 @@ void sdram::init(void)
 
     /* Remap the SDRAM to a different address (0x60000000)
      *
-     * NOTE: The area 0xC0000000-0xDFFFFFFF (32MB, FMC bank 5 & 6) is specified as Device Memory Type.
+     * NOTE: The area 0xC0000000-0xD3FFFFFF (32MB, FMC bank 5 & 6) is specified as Device Memory Type.
      * According to the ARMv7-M Architecture Reference Manual chapter B3.1 (table B3-1),
      * all accesses to Device Memory Types must be naturally aligned.
      * If they are not, a hard fault will execute no matter if the bit UNALIGN_TRP (bit 3) in the CCR register is enabled or not.*/

@@ -59,9 +59,8 @@ public:
     };
 
     /** @brief  Structure for describing main PLL parameters. */
-    struct main_pll
+    struct pll_cfg
     {
-        uint32_t source;    /**< Clock source, use RCC_PLLCKSELR_PLLSRC_HSx from CMSIS headers */
         uint32_t m;         /**< M divider, allowed range: 0 - 63 */
         uint32_t n;         /**< N multiplier, allowed range: 4 - 512 */
         uint32_t p;         /**< P divider, allowed (even!) values: 2 - 128 */
@@ -113,24 +112,25 @@ public:
      *          AHB/APBx prescalers and Flash settings.
      * @note    This function should be called only once the RCC clock configuration
      *          is reset to the default reset state.
+     * @param   src - clock source, use RCC_PLLCKSELR_PLLSRC_HSx from CMSIS headers
      * @param   pll - pointer to main PLL configuration
      * @param   presc - pointer to bus prescalers configuration
      */
-    static void set_main_pll(const main_pll &pll, const bus_presc &presc);
+    static void set_main_pll(uint32_t src, const pll_cfg &pll, const bus_presc &presc);
 
     /**
-     * @brief   Configures the SAI PLL.
+     * @brief   Configures the second PLL.
      * @note    This function can be called only after set_main_pll() function call.
-     * @param   pll - pointer to SAI PLL configuration
+     * @param   pll - pointer to PLL configuration
      */
-    static void set_sai_pll(const sai_i2s_pll &pll);
+    static void set_2nd_pll(const pll_cfg &pll);
 
     /**
-     * @brief   Configures the I2S PLL.
+     * @brief   Configures the third PLL.
      * @note    This function can be called only after set_main_pll() function call.
-     * @param   pll - pointer to SAI PLL configuration
+     * @param   pll - pointer to PLL configuration
      */
-    static void set_i2s_pll(const sai_i2s_pll &pll);
+    static void set_3rd_pll(const pll_cfg &pll);
 
     /** @brief  Enables/disables high speed internal clock.
      *  @param  state - true enables, false disables clock.
