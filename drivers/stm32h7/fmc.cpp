@@ -24,7 +24,16 @@ using namespace drivers;
 
 void fmc::enable(bool state)
 {
-    rcc::enable_periph_clock({rcc::bus::AHB3, RCC_AHB3ENR_FMCEN}, state);
+    if (state)
+    {
+        rcc::enable_periph_clock({rcc::bus::AHB3, RCC_AHB3ENR_FMCEN}, true);
+        FMC_Bank1_R->BTCR[0] |= FMC_BCR1_FMCEN;
+    }
+    else
+    {
+        FMC_Bank1_R->BTCR[0] &= ~FMC_BCR1_FMCEN;
+        rcc::enable_periph_clock({rcc::bus::AHB3, RCC_AHB3ENR_FMCEN}, false);
+    }
 }
 
 void fmc::remap_bank(remap_type remap)
@@ -34,11 +43,10 @@ void fmc::remap_bank(remap_type remap)
 
 bool fmc::sdram::configure(const fmc::sdram::config &cfg)
 {
-    rcc::enable_periph_clock({rcc::bus::AHB3, RCC_AHB3ENR_FMCEN}, true);
+    /* Disable FMC */
+    FMC_Bank1_R->BTCR[0] &= ~FMC_BCR1_FMCEN;
 
     /* Program the memory device features */
-    const uint8_t bank = cfg.bank == fmc::sdram::bank::bank1 ? 0 : 1;
-
     uint32_t tmp_reg = 0;
     tmp_reg |= static_cast<uint32_t>(cfg.col_addr_width) << FMC_SDCRx_NC_Pos;
     tmp_reg |= static_cast<uint32_t>(cfg.row_addr_width) << FMC_SDCRx_NR_Pos;
@@ -48,20 +56,25 @@ bool fmc::sdram::configure(const fmc::sdram::config &cfg)
     tmp_reg |= static_cast<uint32_t>(cfg.clock_period) << FMC_SDCRx_SDCLK_Pos;
     tmp_reg |= FMC_SDCRx_RBURST;
 
-    FMC_Bank5_6_R->SDCR[bank] = tmp_reg;
+    FMC_Bank5_6_R->SDCR[0] = tmp_reg;
+    FMC_Bank5_6_R->SDCR[1] = tmp_reg;
 
     /* Program the memory device timings */
     tmp_reg = 0;
 
-    tmp_reg |= static_cast<uint32_t>(cfg.timing.load_to_active_delay) << FMC_SDTRx_TMRD_Pos;
-    tmp_reg |= static_cast<uint32_t>(cfg.timing.exit_self_refresh_time) << FMC_SDTRx_TXSR_Pos;
-    tmp_reg |= static_cast<uint32_t>(cfg.timing.self_refresh_time) << FMC_SDTRx_TRAS_Pos;
-    tmp_reg |= static_cast<uint32_t>(cfg.timing.row_cycle_delay) << FMC_SDTRx_TRC_Pos;
-    tmp_reg |= static_cast<uint32_t>(cfg.timing.write_recovery_delay) << FMC_SDTRx_TWR_Pos;
-    tmp_reg |= static_cast<uint32_t>(cfg.timing.row_precharge_delay) << FMC_SDTRx_TRP_Pos;
-    tmp_reg |= static_cast<uint32_t>(cfg.timing.row_to_col_delay) << FMC_SDTRx_TRCD_Pos;
+    tmp_reg |= static_cast<uint32_t>(cfg.timing.load_to_active_delay - 1) << FMC_SDTRx_TMRD_Pos;
+    tmp_reg |= static_cast<uint32_t>(cfg.timing.exit_self_refresh_time - 1) << FMC_SDTRx_TXSR_Pos;
+    tmp_reg |= static_cast<uint32_t>(cfg.timing.self_refresh_time - 1) << FMC_SDTRx_TRAS_Pos;
+    tmp_reg |= static_cast<uint32_t>(cfg.timing.row_cycle_delay - 1) << FMC_SDTRx_TRC_Pos;
+    tmp_reg |= static_cast<uint32_t>(cfg.timing.write_recovery_delay - 1) << FMC_SDTRx_TWR_Pos;
+    tmp_reg |= static_cast<uint32_t>(cfg.timing.row_precharge_delay - 1) << FMC_SDTRx_TRP_Pos;
+    tmp_reg |= static_cast<uint32_t>(cfg.timing.row_to_col_delay - 1) << FMC_SDTRx_TRCD_Pos;
 
-    FMC_Bank5_6_R->SDTR[bank] = tmp_reg;
+    FMC_Bank5_6_R->SDTR[0] = tmp_reg;
+    FMC_Bank5_6_R->SDTR[1] = tmp_reg;
+
+    /* Enable FMC */
+    FMC_Bank1_R->BTCR[0] |= FMC_BCR1_FMCEN;
 
     return true;
 }
@@ -99,11 +112,9 @@ void fmc::sdram::set_refresh_rate(uint16_t refresh_timer_count)
         refresh_timer_count = 0x29;
 
     /* ... and not exceed 13 bit max value */
-    if (refresh_timer_count > 0x3ff)
-        refresh_timer_count = 0x3ff;
+    if (refresh_timer_count > 0x1FFF)
+        refresh_timer_count = 0x1FFF;
 
-    FMC_Bank5_6_R->SDRTR = (refresh_timer_count) << FMC_SDRTR_COUNT_Pos;
+    FMC_Bank5_6_R->SDRTR |= (refresh_timer_count) << FMC_SDRTR_COUNT_Pos;
 }
-
-
 

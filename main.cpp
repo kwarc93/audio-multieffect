@@ -18,6 +18,9 @@
 #include "app/model/effect_processor.hpp"
 #include "app/controller/controller.hpp"
 
+#include <hal_sdram.hpp>
+#include "libs/memtest/memtest.h"
+
 static void init_thread(void *arg)
 {
     /* Create active objects */
@@ -35,6 +38,10 @@ int main(void)
 
     printf("System started\r\n");
     printf("Software version: " GIT_REVISION "\r\n");
+
+    printf("Starting SDRAM test\r\n");
+    int res = memTestAll((volatile unsigned long int *)hal::sdram::start_addr(), hal::sdram::size());
+    printf("SDRAM test %s\r\n", res == 0 ? "OK" : "FAIL");
 
     osKernelInitialize();
     osThreadNew(init_thread, NULL, NULL);

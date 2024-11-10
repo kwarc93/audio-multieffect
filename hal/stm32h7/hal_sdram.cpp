@@ -35,7 +35,7 @@ using namespace hal;
 #define SDRAM_MODE_REG_WRITE_BURST_MODE_Msk       (0b1u << SDRAM_MODE_REG_WRITE_BURST_MODE_Pos)
 
 /* SDRAM target setup definitions */
-#define SDRAM_START_ADDR                          (0x60000000u)
+#define SDRAM_START_ADDR                          (0x70000000u)
 #define SDRAM_SIZE                                (8u * 1024u * 1024u)
 #define SDRAM_SDCLK_HZ                            (100000000u)
 #define SDRAM_SDCLK_NS                            (1000000000u / SDRAM_SDCLK_HZ)
@@ -97,7 +97,7 @@ static constexpr std::array<const drivers::gpio::io, 38> gpios =
 
 static constexpr drivers::fmc::sdram::config cfg
 {
-    drivers::fmc::sdram::bank::bank1,
+    drivers::fmc::sdram::bank::bank2,
     drivers::fmc::sdram::col_addr_width::_8bit,
     drivers::fmc::sdram::row_addr_width::_12bit,
     drivers::fmc::sdram::data_width::_16bit,
@@ -107,12 +107,12 @@ static constexpr drivers::fmc::sdram::config cfg
 
     {
         2,                      // tMRD
-        NS_TO_SDCLK_CYCLES(67), // tXSR
-        NS_TO_SDCLK_CYCLES(42), // tRAS
-        NS_TO_SDCLK_CYCLES(60), // tRC
-        3,                      // tDPL (note: tDPL >= tRAS – tRCD)
-        NS_TO_SDCLK_CYCLES(18), // tRP
-        NS_TO_SDCLK_CYCLES(18)  // tRCD
+        NS_TO_SDCLK_CYCLES(70), // tXSR
+        5,                      // tRAS
+        6,                      // tRC
+        2,                      // tDPL (note: tDPL >= tRAS – tRCD)
+        2,                      // tRP
+        2                       // tRCD
     }
 };
 
@@ -121,9 +121,13 @@ static constexpr drivers::fmc::sdram::config cfg
 
 void sdram::init(void)
 {
+    /* Initialize GPIOs */
+    for (const auto &pin : gpios)
+        drivers::gpio::configure(pin, drivers::gpio::mode::af, drivers::gpio::af::af12);
+
     drivers::fmc::enable(true);
 
-    /* Remap the SDRAM to a different address (0x60000000)
+    /* Remap the SDRAM to a different address (0x70000000)
      *
      * NOTE: The area 0xC0000000-0xD3FFFFFF (32MB, FMC bank 5 & 6) is specified as Device Memory Type.
      * According to the ARMv7-M Architecture Reference Manual chapter B3.1 (table B3-1),
@@ -131,16 +135,12 @@ void sdram::init(void)
      * If they are not, a hard fault will execute no matter if the bit UNALIGN_TRP (bit 3) in the CCR register is enabled or not.*/
     drivers::fmc::remap_bank(drivers::fmc::remap_type::swap);
 
-    /* Initialize GPIOs */
-    for (const auto &pin : gpios)
-        drivers::gpio::configure(pin, drivers::gpio::mode::af, drivers::gpio::af::af12);
-
     drivers::fmc::sdram::configure(cfg);
     drivers::fmc::sdram::send_cmd(cfg.bank, drivers::fmc::sdram::cmd::clock_cfg_enable, 0);
     drivers::delay::us(100);
     drivers::fmc::sdram::send_cmd(cfg.bank, drivers::fmc::sdram::cmd::precharge_all, 0);
     drivers::fmc::sdram::send_cmd(cfg.bank, drivers::fmc::sdram::cmd::auto_refresh, 2);
-    const uint32_t mode_register = static_cast<uint32_t>(cfg.cas_latency) << SDRAM_MODE_REG_CAS_LATENCY_Pos;
+    uint32_t mode_register = static_cast<uint32_t>(cfg.cas_latency) << SDRAM_MODE_REG_CAS_LATENCY_Pos | SDRAM_MODE_REG_WRITE_BURST_MODE_Msk;
     drivers::fmc::sdram::send_cmd(cfg.bank, drivers::fmc::sdram::cmd::load_mode_register, mode_register);
 
     /* count = SDRAM refresh period (us) / number of SDRAM rows * SDCLK (MHz) - 20 */

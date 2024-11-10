@@ -18,7 +18,7 @@ namespace hal::system
 {
     static constexpr uint32_t hsi_clock = 64000000;
     static constexpr uint32_t hse_clock = 25000000;
-    static constexpr uint32_t system_clock = 200000000;
+    static constexpr uint32_t system_clock = 400000000;
     static constexpr uint32_t systick_freq = 1000;
     extern volatile  uint32_t systick;
 
