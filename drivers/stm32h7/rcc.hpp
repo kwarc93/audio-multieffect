@@ -174,7 +174,7 @@ public:
      * @param   bus - @ref bus
      * @return  -1 if bus is not valid
      */
-    static int8_t get_bus_presc(bus bus);
+    static int16_t get_bus_presc(bus bus);
 
     /**
      * @brief   Gets reset source flags.

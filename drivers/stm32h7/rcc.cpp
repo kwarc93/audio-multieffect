@@ -31,105 +31,105 @@ static volatile uint32_t *const bus_map[] =
     [static_cast<uint8_t>(rcc::bus::APB4)] = &RCC->APB4ENR,
 };
 
-static const uint8_t ahb_presc_table[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
-static const uint8_t apb_presc_table[8]  = {0, 0, 0, 0, 1, 2, 3, 4};
+static const uint8_t presc_table[16] = {0, 0, 0, 0, 1, 2, 3, 4, 1, 2, 3, 4, 6, 7, 8, 9};
 
 //-----------------------------------------------------------------------------
 
 static uint32_t get_ahb_freq(void)
 {
-    return (rcc::get_sysclk_freq() >> ahb_presc_table[(RCC->D1CFGR & RCC_D1CFGR_HPRE) >> RCC_D1CFGR_HPRE_Pos]);
+    return rcc::get_sysclk_freq() >> ((presc_table[(RCC->D1CFGR & RCC_D1CFGR_HPRE) >> RCC_D1CFGR_HPRE_Pos]) & 0x1FU);
 }
 
 //-----------------------------------------------------------------------------
 
 static uint32_t get_apb1_freq(void)
 {
-    return (rcc::get_sysclk_freq() >> apb_presc_table[(RCC->CFGR & RCC_D2CFGR_D2PPRE1) >> RCC_D2CFGR_D2PPRE1_Pos]);
+    return get_ahb_freq() >> ((presc_table[(RCC->D2CFGR & RCC_D2CFGR_D2PPRE1) >> RCC_D2CFGR_D2PPRE1_Pos]) & 0x1FU);
 }
 
 //-----------------------------------------------------------------------------
 
 static uint32_t get_apb2_freq(void)
 {
-    return (rcc::get_sysclk_freq() >> apb_presc_table[(RCC->CFGR & RCC_D2CFGR_D2PPRE2) >> RCC_D2CFGR_D2PPRE2_Pos]);
+    return get_ahb_freq() >> ((presc_table[(RCC->D2CFGR & RCC_D2CFGR_D2PPRE2) >> RCC_D2CFGR_D2PPRE2_Pos]) & 0x1FU);
 }
 
 //-----------------------------------------------------------------------------
 
 static uint32_t get_apb3_freq(void)
 {
-    return (rcc::get_sysclk_freq() >> apb_presc_table[(RCC->CFGR & RCC_D1CFGR_D1PPRE) >> RCC_D1CFGR_D1PPRE_Pos]);
+    return get_ahb_freq() >> ((presc_table[(RCC->D1CFGR & RCC_D1CFGR_D1PPRE) >> RCC_D1CFGR_D1PPRE_Pos]) & 0x1FU);
 }
 
 //-----------------------------------------------------------------------------
 
 static uint32_t get_apb4_freq(void)
 {
-    return (rcc::get_sysclk_freq() >> apb_presc_table[(RCC->CFGR & RCC_D3CFGR_D3PPRE) >> RCC_D3CFGR_D3PPRE_Pos]);
+    return get_ahb_freq() >> ((presc_table[(RCC->D3CFGR & RCC_D3CFGR_D3PPRE) >> RCC_D3CFGR_D3PPRE_Pos]) & 0x1FU);
 }
 
 //-----------------------------------------------------------------------------
 
-static uint8_t get_ahb_presc(void)
+static uint16_t get_ahb_presc(void)
 {
-    return (1 << ahb_presc_table[(RCC->D1CFGR & RCC_D1CFGR_HPRE) >> RCC_D1CFGR_HPRE_Pos]);
+    return 1 << (presc_table[(RCC->D1CFGR & RCC_D1CFGR_HPRE) >> RCC_D1CFGR_HPRE_Pos] & 0x1FU);
 }
 
 //-----------------------------------------------------------------------------
 
 static uint8_t get_apb1_presc(void)
 {
-    return (1 << apb_presc_table[(RCC->CFGR & RCC_D2CFGR_D2PPRE1) >> RCC_D2CFGR_D2PPRE1_Pos]);
+    return 1 << (presc_table[(RCC->D2CFGR & RCC_D2CFGR_D2PPRE1) >> RCC_D2CFGR_D2PPRE1_Pos] & 0x1FU);
 }
 
 //-----------------------------------------------------------------------------
 
 static uint8_t get_apb2_presc(void)
 {
-    return (1 << apb_presc_table[(RCC->CFGR & RCC_D2CFGR_D2PPRE2) >> RCC_D2CFGR_D2PPRE2_Pos]);
+    return 1 << (presc_table[(RCC->D2CFGR & RCC_D2CFGR_D2PPRE2) >> RCC_D2CFGR_D2PPRE2_Pos] & 0x1FU);
 }
 
 //-----------------------------------------------------------------------------
 
 static uint8_t get_apb3_presc(void)
 {
-    return (1 << apb_presc_table[(RCC->CFGR & RCC_D1CFGR_D1PPRE) >> RCC_D1CFGR_D1PPRE_Pos]);
+    return 1 << (presc_table[(RCC->D1CFGR & RCC_D1CFGR_D1PPRE) >> RCC_D1CFGR_D1PPRE_Pos] & 0x1FU);
 }
 
 //-----------------------------------------------------------------------------
 
 static uint8_t get_apb4_presc(void)
 {
-    return (1 << apb_presc_table[(RCC->CFGR & RCC_D3CFGR_D3PPRE) >> RCC_D3CFGR_D3PPRE_Pos]);
+    return 1 << (presc_table[(RCC->D3CFGR & RCC_D3CFGR_D3PPRE) >> RCC_D3CFGR_D3PPRE_Pos] & 0x1FU);
 }
 
 //-----------------------------------------------------------------------------
 
 static uint32_t get_sysclk_from_pll_source(void)
 {
-    uint32_t pllvco;
-    uint32_t pllm;
-    uint32_t pllp;
-
     /* PLL_VCO = (HSE_VALUE, CSI_VALUE or HSI_VALUE/HSIDIV) / PLLM * (PLLN + FRACN), SYSCLK = PLL_VCO / PLLP */
-    pllm = RCC->PLLCKSELR & RCC_PLLCKSELR_DIVM1;
+    const uint32_t pll_m = (RCC->PLLCKSELR & RCC_PLLCKSELR_DIVM1) >> RCC_PLLCKSELR_DIVM1_Pos;
+    if (pll_m == 0)
+        return 0;
+
+    uint32_t pll_clk_src;
     if (((uint32_t) (RCC->PLLCKSELR & RCC_PLLCKSELR_PLLSRC)) != RCC_PLLCKSELR_PLLSRC_HSI)
     {
         /* HSE used as PLL clock source */
-        pllvco = (uint32_t) ((((uint64_t) hal::system::hse_clock
-               * ((uint64_t) ((RCC->PLL1DIVR & RCC_PLL1DIVR_N1) >> RCC_PLL1DIVR_N1_Pos)))) / (uint64_t) pllm);
+        pll_clk_src = hal::system::hse_clock;
     }
     else
     {
         /* HSI used as PLL clock source */
-        pllvco = (uint32_t) ((((uint64_t) hal::system::hsi_clock
-               * ((uint64_t) ((RCC->PLL1DIVR & RCC_PLL1DIVR_N1) >> RCC_PLL1DIVR_N1_Pos)))) / (uint64_t) pllm);
+        const uint32_t hsi_div = ((RCC-> CR & RCC_CR_HSIDIV) >> RCC_CR_HSIDIV_Pos) + 1;
+        pll_clk_src = hal::system::hsi_clock / hsi_div;
     }
 
-    pllp = ((((RCC->PLL1DIVR & RCC_PLL1DIVR_P1) >> RCC_PLL1DIVR_P1_Pos) + 1U) * 2U);
+    const uint32_t pll_n = ((RCC->PLL1DIVR & RCC_PLL1DIVR_N1) >> RCC_PLL1DIVR_N1_Pos) + 1;
+    const uint32_t pll_p = ((RCC->PLL1DIVR & RCC_PLL1DIVR_P1) >> RCC_PLL1DIVR_P1_Pos) + 1;
+    const uint32_t pllvco = ((uint64_t) pll_clk_src * ((uint64_t) pll_n) / (uint64_t) pll_m);
 
-    return pllvco / pllp;
+    return pllvco / pll_p;
 }
 
 //-----------------------------------------------------------------------------
@@ -257,19 +257,19 @@ void rcc::set_main_pll(uint32_t src, const pll_cfg &pll, const bus_presc &presc)
     while (READ_BIT(PWR->D3CR, PWR_D3CR_VOSRDY) == 0);
 
     /* Set prescalers for SYSCLK, AHB & APBx buses */
-    MODIFY_REG(RCC->D1CFGR, RCC_D1CFGR_D1CPRE, RCC_D1CFGR_D1CPRE_DIV1);
-    MODIFY_REG(RCC->D1CFGR, RCC_D1CFGR_HPRE, RCC_D1CFGR_HPRE_DIV2);
-    MODIFY_REG(RCC->D2CFGR, RCC_D2CFGR_D2PPRE1, RCC_D2CFGR_D2PPRE1_DIV2);
-    MODIFY_REG(RCC->D2CFGR, RCC_D2CFGR_D2PPRE2, RCC_D2CFGR_D2PPRE2_DIV2);
-    MODIFY_REG(RCC->D3CFGR, RCC_D3CFGR_D3PPRE, RCC_D3CFGR_D3PPRE_DIV2);
+    MODIFY_REG(RCC->D1CFGR, RCC_D1CFGR_D1CPRE, presc.sys);
+    MODIFY_REG(RCC->D1CFGR, RCC_D1CFGR_HPRE, presc.ahb);
+    MODIFY_REG(RCC->D2CFGR, RCC_D2CFGR_D2PPRE1, presc.apb1);
+    MODIFY_REG(RCC->D2CFGR, RCC_D2CFGR_D2PPRE2, presc.apb2);
+    MODIFY_REG(RCC->D3CFGR, RCC_D3CFGR_D3PPRE, presc.apb4);
 
     /* Configure the main PLL */
     RCC->PLLCFGR |= 0b10 << RCC_PLLCFGR_PLL1RGE_Pos; // Input range: 4 - 8 MHz
     MODIFY_REG(RCC->PLLCKSELR, RCC_PLLCKSELR_DIVM1, pll.m << RCC_PLLCKSELR_DIVM1_Pos);
-    MODIFY_REG(RCC->PLL1DIVR, RCC_PLL1DIVR_N1, (pll.n-1UL) << RCC_PLL1DIVR_N1_Pos);
-    MODIFY_REG(RCC->PLL1DIVR, RCC_PLL1DIVR_P1, (pll.p-1UL) << RCC_PLL1DIVR_P1_Pos);
-    MODIFY_REG(RCC->PLL1DIVR, RCC_PLL1DIVR_Q1, (pll.q-1UL) << RCC_PLL1DIVR_Q1_Pos);
-    MODIFY_REG(RCC->PLL1DIVR, RCC_PLL1DIVR_R1, (pll.r-1UL) << RCC_PLL1DIVR_R1_Pos);
+    MODIFY_REG(RCC->PLL1DIVR, RCC_PLL1DIVR_N1, (pll.n-1) << RCC_PLL1DIVR_N1_Pos);
+    MODIFY_REG(RCC->PLL1DIVR, RCC_PLL1DIVR_P1, (pll.p-1) << RCC_PLL1DIVR_P1_Pos);
+    MODIFY_REG(RCC->PLL1DIVR, RCC_PLL1DIVR_Q1, (pll.q-1) << RCC_PLL1DIVR_Q1_Pos);
+    MODIFY_REG(RCC->PLL1DIVR, RCC_PLL1DIVR_R1, (pll.r-1) << RCC_PLL1DIVR_R1_Pos);
 
     /* Enable the main PLL */
     RCC->CR |= RCC_CR_PLL1ON;
@@ -303,10 +303,10 @@ void rcc::set_2nd_pll(const pll_cfg &pll)
 
     RCC->PLLCFGR |= 0b10 << RCC_PLLCFGR_PLL2RGE_Pos; // Input range: 4 - 8 MHz
     MODIFY_REG(RCC->PLLCKSELR, RCC_PLLCKSELR_DIVM2, pll.m << RCC_PLLCKSELR_DIVM2_Pos);
-    MODIFY_REG(RCC->PLL2DIVR, RCC_PLL2DIVR_N2, (pll.n-1UL) << RCC_PLL2DIVR_N2_Pos);
-    MODIFY_REG(RCC->PLL2DIVR, RCC_PLL2DIVR_P2, (pll.p-1UL) << RCC_PLL2DIVR_P2_Pos);
-    MODIFY_REG(RCC->PLL2DIVR, RCC_PLL2DIVR_Q2, (pll.q-1UL) << RCC_PLL2DIVR_Q2_Pos);
-    MODIFY_REG(RCC->PLL2DIVR, RCC_PLL2DIVR_R2, (pll.r-1UL) << RCC_PLL2DIVR_R2_Pos);
+    MODIFY_REG(RCC->PLL2DIVR, RCC_PLL2DIVR_N2, (pll.n-1) << RCC_PLL2DIVR_N2_Pos);
+    MODIFY_REG(RCC->PLL2DIVR, RCC_PLL2DIVR_P2, (pll.p-1) << RCC_PLL2DIVR_P2_Pos);
+    MODIFY_REG(RCC->PLL2DIVR, RCC_PLL2DIVR_Q2, (pll.q-1) << RCC_PLL2DIVR_Q2_Pos);
+    MODIFY_REG(RCC->PLL2DIVR, RCC_PLL2DIVR_R2, (pll.r-1) << RCC_PLL2DIVR_R2_Pos);
 
     /* Enable the PLL */
     RCC->CR |= RCC_CR_PLL2ON;
@@ -326,10 +326,10 @@ void rcc::set_3rd_pll(const pll_cfg &pll)
 
     RCC->PLLCFGR |= 0b10 << RCC_PLLCFGR_PLL3RGE_Pos; // Input range: 4 - 8 MHz
     MODIFY_REG(RCC->PLLCKSELR, RCC_PLLCKSELR_DIVM3, pll.m << RCC_PLLCKSELR_DIVM3_Pos);
-    MODIFY_REG(RCC->PLL3DIVR, RCC_PLL3DIVR_N3, (pll.n-1UL) << RCC_PLL3DIVR_N3_Pos);
-    MODIFY_REG(RCC->PLL3DIVR, RCC_PLL3DIVR_P3, (pll.p-1UL) << RCC_PLL3DIVR_P3_Pos);
-    MODIFY_REG(RCC->PLL3DIVR, RCC_PLL3DIVR_Q3, (pll.q-1UL) << RCC_PLL3DIVR_Q3_Pos);
-    MODIFY_REG(RCC->PLL3DIVR, RCC_PLL3DIVR_R3, (pll.r-1UL) << RCC_PLL3DIVR_R3_Pos);
+    MODIFY_REG(RCC->PLL3DIVR, RCC_PLL3DIVR_N3, (pll.n-1) << RCC_PLL3DIVR_N3_Pos);
+    MODIFY_REG(RCC->PLL3DIVR, RCC_PLL3DIVR_P3, (pll.p-1) << RCC_PLL3DIVR_P3_Pos);
+    MODIFY_REG(RCC->PLL3DIVR, RCC_PLL3DIVR_Q3, (pll.q-1) << RCC_PLL3DIVR_Q3_Pos);
+    MODIFY_REG(RCC->PLL3DIVR, RCC_PLL3DIVR_R3, (pll.r-1) << RCC_PLL3DIVR_R3_Pos);
 
     /* Enable the PLL */
     RCC->CR |= RCC_CR_PLL3ON;
@@ -441,7 +441,14 @@ uint32_t rcc::get_sysclk_freq(void)
         sysclockfreq = hal::system::hsi_clock;
         break;
     }
-    return sysclockfreq;
+
+
+    uint32_t d1_clk_prescaler = 1;
+    const uint32_t d1cpre_reg = (RCC->D1CFGR & RCC_D1CFGR_D1CPRE) >> RCC_D1CFGR_D1CPRE_Pos;
+    if (d1cpre_reg != 0)
+        d1_clk_prescaler = 1 << (d1cpre_reg - 7);
+
+    return sysclockfreq /= d1_clk_prescaler;
 }
 
 //-----------------------------------------------------------------------------
@@ -476,7 +483,7 @@ uint32_t rcc::get_bus_freq(rcc::bus bus)
 
 //-----------------------------------------------------------------------------
 
-int8_t rcc::get_bus_presc(rcc::bus bus)
+int16_t rcc::get_bus_presc(rcc::bus bus)
 {
     switch (bus)
     {

@@ -47,7 +47,7 @@ hw {usartx.at(static_cast<std::underlying_type_t<id>>(hw_id))}
     if (object_id < this->instance.size())
         this->instance[object_id] = this;
 
-    this->hw.reg->BRR = (uint32_t) (rcc::get_bus_freq(this->hw.pbus.bus) + baudrate / 2) / baudrate;
+    this->hw.reg->BRR = (rcc::get_bus_freq(this->hw.pbus.bus) + baudrate / 2) / baudrate;
     this->hw.reg->CR1 = USART_CR1_TE | USART_CR1_RE | USART_CR1_UE;
 }
 

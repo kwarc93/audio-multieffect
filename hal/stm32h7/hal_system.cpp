@@ -48,7 +48,7 @@ void system::init(void)
 
     drivers::rcc::bus_presc presc
     {
-        RCC_D1CFGR_D1CPRE_DIV1,
+        RCC_D1CFGR_D1CPRE_DIV2,
         RCC_D1CFGR_HPRE_DIV2,
         RCC_D2CFGR_D2PPRE1_DIV2,
         RCC_D2CFGR_D2PPRE2_DIV2,
