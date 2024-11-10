@@ -264,6 +264,7 @@ void rcc::set_main_pll(uint32_t src, const pll_cfg &pll, const bus_presc &presc)
     MODIFY_REG(RCC->D3CFGR, RCC_D3CFGR_D3PPRE, presc.apb4);
 
     /* Configure the main PLL */
+    RCC->CR &= ~RCC_CR_PLL1ON;
     RCC->PLLCFGR |= 0b10 << RCC_PLLCFGR_PLL1RGE_Pos; // Input range: 4 - 8 MHz
     MODIFY_REG(RCC->PLLCKSELR, RCC_PLLCKSELR_DIVM1, pll.m << RCC_PLLCKSELR_DIVM1_Pos);
     MODIFY_REG(RCC->PLL1DIVR, RCC_PLL1DIVR_N1, (pll.n-1) << RCC_PLL1DIVR_N1_Pos);
@@ -299,7 +300,7 @@ void rcc::set_main_pll(uint32_t src, const pll_cfg &pll, const bus_presc &presc)
 void rcc::set_2nd_pll(const pll_cfg &pll)
 {
     /* Disable the PLL */
-    RCC->CR |= RCC_CR_PLL2ON;
+    RCC->CR &= ~RCC_CR_PLL2ON;
 
     RCC->PLLCFGR |= 0b10 << RCC_PLLCFGR_PLL2RGE_Pos; // Input range: 4 - 8 MHz
     MODIFY_REG(RCC->PLLCKSELR, RCC_PLLCKSELR_DIVM2, pll.m << RCC_PLLCKSELR_DIVM2_Pos);
@@ -322,7 +323,7 @@ void rcc::set_2nd_pll(const pll_cfg &pll)
 void rcc::set_3rd_pll(const pll_cfg &pll)
 {
     /* Disable the PLL */
-    RCC->CR |= RCC_CR_PLL3ON;
+    RCC->CR &= ~RCC_CR_PLL3ON;
 
     RCC->PLLCFGR |= 0b10 << RCC_PLLCFGR_PLL3RGE_Pos; // Input range: 4 - 8 MHz
     MODIFY_REG(RCC->PLLCKSELR, RCC_PLLCKSELR_DIVM3, pll.m << RCC_PLLCKSELR_DIVM3_Pos);

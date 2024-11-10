@@ -22,8 +22,8 @@ namespace drivers
 class glcd_rk043fn48h : public hal::interface::glcd<uint16_t>
 {
 private:
-    static constexpr bool use_dma2d = false;
-    static constexpr bool use_ltdc_irq = false;
+    static constexpr bool use_dma2d = true;
+    static constexpr bool use_ltdc_irq = true;
     static constexpr uint16_t width_px = 480;
     static constexpr uint16_t height_px = 272;
     static constexpr uint8_t bits_per_px = 5 + 6 + 5; // RGB565

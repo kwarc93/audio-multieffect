@@ -332,7 +332,7 @@ i2c {i2c}, i2c_addr {addr}, int_io {int_io}, orient {ori}, td_mode {touch_detect
     assert(id == FT5336_ID);
 
     /* Check INT pin mode: poll or trigger */
-    const uint8_t int_mode = this->read_reg(FT5336_GMODE_REG);
+    const uint8_t int_mode = /*this->read_reg(FT5336_GMODE_REG)*/2;
 
     switch (int_mode)
     {

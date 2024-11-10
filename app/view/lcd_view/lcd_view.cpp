@@ -377,7 +377,7 @@ display {middlewares::i2c_managers::main::get_instance()}
     }
     else
     {
-        __attribute__((section(".dtcmram"))) static lv_color_t lvgl_buf[64 * 1024 / sizeof(lv_color_t)];
+        static lv_color_t lvgl_buf[64 * 1024 / sizeof(lv_color_t)];
         lv_disp_draw_buf_init(&lvgl_draw_buf, lvgl_buf, NULL, sizeof(lvgl_buf) / sizeof(lv_color_t));
     }
 
