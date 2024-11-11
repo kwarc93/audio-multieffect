@@ -48,15 +48,15 @@ void exti::configure(bool state, line line, port port, mode mode, edge edge, ext
     {
     case mode::interrupt:
         if (state)
-            EXTI->C2IMR1 |= line_mask;
+            EXTI->IMR1 |= line_mask;
         else
-            EXTI->C2IMR1 &= ~line_mask;
+            EXTI->IMR1 &= ~line_mask;
         break;
     case mode::event:
         if (state)
-            EXTI->C2EMR1 |= line_mask;
+            EXTI->EMR1 |= line_mask;
         else
-            EXTI->C2EMR1 &= ~line_mask;
+            EXTI->EMR1 &= ~line_mask;
         break;
     default:
         break;
@@ -109,10 +109,10 @@ void exti::irq_handler(line line)
     const uint32_t line_nr = static_cast<uint8_t>(line);
     const uint32_t line_mask = 1 << line_nr;
 
-    if (EXTI->C2PR1 & line_mask)
+    if (EXTI->PR1 & line_mask)
     {
         /* Clear pending interrupt */
-        EXTI->C2PR1 = line_mask;
+        EXTI->PR1 = line_mask;
 
         if (callbacks[line_nr])
             callbacks[line_nr]();
@@ -128,10 +128,10 @@ void exti::irq_handler(line line_start, line line_end)
     {
         const uint32_t line_mask = 1 << line;
 
-        if (EXTI->C2PR1 & line_mask)
+        if (EXTI->PR1 & line_mask)
         {
             /* Clear pending interrupt */
-            EXTI->C2PR1 = line_mask;
+            EXTI->PR1 = line_mask;
 
             if (callbacks[line])
                 callbacks[line]();
