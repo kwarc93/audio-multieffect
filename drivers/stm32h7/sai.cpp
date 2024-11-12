@@ -36,20 +36,21 @@ uint8_t sai_mclk_divide(af audio_freq)
     case af::_192kHz:
     case af::_44_1kHz:
     default:
+        div = 1;
         break;
     case af::_96kHz:
     case af::_22_05kHz:
-        div = 0b0001;
+        div = 2;
         break;
     case af::_48kHz:
     case af::_11_025kHz:
-        div = 0b0010;
+        div = 4;
         break;
     case af::_16kHz:
-        div = 0b0110;
+        div = 8;
         break;
     case af::_8kHz:
-        div = 0b1100;
+        div = 16;
         break;
     }
 
@@ -131,7 +132,7 @@ hw {saix.at(static_cast<std::underlying_type_t<id>>(hw_id))}, block_a {block::id
      *       2. SAI clock source is PLL2 output P
      */
 
-    RCC->D2CCIP1R |= RCC_D2CCIP1R_SAI23SEL_0;
+    // Enable PLL2 P output on MCO2
     static const rcc::pll_cfg pll2_cfg
     {
         6,
@@ -142,13 +143,16 @@ hw {saix.at(static_cast<std::underlying_type_t<id>>(hw_id))}, block_a {block::id
     };
 
     rcc::set_2nd_pll(pll2_cfg);
+
+    /* Select PLL2 P output as SAI clock */
+    RCC->D2CCIP1R |= RCC_D2CCIP1R_SAI23SEL_0;
+
     rcc::enable_periph_clock(this->hw.pbus, true);
     rcc::enable_periph_clock(RCC_PERIPH_BUS(AHB1, DMA2), true);
 
     size_t object_id = static_cast<std::underlying_type_t<id>>(hw_id);
     if (object_id < this->instance.size())
         this->instance[object_id] = this;
-
 }
 
 sai_base::~sai_base()
@@ -201,14 +205,14 @@ void sai_base::block::configure(const config &cfg)
     /* Configure SAI_Block_x */
     this->enable(false);
 
-    this->hw.reg->CR1 = 0;
+    this->hw.reg->CR1 = SAI_xCR1_MCKEN;
     this->hw.reg->CR1 |= static_cast<uint8_t>(cfg.mode) << SAI_xCR1_MODE_Pos;
     this->hw.reg->CR1 |= static_cast<uint8_t>(cfg.protocol) << SAI_xCR1_PRTCFG_Pos;
     this->hw.reg->CR1 |= static_cast<uint8_t>(cfg.data) << SAI_xCR1_DS_Pos;
     this->hw.reg->CR1 |= static_cast<uint8_t>(cfg.sync) << SAI_xCR1_SYNCEN_Pos;
     this->hw.reg->CR1 |= static_cast<uint8_t>(cfg.frame) << SAI_xCR1_MONO_Pos;
     this->hw.reg->CR1 |= (sai_mclk_divide(cfg.frequency) << SAI_xCR1_MCKDIV_Pos);
-    this->hw.reg->CR1 |= SAI_xCR1_CKSTR; // falling clock strobing edge
+    this->hw.reg->CR1 |= SAI_xCR1_CKSTR; // Falling clock strobing edge
 
     this->hw.reg->CR2 = 0;
     this->hw.reg->CR2 |= SAI_xCR2_FFLUSH | SAI_xCR2_FTH_1; // Flush FIFO, FIFO threshold 1/2
@@ -240,6 +244,7 @@ void sai_base::block::configure(const config &cfg)
     this->hw.reg->FRCR |= (((frame_len / 2) - 1) << SAI_xFRCR_FSALL_Pos); // Frame active length
     this->hw.reg->FRCR |= SAI_xFRCR_FSDEF; // FS Definition: Start frame + Channel Side identification
     this->hw.reg->FRCR |= SAI_xFRCR_FSOFF; // FS Offset: FS asserted one bit before the first bit of slot 0
+    this->hw.reg->FRCR |= SAI_xFRCR_FSPOL; // FS polarity: active high (rising edge)
 
     /* Configure SAI Block_x Slot */
     this->hw.reg->SLOTR = 0;
@@ -261,20 +266,41 @@ void sai_base::block::configure_dma(void *data, uint16_t data_len, std::size_t d
     dma_stream->PAR = reinterpret_cast<uint32_t>(&this->hw.reg->DR);
     dma_stream->M0AR = reinterpret_cast<uint32_t>(data);
     dma_stream->NDTR = data_len;
-    // TODO H7 port
-    //dma_stream->CR |= 3 << DMA_SxCR_CHSEL_Pos;
-    // 89 sai2a_dma
-    // 90 sai2b_dma
-    //DMAMUX1->CCR
+
     dma_stream->CR |= 0b11 << DMA_SxCR_PL_Pos; // Very high priority
     dma_stream->CR |= DMA_SxCR_DMEIE | DMA_SxCR_HTIE | DMA_SxCR_TCIE | circular << DMA_SxCR_CIRC_Pos | DMA_SxCR_MINC;
     dma_stream->CR |= (data_width >> 1) << DMA_SxCR_MSIZE_Pos | (data_width >> 1) << DMA_SxCR_PSIZE_Pos;
 
+    /* Configure DMAMUX1 */
+    // TODO H7 cleanup
+    // 89 sai2a_dma TX
+    // 90 sai2b_dma RX
+    uint32_t dma_mux_request = 90;
     mode_type mode = static_cast<mode_type>((this->hw.reg->CR1 & SAI_xCR1_MODE_Msk) >> SAI_xCR1_MODE_Pos);
     if (mode == mode_type::master_tx || mode == mode_type::slave_tx)
     {
         dma_stream->CR |= 0b01 << DMA_SxCR_DIR_Pos; // Memory to peripheral
+        dma_mux_request = 89;
     }
+
+    /* DMA1/DMA2 Streams are connected to DMAMUX1 channels */
+    uint32_t stream_baseaddress = (uint32_t)((uint32_t*)dma_stream);
+    uint32_t stream_number = (((uint32_t)((uint32_t*)dma_stream) & 0xFFU) - 16U) / 24U;
+
+    if((stream_baseaddress <= ((uint32_t)DMA2_Stream7) ) && \
+       (stream_baseaddress >= ((uint32_t)DMA2_Stream0)))
+    {
+      stream_number += 8U;
+    }
+    auto DMAmuxChannel = (DMAMUX_Channel_TypeDef *)((uint32_t)(((uint32_t)DMAMUX1_Channel0) + (stream_number * 4U)));
+    auto DMAmuxChannelStatus = DMAMUX1_ChannelStatus;
+    auto DMAmuxChannelStatusMask = 1UL << (stream_number & 0x1FU);
+
+    /* Set peripheral request to DMAMUX channel */
+    DMAmuxChannel->CCR = (dma_mux_request & DMAMUX_CxCR_DMAREQ_ID);
+
+    /* Clear the DMAMUX synchro overrun flag */
+    DMAmuxChannelStatus->CFR = DMAmuxChannelStatusMask;
 
     this->dma_callback = cb;
 

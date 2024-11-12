@@ -68,7 +68,7 @@ void system::init(void)
 
     /* Enable instruction & data caches */
     SCB_EnableICache();
-    //SCB_EnableDCache();
+    SCB_EnableDCache();
 
     hal::sdram::init();
 

@@ -57,7 +57,7 @@ namespace audio_devices
 {
     /*
      * Audio codec WM8994 configuration: stereo 24bit 48kHz
-     * NOTE: On STM32F746G-DISCO board, the digital microphone's left & right channels are swapped.
+     * NOTE: On STM32H745I-DISCO board, the line in jack channels are swapped.
      */
     class codec : public audio<drivers::audio_wm8994ecs::audio_input::sample_t, drivers::audio_wm8994ecs::audio_output::sample_t>
     {

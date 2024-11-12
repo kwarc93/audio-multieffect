@@ -40,6 +40,7 @@ void lvgl_disp_flush(_lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color
     }
     else
     {
+        SCB_CleanDCache_by_Addr(disp_drv->draw_buf->buf_act, disp_drv->draw_buf->size * sizeof(lv_color_t));
         display->draw_data(area->x1, area->y1, area->x2, area->y2, reinterpret_cast<display_t::pixel_t*>(color_p));
     }
 }
