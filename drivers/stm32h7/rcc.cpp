@@ -10,8 +10,6 @@
 
 #include <cmsis/stm32h7xx.h>
 
-#include <hal_system.hpp>
-
 using namespace drivers;
 
 /* TODO Add support for fractional PLL */
@@ -105,7 +103,7 @@ static uint8_t get_apb4_presc(void)
 
 //-----------------------------------------------------------------------------
 
-static uint32_t get_sysclk_from_pll_source(void)
+uint32_t rcc::get_sysclk_from_pll_source(void)
 {
     /* PLL_VCO = (HSE_VALUE, CSI_VALUE or HSI_VALUE/HSIDIV) / PLLM * (PLLN + FRACN), SYSCLK = PLL_VCO / PLLP */
     const uint32_t pll_m = (RCC->PLLCKSELR & RCC_PLLCKSELR_DIVM1) >> RCC_PLLCKSELR_DIVM1_Pos;
@@ -116,13 +114,13 @@ static uint32_t get_sysclk_from_pll_source(void)
     if (((uint32_t) (RCC->PLLCKSELR & RCC_PLLCKSELR_PLLSRC)) != RCC_PLLCKSELR_PLLSRC_HSI)
     {
         /* HSE used as PLL clock source */
-        pll_clk_src = hal::system::hse_clock;
+        pll_clk_src = hse_clock;
     }
     else
     {
         /* HSI used as PLL clock source */
         const uint32_t hsi_div = ((RCC-> CR & RCC_CR_HSIDIV) >> RCC_CR_HSIDIV_Pos) + 1;
-        pll_clk_src = hal::system::hsi_clock / hsi_div;
+        pll_clk_src = hsi_clock / hsi_div;
     }
 
     const uint32_t pll_n = ((RCC->PLL1DIVR & RCC_PLL1DIVR_N1) >> RCC_PLL1DIVR_N1_Pos) + 1;
@@ -242,19 +240,25 @@ void rcc::enable_periph_clock(const periph_bus &pbus, bool en)
 
 //-----------------------------------------------------------------------------
 
+void rcc::set_oscillators_values(uint32_t hsi, uint32_t hse)
+{
+    hsi_clock = hsi;
+    hse_clock = hse;
+}
+
 void rcc::set_main_pll(uint32_t src, const pll_cfg &pll, const bus_presc &presc)
 {
+    /* Select regulator voltage output Scale 1 mode, SMPS: ON, LDO: OFF, system frequency up to 400 MHz */
+    MODIFY_REG(PWR->CR3, (PWR_CR3_SMPSLEVEL | PWR_CR3_SMPSEXTHP | PWR_CR3_SMPSEN | PWR_CR3_LDOEN | PWR_CR3_BYPASS), PWR_CR3_SMPSEN);
+    MODIFY_REG(PWR->D3CR, PWR_D3CR_VOS, PWR_D3CR_VOS_0 | PWR_D3CR_VOS_1);
+    while (READ_BIT(PWR->D3CR, PWR_D3CR_VOSRDY) == 0);
+
     /* Enable selected clock source */
     MODIFY_REG(RCC->PLLCKSELR, RCC_PLLCKSELR_PLLSRC, src);
     if (src == RCC_PLLCKSELR_PLLSRC_HSE)
         toggle_hse(true);
     else
         toggle_hsi(true);
-
-    /* Select regulator voltage output Scale 1 mode, SMPS: ON, LDO: OFF, system frequency up to 400 MHz */
-    MODIFY_REG(PWR->CR3, (PWR_CR3_SMPSLEVEL | PWR_CR3_SMPSEXTHP | PWR_CR3_SMPSEN | PWR_CR3_LDOEN | PWR_CR3_BYPASS), PWR_CR3_SMPSEN);
-    MODIFY_REG(PWR->D3CR, PWR_D3CR_VOS, PWR_D3CR_VOS_0 | PWR_D3CR_VOS_1);
-    while (READ_BIT(PWR->D3CR, PWR_D3CR_VOSRDY) == 0);
 
     /* Set prescalers for SYSCLK, AHB & APBx buses */
     MODIFY_REG(RCC->D1CFGR, RCC_D1CFGR_D1CPRE, presc.sys);
@@ -427,11 +431,11 @@ uint32_t rcc::get_sysclk_freq(void)
     switch (RCC->CFGR & RCC_CFGR_SWS)
     {
     case RCC_CFGR_SWS_HSI: /* HSI used as system clock source */
-        sysclockfreq = hal::system::hsi_clock;
+        sysclockfreq = hsi_clock;
         break;
 
     case RCC_CFGR_SWS_HSE: /* HSE used as system clock source */
-        sysclockfreq = hal::system::hse_clock;
+        sysclockfreq = hse_clock;
         break;
 
     case RCC_CFGR_SWS_PLL1: /* PLL1 used as system clock source */
@@ -439,7 +443,7 @@ uint32_t rcc::get_sysclk_freq(void)
         break;
 
     default:
-        sysclockfreq = hal::system::hsi_clock;
+        sysclockfreq = hsi_clock;
         break;
     }
 

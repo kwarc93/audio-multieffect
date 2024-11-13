@@ -20,7 +20,7 @@ class flash final
 public:
     flash() = delete;
 
-    static void set_wait_states(uint32_t sysclk);
+    static void set_wait_states(uint32_t hclk);
 };
 
 //--------------------------------------------------------------------------------

@@ -108,6 +108,13 @@ public:
     static void enable_periph_clock(const periph_bus &pbus, bool en);
 
     /**
+     * @brief   Sets oscillators frequencies as a reference for clock calculations.
+     * @param   hsi - high speed internal oscillator value (Hz)
+     * @param   hse - high speed external oscillator value (Hz)
+     */
+    static void set_oscillators_values(uint32_t hsi, uint32_t hse);
+
+    /**
      * @brief   Configures the System clock source, PLL Multiplier and Divider factors,
      *          AHB/APBx prescalers and Flash settings.
      * @note    This function should be called only once the RCC clock configuration
@@ -185,6 +192,11 @@ public:
     /** @brief  Clears reset source flags. */
     static void clear_reset_source(void);
 
+private:
+    static uint32_t get_sysclk_from_pll_source(void);
+
+    static inline uint32_t hsi_clock = 64000000;
+    static inline uint32_t hse_clock = 25000000;
 };
 
 //--------------------------------------------------------------------------------

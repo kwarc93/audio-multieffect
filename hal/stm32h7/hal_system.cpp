@@ -30,14 +30,18 @@ void system::init(void)
     /* Number of group priorities: 16, subpriorities: 16. */
     NVIC_SetPriorityGrouping(0x07 - __NVIC_PRIO_BITS);
 
+#ifdef CORE_CM7
     /* Wait until Cortex-M4 boots and enters in stop mode */
     while (RCC->CR & RCC_CR_D2CKRDY);
+#endif
 
     drivers::core::enable_cycles_counter();
 
-    drivers::flash::set_wait_states(system::system_clock);
+    drivers::flash::set_wait_states(system::system_clock / 2);
 
-    drivers::rcc::pll_cfg pll
+    drivers::rcc::set_oscillators_values(system::hsi_clock, system::hse_clock);
+
+    const drivers::rcc::pll_cfg pll
     {
         5,
         160,
@@ -46,7 +50,7 @@ void system::init(void)
         2
     };
 
-    drivers::rcc::bus_presc presc
+    const drivers::rcc::bus_presc presc
     {
         RCC_D1CFGR_D1CPRE_DIV1,
         RCC_D1CFGR_HPRE_DIV2,
@@ -66,9 +70,11 @@ void system::init(void)
     SysTick_Config(system::system_clock / system::systick_freq);
 #endif
 
+#ifdef CORE_CM7
     /* Enable instruction & data caches */
     SCB_EnableICache();
     SCB_EnableDCache();
+#endif
 
     hal::sdram::init();
 

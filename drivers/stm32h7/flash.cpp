@@ -11,32 +11,37 @@
 
 using namespace drivers;
 
-void flash::set_wait_states(uint32_t sysclk_freq)
+void flash::set_wait_states(uint32_t hclk)
 {
-#ifdef CORE_CM7
-    /* FLASH is clocked from AXI */
-    sysclk_freq /= 2;
-#endif
-
     /* Default value */
     uint32_t wait_states = 7;
+    uint32_t prog_delay = 3;
 
     /* Calculate wait_states (valid for VOS1 core voltage range) */
-    if (sysclk_freq <= 70000000)
+    if (hclk <= 70000000)
     {
         wait_states = 0;
+        prog_delay = 0;
     }
-    else if (sysclk_freq <= 140000000)
+    else if (hclk <= 140000000)
     {
         wait_states = 1;
+        prog_delay = 1;
     }
-    else if (sysclk_freq <= 185000000)
+    else if (hclk <= 185000000)
     {
         wait_states = 2;
+        prog_delay = 1;
     }
-    else if (sysclk_freq <= 210000000)
+    else if (hclk <= 210000000)
+    {
+        wait_states = 2;
+        prog_delay = 2;
+    }
+    else if (hclk <= 225000000)
     {
         wait_states = 3;
+        prog_delay = 2;
     }
     else
     {
@@ -44,9 +49,9 @@ void flash::set_wait_states(uint32_t sysclk_freq)
     }
 
 
-    /* Enable prefetch & ART accelerator & set wait states */
-    //ART->CTR |= ART_CTR_EN;
-    MODIFY_REG(FLASH->ACR, FLASH_ACR_LATENCY, wait_states);
+    /* Set wait states and programming delay */
+    FLASH->ACR = (wait_states << FLASH_ACR_LATENCY_Pos) |
+                 (prog_delay << FLASH_ACR_WRHIGHFREQ_Pos);
 
     __ISB();
 }
