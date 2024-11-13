@@ -26,8 +26,6 @@ bool fmc::sdram::configure(const fmc::sdram::config &cfg)
     rcc::enable_periph_clock({rcc::bus::AHB3, RCC_AHB3ENR_FMCEN}, true);
 
     /* Program the memory device features */
-    const uint8_t bank = cfg.bank == fmc::sdram::bank::bank1 ? 0 : 1;
-
     uint32_t tmp_reg = 0;
     tmp_reg |= static_cast<uint32_t>(cfg.col_addr_width) << FMC_SDCR1_NC_Pos;
     tmp_reg |= static_cast<uint32_t>(cfg.row_addr_width) << FMC_SDCR1_NR_Pos;
@@ -37,7 +35,8 @@ bool fmc::sdram::configure(const fmc::sdram::config &cfg)
     tmp_reg |= static_cast<uint32_t>(cfg.clock_period) << FMC_SDCR1_SDCLK_Pos;
     tmp_reg |= FMC_SDCR1_RBURST;
 
-    FMC_Bank5_6->SDCR[bank] = tmp_reg;
+    FMC_Bank5_6->SDCR[0] = tmp_reg;
+    FMC_Bank5_6->SDCR[1] = tmp_reg;
 
     /* Program the memory device timings */
     tmp_reg = 0;
@@ -50,7 +49,8 @@ bool fmc::sdram::configure(const fmc::sdram::config &cfg)
     tmp_reg |= static_cast<uint32_t>(cfg.timing.row_precharge_delay) << FMC_SDTR1_TRP_Pos;
     tmp_reg |= static_cast<uint32_t>(cfg.timing.row_to_col_delay) << FMC_SDTR1_TRCD_Pos;
 
-    FMC_Bank5_6->SDTR[bank] = tmp_reg;
+    FMC_Bank5_6->SDTR[0] = tmp_reg;
+    FMC_Bank5_6->SDTR[1] = tmp_reg;
 
     return true;
 }
