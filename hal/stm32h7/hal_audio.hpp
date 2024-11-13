@@ -68,7 +68,7 @@ namespace audio_devices
         void route_onboard_mic_to_aux(bool enabled)
         {
             const auto left_ch = drivers::audio_wm8994ecs::frame_slots::slot0_left;
-            const auto right_ch = enabled ? drivers::audio_wm8994ecs::frame_slots::slot1_right :
+            const auto right_ch = enabled ? drivers::audio_wm8994ecs::frame_slots::slot1_left :
                                   drivers::audio_wm8994ecs::frame_slots::slot0_right;
 
             audio_drv.set_input_channels(left_ch, right_ch);

@@ -28,33 +28,58 @@ using af = sai_base::block::audio_freq;
 uint8_t sai_mclk_divide(af audio_freq)
 {
     // 1. sai_ker_ck_freq should be set to around 256 x audio_freq
-    // 2. sck = mclk x (bit_ck_cycl) / 256
+    // 2. fs_clk = sai_ker_ck_freq / (MCKDIV x (OSR + 1) x 256)
 
     uint8_t div = 0;
     switch (audio_freq)
     {
     case af::_192kHz:
-    case af::_44_1kHz:
-    default:
         div = 1;
         break;
     case af::_96kHz:
-    case af::_22_05kHz:
         div = 2;
         break;
     case af::_48kHz:
-    case af::_11_025kHz:
         div = 4;
         break;
     case af::_16kHz:
-        div = 8;
+        div = 12;
         break;
     case af::_8kHz:
-        div = 16;
+        div = 24;
         break;
+    case af::_44_1kHz:
+    case af::_22_05kHz:
+    case af::_11_025kHz:
+    default:
+        assert(!"Uunsupported audio frequency");
     }
 
     return div;
+}
+
+void configure_dmamux(sai_base::block::id id, DMA_Stream_TypeDef *dma)
+{
+    /* TODO Create driver for DMAMUX */
+
+    /* DMA1/DMA2 Streams are connected to DMAMUX1 channels */
+    uint32_t stream_baseaddress = (uint32_t)((uint32_t*)dma);
+    uint32_t stream_number = (((uint32_t)((uint32_t*)dma) & 0xFFU) - 16U) / 24U;
+
+    if((stream_baseaddress <= ((uint32_t)DMA2_Stream7) ) &&
+       (stream_baseaddress >= ((uint32_t)DMA2_Stream0)))
+    {
+        stream_number += 8U;
+    }
+
+    auto dma_mux = (DMAMUX_Channel_TypeDef *)((uint32_t)(((uint32_t)DMAMUX1_Channel0) + (stream_number * 4U)));
+
+    /* Set peripheral request to DMAMUX channel */
+    const uint32_t dma_mux_request = (id == sai_base::block::id::a) ? 89 : 90;
+    dma_mux->CCR = (dma_mux_request & DMAMUX_CxCR_DMAREQ_ID);
+
+    /* Clear the DMAMUX synchro overrun flag */
+    DMAMUX1_ChannelStatus->CFR = 1 << (stream_number & 0x1FU);
 }
 
 DMA_Stream_TypeDef *get_dma_stream_reg(sai_base::block::id id)
@@ -132,7 +157,6 @@ hw {saix.at(static_cast<std::underlying_type_t<id>>(hw_id))}, block_a {block::id
      *       2. SAI clock source is PLL2 output P
      */
 
-    // Enable PLL2 P output on MCO2
     static const rcc::pll_cfg pll2_cfg
     {
         6,
@@ -205,7 +229,7 @@ void sai_base::block::configure(const config &cfg)
     /* Configure SAI_Block_x */
     this->enable(false);
 
-    this->hw.reg->CR1 = SAI_xCR1_MCKEN;
+    this->hw.reg->CR1 = 0;
     this->hw.reg->CR1 |= static_cast<uint8_t>(cfg.mode) << SAI_xCR1_MODE_Pos;
     this->hw.reg->CR1 |= static_cast<uint8_t>(cfg.protocol) << SAI_xCR1_PRTCFG_Pos;
     this->hw.reg->CR1 |= static_cast<uint8_t>(cfg.data) << SAI_xCR1_DS_Pos;
@@ -271,36 +295,14 @@ void sai_base::block::configure_dma(void *data, uint16_t data_len, std::size_t d
     dma_stream->CR |= DMA_SxCR_DMEIE | DMA_SxCR_HTIE | DMA_SxCR_TCIE | circular << DMA_SxCR_CIRC_Pos | DMA_SxCR_MINC;
     dma_stream->CR |= (data_width >> 1) << DMA_SxCR_MSIZE_Pos | (data_width >> 1) << DMA_SxCR_PSIZE_Pos;
 
-    /* Configure DMAMUX1 */
-    // TODO H7 cleanup
-    // 89 sai2a_dma TX
-    // 90 sai2b_dma RX
-    uint32_t dma_mux_request = 90;
     mode_type mode = static_cast<mode_type>((this->hw.reg->CR1 & SAI_xCR1_MODE_Msk) >> SAI_xCR1_MODE_Pos);
     if (mode == mode_type::master_tx || mode == mode_type::slave_tx)
     {
         dma_stream->CR |= 0b01 << DMA_SxCR_DIR_Pos; // Memory to peripheral
-        dma_mux_request = 89;
     }
 
-    /* DMA1/DMA2 Streams are connected to DMAMUX1 channels */
-    uint32_t stream_baseaddress = (uint32_t)((uint32_t*)dma_stream);
-    uint32_t stream_number = (((uint32_t)((uint32_t*)dma_stream) & 0xFFU) - 16U) / 24U;
-
-    if((stream_baseaddress <= ((uint32_t)DMA2_Stream7) ) && \
-       (stream_baseaddress >= ((uint32_t)DMA2_Stream0)))
-    {
-      stream_number += 8U;
-    }
-    auto DMAmuxChannel = (DMAMUX_Channel_TypeDef *)((uint32_t)(((uint32_t)DMAMUX1_Channel0) + (stream_number * 4U)));
-    auto DMAmuxChannelStatus = DMAMUX1_ChannelStatus;
-    auto DMAmuxChannelStatusMask = 1UL << (stream_number & 0x1FU);
-
-    /* Set peripheral request to DMAMUX channel */
-    DMAmuxChannel->CCR = (dma_mux_request & DMAMUX_CxCR_DMAREQ_ID);
-
-    /* Clear the DMAMUX synchro overrun flag */
-    DMAmuxChannelStatus->CFR = DMAmuxChannelStatusMask;
+    /* Configure DMAMUX1 */
+    configure_dmamux(this->hw.id, dma_stream);
 
     this->dma_callback = cb;
 
