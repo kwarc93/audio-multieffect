@@ -16,8 +16,6 @@ void ui_fx_echo_screen_init(void)
     lv_obj_set_style_radius(ui_pnl_echo_content, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(ui_pnl_echo_content, lv_color_hex(0x4C4E5B), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_pnl_echo_content, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_grad_color(ui_pnl_echo_content, lv_color_hex(0x393B46), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_grad_dir(ui_pnl_echo_content, LV_GRAD_DIR_VER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_width(ui_pnl_echo_content, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_pad_left(ui_pnl_echo_content, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_pad_right(ui_pnl_echo_content, 0, LV_PART_MAIN | LV_STATE_DEFAULT);

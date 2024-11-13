@@ -40,7 +40,13 @@ void lvgl_disp_flush(_lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color
     }
     else
     {
-        SCB_CleanDCache_by_Addr(disp_drv->draw_buf->buf_act, disp_drv->draw_buf->size * sizeof(lv_color_t));
+#if defined(STM32H7) && defined(CORE_CM7) // TODO: Make it independent from CPU architecture
+        constexpr uint32_t dcache_alignment = __SCB_DCACHE_LINE_SIZE - 1;
+        const uintptr_t aligned_addr = reinterpret_cast<uintptr_t>(color_p) & ~dcache_alignment;
+        const size_t size = ((area->x2 - area->x1 + 1) * (area->y2 - area->y1 + 1)) * sizeof(lv_color_t);
+        const size_t rounded_size = (size + dcache_alignment) & ~dcache_alignment;
+        SCB_CleanDCache_by_Addr((void*)aligned_addr, rounded_size + __SCB_DCACHE_LINE_SIZE);
+#endif
         display->draw_data(area->x1, area->y1, area->x2, area->y2, reinterpret_cast<display_t::pixel_t*>(color_p));
     }
 }
@@ -378,7 +384,11 @@ display {middlewares::i2c_managers::main::get_instance()}
     }
     else
     {
+#ifdef STM32F7 // TODO: Make it independent from CPU architecture
+        __attribute__((section(".dtcmram"))) static lv_color_t lvgl_buf[64 * 1024 / sizeof(lv_color_t)];
+#else
         static lv_color_t lvgl_buf[64 * 1024 / sizeof(lv_color_t)];
+#endif
         lv_disp_draw_buf_init(&lvgl_draw_buf, lvgl_buf, NULL, sizeof(lvgl_buf) / sizeof(lv_color_t));
     }
 

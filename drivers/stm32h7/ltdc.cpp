@@ -43,6 +43,22 @@ void ltdc::global_toggle(bool state)
 
 void ltdc::configure(const cfg &cfg)
 {
+    /*
+     * Configure pixel clock for LCD & LTDC
+     * @note 1. Pixel clock = LCD total width x LCD total height x refresh rate
+     *       2. Pixel clock source is PLL3 output R
+     */
+    static const rcc::pll_cfg pll3_cfg
+    {
+        5,
+        57,
+        128,
+        128,
+        30 // 9.5 MHz
+    };
+
+    rcc::set_3rd_pll(pll3_cfg);
+
     rcc::enable_periph_clock(RCC_PERIPH_BUS(APB3, LTDC), true);
 
     LTDC->SSCR = (cfg.h.sync - 1) << LTDC_SSCR_HSW_Pos

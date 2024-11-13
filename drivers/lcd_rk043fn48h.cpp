@@ -47,22 +47,6 @@ glcd_rk043fn48h::glcd_rk043fn48h(const gpio::io en_io, const std::array<const gp
     gpio::configure(en_io);
     gpio::write(en_io, true);
 
-    /*
-     * Configure pixel clock for LCD & LTDC
-     * @note 1. Pixel clock = LCD total width x LCD total height x refresh rate
-     *       2. Pixel clock source is PLL3 output R
-     */
-    static const rcc::pll_cfg pll3_cfg
-    {
-        5,
-        40,
-        128,
-        128,
-        20 // 10 MHz
-    };
-
-    rcc::set_3rd_pll(pll3_cfg);
-
     static const ltdc::cfg cfg
     {
         /* Horizontal */
