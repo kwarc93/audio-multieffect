@@ -15,6 +15,7 @@
 
 #include <drivers/stm32h7/rcc.hpp>
 #include <drivers/stm32h7/gpio.hpp>
+#include <drivers/stm32h7/delay.hpp>
 
 using namespace drivers;
 
@@ -268,12 +269,14 @@ void sai_base::block::configure(const config &cfg)
     this->hw.reg->FRCR |= (((frame_len / 2) - 1) << SAI_xFRCR_FSALL_Pos); // Frame active length
     this->hw.reg->FRCR |= SAI_xFRCR_FSDEF; // FS Definition: Start frame + Channel Side identification
     this->hw.reg->FRCR |= SAI_xFRCR_FSOFF; // FS Offset: FS asserted one bit before the first bit of slot 0
-    this->hw.reg->FRCR |= SAI_xFRCR_FSPOL; // FS polarity: active high (rising edge)
 
     /* Configure SAI Block_x Slot */
     this->hw.reg->SLOTR = 0;
     this->hw.reg->SLOTR |= ((cfg.slots - 1) << SAI_xSLOTR_NBSLOT_Pos); // Slot number
     this->hw.reg->SLOTR |= (cfg.active_slots << SAI_xSLOTR_SLOTEN_Pos); // Active slots
+
+    // FIXME: STM32H7 workaround - find better fix
+    delay::us(100);
 }
 
 void sai_base::block::configure_dma(void *data, uint16_t data_len, std::size_t data_width, const dma_cb_t &cb, bool circular)

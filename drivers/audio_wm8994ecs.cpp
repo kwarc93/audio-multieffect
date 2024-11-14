@@ -20,9 +20,9 @@ using namespace drivers;
 
 /*
  * In W8994 codec the audio frame contains 4 slots:
- * +------------------|------------------|--------------------|-------------------+
- * | CODEC_SLOT0 Left | CODEC_SLOT1 Left | CODEC_SLOT0 Right  | CODEC_SLOT1 Right |
- * +------------------------------------------------------------------------------+
+ * +-----------------------------------------------------------------------------+
+ * | CODEC_SLOT0 Left | CODEC_SLOT1 Left | CODEC_SLOT0 Right | CODEC_SLOT1 Right |
+ * +-----------------------------------------------------------------------------+
  */
 
 #define WM8994_SLOTS_NUMBER           4
@@ -746,7 +746,12 @@ i2c {i2c}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}
     }
 
     /* AIF1 Word Length = 32-bits, AIF1 Format = I2S */
+#ifdef STM32H745xx
+    // FIXME: STM32H745I-DISCO workaround (line-in channels swapped)
+    this->write_reg(0x300, 0x8070);
+#else
     this->write_reg(0x300, 0x4070);
+#endif
 
     /* slave mode */
     this->write_reg(0x302, 0x0000);
@@ -935,6 +940,11 @@ void audio_wm8994ecs::set_input_volume(uint8_t vol, uint8_t ch)
     /* Digital volume of ADC2 OUT (-6.0dB to 17.25dB) */
     const uint16_t dvol = 0xB0 + 2 * vol;
 
+#ifdef STM32H745xx
+    // FIXME: STM32H745I-DISCO workaround (line-in channels swapped)
+    ch = !ch;
+#endif
+
     switch (ch)
     {
         case 0: // Left
@@ -967,7 +977,7 @@ void audio_wm8994ecs::set_input_channels(frame_slots left_ch, frame_slots right_
         sai_32bit::block::frame_type::stereo,
         sai_32bit::block::audio_freq::_48kHz,
         WM8994_SLOTS_NUMBER,
-        static_cast<uint16_t>((1 << left_slot) | (1U << right_slot)),
+        static_cast<uint16_t>((1 << left_slot) | (1 << right_slot)),
     };
 
     this->sai_drv.block_b.configure(sai_b_cfg);
