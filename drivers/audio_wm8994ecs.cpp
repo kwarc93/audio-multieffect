@@ -413,8 +413,8 @@ void audio_wm8994ecs::reset(void)
 //-----------------------------------------------------------------------------
 /* public */
 
-audio_wm8994ecs::audio_wm8994ecs(hal::interface::i2c_proxy &i2c, uint8_t addr, input in, output out) :
-i2c {i2c}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}
+audio_wm8994ecs::audio_wm8994ecs(hal::interface::i2c_proxy &i2c, uint8_t addr, input in, output out, bool in_swap) :
+i2c {i2c}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}, in_swapped{in_swap}
 {
     constexpr uint32_t audio_freq = 48000;
     constexpr uint16_t slots_1_3 = 0b1010;
@@ -434,6 +434,7 @@ i2c {i2c}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}
             slots_0_2
         };
 
+        this->sai_drv.block_a.enable(false);
         this->sai_drv.block_a.configure(sai_a_cfg);
         this->sai_drv.block_a.enable(true);
     }
@@ -454,6 +455,7 @@ i2c {i2c}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}
             (in == input::mic2 || in == input::line2) ? slots_1_3 : slots_0_2,
         };
 
+        this->sai_drv.block_b.enable(false);
         this->sai_drv.block_b.configure(sai_b_cfg);
         this->sai_drv.block_b.enable(true);
     }
@@ -475,14 +477,8 @@ i2c {i2c}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}
     this->write_reg(0x39, 0x006C);
 
     /* Enable bias generator, Enable VMID */
-    if (in != input::none)
-    {
-        this->write_reg(0x01, 0x0013);
-    }
-    else
-    {
-        this->write_reg(0x01, 0x0003);
-    }
+    power_mgnt_reg_1 |= 0x0003;
+    this->write_reg(0x01, power_mgnt_reg_1);
 
     /* Add Delay */
     delay::ms(50);
@@ -746,12 +742,7 @@ i2c {i2c}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}
     }
 
     /* AIF1 Word Length = 32-bits, AIF1 Format = I2S */
-#ifdef STM32H745xx
-    // FIXME: STM32H745I-DISCO workaround (line-in channels swapped)
-    this->write_reg(0x300, 0x8070);
-#else
-    this->write_reg(0x300, 0x4070);
-#endif
+    (this->in_swapped) ? this->write_reg(0x300, 0x8070) : this->write_reg(0x300, 0x4070);
 
     /* slave mode */
     this->write_reg(0x302, 0x0000);
@@ -762,7 +753,8 @@ i2c {i2c}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}
     /* Enable AIF1 Clock, AIF1 Clock Source = MCLK1 pin */
     this->write_reg(0x200, 0x0001);
 
-    if (out != output::none) /* Audio output selected */
+    /* Analog Output Configuration */
+    if (out != output::none)
     {
         /* ADC & DAC oversample enable */
         this->write_reg(WM8994_OVERSAMPLING, 0x0003);
@@ -792,37 +784,35 @@ i2c {i2c}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}
                 delay::ms(50);
             }
 
-            /* Soft un-Mute the AIF1 Timeslot 0 DAC1 path L&R */
-            this->write_reg(0x420, 0x0000);
+            /* Enable HPOUT1 (Left) and Enable HPOUT1 (Right) input stages */
+            power_mgnt_reg_1 |= 0x0300;
+            this->write_reg(0x01, power_mgnt_reg_1);
         }
 
-        /* Analog Output Configuration */
+        if (out == output::speaker)
+        {
+            /* Enable SPKRVOL PGA, Enable SPKMIXR, Enable SPKLVOL PGA, Enable SPKMIXL */
+            this->write_reg(0x03, 0x0300);
 
-        /* Enable SPKRVOL PGA, Enable SPKMIXR, Enable SPKLVOL PGA, Enable SPKMIXL */
-        this->write_reg(0x03, 0x0300);
+            /* Left Speaker Mixer Volume = 0dB */
+            this->write_reg(0x22, 0x0000);
 
-        /* Left Speaker Mixer Volume = 0dB */
-        this->write_reg(0x22, 0x0000);
+            /* Speaker output mode = Class D, Right Speaker Mixer Volume = 0dB ((0x23, 0x0100) = class AB)*/
+            this->write_reg(0x23, 0x0000);
 
-        /* Speaker output mode = Class D, Right Speaker Mixer Volume = 0dB ((0x23, 0x0100) = class AB)*/
-        this->write_reg(0x23, 0x0000);
+            /* Unmute DAC2 (Left) to Left Speaker Mixer (SPKMIXL) path,
+               Unmute DAC2 (Right) to Right Speaker Mixer (SPKMIXR) path */
+            this->write_reg(0x36, 0x0300);
 
-        /* Unmute DAC2 (Left) to Left Speaker Mixer (SPKMIXL) path,
-           Unmute DAC2 (Right) to Right Speaker Mixer (SPKMIXR) path */
-        this->write_reg(0x36, 0x0300);
-
-        /* Enable bias generator, Enable VMID, Enable SPKOUTL, Enable SPKOUTR */
-        this->write_reg(0x01, 0x3003);
+            /* Enable SPKOUTL, Enable SPKOUTR */
+            power_mgnt_reg_1 |= 0x3000;
+            this->write_reg(0x01, power_mgnt_reg_1);
+        }
 
         /* Headphone/Speaker Enable */
 
         /* Enable Class W, Class W Envelope Tracking = AIF1 Timeslot 0 */
         this->write_reg(0x51, 0x0005);
-
-        /* Enable bias generator, Enable VMID, Enable HPOUT1 (Left) and Enable HPOUT1 (Right) input stages */
-        /* idem for Speaker */
-        power_mgnt_reg_1 |= 0x0303 | 0x3003;
-        this->write_reg(0x01, power_mgnt_reg_1);
 
         /* Enable HPOUT1 (Left) and HPOUT1 (Right) intermediate stages */
         this->write_reg(0x60, 0x0022);
@@ -863,7 +853,7 @@ i2c {i2c}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}
         /* Unmute DAC 1 (Right) */
         this->write_reg(0x611, 0x00C0);
 
-        /* Unmute the AIF1 Timeslot 0 DAC path */
+        /* Unmute the AIF1 Timeslot 0 DAC path with unmute ramp */
         this->write_reg(0x420, 0x0010);
 
         /* Unmute DAC 2 (Left) */
@@ -872,7 +862,7 @@ i2c {i2c}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}
         /* Unmute DAC 2 (Right) */
         this->write_reg(0x613, 0x00C0);
 
-        /* Unmute the AIF1 Timeslot 1 DAC2 path */
+        /* Unmute the AIF1 Timeslot 1 DAC2 path with unmute ramp */
         this->write_reg(0x422, 0x0010);
 
         /* Set Volume to 0dB */
@@ -883,14 +873,14 @@ i2c {i2c}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}
     {
         if ((in == input::mic1) || (in == input::mic2) || (in == input::line1_mic2))
         {
-            /* Enable Microphone bias 1 generator, Enable VMID */
-            power_mgnt_reg_1 |= 0x0013;
+            /* Enable Microphone bias 1 generator */
+            power_mgnt_reg_1 |= 0x0010;
             this->write_reg(0x01, power_mgnt_reg_1);
 
             /* AIF ADC2 HPF enable, HPF cut = hifi mode fc=4Hz at fs=48kHz */
             this->write_reg(0x411, 0x1800);
         }
-        else if ((in == input::line1) || (in == input::line2) || (in == input::line1_mic2))
+        if ((in == input::line1) || (in == input::line2) || (in == input::line1_mic2))
         {
             /* Disable mute on IN1L, IN1L Volume = +0dB */
             this->write_reg(0x18, 0x000B);
@@ -940,10 +930,8 @@ void audio_wm8994ecs::set_input_volume(uint8_t vol, uint8_t ch)
     /* Digital volume of ADC2 OUT (-6.0dB to 17.25dB) */
     const uint16_t dvol = 0xB0 + 2 * vol;
 
-#ifdef STM32H745xx
-    // FIXME: STM32H745I-DISCO workaround (line-in channels swapped)
-    ch = !ch;
-#endif
+    if (this->in_swapped)
+        ch = !ch;
 
     switch (ch)
     {
@@ -980,8 +968,11 @@ void audio_wm8994ecs::set_input_channels(frame_slots left_ch, frame_slots right_
         static_cast<uint16_t>((1 << left_slot) | (1 << right_slot)),
     };
 
+    this->mute(true);
+    this->sai_drv.block_b.enable(false);
     this->sai_drv.block_b.configure(sai_b_cfg);
     this->sai_drv.block_b.enable(true);
+    this->mute(false);
 }
 
 void audio_wm8994ecs::play(const audio_output::sample_t *output, uint16_t length, const play_cb_t &cb, bool loop)

@@ -25,7 +25,7 @@ public:
     enum class output { none, speaker, headphone, both, automatic };
     enum class frame_slots { slot0_left, slot1_left, slot0_right, slot1_right };
 
-    audio_wm8994ecs(hal::interface::i2c_proxy &dev, uint8_t addr, input in, output out);
+    audio_wm8994ecs(hal::interface::i2c_proxy &dev, uint8_t addr, input in, output out, bool in_swap = false);
     ~audio_wm8994ecs();
 
     void capture(audio_input::sample_t *input, uint16_t length, const capture_cb_t &cb, bool loop) override;
@@ -45,6 +45,8 @@ private:
     const uint8_t i2c_addr;
     typedef sai<int32_t> sai_32bit;
     sai_32bit sai_drv;
+
+    bool in_swapped;
 
     capture_cb_t capture_callback;
     play_cb_t play_callback;

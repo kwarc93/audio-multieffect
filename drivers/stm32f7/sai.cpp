@@ -198,7 +198,6 @@ void sai_base::block::configure(const config &cfg)
         assert(!"SAI block must be in slave mode when sync is enabled");
 
     /* Configure SAI_Block_x */
-    this->enable(false);
 
     this->hw.reg->CR1 = 0;
     this->hw.reg->CR1 |= static_cast<uint8_t>(cfg.mode) << SAI_xCR1_MODE_Pos;
@@ -244,13 +243,13 @@ void sai_base::block::configure(const config &cfg)
     this->hw.reg->SLOTR = 0;
     this->hw.reg->SLOTR |= ((cfg.slots - 1) << SAI_xSLOTR_NBSLOT_Pos); // Slot number
     this->hw.reg->SLOTR |= (cfg.active_slots << SAI_xSLOTR_SLOTEN_Pos); // Active slots
+
+    /* Enable DMA requests */
+    this->hw.reg->CR1 |= SAI_xCR1_DMAEN;
 }
 
 void sai_base::block::configure_dma(void *data, uint16_t data_len, std::size_t data_width, const dma_cb_t &cb, bool circular)
 {
-    /* Enable DMA requests */
-    this->hw.reg->CR1 |= SAI_xCR1_DMAEN;
-
     /* Configure DMA */
     auto dma_stream = get_dma_stream_reg(this->hw.id);
 
