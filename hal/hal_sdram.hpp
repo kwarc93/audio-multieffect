@@ -8,13 +8,6 @@
 #ifndef HAL_SDRAM_HPP_
 #define HAL_SDRAM_HPP_
 
-#include <cstddef>
-
-namespace hal::sdram
-{
-    void init(void);
-    void *start_addr(void);
-    std::size_t size(void);
-}
+#include <hal_sdram_impl.hpp>
 
 #endif /* HAL_SDRAM_HPP_ */

@@ -10,14 +10,6 @@
 
 #include <hal_interface.hpp>
 
-namespace hal::i2c
-{
-    constexpr bool use_software_i2c = false;
-
-    namespace main
-    {
-        hal::interface::i2c & get_instance(void);
-    }
-}
+#include <hal_i2c_impl.hpp>
 
 #endif /* HAL_I2C_HPP_ */

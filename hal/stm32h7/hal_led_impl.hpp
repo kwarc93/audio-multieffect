@@ -1,42 +1,17 @@
 /*
- * hal_led.hpp
+ * hal_led_impl.hpp
  *
- *  Created on: 25 paź 2020
+ *  Created on: 16 lis 2024
  *      Author: kwarc
  */
 
-#ifndef HAL_LED_HPP_
-#define HAL_LED_HPP_
-
-#include <array>
-
-#include <hal_interface.hpp>
+#ifndef STM32H7_HAL_LED_IMPL_HPP_
+#define STM32H7_HAL_LED_IMPL_HPP_
 
 #include <drivers/led_gpio.hpp>
 #include <drivers/led_pwm.hpp>
 
-namespace hal
-{
-
-//-----------------------------------------------------------------------------
-
-    class led
-    {
-    public:
-        led(hal::interface::led *interface);
-        virtual ~led();
-        void set(uint8_t brightness);
-        uint8_t get(void);
-        void set(bool state);
-    protected:
-        hal::interface::led *interface;
-    private:
-        uint8_t brightness;
-    };
-
-//-----------------------------------------------------------------------------
-
-namespace leds
+namespace hal::leds
 {
     class debug : public led
     {
@@ -66,8 +41,5 @@ namespace leds
     };
 }
 
-//-----------------------------------------------------------------------------
 
-}
-
-#endif /* HAL_LED_HPP_ */
+#endif /* STM32H7_HAL_LED_IMPL_HPP_ */

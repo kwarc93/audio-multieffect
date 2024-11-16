@@ -10,6 +10,7 @@
 #include <cstdio>
 
 #include <hal_system.hpp>
+#include <hal_sdram.hpp>
 
 #include "cmsis_os2.h"
 
@@ -32,6 +33,7 @@ static void init_thread(void *arg)
 int main(void)
 {
     hal::system::init();
+    hal::sdram::init();
 
     printf("System started\r\n");
     printf("Software version: " GIT_REVISION "\r\n");

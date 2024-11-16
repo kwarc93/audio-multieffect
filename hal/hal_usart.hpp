@@ -10,13 +10,6 @@
 
 #include <hal_interface.hpp>
 
-namespace hal::usart
-{
-    namespace stdio
-    {
-        hal::interface::serial & get_instance(void);
-    }
-}
-
+#include <hal_usart_impl.hpp>
 
 #endif /* HAL_USART_HPP_ */
