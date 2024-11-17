@@ -42,7 +42,7 @@ void lvgl_disp_flush(_lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color
     {
 #if defined(STM32H7) && defined(CORE_CM7) // TODO: Make it independent from CPU architecture
         const size_t size = lv_area_get_width(area) * lv_area_get_height(area) * sizeof(lv_color_t);
-        SCB_CleanDCache_by_Addr(reinterpret_cast<void*>(color_p), size);
+        SCB_CleanDCache_by_Addr(color_p, size);
 #endif
         display->draw_data(area->x1, area->y1, area->x2, area->y2, reinterpret_cast<display_t::pixel_t*>(color_p));
     }
