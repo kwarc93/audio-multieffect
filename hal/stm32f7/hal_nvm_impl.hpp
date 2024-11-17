@@ -5,14 +5,19 @@
  *      Author: kwarc
  */
 
-#ifndef STM32H7_HAL_NVM_IMPL_HPP_
-#define STM32H7_HAL_NVM_IMPL_HPP_
+#ifndef STM32F7_HAL_NVM_IMPL_HPP_
+#define STM32F7_HAL_NVM_IMPL_HPP_
+
+#include <drivers/qspi_n25q128a.hpp>
 
 namespace hal::nvms
 {
     class qspi_flash : public nvm
     {
-        // TODO
+    public:
+        qspi_flash() : nvm{&drv} {}
+    private:
+        drivers::qspi_n25q128a drv;
     };
 
     class internal_flash : public nvm
@@ -26,4 +31,4 @@ namespace hal::nvms
     };
 }
 
-#endif /* STM32H7_HAL_NVM_IMPL_HPP_ */
+#endif /* STM32F7_HAL_NVM_IMPL_HPP_ */
