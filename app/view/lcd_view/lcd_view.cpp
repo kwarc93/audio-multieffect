@@ -41,11 +41,8 @@ void lvgl_disp_flush(_lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color
     else
     {
 #if defined(STM32H7) && defined(CORE_CM7) // TODO: Make it independent from CPU architecture
-        constexpr uint32_t dcache_alignment = __SCB_DCACHE_LINE_SIZE - 1;
-        const uintptr_t aligned_addr = reinterpret_cast<uintptr_t>(color_p) & ~dcache_alignment;
         const size_t size = lv_area_get_width(area) * lv_area_get_height(area) * sizeof(lv_color_t);
-        const size_t rounded_size = ((size + dcache_alignment) & ~dcache_alignment) + __SCB_DCACHE_LINE_SIZE;
-        SCB_CleanDCache_by_Addr(reinterpret_cast<void*>(aligned_addr), rounded_size);
+        SCB_CleanDCache_by_Addr(reinterpret_cast<void*>(color_p), size);
 #endif
         display->draw_data(area->x1, area->y1, area->x2, area->y2, reinterpret_cast<display_t::pixel_t*>(color_p));
     }
