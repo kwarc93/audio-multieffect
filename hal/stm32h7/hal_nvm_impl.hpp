@@ -8,11 +8,16 @@
 #ifndef STM32H7_HAL_NVM_IMPL_HPP_
 #define STM32H7_HAL_NVM_IMPL_HPP_
 
+#include <drivers/qspi_mt25ql512a.hpp>
+
 namespace hal::nvms
 {
     class qspi_flash : public nvm
     {
-        // TODO
+    public:
+        qspi_flash() : nvm{&drv} {}
+    private:
+        drivers::mt25ql512a drv;
     };
 
     class internal_flash : public nvm

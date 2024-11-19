@@ -243,7 +243,7 @@ qspi_n25q128a::qspi_n25q128a()
     static constexpr qspi::config cfg
     {
         128, // Size: 128Mbit
-        6, // min. 50us
+        6, // min. 50ns
         qspi::clk_mode::mode0,
         2, // AHBCLK / 2 (max. clock: 108 MHz)
         false, // No DDR mode
