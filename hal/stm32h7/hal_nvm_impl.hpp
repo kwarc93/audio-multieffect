@@ -17,7 +17,7 @@ namespace hal::nvms
     public:
         qspi_flash() : nvm{&drv} {}
     private:
-        drivers::mt25ql512a drv;
+        drivers::qspi_mt25ql512a drv;
     };
 
     class internal_flash : public nvm

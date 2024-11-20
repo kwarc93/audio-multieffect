@@ -17,6 +17,8 @@ void rng::enable(bool state)
 {
     if (state)
     {
+        /* Provide rng_ker_ck from PLL1:Q */
+        RCC->D2CCIP2R |= RCC_D2CCIP2R_RNGSEL_0;
         rcc::enable_periph_clock(RCC_PERIPH_BUS(AHB2, RNG), true);
         RNG->CR |= RNG_CR_RNGEN;
     }

@@ -17,6 +17,7 @@ using namespace drivers;
 /**
   * @brief  MT25QL512A Configuration
   */
+#define MT25QL512A_ADDR_BITS                   26
 #define MT25QL512A_FLASH_SIZE                  0x4000000 // 512MBit (64MB)
 #define MT25QL512A_SECTOR_SIZE                 0x10000   // 1024 sectors of 64KB
 #define MT25QL512A_SUBSECTOR_SIZE              0x1000    // 16384 subsectors of 4kB
@@ -301,12 +302,24 @@ bool qspi_mt25ql512a::set_4_byte_addresing(bool enabled)
     return qspi::send(cmd);
 }
 
+bool qspi_mt25ql512a::set_quad_io_mode(bool enabled)
+{
+    qspi::command cmd {};
+
+    cmd.mode = qspi::functional_mode::indirect_write;
+    cmd.instruction.mode = qspi::io_mode::single;
+    cmd.instruction.value = enabled ? MT25QL512A_ENTER_QUAD_CMD :
+                                      MT25QL512A_EXIT_QUAD_CMD;
+
+    return qspi::send(cmd);
+}
+
 //-----------------------------------------------------------------------------
 /* public */
 
 qspi_mt25ql512a::qspi_mt25ql512a()
 {
-    /* Initialize QSPI GPIOs */
+    /* Initialize QSPI GPIOs (Bank 1) */
     static constexpr std::array<const gpio::io, 6> gpios =
     {{
         {gpio::port::portg, gpio::pin::pin6}, // QSPI_NCS
@@ -329,6 +342,7 @@ qspi_mt25ql512a::qspi_mt25ql512a()
         6, // min. 50ns
         qspi::clk_mode::mode0,
         2, // AHBCLK / 2 (max. clock: 133MHz/90MHz, SDR/DDR)
+        true, // Sample shift
         false, // No DDR mode
         false // No Dual-Flash mode
     };
@@ -351,10 +365,10 @@ bool qspi_mt25ql512a::read(std::byte *data, uint32_t addr, size_t size)
 
     cmd.mode = qspi::functional_mode::indirect_read;
     cmd.instruction.mode = qspi::io_mode::single;
-    cmd.instruction.value = MT25QL512A_QUAD_INOUT_FAST_READ_CMD;
+    cmd.instruction.value = MT25QL512A_QUAD_INOUT_FAST_READ_4_BYTE_ADDR_CMD;
     cmd.address.mode = qspi::io_mode::quad;
     cmd.address.value = addr;
-    cmd.address.bits = 24;
+    cmd.address.bits = MT25QL512A_ADDR_BITS;
     cmd.dummy_cycles = MT25QL512A_DUMMY_CYCLES_READ_QUAD;
     cmd.data.mode = qspi::io_mode::quad;
     cmd.data.size = size;
@@ -392,7 +406,7 @@ bool qspi_mt25ql512a::write(std::byte *data, uint32_t addr, size_t size)
         cmd.instruction.value = MT25QL512A_EXT_QUAD_IN_FAST_PROG_CMD;
         cmd.address.mode = qspi::io_mode::quad;
         cmd.address.value = current_addr;
-        cmd.address.bits = 24;
+        cmd.address.bits = MT25QL512A_ADDR_BITS;
         cmd.data.mode = qspi::io_mode::quad;
         cmd.data.value = data;
         cmd.data.size = current_size;
@@ -427,12 +441,12 @@ bool qspi_mt25ql512a::erase(uint32_t addr, size_t size)
 
     if (size == MT25QL512A_SECTOR_SIZE)
     {
-        instruction = MT25QL512A_SECTOR_ERASE_CMD;
+        instruction = MT25QL512A_SECTOR_ERASE_4_BYTE_ADDR_CMD;
         timeout = MT25QL512A_SECTOR_ERASE_MAX_TIME;
     }
     else if (size == MT25QL512A_SUBSECTOR_SIZE)
     {
-        instruction = MT25QL512A_SUBSECTOR_ERASE_CMD_4K;
+        instruction = MT25QL512A_SUBSECTOR_ERASE_4_BYTE_ADDR_CMD_4K;
         timeout = MT25QL512A_SUBSECTOR_ERASE_MAX_TIME;
     }
     else
@@ -446,9 +460,9 @@ bool qspi_mt25ql512a::erase(uint32_t addr, size_t size)
     {
         cmd.instruction.mode = qspi::io_mode::single;
         cmd.instruction.value = instruction;
-        cmd.address.mode = qspi::io_mode::single;
+        cmd.address.mode = qspi::io_mode::quad;
         cmd.address.value = addr;
-        cmd.address.bits = 24;
+        cmd.address.bits = MT25QL512A_ADDR_BITS;
 
         if (qspi::send(cmd))
         {

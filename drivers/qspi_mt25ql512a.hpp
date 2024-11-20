@@ -36,6 +36,7 @@ private:
     bool write_enable(void);
     bool set_dummy_cycles(uint8_t cycles);
     bool set_4_byte_addresing(bool enabled);
+    bool set_quad_io_mode(bool enabled);
 };
 
 }

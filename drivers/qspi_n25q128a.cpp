@@ -17,6 +17,7 @@ using namespace drivers;
 /**
   * @brief  N25Q128A Configuration
   */
+#define N25Q128A_ADDR_BITS                   24
 #define N25Q128A_FLASH_SIZE                  0x1000000 // 128 MBits (16MB)
 #define N25Q128A_SECTOR_SIZE                 0x10000   // 256 sectors of 64KB
 #define N25Q128A_SUBSECTOR_SIZE              0x1000    // 4096 subsectors of 4KB
@@ -246,6 +247,7 @@ qspi_n25q128a::qspi_n25q128a()
         6, // min. 50ns
         qspi::clk_mode::mode0,
         2, // AHBCLK / 2 (max. clock: 108 MHz)
+        true, // Sample shift
         false, // No DDR mode
         false // No Dual-Flash mode
     };
@@ -270,7 +272,7 @@ bool qspi_n25q128a::read(std::byte *data, uint32_t addr, size_t size)
     cmd.instruction.value = QUAD_INOUT_FAST_READ_CMD;
     cmd.address.mode = qspi::io_mode::quad;
     cmd.address.value = addr;
-    cmd.address.bits = 24;
+    cmd.address.bits = N25Q128A_ADDR_BITS;
     cmd.dummy_cycles = N25Q128A_DUMMY_CYCLES_READ_QUAD;
     cmd.data.mode = qspi::io_mode::quad;
     cmd.data.size = size;
@@ -308,7 +310,7 @@ bool qspi_n25q128a::write(std::byte *data, uint32_t addr, size_t size)
         cmd.instruction.value = EXT_QUAD_IN_FAST_PROG_CMD;
         cmd.address.mode = qspi::io_mode::quad;
         cmd.address.value = current_addr;
-        cmd.address.bits = 24;
+        cmd.address.bits = N25Q128A_ADDR_BITS;
         cmd.data.mode = qspi::io_mode::quad;
         cmd.data.value = data;
         cmd.data.size = current_size;
@@ -364,7 +366,7 @@ bool qspi_n25q128a::erase(uint32_t addr, size_t size)
         cmd.instruction.value = instruction;
         cmd.address.mode = qspi::io_mode::single;
         cmd.address.value = addr;
-        cmd.address.bits = 24;
+        cmd.address.bits = N25Q128A_ADDR_BITS;
 
         if (qspi::send(cmd))
         {

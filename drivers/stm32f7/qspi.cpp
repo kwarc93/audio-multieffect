@@ -68,7 +68,7 @@ void qspi::configure(const config &cfg)
 
     QUADSPI->CR |= cfg.dual << QUADSPI_CR_DFM_Pos;
     QUADSPI->CR |= (std::clamp((uint32_t)cfg.clk_div, 1ul, 256ul) - 1) << QUADSPI_CR_PRESCALER_Pos;
-    QUADSPI->CR |= QUADSPI_CR_SSHIFT;
+    QUADSPI->CR |= cfg.sshift << QUADSPI_CR_SSHIFT_Pos;
 }
 
 bool qspi::send(const command &cmd, uint32_t timeout_ms)

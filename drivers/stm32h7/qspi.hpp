@@ -29,6 +29,7 @@ public:
         uint8_t cs_ht; // FLASH CS high time: 1 - 8 [cycles]
         clk_mode mode; // FLASH clock mode
         uint16_t clk_div; // AHB3 clock divider: 1 - 256
+        bool sshift; // Enable sample shift by 1/2 clock cycle
         bool ddr; // Enable Double Data Rate
         bool dual; // Enable Dual-Flash mode
     };

@@ -19,6 +19,19 @@
 using namespace drivers;
 
 //-----------------------------------------------------------------------------
+/* ERRATA WORKAROUND */
+// The code below have to be executed upon reset and upon switching from memory-mapped to any other mode:
+
+//QUADSPI->CR = 0; // ensure that prescaling factor is not at maximum, and disable the peripheral
+//while(QUADSPI->SR & 0x20){}; // wait for BUSY flag to fall if not already low
+//QUADSPI->CR = 0xFF000001; // set maximum prescaling factor, and enable the peripheral
+//QUADSPI->CCR = 0x20000000; // activate the free-running clock
+//QUADSPI->CCR = 0x20000000; // repeat the previous instruction to prevent a back-to-back disable
+//// The following command must complete less than 127 kernel clocks after the first write to the QSPI_CCR register
+//QUADSPI->CR = 0; // disable QSPI
+//while(QUADSPI->SR & 0x20){}; // wait for busy to fall
+
+//-----------------------------------------------------------------------------
 /* helpers */
 
 namespace
@@ -68,7 +81,7 @@ void qspi::configure(const config &cfg)
 
     QUADSPI->CR |= cfg.dual << QUADSPI_CR_DFM_Pos;
     QUADSPI->CR |= (std::clamp((uint32_t)cfg.clk_div, 1ul, 256ul) - 1) << QUADSPI_CR_PRESCALER_Pos;
-    QUADSPI->CR |= QUADSPI_CR_SSHIFT;
+    QUADSPI->CR |= cfg.sshift << QUADSPI_CR_SSHIFT_Pos;
 }
 
 bool qspi::send(const command &cmd, uint32_t timeout_ms)
