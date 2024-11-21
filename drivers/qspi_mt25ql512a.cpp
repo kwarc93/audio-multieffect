@@ -18,7 +18,7 @@ using namespace drivers;
   * @brief  MT25QL512A Configuration
   */
 #define MT25QL512A_ADDR_BITS                   26
-#define MT25QL512A_FLASH_SIZE                  0x4000000 // 512MBit (64MB)
+#define MT25QL512A_FLASH_SIZE                  0x4000000 // 512Mbit (64MB)
 #define MT25QL512A_SECTOR_SIZE                 0x10000   // 1024 sectors of 64KB
 #define MT25QL512A_SUBSECTOR_SIZE              0x1000    // 16384 subsectors of 4kB
 #define MT25QL512A_PAGE_SIZE                   0x100     // 262144 pages of 256B

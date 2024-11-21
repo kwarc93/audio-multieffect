@@ -18,7 +18,7 @@ using namespace drivers;
   * @brief  N25Q128A Configuration
   */
 #define N25Q128A_ADDR_BITS                   24
-#define N25Q128A_FLASH_SIZE                  0x1000000 // 128 MBits (16MB)
+#define N25Q128A_FLASH_SIZE                  0x1000000 // 128 Mbits (16MB)
 #define N25Q128A_SECTOR_SIZE                 0x10000   // 256 sectors of 64KB
 #define N25Q128A_SUBSECTOR_SIZE              0x1000    // 4096 subsectors of 4KB
 #define N25Q128A_PAGE_SIZE                   0x100     // 65536 pages of 256B
