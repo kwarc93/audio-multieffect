@@ -33,6 +33,7 @@ inline void test(void)
     hal::buttons::blue_btn button;
     hal::nvms::qspi_flash storage;
 
+    // FLASH erase
     if (button.is_pressed())
     {
         printf("Erasing QSPI FLASH...\r\n");
@@ -43,18 +44,20 @@ inline void test(void)
     printf("Starting file system test...\r\n");
 
     // random subsector test
+    constexpr size_t subsector_size = 4096;
     uint32_t address = hal::random::get() % storage.total_size();
-    if (storage.erase(address, storage.erase_size()))
+    address = address & ~(subsector_size - 1);
+    if (storage.erase(address, subsector_size))
     {
-        static std::array<std::byte, 4096> data;
+        static std::array<std::byte, subsector_size> data;
         std::generate(data.begin(), data.end(), [](){ return (std::byte)(hal::random::get() % 256); });
 
         if (storage.write(data.data(), address, data.size()))
         {
-            static std::array<std::byte, 4096> readback;
+            static std::array<std::byte, subsector_size> readback;
             if (storage.read(readback.data(), address, readback.size()))
             {
-                for (unsigned i = 0; i < 4096; i++)
+                for (unsigned i = 0; i < subsector_size; i++)
                     assert(data[i] == readback[i]);
 
                 printf("QSPI FLASH write & read at 0x%lx successful\r\n", address);

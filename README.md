@@ -1,6 +1,6 @@
 # Digital Multi Effect
 
-A concept of digital multi-effect for guitar running on STM32F746-DISCO board
+A concept of digital multi-effect for guitar running on STM32F746G-DISCO or STM32H745I-DISCO board
 
 ![screenshot](guitar_mfx.png)
 
@@ -21,13 +21,22 @@ The vocoder effect needs an additional signal input as modulator, which can be:
 - right channel of the line-in, labeled as AUX (default)
 - signal form the onboard digital microphone
 
+
 This signal can be selected from the audio settings screen.
 
 Audio quality is set to 24bit 48kHz. Audio latency is determined by the size of audio buffer, which by default is 128 samples that gives around 6ms in-out delay.
 
 ## Demo
-https://soundcloud.com/kwarc-1/sets/gmfx
+https://soundcloud.com/kwarc-1/sets/gmfx  
 https://youtu.be/xXm61wA0C68?feature=shared
+
+## Supported boards
+
+- STM32F746G-DISCO
+- STM32H745I-DISCO
+
+*Note 1: On STM32H745I-DISCO board, the application runs on single core (Cortex-M7) and the second core (Cortex-M4) should be put in stop mode.*  
+*Note 2: To use digital microphone on STM32H745I-DISCO board, some solder bridges need to be changed (open: SB41 & SB42, close: SB40 & SB32).*
 
 ## How to build
 
@@ -38,7 +47,13 @@ Follow these steps:
 2. Clone repo: `git clone --recurse-submodules https://github.com/kwarc93/audio-multieffect.git`
 3. In Eclipse go to: **File->Import->Existing projects into workspace**, select folder with cloned repo and check **Copy projects into workspace**. Click **Finish**.
 
-Now the project should have two build configurations: **Debug** and **Release**, it should be possible to build each one with no errors.
+Now the project should have four build configurations: 
+- **STM32F746G-DISCO-Debug**
+- **STM32F746G-DISCO-Release**
+- **STM32H745I-DISCO-CM7-Debug**
+- **STM32H745I-DISCO-CM7-Release**
+
+it should be possible to build each one with no errors.
 
 ## How to add new effect
 
@@ -51,3 +66,4 @@ Here is a brief description of how to add new effect to the system:
 5. Go to **app/view/lcd_view/lcd_view.hpp** module and add new effect controls to the **effect_controls_changed** event. Add another **set_effect_attr** method overload to the **lcd_view** class and define it in the source file. Also, in method **change_effect_screen** add new case for handling new effect screen.
 
 After completing these steps it should be possible to compile the project. However this instruction is not very detailed so there may be compilation errors if something is missing. If so, follow the compiler error messages.
+

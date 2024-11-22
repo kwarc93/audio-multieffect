@@ -227,18 +227,17 @@ qspi_n25q128a::qspi_n25q128a()
     /* Initialize QSPI GPIOs */
     static constexpr std::array<const gpio::io, 6> gpios =
     {{
-        {gpio::port::portg, gpio::pin::pin6}, // QSPI_NCS
-        {gpio::port::portf, gpio::pin::pin10}, // QSPI_CLK
+        {gpio::port::portb, gpio::pin::pin6}, // QSPI_NCS
+        {gpio::port::portb, gpio::pin::pin2}, // QSPI_CLK
         {gpio::port::portd, gpio::pin::pin11}, // QSPI_D0
-        {gpio::port::portf, gpio::pin::pin9}, // QSPI_D1
-        {gpio::port::portf, gpio::pin::pin7}, // QSPI_D2
-        {gpio::port::portf, gpio::pin::pin6}, // QSPI_D3
+        {gpio::port::portd, gpio::pin::pin12}, // QSPI_D1
+        {gpio::port::porte, gpio::pin::pin2}, // QSPI_D2
+        {gpio::port::portd, gpio::pin::pin13}, // QSPI_D3
     }};
 
     for (const auto &pin : gpios)
         gpio::configure(pin, gpio::mode::af, gpio::af::af9);
-    gpio::configure(gpios[0], gpio::mode::af, gpio::af::af10);
-    gpio::configure(gpios[3], gpio::mode::af, gpio::af::af10);
+    gpio::configure(gpios.front(), gpio::mode::af, gpio::af::af10);
 
     /* Configure QSPI peripheral */
     static constexpr qspi::config cfg
