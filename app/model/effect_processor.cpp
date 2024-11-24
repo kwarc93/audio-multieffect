@@ -172,9 +172,11 @@ void effect_processor::event_handler(const events::process_data &e)
         this->audio_output.buffer[index + 1] = sample;
     }
 
+#ifdef CORE_CM7
     /* If D-Cache is enabled, it must be cleaned/invalidated for buffers used by DMA.
        Moreover, functions 'SCB_*_by_Addr()' require address alignment of 32 bytes. */
     SCB_CleanDCache_by_Addr(&this->audio_output.buffer[this->audio_output.sample_index], sizeof(this->audio_output.buffer) / 2);
+#endif /* CORE_CM7 */
 
     const uint32_t cycles_end = hal::system::clock::cycles();
     this->processing_time_us = cpu_cycles_to_us(cycles_start, cycles_end);
@@ -337,9 +339,11 @@ void effect_processor::audio_capture_cb(const hal::audio_devices::codec::input_s
 {
     /* WARNING: This method could have been called from interrupt */
 
+#ifdef CORE_CM7
     /* If D-Cache is enabled, it must be cleaned/invalidated for buffers used by DMA.
        Moreover, functions 'SCB_*_by_Addr()' require address alignment of 32 bytes. */
     SCB_InvalidateDCache_by_Addr(const_cast<hal::audio_devices::codec::input_sample_t*>(input), length * sizeof(*input));
+#endif /* CORE_CM7 */
 
     /* Set current read index for input buffer (double buffering) */
     if (input == &this->audio_input.buffer[0])

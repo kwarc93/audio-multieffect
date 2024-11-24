@@ -26,13 +26,13 @@ void fmc::enable(bool state)
 {
     if (state)
     {
-        rcc::enable_periph_clock({rcc::bus::AHB3, RCC_AHB3ENR_FMCEN}, true);
+        rcc::enable_periph_clock(RCC_PERIPH_BUS(AHB3, FMC), true);
         FMC_Bank1_R->BTCR[0] |= FMC_BCR1_FMCEN;
     }
     else
     {
         FMC_Bank1_R->BTCR[0] &= ~FMC_BCR1_FMCEN;
-        rcc::enable_periph_clock({rcc::bus::AHB3, RCC_AHB3ENR_FMCEN}, false);
+        rcc::enable_periph_clock(RCC_PERIPH_BUS(AHB3, FMC), false);
     }
 }
 

@@ -17,7 +17,9 @@ void core::enable_cycles_counter(void)
      * Not all Cortex-M cores have it so SysTick-based cycles
      * counter would be more generic (but has lower, 24bit resolution). */
     CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+#ifdef CORE_CM7
     DWT->LAR = 0xC5ACCE55;
+#endif /* CORE_CM7 */
     DWT->CYCCNT = 0;
     DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
 

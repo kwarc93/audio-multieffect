@@ -83,7 +83,7 @@ void controller::update(const effect_processor_events::outgoing &e)
     /* WARNING: This method could have been called from another thread */
     /* FIXME: Forward this event dispatching to the controller thread (to avoid race conditions) */
 
-    std::visit([this](auto &&e) { this->model_event_handler(e); }, e);
+    std::visit([this](auto &&e) { /*this->model_event_handler(e);*/ }, e);
 }
 
 void controller::update(const lcd_view_events::outgoing &e)
@@ -107,7 +107,7 @@ void controller::event_handler(const events::led_toggle &e)
         }
     }};
 
-    this->model->send(evt);
+    //this->model->send(evt);
 }
 
 void controller::event_handler(const events::button_state_changed &e)
@@ -115,7 +115,7 @@ void controller::event_handler(const events::button_state_changed &e)
     if (e.state == events::button_state_changed::state::hold)
     {
         this->view->send({lcd_view_events::shutdown {}});
-        this->model->send({effect_processor_events::shutdown {}});
+        //this->model->send({effect_processor_events::shutdown {}});
         this->led.set(false);
 
         printf("System shutdown\r\n");
@@ -146,7 +146,7 @@ void controller::event_handler(const events::load_preset &e)
     for (auto &&p : preset)
     {
         this->active_effects.push_back(p);
-        this->model->send({effect_processor_events::add_effect {p}});
+        //this->model->send({effect_processor_events::add_effect {p}});
     }
 
     /* Show screen of the first effect in preset */
@@ -185,44 +185,44 @@ void controller::view_event_handler(const lcd_view_events::prev_effect_screen_re
 void controller::view_event_handler(const lcd_view_events::input_volume_changed &e)
 {
     const effect_processor::event evt {effect_processor_events::set_input_volume {e.main_input_vol, e.aux_input_vol}};
-    this->model->send(evt);
+    //this->model->send(evt);
 }
 
 void controller::view_event_handler(const lcd_view_events::output_volume_changed &e)
 {
     const effect_processor::event evt {effect_processor_events::set_output_volume {e.output_vol}};
-    this->model->send(evt);
+    //this->model->send(evt);
 }
 
 void controller::view_event_handler(const lcd_view_events::route_mic_to_aux_changed &e)
 {
     const effect_processor::event evt {effect_processor_events::route_mic_to_aux {e.value}};
-    this->model->send(evt);
+    //this->model->send(evt);
 }
 
 void controller::view_event_handler(const lcd_view_events::mute_changed &e)
 {
     const effect_processor::event evt {effect_processor_events::set_mute {e.value}};
-    this->model->send(evt);
+    //this->model->send(evt);
 }
 
 void controller::view_event_handler(const lcd_view_events::effect_bypass_changed &e)
 {
     const effect_processor::event evt {effect_processor_events::bypass_effect {e.id, e.bypassed}};
-    this->model->send(evt);
+    //this->model->send(evt);
 }
 
 void controller::view_event_handler(const lcd_view_events::effect_controls_changed &e)
 {
     effect_processor::event evt {effect_processor_events::set_effect_controls {e.ctrl}};
-    this->model->send(evt);
+    //this->model->send(evt);
 }
 
 void controller::view_event_handler(const lcd_view_events::add_effect_request &e)
 {
     this->current_effect = e.id;
     this->active_effects.push_back(e.id);
-    this->model->send({effect_processor_events::add_effect {e.id}});
+    //this->model->send({effect_processor_events::add_effect {e.id}});
     this->view->send({lcd_view_events::show_next_effect_screen {this->current_effect}});
     this->update_effect_attributes(this->current_effect);
 }
@@ -252,7 +252,7 @@ void controller::view_event_handler(const lcd_view_events::remove_effect_request
     }
 
     this->active_effects.erase(std::remove(this->active_effects.begin(), this->active_effects.end(), e.id), this->active_effects.end());
-    this->model->send({effect_processor_events::remove_effect {e.id}});
+    //this->model->send({effect_processor_events::remove_effect {e.id}});
 }
 
 void controller::view_event_handler(const lcd_view_events::move_effect_request &e)
@@ -268,7 +268,7 @@ void controller::view_event_handler(const lcd_view_events::move_effect_request &
     /* Only moves by +1/-1 are supported */
     std::swap(*it, *std::next(it, std::clamp(e.step, -1L, 1L)));
 
-    this->model->send({effect_processor_events::move_effect {e.id, e.step}});
+    //this->model->send({effect_processor_events::move_effect {e.id, e.step}});
 }
 
 void controller::model_event_handler(const effect_processor_events::input_volume_changed &e)
@@ -299,7 +299,7 @@ void controller::update_effect_attributes(effect_id id)
         }
     }};
 
-    this->model->send(e);
+    //this->model->send(e);
 }
 
 //-----------------------------------------------------------------------------
@@ -322,7 +322,7 @@ view {std::move(view)}
     osTimerStart(this->led_timer, 500);
 
     /* Start observing model */
-    this->model->attach(this);
+    //this->model->attach(this);
 
     /* Start observing view(s) */
     this->view->attach(this);

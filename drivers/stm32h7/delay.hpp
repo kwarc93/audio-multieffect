@@ -12,14 +12,19 @@
 
 #include <drivers/stm32h7/core.hpp>
 
-#include <hal_system.hpp>
-
 namespace drivers
 {
     class delay final
     {
     public:
         delay() = delete;
+
+        static void init(uint32_t system_clock)
+        {
+            drivers::core::enable_cycles_counter();
+            cycles_per_ms = system_clock / 1000ul;
+            cycles_per_us = system_clock / 1000000ul;
+        }
 
         __attribute__((always_inline))
         static inline void ms(uint32_t ms)
@@ -53,8 +58,8 @@ namespace drivers
             asm volatile ("MOV R0, R0");
         }
 
-        static constexpr uint32_t cycles_per_ms = hal::system::system_clock / 1000ul;
-        static constexpr uint32_t cycles_per_us = hal::system::system_clock / 1000000ul;
+        static inline uint32_t cycles_per_ms;
+        static inline uint32_t cycles_per_us;
     };
 
     template <>

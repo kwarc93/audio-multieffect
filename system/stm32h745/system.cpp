@@ -34,16 +34,17 @@ extern "C" void system_init(void)
        detectable by the CPU after a WFI/WFE instruction.*/
    SCB->SCR |= SCB_SCR_SEVONPEND_Msk;
 
+#ifdef CORE_CM7
     /*
      * Disable the FMC bank1 (enabled after reset).
      * This, prevents CPU speculation access on this bank which blocks the use of FMC during
      * 24us. During this time the others FMC master (such as LTDC) cannot use it!
      */
-    RCC->AHB3ENR |= RCC_AHB3ENR_FMCEN;
     FMC_Bank1_R->BTCR[0] &= ~FMC_BCRx_MBKEN;
-    RCC->AHB3ENR &= ~RCC_AHB3ENR_FMCEN;
 
-#ifdef CORE_CM7
+    /* Enable CortexM7 HSEM EXTI line (line 78)*/
+    EXTI_D2->EMR3 |= 0x4000UL;
+
     /* Change  the switch matrix read issuing capability to 1 for the AXI SRAM target (Target 7) */
     if((DBGMCU->IDCODE & 0xFFFF0000U) < 0x20000000U)
     {
@@ -53,11 +54,17 @@ extern "C" void system_init(void)
 
     SCB->VTOR = FLASH_BANK1_BASE;
 #endif /* CORE_CM7 */
+#ifdef CORE_CM4
+    SCB->VTOR = FLASH_BANK2_BASE;
+#endif /* CORE_CM4 */
 }
 
 //-----------------------------------------------------------------------------
 /* syscalls */
 
+// TODO: Use HSEM to manage access to stdio USART
+
+#ifdef CORE_CM4
 #ifdef HAL_SYSTEM_RTOS_ENABLED
 static osMutexId_t stdio_mutex_id = NULL;
 static const osMutexAttr_t stdio_mutex_attr =
@@ -125,4 +132,5 @@ extern "C" int _read (int fd, char *buf, int cnt)
     return stdio.read(reinterpret_cast<std::byte*>(buf), cnt);
 }
 #endif /* HAL_SYSTEM_RTOS_ENABLED */
+#endif /* CORE_CM4 */
 

@@ -23,7 +23,7 @@ using namespace drivers;
 
 bool fmc::sdram::configure(const fmc::sdram::config &cfg)
 {
-    rcc::enable_periph_clock({rcc::bus::AHB3, RCC_AHB3ENR_FMCEN}, true);
+    rcc::enable_periph_clock(RCC_PERIPH_BUS(AHB3, FMC), true);
 
     /* Program the memory device features */
     uint32_t tmp_reg = 0;

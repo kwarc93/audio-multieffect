@@ -14,16 +14,23 @@
 
 #include <cmsis/stm32h7xx.h>
 
-#include <drivers/stm32h7/core.hpp>
+#include <drivers/stm32h7/delay.hpp>
 #include <drivers/stm32h7/rcc.hpp>
 #include <drivers/stm32h7/flash.hpp>
 #include <drivers/stm32h7/exti.hpp>
+
+#include <hal/hal_sdram.hpp>
 
 namespace hal::system
 {
     constexpr inline uint32_t hsi_clock = 64000000;
     constexpr inline uint32_t hse_clock = 25000000;
+#ifdef CORE_CM7
     constexpr inline uint32_t system_clock = 400000000;
+#endif
+#ifdef CORE_CM4
+    constexpr inline uint32_t system_clock = 200000000;
+#endif
     constexpr inline uint32_t systick_freq = 1000;
     volatile  inline uint32_t systick = 0;
 
@@ -59,12 +66,11 @@ namespace hal::system
         /* Number of group priorities: 16, subpriorities: 16. */
         NVIC_SetPriorityGrouping(0x07 - __NVIC_PRIO_BITS);
 
+        drivers::delay::init(system::system_clock);
+
 #ifdef CORE_CM7
         /* Wait until Cortex-M4 boots and enters in stop mode */
         while (RCC->CR & RCC_CR_D2CKRDY);
-#endif
-
-        drivers::core::enable_cycles_counter();
 
         drivers::flash::set_wait_states(system::system_clock / 2);
 
@@ -92,18 +98,50 @@ namespace hal::system
 
         assert(drivers::rcc::get_sysclk_freq() == system::system_clock);
 
-        SystemCoreClock = system::system_clock;
-
-#ifndef HAL_SYSTEM_RTOS_ENABLED
-        /* Set System Tick interrupt */
-        SysTick_Config(system::system_clock / system::systick_freq);
-#endif
-
-#ifdef CORE_CM7
         /* Enable instruction & data caches */
         SCB_EnableICache();
         SCB_EnableDCache();
-#endif
+
+        hal::sdram::init();
+
+//        /* HW semaphore Clock enable */
+//        drivers::rcc::enable_periph_clock(RCC_PERIPH_BUS(AHB4, HSEM), true);
+//
+//        /* Take HSEM */
+//        bool result = ((HSEM->RLR[0] != (HSEM_RLR_LOCK | HSEM_CR_COREID_CURRENT)) ? 1UL : 0UL);
+//        (void) result;
+//
+//        /* Release HSEM in order to notify the Cortex-M4 */
+//        WRITE_REG(HSEM->R[0], (HSEM_CR_COREID_CURRENT | 0));
+//
+//        /* Wait until Cortex-M4 wakes up from stop mode */
+//        while (!(RCC->CR & RCC_CR_D2CKRDY));
+#endif /* CORE_CM7 */
+
+#ifdef CORE_CM4
+        /* HW semaphore Clock enable */
+        drivers::rcc::enable_periph_clock(RCC_PERIPH_BUS(AHB4, HSEM), true);
+
+        /* Activate HSEM notification for Cortex-M4 */
+        SET_BIT(HSEM->C2IER, 1 << 0);
+
+        /*
+           Domain D2 goes to STOP mode (Cortex-M4 in deep-sleep) waiting for Cortex-M7 to
+           perform system initialization (system clock config, external memory configuration.. )
+        */
+        __SEV();
+        __WFE();
+        MODIFY_REG(PWR->CR1, PWR_CR1_LPDS, 0);
+        MODIFY_REG(PWR->CPUCR, PWR_CPUCR_PDDS_D2, 0);
+        MODIFY_REG(PWR->CPU2CR, PWR_CPU2CR_PDDS_D2, 0);
+        SET_BIT(SCB->SCR, SCB_SCR_SLEEPDEEP_Msk);
+        __DSB();
+        __ISB();
+        __WFE();
+        CLEAR_BIT(SCB->SCR, SCB_SCR_SLEEPDEEP_Msk);
+
+        /* Clear HSEM flag */
+        WRITE_REG(HSEM->C2ICR, 1 << 0);
 
         /* Enable EXTI event (wake-up from stop mode) */
         drivers::exti::configure(true,
@@ -112,6 +150,14 @@ namespace hal::system
                                  drivers::exti::mode::event,
                                  drivers::exti::edge::rising,
                                  {});
+
+#endif /* CORE_CM4 */
+        SystemCoreClock = system::system_clock;
+
+#ifndef HAL_SYSTEM_RTOS_ENABLED
+        /* Set System Tick interrupt */
+        SysTick_Config(system::system_clock / system::systick_freq);
+#endif /* HAL_SYSTEM_RTOS_ENABLED */
     }
 
     inline void sleep(void)

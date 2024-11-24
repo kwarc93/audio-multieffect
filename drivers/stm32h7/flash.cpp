@@ -9,6 +9,8 @@
 
 #include <cmsis/stm32h7xx.h>
 
+#include <drivers/stm32h7/rcc.hpp>
+
 using namespace drivers;
 
 void flash::set_wait_states(uint32_t hclk)
@@ -48,6 +50,12 @@ void flash::set_wait_states(uint32_t hclk)
         /* Unsupported */
     }
 
+#ifdef CORE_CM4
+    /* Configure Cortex-M4 Instruction cache through ART accelerator */
+    rcc::enable_periph_clock(RCC_PERIPH_BUS(AHB1, ART), true);
+    MODIFY_REG(ART->CTR, ART_CTR_PCACHEADDR, ((FLASH_BANK2_BASE >> 12U) & 0x000FFF00UL));
+    SET_BIT(ART->CTR, ART_CTR_EN);
+#endif /* CORE_CM4 */
 
     /* Set wait states and programming delay */
     FLASH->ACR = (wait_states << FLASH_ACR_LATENCY_Pos) |
