@@ -1354,6 +1354,7 @@
 			<resource resourceType="PROJECT" workspacePath="/audio-multieffect"/>
 		</configuration>
 		<configuration configurationName="STM32F746G-DISCO-Debug"/>
+		<configuration configurationName="STM32H745I-DISCO-CM4-Debug"/>
 		<configuration configurationName="Debug">
 			<resource resourceType="PROJECT" workspacePath="/audio-multieffect"/>
 		</configuration>

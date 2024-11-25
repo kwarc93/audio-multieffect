@@ -17,6 +17,15 @@ using namespace drivers;
 //-----------------------------------------------------------------------------
 /* helpers */
 
+#ifdef DUAL_CORE
+#ifdef CORE_CM7
+#define EXTI_CN EXTI_D1
+#endif
+#ifdef CORE_CM4
+#define EXTI_CN EXTI_D2
+#endif
+#endif
+
 //-----------------------------------------------------------------------------
 /* private */
 
@@ -48,15 +57,15 @@ void exti::configure(bool state, line line, port port, mode mode, edge edge, ext
     {
     case mode::interrupt:
         if (state)
-            EXTI->IMR1 |= line_mask;
+            EXTI_CN->IMR1 |= line_mask;
         else
-            EXTI->IMR1 &= ~line_mask;
+            EXTI_CN->IMR1 &= ~line_mask;
         break;
     case mode::event:
         if (state)
-            EXTI->EMR1 |= line_mask;
+            EXTI_CN->EMR1 |= line_mask;
         else
-            EXTI->EMR1 &= ~line_mask;
+            EXTI_CN->EMR1 &= ~line_mask;
         break;
     default:
         break;
@@ -109,10 +118,10 @@ void exti::irq_handler(line line)
     const uint32_t line_nr = static_cast<uint8_t>(line);
     const uint32_t line_mask = 1 << line_nr;
 
-    if (EXTI->PR1 & line_mask)
+    if (EXTI_CN->PR1 & line_mask)
     {
         /* Clear pending interrupt */
-        EXTI->PR1 = line_mask;
+        EXTI_CN->PR1 = line_mask;
 
         if (callbacks[line_nr])
             callbacks[line_nr]();
@@ -128,10 +137,10 @@ void exti::irq_handler(line line_start, line line_end)
     {
         const uint32_t line_mask = 1 << line;
 
-        if (EXTI->PR1 & line_mask)
+        if (EXTI_CN->PR1 & line_mask)
         {
             /* Clear pending interrupt */
-            EXTI->PR1 = line_mask;
+            EXTI_CN->PR1 = line_mask;
 
             if (callbacks[line])
                 callbacks[line]();

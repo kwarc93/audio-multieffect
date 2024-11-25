@@ -12,14 +12,15 @@
 #include <chrono>
 #include <cassert>
 
+
 #include <cmsis/stm32h7xx.h>
 
-#include <drivers/stm32h7/delay.hpp>
+#include <drivers/stm32h7/core.hpp>
 #include <drivers/stm32h7/rcc.hpp>
 #include <drivers/stm32h7/flash.hpp>
 #include <drivers/stm32h7/exti.hpp>
 
-#include <hal/hal_sdram.hpp>
+#include <hal_sdram_impl.hpp>
 
 namespace hal::system
 {
@@ -32,7 +33,7 @@ namespace hal::system
     constexpr inline uint32_t system_clock = 200000000;
 #endif
     constexpr inline uint32_t systick_freq = 1000;
-    volatile  inline uint32_t systick = 0;
+    volatile inline uint32_t systick = 0;
 
     /* Custom implementation of steady_clock */
     struct clock
@@ -104,21 +105,26 @@ namespace hal::system
 
         hal::sdram::init();
 
-//        /* HW semaphore Clock enable */
-//        drivers::rcc::enable_periph_clock(RCC_PERIPH_BUS(AHB4, HSEM), true);
-//
-//        /* Take HSEM */
-//        bool result = ((HSEM->RLR[0] != (HSEM_RLR_LOCK | HSEM_CR_COREID_CURRENT)) ? 1UL : 0UL);
-//        (void) result;
-//
-//        /* Release HSEM in order to notify the Cortex-M4 */
-//        WRITE_REG(HSEM->R[0], (HSEM_CR_COREID_CURRENT | 0));
-//
-//        /* Wait until Cortex-M4 wakes up from stop mode */
-//        while (!(RCC->CR & RCC_CR_D2CKRDY));
+        /* HW semaphore Clock enable */
+        drivers::rcc::enable_periph_clock(RCC_PERIPH_BUS(AHB4, HSEM), true);
+
+        /* Take (1-step) HSEM */
+        bool result = ((HSEM->RLR[0] != (HSEM_RLR_LOCK | HSEM_CR_COREID_CURRENT)) ? 1UL : 0UL);
+        (void) result;
+
+        /* Release HSEM in order to notify the Cortex-M4 */
+        WRITE_REG(HSEM->R[0], (HSEM_CR_COREID_CURRENT | 0));
+
+        /* Wait until Cortex-M4 wakes up from stop mode */
+        while (!(RCC->CR & RCC_CR_D2CKRDY));
 #endif /* CORE_CM7 */
 
 #ifdef CORE_CM4
+        /* Configure Cortex-M4 Instruction cache through ART accelerator */
+        drivers::rcc::enable_periph_clock(RCC_PERIPH_BUS(AHB1, ART), true);
+        MODIFY_REG(ART->CTR, ART_CTR_PCACHEADDR, ((FLASH_BANK2_BASE >> 12U) & 0x000FFF00UL));
+        SET_BIT(ART->CTR, ART_CTR_EN);
+
         /* HW semaphore Clock enable */
         drivers::rcc::enable_periph_clock(RCC_PERIPH_BUS(AHB4, HSEM), true);
 
