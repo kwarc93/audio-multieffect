@@ -40,10 +40,11 @@ namespace
 inline bool wait_for_flag(volatile uint32_t &reg, uint32_t flag, uint32_t &timeout_ms)
 {
     uint32_t cycles_start = core::get_cycles_counter();
+    const uint32_t cycles_per_ms = core::clock / 1000ul;
 
     while (!(reg & flag))
     {
-        if ((core::get_cycles_counter() - cycles_start) >= delay::cycles_per_ms)
+        if ((core::get_cycles_counter() - cycles_start) >= cycles_per_ms)
         {
             cycles_start = core::get_cycles_counter();
             if (--timeout_ms == 0)

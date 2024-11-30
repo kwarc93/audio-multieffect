@@ -12,6 +12,7 @@
 #include <drivers/stm32h7/dma2d.hpp>
 #include <drivers/stm32h7/sai.hpp>
 #include <drivers/stm32h7/exti.hpp>
+#include <drivers/stm32h7/hsem.hpp>
 
 //-----------------------------------------------------------------------------
 /* Core interrupt handlers */
@@ -79,6 +80,16 @@ extern "C" void DMA2_Stream4_IRQHandler(void)
 extern "C" void DMA2_Stream6_IRQHandler(void)
 {
     drivers::sai_base::instance[static_cast<uint8_t>(drivers::sai_base::id::sai2)]->block_b.dma_irq_handler();
+}
+
+extern "C" void HSEM1_IRQHandler(void)
+{
+    drivers::hsem::irq_handler();
+}
+
+extern "C" void HSEM2_IRQHandler(void)
+{
+    drivers::hsem::irq_handler();
 }
 
 extern "C" void EXTI0_IRQHandler(void)

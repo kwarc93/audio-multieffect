@@ -12,15 +12,15 @@
 #include <chrono>
 #include <cassert>
 
-
 #include <cmsis/stm32h7xx.h>
 
 #include <drivers/stm32h7/core.hpp>
 #include <drivers/stm32h7/rcc.hpp>
 #include <drivers/stm32h7/flash.hpp>
 #include <drivers/stm32h7/exti.hpp>
+#include <drivers/stm32h7/hsem.hpp>
 
-#include <hal_sdram_impl.hpp>
+#include "hal_sdram_impl.hpp"
 
 namespace hal::system
 {
@@ -67,8 +67,8 @@ namespace hal::system
         /* Number of group priorities: 16, subpriorities: 16. */
         NVIC_SetPriorityGrouping(0x07 - __NVIC_PRIO_BITS);
 
-        drivers::delay::init(system::system_clock);
-
+        drivers::core::enable_cycles_counter();
+        drivers::hsem::init();
 #ifdef CORE_CM7
         /* Wait until Cortex-M4 boots and enters in stop mode */
         while (RCC->CR & RCC_CR_D2CKRDY);
@@ -96,8 +96,9 @@ namespace hal::system
         };
 
         drivers::rcc::set_main_pll(RCC_PLLCKSELR_PLLSRC_HSE, pll, presc);
-
         assert(drivers::rcc::get_sysclk_freq() == system::system_clock);
+
+        SystemCoreClock = system::system_clock;
 
         /* Enable instruction & data caches */
         SCB_EnableICache();
@@ -105,15 +106,9 @@ namespace hal::system
 
         hal::sdram::init();
 
-        /* HW semaphore Clock enable */
-        drivers::rcc::enable_periph_clock(RCC_PERIPH_BUS(AHB4, HSEM), true);
-
-        /* Take (1-step) HSEM */
-        bool result = ((HSEM->RLR[0] != (HSEM_RLR_LOCK | HSEM_CR_COREID_CURRENT)) ? 1UL : 0UL);
-        (void) result;
-
-        /* Release HSEM in order to notify the Cortex-M4 */
-        WRITE_REG(HSEM->R[0], (HSEM_CR_COREID_CURRENT | 0));
+        /* Take, then release HSEM 0 in order to notify the Cortex-M4 */
+        drivers::hsem::take(0, 0);
+        drivers::hsem::release(0, 0);
 
         /* Wait until Cortex-M4 wakes up from stop mode */
         while (!(RCC->CR & RCC_CR_D2CKRDY));
@@ -125,29 +120,12 @@ namespace hal::system
         MODIFY_REG(ART->CTR, ART_CTR_PCACHEADDR, ((FLASH_BANK2_BASE >> 12U) & 0x000FFF00UL));
         SET_BIT(ART->CTR, ART_CTR_EN);
 
-        /* HW semaphore Clock enable */
-        drivers::rcc::enable_periph_clock(RCC_PERIPH_BUS(AHB4, HSEM), true);
+        /* Activate HSEM notification */
+        drivers::hsem::enable_notification(0);
 
-        /* Activate HSEM notification for Cortex-M4 */
-        SET_BIT(HSEM->C2IER, 1 << 0);
+        drivers::core::enter_stop_mode();
 
-        /*
-           Domain D2 goes to STOP mode (Cortex-M4 in deep-sleep) waiting for Cortex-M7 to
-           perform system initialization (system clock config, external memory configuration.. )
-        */
-        __SEV();
-        __WFE();
-        MODIFY_REG(PWR->CR1, PWR_CR1_LPDS, 0);
-        MODIFY_REG(PWR->CPUCR, PWR_CPUCR_PDDS_D2, 0);
-        MODIFY_REG(PWR->CPU2CR, PWR_CPU2CR_PDDS_D2, 0);
-        SET_BIT(SCB->SCR, SCB_SCR_SLEEPDEEP_Msk);
-        __DSB();
-        __ISB();
-        __WFE();
-        CLEAR_BIT(SCB->SCR, SCB_SCR_SLEEPDEEP_Msk);
-
-        /* Clear HSEM flag */
-        WRITE_REG(HSEM->C2ICR, 1 << 0);
+        SystemCoreClock = system::system_clock;
 
         /* Enable EXTI event (wake-up from stop mode) */
         drivers::exti::configure(true,
@@ -156,9 +134,7 @@ namespace hal::system
                                  drivers::exti::mode::event,
                                  drivers::exti::edge::rising,
                                  {});
-
 #endif /* CORE_CM4 */
-        SystemCoreClock = system::system_clock;
 
 #ifndef HAL_SYSTEM_RTOS_ENABLED
         /* Set System Tick interrupt */

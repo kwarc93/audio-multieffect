@@ -56,9 +56,6 @@ static void init_thread(void *arg)
 
 int main(void)
 {
-//#ifdef CORE_CM7
-//    hal::sdram::init();
-//#endif
     hal::system::init();
 
     printf("System started\r\n");

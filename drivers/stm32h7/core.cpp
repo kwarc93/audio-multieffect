@@ -22,8 +22,6 @@ void core::enable_cycles_counter(void)
 #endif /* CORE_CM7 */
     DWT->CYCCNT = 0;
     DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
-
-    cyccnt = &DWT->CYCCNT;
 }
 
 core::core_id core::get_current_cpu_id(void)
@@ -40,20 +38,30 @@ void core::enter_sleep_mode(void)
     /* Exit upon interrupt */
 }
 
-void core::enter_stop_mode(void)
+void core::enter_stop_mode(bool low_power)
 {
     /* Clear pending event */
-#ifdef DUAL_CORE
-    if (get_current_cpu_id() == core_id::cortex_m4)
+#ifdef CORE_CM4
         __SEV();
-#endif /* DUAL_CORE */
+#endif /* CORE_CM4 */
     __WFE();
 
-    /* Set regulator & flash in low power mode (STOP LP-FPD) */
-    PWR->CR1 |= PWR_CR1_LPDS | PWR_CR1_FLPS;
-
-    /* Keep DSTOP mode when D1/CD domain enters Deepsleep */
-    PWR->CPUCR &= ~PWR_CPUCR_PDDS_D1;
+#ifdef CORE_CM7
+    if (low_power)
+    {
+        /* Set regulator & flash in low power mode (STOP LP-FPD) */
+        PWR->CR1 |= PWR_CR1_LPDS | PWR_CR1_FLPS;
+    }
+    else
+    {
+        PWR->CR1 &= ~(PWR_CR1_LPDS | PWR_CR1_FLPS);
+    }
+    /* Keep DSTOP mode when D1/D3 domain enters Deepsleep */
+    PWR->CPUCR &= ~(PWR_CPUCR_PDDS_D1 | PWR_CPUCR_PDDS_D3);
+#endif /* CORE_CM7 */
+#if defined(DUAL_CORE) && defined(CORE_CM4)
+    PWR->CPU2CR &= ~(PWR_CPU2CR_PDDS_D2 | PWR_CPU2CR_PDDS_D3);
+#endif /* DUAL_CORE && CORE_CM4 */
 
     /* Set SLEEPDEEP bit of Cortex System Control Register */
     SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
