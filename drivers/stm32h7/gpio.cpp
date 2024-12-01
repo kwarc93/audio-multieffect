@@ -12,6 +12,7 @@
 
 #include <cmsis/stm32h7xx.h>
 #include <drivers/stm32h7/rcc.hpp>
+#include <drivers/stm32h7/hsem.hpp>
 
 using namespace drivers;
 
@@ -20,6 +21,8 @@ using namespace drivers;
 
 namespace
 {
+
+constexpr uint8_t hsem_id = 0;
 
 constexpr std::array<GPIO_TypeDef*, 11> port_map
 {{
@@ -83,6 +86,8 @@ void gpio::enable_clock(port port)
 
 void gpio::configure(const io &io, mode mode, af af, pupd pupd, type type, speed speed)
 {
+    hsem_spinlock lock(hsem_id);
+
     enable_clock(io.port);
 
     GPIO_TypeDef *port = port_map[static_cast<uint8_t>(io.port)];

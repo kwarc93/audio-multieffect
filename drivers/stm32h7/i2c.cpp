@@ -21,30 +21,6 @@ using namespace drivers;
 //-----------------------------------------------------------------------------
 /* helpers */
 
-namespace
-{
-
-class intercore_lock
-{
-public:
-    intercore_lock()
-    {
-#ifdef DUAL_CORE
-    while(!hsem::fast_take(hsem_id));
-#endif /* DUAL_CORE */
-    }
-    ~intercore_lock()
-    {
-#ifdef DUAL_CORE
-    hsem::release(hsem_id);
-#endif /* DUAL_CORE */
-    }
-private:
-    static inline constexpr uint8_t hsem_id = 1;
-};
-
-}
-
 //-----------------------------------------------------------------------------
 /* private */
 
@@ -53,6 +29,7 @@ struct i2c::i2c_hw
     i2c::id id;
     I2C_TypeDef *const reg;
     rcc::periph_bus pbus;
+    uint8_t hsem_id;
 
     gpio::af io_af;
     gpio::io io_sda;
@@ -61,7 +38,7 @@ struct i2c::i2c_hw
 
 static constexpr std::array<i2c::i2c_hw, 1> i2cx
 {
-    { i2c::id::i2c4, I2C4, RCC_PERIPH_BUS(APB4, I2C4), gpio::af::af4,
+    { i2c::id::i2c4, I2C4, RCC_PERIPH_BUS(APB4, I2C4), 1, gpio::af::af4,
     { gpio::port::portd, gpio::pin::pin13 }, { gpio::port::portd, gpio::pin::pin12 }},
 };
 
@@ -71,7 +48,7 @@ static constexpr std::array<i2c::i2c_hw, 1> i2cx
 i2c::i2c(id hw_id, mode mode, speed speed) :
 hw {i2cx.at(static_cast<std::underlying_type_t<id>>(hw_id))}, operating_mode {mode}, bus_speed {speed}
 {
-    intercore_lock lock;
+    hsem_spinlock lock(this->hw.hsem_id);
 
     rcc::enable_periph_clock(this->hw.pbus, true);
 
@@ -87,7 +64,7 @@ hw {i2cx.at(static_cast<std::underlying_type_t<id>>(hw_id))}, operating_mode {mo
 
 i2c::~i2c()
 {
-    intercore_lock lock;
+    hsem_spinlock lock(this->hw.hsem_id);
 
     this->hw.reg->CR1 &= ~I2C_CR1_PE;
     rcc::enable_periph_clock(this->hw.pbus, false);
@@ -97,7 +74,7 @@ i2c::~i2c()
 
 void i2c::reset(void)
 {
-    intercore_lock lock;
+    hsem_spinlock lock(this->hw.hsem_id);
 
     while (this->hw.reg->ISR & I2C_ISR_BUSY);
 
@@ -108,7 +85,7 @@ void i2c::reset(void)
 
 std::byte i2c::read(void)
 {
-    intercore_lock lock;
+    hsem_spinlock lock(this->hw.hsem_id);
 
     this->hw.reg->CR2 = (this->no_stop ? 0 : I2C_CR2_AUTOEND) | 1 << I2C_CR2_NBYTES_Pos | I2C_CR2_START | I2C_CR2_RD_WRN | (this->address << 1);
 
@@ -123,7 +100,7 @@ std::byte i2c::read(void)
 
 void i2c::write(std::byte byte)
 {
-    intercore_lock lock;
+    hsem_spinlock lock(this->hw.hsem_id);
 
     this->hw.reg->CR2 = (this->no_stop ? 0 : I2C_CR2_AUTOEND) | 1 << I2C_CR2_NBYTES_Pos | I2C_CR2_START | (this->address << 1);
 
@@ -144,7 +121,7 @@ void i2c::write(std::byte byte)
 
 std::size_t i2c::read(std::byte *data, std::size_t size)
 {
-    intercore_lock lock;
+    hsem_spinlock lock(this->hw.hsem_id);
 
     if (data == nullptr || size == 0)
         return 0;
@@ -182,7 +159,7 @@ std::size_t i2c::read(std::byte *data, std::size_t size)
 
 std::size_t i2c::write(const std::byte *data, std::size_t size)
 {
-    intercore_lock lock;
+    hsem_spinlock lock(this->hw.hsem_id);
 
     if (data == nullptr || size == 0)
         return 0;
@@ -220,7 +197,7 @@ std::size_t i2c::write(const std::byte *data, std::size_t size)
 
 void i2c::read(std::byte *data, std::size_t size, const read_cb_t &callback)
 {
-    intercore_lock lock;
+    hsem_spinlock lock(this->hw.hsem_id);
 
     /* TODO */
     if (callback)
@@ -229,7 +206,7 @@ void i2c::read(std::byte *data, std::size_t size, const read_cb_t &callback)
 
 void i2c::write(const std::byte *data, std::size_t size, const write_cb_t &callback)
 {
-    intercore_lock lock;
+    hsem_spinlock lock(this->hw.hsem_id);
 
     /* TODO */
     if (callback)

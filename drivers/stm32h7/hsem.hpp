@@ -29,5 +29,20 @@ public:
     static void irq_handler(void);
 };
 
+class hsem_spinlock
+{
+public:
+    hsem_spinlock(uint8_t id) : hsem_id {id}
+    {
+        while (!hsem::fast_take(hsem_id));
+    }
+    ~hsem_spinlock()
+    {
+        hsem::release(hsem_id);
+    }
+private:
+    const uint8_t hsem_id;
+};
+
 }
 #endif /* STM32H7_HSEM_HPP_ */

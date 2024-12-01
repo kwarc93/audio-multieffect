@@ -68,6 +68,7 @@ namespace hal::system
         NVIC_SetPriorityGrouping(0x07 - __NVIC_PRIO_BITS);
 
         drivers::core::enable_cycles_counter();
+
         const uint8_t hsem_id = 0;
         drivers::hsem::init();
 #ifdef CORE_CM7
@@ -100,6 +101,21 @@ namespace hal::system
         assert(drivers::rcc::get_sysclk_freq() == system::system_clock);
 
         SystemCoreClock = system::system_clock;
+
+        /* Configure MPU */
+        ARM_MPU_Disable();
+
+        /* Configure the MPU as Strongly ordered for not defined regions */
+        ARM_MPU_SetRegionEx(0, 0, ARM_MPU_RASR(1, ARM_MPU_AP_NONE, 0, 1, 0, 0, 0x87, ARM_MPU_REGION_SIZE_4GB));
+
+        /* Configure the MPU for QSPI flash */
+        ARM_MPU_SetRegionEx(1, 0x90000000, ARM_MPU_RASR(1, ARM_MPU_AP_FULL, 1, 1, 1, 1, 0, ARM_MPU_REGION_SIZE_128MB));
+
+        /* Configure the MPU for SDRAM as Write-Through */
+        ARM_MPU_SetRegionEx(2, 0x70000000, ARM_MPU_RASR(0, ARM_MPU_AP_FULL, 0, 0, 1, 0, 0, ARM_MPU_REGION_SIZE_16MB));
+
+        /* Enable MPU */
+        ARM_MPU_Enable(MPU_CTRL_PRIVDEFENA_Msk);
 
         /* Enable instruction & data caches */
         SCB_EnableICache();

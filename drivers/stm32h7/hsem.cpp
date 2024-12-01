@@ -31,6 +31,7 @@ void hsem::init(void)
 bool hsem::take(uint8_t id, uint8_t pid)
 {
     assert(id <= HSEM_SEMID_MAX);
+    assert(pid > 0);
 
     /* 1. Write R register with MasterID, processID and take bit=1 */
     /* 2. Read the R register. Take achieved if MasterID and processID match and take bit set to 1 */
