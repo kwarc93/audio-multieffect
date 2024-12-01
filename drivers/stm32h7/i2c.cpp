@@ -13,13 +13,37 @@
 
 #include <drivers/stm32h7/rcc.hpp>
 #include <drivers/stm32h7/gpio.hpp>
+#include <drivers/stm32h7/hsem.hpp>
 #include <drivers/stm32h7/i2c_timing_utility.h>
-
 
 using namespace drivers;
 
 //-----------------------------------------------------------------------------
 /* helpers */
+
+namespace
+{
+
+class intercore_lock
+{
+public:
+    intercore_lock()
+    {
+#ifdef DUAL_CORE
+    while(!hsem::fast_take(hsem_id));
+#endif /* DUAL_CORE */
+    }
+    ~intercore_lock()
+    {
+#ifdef DUAL_CORE
+    hsem::release(hsem_id);
+#endif /* DUAL_CORE */
+    }
+private:
+    static inline constexpr uint8_t hsem_id = 1;
+};
+
+}
 
 //-----------------------------------------------------------------------------
 /* private */
@@ -47,6 +71,8 @@ static constexpr std::array<i2c::i2c_hw, 1> i2cx
 i2c::i2c(id hw_id, mode mode, speed speed) :
 hw {i2cx.at(static_cast<std::underlying_type_t<id>>(hw_id))}, operating_mode {mode}, bus_speed {speed}
 {
+    intercore_lock lock;
+
     rcc::enable_periph_clock(this->hw.pbus, true);
 
     gpio::configure(this->hw.io_sda, gpio::mode::af, this->hw.io_af, gpio::pupd::none, gpio::type::od, gpio::speed::low);
@@ -61,6 +87,8 @@ hw {i2cx.at(static_cast<std::underlying_type_t<id>>(hw_id))}, operating_mode {mo
 
 i2c::~i2c()
 {
+    intercore_lock lock;
+
     this->hw.reg->CR1 &= ~I2C_CR1_PE;
     rcc::enable_periph_clock(this->hw.pbus, false);
     gpio::configure(this->hw.io_sda, gpio::mode::analog);
@@ -69,6 +97,8 @@ i2c::~i2c()
 
 void i2c::reset(void)
 {
+    intercore_lock lock;
+
     while (this->hw.reg->ISR & I2C_ISR_BUSY);
 
     this->hw.reg->CR1 &= ~I2C_CR1_PE;
@@ -78,6 +108,8 @@ void i2c::reset(void)
 
 std::byte i2c::read(void)
 {
+    intercore_lock lock;
+
     this->hw.reg->CR2 = (this->no_stop ? 0 : I2C_CR2_AUTOEND) | 1 << I2C_CR2_NBYTES_Pos | I2C_CR2_START | I2C_CR2_RD_WRN | (this->address << 1);
 
     while (!(this->hw.reg->ISR & I2C_ISR_RXNE));
@@ -91,6 +123,8 @@ std::byte i2c::read(void)
 
 void i2c::write(std::byte byte)
 {
+    intercore_lock lock;
+
     this->hw.reg->CR2 = (this->no_stop ? 0 : I2C_CR2_AUTOEND) | 1 << I2C_CR2_NBYTES_Pos | I2C_CR2_START | (this->address << 1);
 
     if (this->hw.reg->ISR & I2C_ISR_NACKF)
@@ -110,6 +144,8 @@ void i2c::write(std::byte byte)
 
 std::size_t i2c::read(std::byte *data, std::size_t size)
 {
+    intercore_lock lock;
+
     if (data == nullptr || size == 0)
         return 0;
 
@@ -146,6 +182,8 @@ std::size_t i2c::read(std::byte *data, std::size_t size)
 
 std::size_t i2c::write(const std::byte *data, std::size_t size)
 {
+    intercore_lock lock;
+
     if (data == nullptr || size == 0)
         return 0;
 
@@ -182,6 +220,8 @@ std::size_t i2c::write(const std::byte *data, std::size_t size)
 
 void i2c::read(std::byte *data, std::size_t size, const read_cb_t &callback)
 {
+    intercore_lock lock;
+
     /* TODO */
     if (callback)
         callback(data, 0);
@@ -189,6 +229,8 @@ void i2c::read(std::byte *data, std::size_t size, const read_cb_t &callback)
 
 void i2c::write(const std::byte *data, std::size_t size, const write_cb_t &callback)
 {
+    intercore_lock lock;
+
     /* TODO */
     if (callback)
         callback(0);

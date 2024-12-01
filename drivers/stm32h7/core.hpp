@@ -20,7 +20,7 @@ class core final
 public:
     core() = delete;
 
-    enum class core_id { cortex_m7 = 3, cortex_m4 = 1 };
+    enum class core_id { cortex_m7, cortex_m4 };
 
     static void enable_cycles_counter(void);
     static inline uint32_t get_cycles_counter(void) { return DWT->CYCCNT; }

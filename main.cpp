@@ -27,7 +27,7 @@
 #ifdef DUAL_CORE_APP
 static void init_thread(void *arg)
 {
-#if defined(CORE_CM4)
+#ifdef CORE_CM4
     //middlewares::filesystem::test();
     auto lcd_view = std::make_unique<mfx::lcd_view>();
     auto ctrl = std::make_unique<mfx::controller>(nullptr, std::move(lcd_view));

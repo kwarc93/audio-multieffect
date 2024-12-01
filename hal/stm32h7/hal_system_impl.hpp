@@ -68,6 +68,7 @@ namespace hal::system
         NVIC_SetPriorityGrouping(0x07 - __NVIC_PRIO_BITS);
 
         drivers::core::enable_cycles_counter();
+        const uint8_t hsem_id = 0;
         drivers::hsem::init();
 #ifdef CORE_CM7
         /* Wait until Cortex-M4 boots and enters in stop mode */
@@ -107,8 +108,8 @@ namespace hal::system
         hal::sdram::init();
 
         /* Take, then release HSEM 0 in order to notify the Cortex-M4 */
-        drivers::hsem::take(0, 0);
-        drivers::hsem::release(0, 0);
+        drivers::hsem::take(hsem_id, 0);
+        drivers::hsem::release(hsem_id, 0);
 
         /* Wait until Cortex-M4 wakes up from stop mode */
         while (!(RCC->CR & RCC_CR_D2CKRDY));
@@ -121,7 +122,7 @@ namespace hal::system
         SET_BIT(ART->CTR, ART_CTR_EN);
 
         /* Activate HSEM notification */
-        drivers::hsem::enable_notification(0);
+        drivers::hsem::enable_notification(hsem_id);
 
         drivers::core::enter_stop_mode();
 

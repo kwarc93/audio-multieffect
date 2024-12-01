@@ -22,7 +22,7 @@ public:
     static bool take(uint8_t id, uint8_t pid);
     static bool fast_take(uint8_t id);
     static bool is_taken(uint8_t id);
-    static void release(uint8_t id, uint8_t pid);
+    static void release(uint8_t id, uint8_t pid = 0);
     static void enable_notification(uint8_t id);
     static void disable_notification(uint8_t id);
 
