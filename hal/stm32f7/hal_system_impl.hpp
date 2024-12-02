@@ -87,6 +87,17 @@ namespace hal::system
 
         SystemCoreClock = system::system_clock;
 
+        /* Configure the MPU as Strongly ordered for not defined regions */
+        ARM_MPU_SetRegionEx(0, 0, ARM_MPU_RASR(1, ARM_MPU_AP_NONE, 0, 1, 0, 0, 0x87, ARM_MPU_REGION_SIZE_4GB));
+
+        /* Configure the MPU for FMC control, QSPI flash and SDRAM to prevent speculative accesses by Cortex-M7 */
+        ARM_MPU_SetRegionEx(1, 0xA0000000, ARM_MPU_RASR(1, ARM_MPU_AP_FULL, 0, 1, 0, 1, 0, ARM_MPU_REGION_SIZE_8KB));
+        ARM_MPU_SetRegionEx(2, 0x90000000, ARM_MPU_RASR(1, ARM_MPU_AP_FULL, 1, 1, 1, 1, 0, ARM_MPU_REGION_SIZE_16MB));
+        ARM_MPU_SetRegionEx(3, 0xC0000000, ARM_MPU_RASR(1, ARM_MPU_AP_FULL, 1, 0, 1, 1, 0, ARM_MPU_REGION_SIZE_8MB));
+
+        /* Enable MPU */
+        ARM_MPU_Enable(MPU_CTRL_PRIVDEFENA_Msk);
+
         /* Enable instruction & data caches */
         SCB_EnableICache();
         SCB_EnableDCache();

@@ -34,7 +34,7 @@
 #define SDRAM_MODE_REG_WRITE_BURST_MODE_Msk       (0b1u << SDRAM_MODE_REG_WRITE_BURST_MODE_Pos)
 
 /* SDRAM target setup definitions */
-#define SDRAM_START_ADDR                          (0x60000000u)
+#define SDRAM_START_ADDR                          (0xC0000000u)
 #define SDRAM_SIZE                                (8u * 1024u * 1024u)
 #define SDRAM_SDCLK_HZ                            (100000000u)
 #define SDRAM_SDCLK_NS                            (1000000000u / SDRAM_SDCLK_HZ)
@@ -98,15 +98,6 @@ namespace hal::sdram
         /* Initialize GPIOs */
         for (const auto &pin : gpios)
             drivers::gpio::configure(pin, drivers::gpio::mode::af, drivers::gpio::af::af12);
-
-        /* Remap the SDRAM to a different address (0x60000000)
-         *
-         * NOTE: The area 0xC0000000-0xDFFFFFFF (32MB, FMC bank 5 & 6) is specified as Device Memory Type.
-         * According to the ARMv7-M Architecture Reference Manual chapter B3.1 (table B3-1),
-         * all accesses to Device Memory Types must be naturally aligned.
-         * If they are not, a hard fault will execute no matter if the bit UNALIGN_TRP (bit 3) in the CCR register is enabled or not.*/
-        drivers::rcc::enable_periph_clock({drivers::rcc::bus::APB2, RCC_APB2ENR_SYSCFGEN}, true);
-        SYSCFG->MEMRMP |= SYSCFG_MEMRMP_SWP_FMC_0;
 
         /* Configuration for HCLK = 100MHz */
         static constexpr drivers::fmc::sdram::config cfg

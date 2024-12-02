@@ -10,7 +10,7 @@ MEMORY
 {
     RAM (xrw)       : ORIGIN = 0x10000000, LENGTH = 288K
     FLASH (rx)      : ORIGIN = 0x08100000, LENGTH = 1024K
-    SDRAM (xrw)     : ORIGIN = 0x70400000, LENGTH = 4M
+    SDRAM (xrw)     : ORIGIN = 0xD0400000, LENGTH = 4M
 }
 
 /* Linker script to place sections and symbol values. Should be used together

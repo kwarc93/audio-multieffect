@@ -11,7 +11,7 @@ MEMORY
     DTCMRAM (xrw)   : ORIGIN = 0x20000000, LENGTH = 64K
     RAM (xrw)       : ORIGIN = 0x20010000, LENGTH = 256K
     FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 1024K
-    SDRAM (xrw)     : ORIGIN = 0x60000000, LENGTH = 8M
+    SDRAM (xrw)     : ORIGIN = 0xC0000000, LENGTH = 8M
 }
 
 /* Linker script to place sections and symbol values. Should be used together
