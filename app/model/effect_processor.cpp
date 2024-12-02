@@ -384,7 +384,7 @@ uint8_t effect_processor::get_processing_load(void)
 //-----------------------------------------------------------------------------
 /* public */
 
-effect_processor::effect_processor() : active_object("effect_processor", osPriorityHigh, 4096),
+effect_processor::effect_processor() :
 audio{middlewares::i2c_managers::main::get_instance()}
 {
     this->processing_time_us = 0;

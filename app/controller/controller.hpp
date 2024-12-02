@@ -61,7 +61,7 @@ class controller : public middlewares::active_object<controller_events::incoming
                    public middlewares::observer<lcd_view_events::outgoing>
 {
 public:
-    controller(std::unique_ptr<effect_processor> model, std::unique_ptr<lcd_view> view);
+    controller(std::unique_ptr<effect_processor_base> model, std::unique_ptr<lcd_view> view);
     ~controller();
 
 private:
@@ -96,7 +96,7 @@ private:
 
     int error_code;
 
-    std::unique_ptr<effect_processor> model;
+    std::unique_ptr<effect_processor_base> model;
     std::unique_ptr<lcd_view> view;
 
     effect_id current_effect;

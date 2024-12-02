@@ -140,8 +140,16 @@ using outgoing = std::variant
 
 }
 
-class effect_processor : public middlewares::active_object<effect_processor_events::incoming>,
-                         public middlewares::subject<effect_processor_events::outgoing>
+class effect_processor_base : public middlewares::active_object<effect_processor_events::incoming>,
+                              public middlewares::subject<effect_processor_events::outgoing>
+{
+public:
+    effect_processor_base() : active_object("effect_processor", osPriorityHigh, 4096) {}
+private:
+    virtual void dispatch(const event &e) {};
+};
+
+class effect_processor : public effect_processor_base
 {
 public:
     effect_processor();

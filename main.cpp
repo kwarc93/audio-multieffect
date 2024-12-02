@@ -22,9 +22,14 @@
 
 #include "middlewares/filesystem.hpp"
 
-//#define DUAL_CORE_APP
+#define DUAL_CORE_APP
 
 #ifdef DUAL_CORE_APP
+class fake_effect_processor : public mfx::effect_processor_base
+{
+    // TODO: Handle IPC between CM4 & CM7 (FreeRTOS AMP)
+};
+
 static void init_thread(void *arg)
 {
 #ifdef CORE_CM4
@@ -32,8 +37,9 @@ static void init_thread(void *arg)
     middlewares::filesystem::test();
 
     /* Create active objects */
+    auto fake_model = std::make_unique<fake_effect_processor>();
     auto lcd_view = std::make_unique<mfx::lcd_view>();
-    auto ctrl = std::make_unique<mfx::controller>(nullptr, std::move(lcd_view));
+    auto ctrl = std::make_unique<mfx::controller>(std::move(fake_model), std::move(lcd_view));
 #endif /* CORE_CM4 */
 
 #ifdef CORE_CM7
