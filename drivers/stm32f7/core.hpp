@@ -10,6 +10,8 @@
 
 #include <hal_interface.hpp>
 
+#include <cmsis/stm32f7xx.h>
+
 namespace drivers
 {
 
@@ -19,11 +21,11 @@ public:
     core() = delete;
 
     static void enable_cycles_counter(void);
-    static inline uint32_t get_cycles_counter(void){ return *cyccnt; };
+    static inline uint32_t get_cycles_counter(void) { return DWT->CYCCNT; }
     static void enter_sleep_mode(void);
     static void enter_stop_mode(void);
-private:
-    static inline volatile uint32_t *cyccnt;
+
+    static inline uint32_t &clock = SystemCoreClock;
 };
 
 class core_critical_section

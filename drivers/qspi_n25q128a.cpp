@@ -17,11 +17,11 @@ using namespace drivers;
 /**
   * @brief  N25Q128A Configuration
   */
-#define N25Q128A_ADDR_BITS                   24
 #define N25Q128A_FLASH_SIZE                  0x1000000 // 128 Mbits (16MB)
 #define N25Q128A_SECTOR_SIZE                 0x10000   // 256 sectors of 64KB
 #define N25Q128A_SUBSECTOR_SIZE              0x1000    // 4096 subsectors of 4KB
 #define N25Q128A_PAGE_SIZE                   0x100     // 65536 pages of 256B
+#define N25Q128A_ADDR_BITS                   (31 - __CLZ(N25Q128A_FLASH_SIZE))
 
 #define N25Q128A_DUMMY_CYCLES_READ           8
 #define N25Q128A_DUMMY_CYCLES_READ_QUAD      10
@@ -242,7 +242,7 @@ qspi_n25q128a::qspi_n25q128a()
     /* Configure QSPI peripheral */
     static constexpr qspi::config cfg
     {
-        128, // Size: 128Mbit
+        N25Q128A_FLASH_SIZE, // Size: 128Mbit
         6, // min. 50ns
         qspi::clk_mode::mode0,
         2, // AHBCLK / 2 (max. clock: 108 MHz)

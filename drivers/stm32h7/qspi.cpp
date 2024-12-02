@@ -65,8 +65,6 @@ inline bool wait_for_flag(volatile uint32_t &reg, uint32_t flag, uint32_t &timeo
 
 void qspi::configure(const config &cfg)
 {
-    constexpr auto mbit_to_addr_bits = [](uint32_t mbit) -> uint8_t { return std::log2f(mbit * 1024UL * 1024UL / 8UL - 1); };
-
     rcc::enable_periph_clock(RCC_PERIPH_BUS(AHB3, QSPI), true);
 
     QUADSPI->CR = 0;
@@ -76,13 +74,14 @@ void qspi::configure(const config &cfg)
 
     QUADSPI->CCR = cfg.ddr << QUADSPI_CCR_DDRM_Pos;
 
-    QUADSPI->DCR |= (mbit_to_addr_bits(cfg.size) - 1) << QUADSPI_DCR_FSIZE_Pos;
+    QUADSPI->DCR |= ((31 - __CLZ(cfg.size)) - 1) << QUADSPI_DCR_FSIZE_Pos;
     QUADSPI->DCR |= (std::clamp((uint32_t)cfg.cs_ht, 1ul, 8ul) - 1) << QUADSPI_DCR_CSHT_Pos;
     QUADSPI->DCR |= static_cast<uint8_t>(cfg.mode) << QUADSPI_DCR_CKMODE_Pos;
 
+    if (!cfg.ddr)
+        QUADSPI->CR |= cfg.sshift << QUADSPI_CR_SSHIFT_Pos;
     QUADSPI->CR |= cfg.dual << QUADSPI_CR_DFM_Pos;
     QUADSPI->CR |= (std::clamp((uint32_t)cfg.clk_div, 1ul, 256ul) - 1) << QUADSPI_CR_PRESCALER_Pos;
-    QUADSPI->CR |= cfg.sshift << QUADSPI_CR_SSHIFT_Pos;
 }
 
 bool qspi::send(const command &cmd, uint32_t timeout_ms)
@@ -91,8 +90,8 @@ bool qspi::send(const command &cmd, uint32_t timeout_ms)
 
     /* Fill Communication Configuration Register */
     uint32_t ccr = QUADSPI->CCR;
-    ccr &= ~(QUADSPI_CCR_FMODE | QUADSPI_CCR_DMODE | QUADSPI_CCR_DCYC | QUADSPI_CCR_ABSIZE |
-             QUADSPI_CCR_ABMODE | QUADSPI_CCR_ADSIZE | QUADSPI_CCR_ADMODE | QUADSPI_CCR_IMODE | QUADSPI_CCR_INSTRUCTION);
+    ccr &= ~(QUADSPI_CCR_FMODE | QUADSPI_CCR_DMODE | QUADSPI_CCR_DCYC | QUADSPI_CCR_ABSIZE | QUADSPI_CCR_ABMODE |
+             QUADSPI_CCR_ADSIZE | QUADSPI_CCR_ADMODE | QUADSPI_CCR_IMODE | QUADSPI_CCR_INSTRUCTION);
     ccr |= (static_cast<uint32_t>(cmd.mode) << QUADSPI_CCR_FMODE_Pos);
     ccr |= (static_cast<uint32_t>(cmd.data.mode) << QUADSPI_CCR_DMODE_Pos);
     ccr |= (bits_to_size(cmd.address.bits) << QUADSPI_CCR_ADSIZE_Pos) |
@@ -114,17 +113,16 @@ bool qspi::send(const command &cmd, uint32_t timeout_ms)
         QUADSPI->CR |= QUADSPI_CR_APMS;
     }
 
-    QUADSPI->DLR = cmd.data.size - 1;
-    QUADSPI->ABR = cmd.alt_bytes.value;
     QUADSPI->CR |= QUADSPI_CR_EN;
+    QUADSPI->DLR = cmd.data.size - 1;
     QUADSPI->CCR = ccr;
+    QUADSPI->ABR = cmd.alt_bytes.value;
     QUADSPI->AR = cmd.address.value;
-
-    bool result = false;
 
     std::byte *data = cmd.data.value;
     size_t data_size = cmd.data.size;
 
+    bool result = false;
     switch (cmd.mode)
     {
         case functional_mode::indirect_write:

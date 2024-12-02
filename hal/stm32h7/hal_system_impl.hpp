@@ -109,10 +109,10 @@ namespace hal::system
         ARM_MPU_SetRegionEx(0, 0, ARM_MPU_RASR(1, ARM_MPU_AP_NONE, 0, 1, 0, 0, 0x87, ARM_MPU_REGION_SIZE_4GB));
 
         /* Configure the MPU for QSPI flash */
-        ARM_MPU_SetRegionEx(1, 0x90000000, ARM_MPU_RASR(1, ARM_MPU_AP_FULL, 1, 1, 1, 1, 0, ARM_MPU_REGION_SIZE_128MB));
+        ARM_MPU_SetRegionEx(1, 0x90000000, ARM_MPU_RASR(1, ARM_MPU_AP_FULL, 1, 1, 1, 1, 0, ARM_MPU_REGION_SIZE_64MB));
 
-        /* Configure the MPU for SDRAM as Write-Through */
-        ARM_MPU_SetRegionEx(2, 0x70000000, ARM_MPU_RASR(0, ARM_MPU_AP_FULL, 0, 0, 1, 0, 0, ARM_MPU_REGION_SIZE_16MB));
+        /* Configure the MPU for SDRAM */
+        ARM_MPU_SetRegionEx(2, 0x70000000, ARM_MPU_RASR(0, ARM_MPU_AP_FULL, 0, 0, 1, 0, 0, ARM_MPU_REGION_SIZE_8MB));
 
         /* Enable MPU */
         ARM_MPU_Enable(MPU_CTRL_PRIVDEFENA_Msk);

@@ -22,18 +22,22 @@
 
 #include "middlewares/filesystem.hpp"
 
-#define DUAL_CORE_APP
+//#define DUAL_CORE_APP
 
 #ifdef DUAL_CORE_APP
 static void init_thread(void *arg)
 {
 #ifdef CORE_CM4
-    //middlewares::filesystem::test();
+    /* Test filesystem */
+    middlewares::filesystem::test();
+
+    /* Create active objects */
     auto lcd_view = std::make_unique<mfx::lcd_view>();
     auto ctrl = std::make_unique<mfx::controller>(nullptr, std::move(lcd_view));
 #endif /* CORE_CM4 */
 
 #ifdef CORE_CM7
+    /* Create active objects */
     auto model = std::make_unique<mfx::effect_processor>();
 #endif /* CORE_CM7 */
 

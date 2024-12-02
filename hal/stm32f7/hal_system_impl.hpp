@@ -19,6 +19,8 @@
 #include <drivers/stm32f7/flash.hpp>
 #include <drivers/stm32f7/exti.hpp>
 
+#include "hal_sdram_impl.hpp"
+
 namespace hal::system
 {
     constexpr inline uint32_t hsi_clock = 16000000;
@@ -85,14 +87,11 @@ namespace hal::system
 
         SystemCoreClock = system::system_clock;
 
-#ifndef HAL_SYSTEM_RTOS_ENABLED
-        /* Set System Tick interrupt */
-        SysTick_Config(system::system_clock / system::systick_freq);
-#endif
-
         /* Enable instruction & data caches */
         SCB_EnableICache();
         SCB_EnableDCache();
+
+        hal::sdram::init();
 
         /* Enable EXTI event (wake-up from stop mode) */
         drivers::exti::configure(true,
@@ -101,6 +100,11 @@ namespace hal::system
                                  drivers::exti::mode::event,
                                  drivers::exti::edge::rising,
                                  {});
+
+#ifndef HAL_SYSTEM_RTOS_ENABLED
+        /* Set System Tick interrupt */
+        SysTick_Config(system::system_clock / system::systick_freq);
+#endif
     }
 
     inline void sleep(void)

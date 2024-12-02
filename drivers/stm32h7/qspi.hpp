@@ -25,7 +25,7 @@ public:
 
     struct config
     {
-        uint16_t size; // FLASH size [Mbit]
+        size_t size; // FLASH size [bytes]
         uint8_t cs_ht; // FLASH CS high time: 1 - 8 [cycles]
         clk_mode mode; // FLASH clock mode
         uint16_t clk_div; // AHB3 clock divider: 1 - 256
