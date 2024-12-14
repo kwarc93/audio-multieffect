@@ -62,9 +62,10 @@ extern "C" void system_init(void)
 //-----------------------------------------------------------------------------
 /* syscalls */
 
-// TODO: Resolve problem with sharing USART in DUAL_CORE_APP:
-//    a) Use HSEM to manage access to stdio USART
-// -> b) Allow access to USART by only one core (CM4)
+// TODO: Resolve problem with stdio USART in DUAL_CORE_APP:
+//    a) Use HSEM to synchronize access to stdio USART
+// -> b) Limit access to USART to only one core (CM4)
+//    c) Use another USART instance for second core
 
 #if !(defined(DUAL_CORE_APP) && defined(CORE_CM7))
 #ifdef HAL_SYSTEM_RTOS_ENABLED

@@ -21,6 +21,18 @@
 #include "middlewares/filesystem.hpp"
 
 #ifdef DUAL_CORE_APP
+#include "FreeRTOS.h"
+#include "message_buffer.h"
+
+struct ipc
+{
+    MessageBufferHandle_t cm4_to_cm7_handle;
+    StaticMessageBuffer_t cm4_to_cm7_struct;
+    uint8_t cm4_to_cm7_buf[4096];
+};
+
+static volatile ipc ipc_struct __attribute__((section(".ipc")));
+
 class fake_effect_processor : public mfx::effect_processor_base
 {
     // TODO: Handle IPC between CM4 & CM7 (FreeRTOS AMP)

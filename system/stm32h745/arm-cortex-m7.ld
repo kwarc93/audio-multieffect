@@ -12,6 +12,7 @@ MEMORY
     RAM (xrw)       : ORIGIN = 0x24000000, LENGTH = 512K
     FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 1024K
     SDRAM (xrw)     : ORIGIN = 0xD0000000, LENGTH = 4M
+    SHARED_RAM (xrw): ORIGIN = 0x38000000, LENGTH = 64K
 }
 
 /* Linker script to place sections and symbol values. Should be used together
@@ -210,4 +211,11 @@ SECTIONS
 		*(.dtcmram*)
 		. = ALIGN(4);
 	} > DTCMRAM
+	
+	/* Sections in shared RAM */
+	.ipc 0x38000000:
+	{
+		KEEP(*(.ipc))
+	} > SHARED_RAM
+	
 }
