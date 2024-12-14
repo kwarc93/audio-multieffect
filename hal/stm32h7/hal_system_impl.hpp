@@ -122,12 +122,14 @@ namespace hal::system
 
         hal::sdram::init();
 
+#ifdef DUAL_CORE_APP
         /* Take, then release HSEM 0 in order to notify the Cortex-M4 */
         drivers::hsem::take(hsem_id, 0);
         drivers::hsem::release(hsem_id, 0);
 
         /* Wait until Cortex-M4 wakes up from stop mode */
         while (!(RCC->CR & RCC_CR_D2CKRDY));
+#endif /* DUAL_CORE_APP */
 #endif /* CORE_CM7 */
 
 #ifdef CORE_CM4

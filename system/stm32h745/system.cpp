@@ -62,9 +62,11 @@ extern "C" void system_init(void)
 //-----------------------------------------------------------------------------
 /* syscalls */
 
-// TODO: Use HSEM to manage access to stdio USART
+// TODO: Resolve problem with sharing USART in DUAL_CORE_APP:
+//    a) Use HSEM to manage access to stdio USART
+// -> b) Allow access to USART by only one core (CM4)
 
-#ifdef CORE_CM4
+#if !(defined(DUAL_CORE_APP) && defined(CORE_CM7))
 #ifdef HAL_SYSTEM_RTOS_ENABLED
 static osMutexId_t stdio_mutex_id = NULL;
 static const osMutexAttr_t stdio_mutex_attr =
@@ -132,5 +134,5 @@ extern "C" int _read (int fd, char *buf, int cnt)
     return stdio.read(reinterpret_cast<std::byte*>(buf), cnt);
 }
 #endif /* HAL_SYSTEM_RTOS_ENABLED */
-#endif /* CORE_CM4 */
+#endif /* !(defined(DUAL_CORE_APP) && defined(CORE_CM7)) */
 

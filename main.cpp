@@ -10,8 +10,6 @@
 #include <cstdio>
 
 #include <hal_system.hpp>
-#include <hal_sdram.hpp>
-#include <hal_led.hpp>
 
 #include "cmsis_os2.h"
 
@@ -21,8 +19,6 @@
 #include "app/controller/controller.hpp"
 
 #include "middlewares/filesystem.hpp"
-
-#define DUAL_CORE_APP
 
 #ifdef DUAL_CORE_APP
 class fake_effect_processor : public mfx::effect_processor_base
