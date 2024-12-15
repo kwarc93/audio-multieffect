@@ -21,38 +21,28 @@
 #include "middlewares/filesystem.hpp"
 
 #ifdef DUAL_CORE_APP
-#include "FreeRTOS.h"
-#include "message_buffer.h"
-
-struct ipc
-{
-    MessageBufferHandle_t cm4_to_cm7_handle;
-    StaticMessageBuffer_t cm4_to_cm7_struct;
-    uint8_t cm4_to_cm7_buf[4096];
-};
-
-static volatile ipc ipc_struct __attribute__((section(".ipc")));
-
-class fake_effect_processor : public mfx::effect_processor_base
-{
-    // TODO: Handle IPC between CM4 & CM7 (FreeRTOS AMP)
-};
-
+#ifdef CORE_CM4
+#include "app/ipc_effect_processor.hpp"
+#endif
+#ifdef CORE_CM7
+#include "app/ipc_controller.hpp"
+#endif
 static void init_thread(void *arg)
 {
 #ifdef CORE_CM4
     /* Test filesystem */
-    middlewares::filesystem::test();
+    //middlewares::filesystem::test();
 
     /* Create active objects */
-    auto fake_model = std::make_unique<fake_effect_processor>();
+    auto ipc_model = std::make_unique<mfx::ipc_effect_processor>();
     auto lcd_view = std::make_unique<mfx::lcd_view>();
-    auto ctrl = std::make_unique<mfx::controller>(std::move(fake_model), std::move(lcd_view));
+    auto ctrl = std::make_unique<mfx::controller>(std::move(ipc_model), std::move(lcd_view));
 #endif /* CORE_CM4 */
 
 #ifdef CORE_CM7
     /* Create active objects */
     auto model = std::make_unique<mfx::effect_processor>();
+    auto ipc_ctrl = std::make_unique<mfx::ipc_controller>(std::move(model));
 #endif /* CORE_CM7 */
 
     osThreadSuspend(osThreadGetId());
@@ -61,7 +51,7 @@ static void init_thread(void *arg)
 static void init_thread(void *arg)
 {
     /* Test filesystem */
-    middlewares::filesystem::test();
+    //middlewares::filesystem::test();
 
     /* Create active objects */
     auto model = std::make_unique<mfx::effect_processor>();

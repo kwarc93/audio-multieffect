@@ -73,7 +73,7 @@ extern uint32_t SystemCoreClock;
 #define configHEAP_CLEAR_MEMORY_ON_FREE         1
 
 /* Memory allocation related definitions. */
-#define configSUPPORT_STATIC_ALLOCATION             0
+#define configSUPPORT_STATIC_ALLOCATION             1
 #define configSUPPORT_DYNAMIC_ALLOCATION            1
 #define configTOTAL_HEAP_SIZE                       (32 * 1024)
 //#define configAPPLICATION_ALLOCATED_HEAP            1
@@ -169,6 +169,17 @@ standard names. */
 #define vPortSVCHandler SVC_Handler
 #define xPortPendSVHandler PendSV_Handler
 //#define xPortSysTickHandler SysTick_Handler
+
+#ifdef DUAL_CORE_APP
+#ifdef CORE_CM4
+void generate_cm7_interrupt( void * xUpdatedMessageBuffer );
+#define sbSEND_COMPLETED( pxStreamBuffer ) generate_cm7_interrupt( pxStreamBuffer )
+#endif /* CORE_CM4 */
+#ifdef CORE_CM7
+//void generate_cm4_interrupt( void * xUpdatedMessageBuffer );
+//#define sbSEND_COMPLETED( pxStreamBuffer ) generate_cm4_interrupt( pxStreamBuffer )
+#endif /* CORE_CM7 */
+#endif /* DUAL_CORE_APP */
 
 /* A header file that defines trace macro can be included here. */
 

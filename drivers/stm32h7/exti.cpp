@@ -33,8 +33,6 @@ using namespace drivers;
 /* public */
 void exti::configure(bool state, line line, port port, mode mode, edge edge, exti_cb_t callback)
 {
-    rcc::enable_periph_clock(RCC_PERIPH_BUS(APB4, SYSCFG), true);
-
     /* Calculate SYSCFG register for the EXTI line */
     const uint8_t line_nr = static_cast<uint8_t>(line);
     const uint8_t reg_id = line_nr / 4;
@@ -43,10 +41,14 @@ void exti::configure(bool state, line line, port port, mode mode, edge edge, ext
     const uint8_t shift = (line_nr % 4) * 4;
     const uint32_t mask = 0x000F << shift;
 
-    /* Configure GPIO port source for the EXTI line */
-    uint32_t temp = SYSCFG->EXTICR[reg_id] & ~mask;
-    temp |= (static_cast<uint8_t>(port) << shift) & mask;
-    SYSCFG->EXTICR[reg_id] = temp;
+    if (port != port::none)
+    {
+        /* Configure GPIO port source for the EXTI line */
+        rcc::enable_periph_clock(RCC_PERIPH_BUS(APB4, SYSCFG), true);
+        uint32_t temp = SYSCFG->EXTICR[reg_id] & ~mask;
+        temp |= (static_cast<uint8_t>(port) << shift) & mask;
+        SYSCFG->EXTICR[reg_id] = temp;
+    }
 
     /* Save callback */
     callbacks[line_nr] = callback;

@@ -39,7 +39,7 @@ public:
     enum class port:uint8_t
     {
         porta = 0, portb, portc, portd, porte,
-        portf, portg, porth, porti, portj, portk
+        portf, portg, porth, porti, portj, portk, none
     };
 
     using exti_cb_t = std::function<void(void)>;
