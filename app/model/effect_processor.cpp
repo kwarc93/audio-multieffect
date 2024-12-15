@@ -186,6 +186,8 @@ void effect_processor::event_handler(const events::get_processing_load &e)
 {
 #ifndef DUAL_CORE_APP // TODO: [IPC] Handle this differently
     e.response(this->get_processing_load());
+#else
+    this->notify(events::dsp_load_changed {this->get_processing_load()});
 #endif /* DUAL_CORE_APP */
 }
 
@@ -196,12 +198,15 @@ void effect_processor::event_handler(const events::set_effect_controls &e)
 
 void effect_processor::event_handler(const events::get_effect_attributes &e)
 {
-#ifndef DUAL_CORE_APP  // TODO: [IPC] Handle this differently
     auto effect = this->find_effect(e.id);
-
     if (effect)
+    {
+#ifndef DUAL_CORE_APP  // TODO: [IPC] Handle this differently
         e.response(effect->get_basic_attributes(), effect->get_specific_attributes());
+#else
+        this->notify_effect_attributes_changed(effect);
 #endif /* DUAL_CORE_APP */
+    }
 }
 
 void effect_processor::set_controls(const tremolo_attr::controls &ctrl)

@@ -14,9 +14,15 @@
 
 struct ipc
 {
-    MessageBufferHandle_t cm4_to_cm7_handle;
-    StaticMessageBuffer_t cm4_to_cm7_struct;
-    uint8_t cm4_to_cm7_buf[4096];
+    struct channel
+    {
+        MessageBufferHandle_t mb_handle;
+        StaticMessageBuffer_t mb_object;
+        uint8_t mb_buffer[4096];
+    };
+
+    channel cm4_to_cm7;
+    channel cm7_to_cm4;
 };
 
 inline ipc ipc_struct __attribute__((section(".ipc")));

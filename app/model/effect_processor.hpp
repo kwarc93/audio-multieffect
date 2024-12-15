@@ -111,6 +111,11 @@ struct effect_attributes_changed
     effect_specific_attributes specific;
 };
 
+struct dsp_load_changed
+{
+    uint8_t load;
+};
+
 using input_volume_changed = set_input_volume;
 using output_volume_changed = set_output_volume;
 
@@ -133,6 +138,7 @@ using incoming = std::variant
 
 using outgoing = std::variant
 <
+    dsp_load_changed,
     input_volume_changed,
     output_volume_changed,
     effect_attributes_changed

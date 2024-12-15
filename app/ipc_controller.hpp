@@ -45,6 +45,11 @@ public:
      active_object("ipc_ctrl", osPriorityNormal, 2048),
      model {std::move(model)}
      {
+         ipc_struct.cm7_to_cm4.mb_handle = xMessageBufferCreateStatic(sizeof(ipc_struct.cm7_to_cm4.mb_buffer),
+                                                                      ipc_struct.cm7_to_cm4.mb_buffer,
+                                                                      &ipc_struct.cm7_to_cm4.mb_object);
+         assert(ipc_struct.cm7_to_cm4.mb_handle != NULL);
+
          drivers::exti::configure(true,
                                   drivers::exti::line::line0,
                                   drivers::exti::port::none,
@@ -57,6 +62,7 @@ public:
                                      this->send(e, 0);
                                   }
                                  );
+
          /* Start observing model */
          this->model->attach(this);
      }
@@ -74,14 +80,18 @@ private:
 
     void update(const effect_processor_events::outgoing &e) override
     {
-        /* TODO: Handle outgoing events through IPC */
+        const size_t bytes_sent = xMessageBufferSend(ipc_struct.cm7_to_cm4.mb_handle, (void *)&e, sizeof(e), 0);
+        if (bytes_sent != sizeof(e))
+        {
+            /* Not enough space in message buffer */
+        }
     }
 
     /* Event handlers */
     void event_handler(const ipc_controller_events::ipc_data &e)
     {
         effect_processor_events::incoming evt;
-        const size_t bytes_received = xMessageBufferReceive(ipc_struct.cm4_to_cm7_handle, &evt, sizeof(evt), 0);
+        const size_t bytes_received = xMessageBufferReceive(ipc_struct.cm4_to_cm7.mb_handle, &evt, sizeof(evt), 0);
 
         /* Check the number of bytes received was as expected. */
         if (bytes_received == sizeof(evt))
@@ -94,6 +104,16 @@ private:
     std::unique_ptr<effect_processor_base> model;
 };
 
+}
+
+void generate_cm4_interrupt( void * xUpdatedMessageBuffer )
+{
+    MessageBufferHandle_t updated_buffer = (MessageBufferHandle_t) xUpdatedMessageBuffer;
+
+    if (updated_buffer == ipc_struct.cm7_to_cm4.mb_handle)
+    {
+        drivers::exti::trigger(drivers::exti::line::line1);
+    }
 }
 
 #endif /* IPC_CONTROLLER_HPP_ */

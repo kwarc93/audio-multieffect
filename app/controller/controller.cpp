@@ -83,7 +83,7 @@ void controller::update(const effect_processor_events::outgoing &e)
     /* WARNING: This method could have been called from another thread */
     /* FIXME: Forward this event dispatching to the controller thread (to avoid race conditions) */
 
-    std::visit([this](auto &&e) { /*this->model_event_handler(e);*/ }, e);
+    std::visit([this](auto &&e) { this->model_event_handler(e); }, e);
 }
 
 void controller::update(const lcd_view_events::outgoing &e)
@@ -269,6 +269,12 @@ void controller::view_event_handler(const lcd_view_events::move_effect_request &
     std::swap(*it, *std::next(it, std::clamp(e.step, -1L, 1L)));
 
     this->model->send({effect_processor_events::move_effect {e.id, e.step}});
+}
+
+void controller::model_event_handler(const effect_processor_events::dsp_load_changed &e)
+{
+    const controller::event evt {events::effect_processor_load {e.load}};
+    this->send(evt);
 }
 
 void controller::model_event_handler(const effect_processor_events::input_volume_changed &e)

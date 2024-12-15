@@ -67,7 +67,7 @@ extern "C" void system_init(void)
 // -> b) Limit access to USART to only one core (CM4)
 //    c) Use another USART instance for second core
 
-#if !(defined(DUAL_CORE_APP) && defined(CORE_CM4))
+#if !(defined(DUAL_CORE_APP) && defined(CORE_CM7))
 #ifdef HAL_SYSTEM_RTOS_ENABLED
 static osMutexId_t stdio_mutex_id = NULL;
 static const osMutexAttr_t stdio_mutex_attr =

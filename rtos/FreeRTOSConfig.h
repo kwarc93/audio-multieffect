@@ -176,8 +176,8 @@ void generate_cm7_interrupt( void * xUpdatedMessageBuffer );
 #define sbSEND_COMPLETED( pxStreamBuffer ) generate_cm7_interrupt( pxStreamBuffer )
 #endif /* CORE_CM4 */
 #ifdef CORE_CM7
-//void generate_cm4_interrupt( void * xUpdatedMessageBuffer );
-//#define sbSEND_COMPLETED( pxStreamBuffer ) generate_cm4_interrupt( pxStreamBuffer )
+void generate_cm4_interrupt( void * xUpdatedMessageBuffer );
+#define sbSEND_COMPLETED( pxStreamBuffer ) generate_cm4_interrupt( pxStreamBuffer )
 #endif /* CORE_CM7 */
 #endif /* DUAL_CORE_APP */
 
