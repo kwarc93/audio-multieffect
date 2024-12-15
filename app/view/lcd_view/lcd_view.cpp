@@ -291,11 +291,14 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const vocoder_attr &spe
 
     std::string options;
     for (const auto &band : specific.bands_list)
+    {
+        if (band == 0) break;
         options += std::to_string(band) + "\n";
+    }
     options.erase(options.end() - 1);
 
     lv_roller_set_options(ui_roller_voc_bands, options.c_str(), LV_ROLLER_MODE_NORMAL);
-    const auto pos = std::distance(specific.bands_list.begin(), find(specific.bands_list.begin(), specific.bands_list.end(), specific.ctrl.bands));
+    const auto pos = std::distance(specific.bands_list.begin(), std::find(specific.bands_list.begin(), specific.bands_list.end(), specific.ctrl.bands));
     lv_roller_set_selected(ui_roller_voc_bands, pos, LV_ANIM_OFF);
 
     lv_arc_set_value(ui_arc_voc_clarity, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_voc_clarity), lv_arc_get_max_value(ui_arc_voc_clarity), specific.ctrl.clarity));

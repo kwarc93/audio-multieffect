@@ -720,14 +720,16 @@ void vocoder::set_mode(vocoder_attr::controls::mode_type mode)
 
     if (mode == vocoder_attr::controls::mode_type::vintage)
     {
-        this->attr.bands_list.resize(1);
+        //this->attr.bands_list.resize(1);
         this->attr.bands_list.at(0) = this->vintage->bands;
+        this->attr.bands_list.at(1) = 0;
     }
     else
     {
-        this->attr.bands_list.resize(this->modern->bands_variants);
+        //this->attr.bands_list.resize(this->modern->bands_variants);
         for (unsigned i = 0; i < this->modern->bands_variants; i++)
             this->attr.bands_list.at(i) = (1U << (3U + i));
+        this->attr.bands_list.at(this->modern->bands_variants) = 0;
 
         this->attr.ctrl.bands = 0; // Reset bands number to trigger set_bands()
     }

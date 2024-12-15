@@ -119,7 +119,7 @@ struct cabinet_sim_attr
         enum class resolution {standart = 1024, high = 2048} ir_res; // IR resolution in samples
     } ctrl;
 
-    std::vector<const char *> ir_names; // List of available impulses
+    std::array<const char *, 3> ir_names; // List of available impulses
 };
 
 struct vocoder_attr
@@ -133,7 +133,7 @@ struct vocoder_attr
         enum class mode_type {vintage, modern} mode; // Vocoder type, IIR bandpass filters or FFT
     } ctrl;
 
-    std::vector<unsigned> bands_list; // List of available bands
+    std::array<unsigned, 8> bands_list; // List of available bands
 };
 
 typedef std::variant
