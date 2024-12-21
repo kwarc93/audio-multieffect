@@ -35,8 +35,9 @@ https://youtu.be/xXm61wA0C68?feature=shared
 - STM32F746G-DISCO
 - STM32H745I-DISCO
 
-*Note 1: On STM32H745I-DISCO board, the application runs on single core (Cortex-M7) and the second core (Cortex-M4) should be put in stop mode.*  
-*Note 2: To use digital microphone on STM32H745I-DISCO board, some solder bridges need to be changed (open: SB41 & SB42, close: SB40 & SB32).*
+*Note 1: The STM32H745I-DISCO board supports parallel dual-core operation, where DSP operations are performed on Cortex-M7 and GUI on the Cortex-M4 core.*  
+*Note 2: On STM32H745I-DISCO board, when the application runs on single core (Cortex-M7), the second core (Cortex-M4) should be put in stop mode.*  
+*Note 3: To use digital microphone on STM32H745I-DISCO board, some solder bridges need to be changed (open: SB41 & SB42, close: SB40 & SB32).*
 
 ## How to build
 
@@ -48,10 +49,10 @@ Follow these steps:
 3. In Eclipse go to: **File->Import->Existing projects into workspace**, select folder with cloned repo and check **Copy projects into workspace**. Click **Finish**.
 
 Now the project should have four build configurations: 
-- **STM32F746G-DISCO-Debug**
-- **STM32F746G-DISCO-Release**
-- **STM32H745I-DISCO-CM7-Debug**
-- **STM32H745I-DISCO-CM7-Release**
+- **STM32F746G-DISCO**
+- **STM32H745I-DISCO** *(single core)*
+- **STM32H745I-DISCO-CM4** *(dual core)*
+- **STM32H745I-DISCO-CM7** *(dual core)*
 
 it should be possible to build each one with no errors.
 
@@ -67,3 +68,6 @@ Here is a brief description of how to add new effect to the system:
 
 After completing these steps it should be possible to compile the project. However this instruction is not very detailed so there may be compilation errors if something is missing. If so, follow the compiler error messages.
 
+## What is not supported
+- loading and storing effect presets (work in progress)
+- changing the LCD brightness
