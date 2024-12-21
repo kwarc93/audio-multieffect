@@ -10,14 +10,14 @@
 
 #include <variant>
 #include <memory>
+#include <cassert>
 
 #include <middlewares/active_object.hpp>
 #include <middlewares/observer.hpp>
 
 #include "app/model/effect_processor.hpp"
-#include "app/ipc_defs.hpp"
 
-#include <drivers/stm32h7/exti.hpp>
+#include <hal/hal_ipc.hpp>
 
 namespace mfx
 {
@@ -45,26 +45,18 @@ public:
      active_object("ipc_ctrl", osPriorityNormal, 2048),
      model {std::move(model)}
      {
-         ipc_struct.cm7_to_cm4.mb_handle = xMessageBufferCreateStatic(sizeof(ipc_struct.cm7_to_cm4.mb_buffer),
-                                                                      ipc_struct.cm7_to_cm4.mb_buffer,
-                                                                      &ipc_struct.cm7_to_cm4.mb_object);
-         assert(ipc_struct.cm7_to_cm4.mb_handle != NULL);
-
-         drivers::exti::configure(true,
-                                  drivers::exti::line::line0,
-                                  drivers::exti::port::none,
-                                  drivers::exti::mode::interrupt,
-                                  drivers::exti::edge::rising,
+         const bool initialized = hal::ipc::init_cm7_to_cm4(
                                   [this]()
                                   {
-                                     /* Send event to process IPC data */
-                                     static const event e{ ipc_controller_events::ipc_data {}, event::immutable };
-                                     this->send(e, 0);
-                                  }
-                                 );
+                                      /* Send event to process IPC data */
+                                      static const event e{ ipc_controller_events::ipc_data {}, event::immutable };
+                                      this->send(e, 0);
+                                  });
 
          /* Start observing model */
          this->model->attach(this);
+
+         assert(initialized);
      }
 
     ~ipc_controller()
@@ -81,7 +73,7 @@ private:
     void update(const effect_processor_events::outgoing &e) override
     {
         /* IPC: send data to CM4 */
-        const size_t bytes_sent = xMessageBufferSend(ipc_struct.cm7_to_cm4.mb_handle, (void *)&e, sizeof(e), 0);
+        const size_t bytes_sent = hal::ipc::send_to_cm4((void *)&e, sizeof(e));
         if (bytes_sent != sizeof(e))
         {
             /* Not enough space in message buffer */
@@ -93,7 +85,7 @@ private:
     {
         /* IPC: receive data from CM4 */
         effect_processor_events::incoming evt;
-        const size_t bytes_received = xMessageBufferReceive(ipc_struct.cm4_to_cm7.mb_handle, &evt, sizeof(evt), 0);
+        const size_t bytes_received = hal::ipc::receive_from_cm4(&evt, sizeof(evt));
         if (bytes_received == sizeof(evt))
         {
             /* Send event to model */
@@ -104,18 +96,6 @@ private:
     std::unique_ptr<effect_processor_base> model;
 };
 
-}
-
-//-----------------------------------------------------------------------------
-
-void ipc_notify_cm4( void * xUpdatedMessageBuffer )
-{
-    MessageBufferHandle_t updated_buffer = (MessageBufferHandle_t) xUpdatedMessageBuffer;
-
-    if (updated_buffer == ipc_struct.cm7_to_cm4.mb_handle)
-    {
-        drivers::exti::trigger(drivers::exti::line::line1);
-    }
 }
 
 #endif /* IPC_CONTROLLER_HPP_ */

@@ -254,7 +254,7 @@
 					</folderInfo>
 					<sourceEntries>
 						<entry excluding="drivers|app|system|hal|middlewares|rtos|effect_types.hpp|libs" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
-						<entry excluding="tests" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="app"/>
+						<entry excluding="ipc|tests" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="app"/>
 						<entry excluding="stm32h7" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="drivers"/>
 						<entry excluding="stm32h7" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="hal"/>
 						<entry excluding="nlohmann_json/include|nlohmann_json/docs|nlohmann_json/cmake|nlohmann_json/tools|nlohmann_json/tests|littlefs/tests|littlefs/scripts|littlefs/runners|littlefs/benches|littlefs/bd" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="libs"/>
@@ -1067,7 +1067,7 @@
 					</folderInfo>
 					<sourceEntries>
 						<entry excluding="drivers|app|system|hal|middlewares|rtos|effect_types.hpp|libs" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
-						<entry excluding="tests" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="app"/>
+						<entry excluding="ipc|tests" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="app"/>
 						<entry excluding="stm32f7" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="drivers"/>
 						<entry excluding="stm32f7" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="hal"/>
 						<entry excluding="nlohmann_json/include|nlohmann_json/docs|nlohmann_json/cmake|nlohmann_json/tools|nlohmann_json/tests|littlefs/tests|littlefs/scripts|littlefs/runners|littlefs/benches|littlefs/bd" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="libs"/>

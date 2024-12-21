@@ -26,12 +26,17 @@ namespace mfx
 namespace effect_processor_events
 {
 
+struct ipc_data
+{
+    /* Used only in dual-core configuration */
+};
+
 struct shutdown
 {
 
 };
 
-struct process_data
+struct process_audio
 {
 
 };
@@ -120,8 +125,9 @@ using output_volume_changed = set_output_volume;
 
 using incoming = std::variant
 <
+    ipc_data,
     shutdown,
-    process_data,
+    process_audio,
     get_dsp_load,
     add_effect,
     remove_effect,
@@ -164,6 +170,7 @@ private:
     void dispatch(const event &e) override;
 
     /* Event handlers */
+    void event_handler(const effect_processor_events::ipc_data &e){};
     void event_handler(const effect_processor_events::shutdown &e);
     void event_handler(const effect_processor_events::add_effect &e);
     void event_handler(const effect_processor_events::remove_effect& e);
@@ -173,7 +180,7 @@ private:
     void event_handler(const effect_processor_events::set_output_volume &e);
     void event_handler(const effect_processor_events::route_mic_to_aux &e);
     void event_handler(const effect_processor_events::set_mute &e);
-    void event_handler(const effect_processor_events::process_data &e);
+    void event_handler(const effect_processor_events::process_audio &e);
     void event_handler(const effect_processor_events::get_dsp_load &e);
     void event_handler(const effect_processor_events::set_effect_controls &e);
     void event_handler(const effect_processor_events::get_effect_attributes &e);

@@ -130,7 +130,7 @@ void effect_processor::event_handler(const events::set_mute &e)
     this->audio.mute(e.value);
 }
 
-void effect_processor::event_handler(const events::process_data &e)
+void effect_processor::event_handler(const events::process_audio &e)
 {
     const uint32_t cycles_start = hal::system::clock::cycles();
 
@@ -361,7 +361,7 @@ void effect_processor::audio_capture_cb(const hal::audio_devices::codec::input_s
     }
 
     /* Send event to process data */
-    static const event e{ events::process_data {}, event::immutable };
+    static const event e{ events::process_audio {}, event::immutable };
     this->send(e, 0);
 }
 
