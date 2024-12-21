@@ -14,7 +14,6 @@
 #include "cmsis_os2.h"
 
 #include "app/view/lcd_view/lcd_view.hpp"
-#include "app/view/console_view/console_view.hpp"
 #include "app/model/effect_processor.hpp"
 #include "app/controller/controller.hpp"
 
@@ -23,13 +22,9 @@
 #ifdef DUAL_CORE_APP
 #ifdef CORE_CM4
 #include "app/ipc_effect_processor.hpp"
-#endif
-#ifdef CORE_CM7
-#include "app/ipc_controller.hpp"
-#endif
+
 static void init_thread(void *arg)
 {
-#ifdef CORE_CM4
     /* Test filesystem */
     //middlewares::filesystem::test();
 
@@ -37,16 +32,21 @@ static void init_thread(void *arg)
     auto ipc_model = std::make_unique<mfx::ipc_effect_processor>();
     auto lcd_view = std::make_unique<mfx::lcd_view>();
     auto ctrl = std::make_unique<mfx::controller>(std::move(ipc_model), std::move(lcd_view));
-#endif /* CORE_CM4 */
-
-#ifdef CORE_CM7
-    /* Create active objects */
-    auto model = std::make_unique<mfx::effect_processor>();
-    auto ipc_ctrl = std::make_unique<mfx::ipc_controller>(std::move(model));
-#endif /* CORE_CM7 */
 
     osThreadSuspend(osThreadGetId());
 }
+#endif /* CORE_CM4 */
+#ifdef CORE_CM7
+#include "app/ipc_controller.hpp"
+static void init_thread(void *arg)
+{
+    /* Create active objects */
+    auto model = std::make_unique<mfx::effect_processor>();
+    auto ipc_ctrl = std::make_unique<mfx::ipc_controller>(std::move(model));
+
+    osThreadSuspend(osThreadGetId());
+}
+#endif /* CORE_CM7 */
 #else
 static void init_thread(void *arg)
 {

@@ -80,6 +80,7 @@ private:
 
     void update(const effect_processor_events::outgoing &e) override
     {
+        /* IPC: send data to CM4 */
         const size_t bytes_sent = xMessageBufferSend(ipc_struct.cm7_to_cm4.mb_handle, (void *)&e, sizeof(e), 0);
         if (bytes_sent != sizeof(e))
         {
@@ -90,10 +91,9 @@ private:
     /* Event handlers */
     void event_handler(const ipc_controller_events::ipc_data &e)
     {
+        /* IPC: receive data from CM4 */
         effect_processor_events::incoming evt;
         const size_t bytes_received = xMessageBufferReceive(ipc_struct.cm4_to_cm7.mb_handle, &evt, sizeof(evt), 0);
-
-        /* Check the number of bytes received was as expected. */
         if (bytes_received == sizeof(evt))
         {
             /* Send event to model */
@@ -106,7 +106,9 @@ private:
 
 }
 
-void generate_cm4_interrupt( void * xUpdatedMessageBuffer )
+//-----------------------------------------------------------------------------
+
+void ipc_notify_cm4( void * xUpdatedMessageBuffer )
 {
     MessageBufferHandle_t updated_buffer = (MessageBufferHandle_t) xUpdatedMessageBuffer;
 

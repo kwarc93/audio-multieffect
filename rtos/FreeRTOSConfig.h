@@ -172,12 +172,12 @@ standard names. */
 
 #ifdef DUAL_CORE_APP
 #ifdef CORE_CM4
-void generate_cm7_interrupt( void * xUpdatedMessageBuffer );
-#define sbSEND_COMPLETED( pxStreamBuffer ) generate_cm7_interrupt( pxStreamBuffer )
+void ipc_notify_cm7( void * xUpdatedMessageBuffer );
+#define sbSEND_COMPLETED( pxStreamBuffer ) ipc_notify_cm7( pxStreamBuffer )
 #endif /* CORE_CM4 */
 #ifdef CORE_CM7
-void generate_cm4_interrupt( void * xUpdatedMessageBuffer );
-#define sbSEND_COMPLETED( pxStreamBuffer ) generate_cm4_interrupt( pxStreamBuffer )
+void ipc_notify_cm4( void * xUpdatedMessageBuffer );
+#define sbSEND_COMPLETED( pxStreamBuffer ) ipc_notify_cm4( pxStreamBuffer )
 #endif /* CORE_CM7 */
 #endif /* DUAL_CORE_APP */
 

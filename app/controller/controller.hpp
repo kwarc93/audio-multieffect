@@ -10,6 +10,7 @@
 
 #include <memory>
 #include <vector>
+#include <variant>
 
 #include <hal_led.hpp>
 #include <hal_button.hpp>
@@ -41,7 +42,7 @@ struct load_preset
 
 };
 
-struct effect_processor_load
+struct dsp_load
 {
     uint8_t load_pct;
 };
@@ -50,7 +51,7 @@ using incoming = std::variant
 <
     led_toggle,
     button_state_changed,
-    effect_processor_load,
+    dsp_load,
     load_preset
 >;
 
@@ -72,7 +73,7 @@ private:
     /* Event handlers */
     void event_handler(const controller_events::led_toggle &e);
     void event_handler(const controller_events::button_state_changed &e);
-    void event_handler(const controller_events::effect_processor_load &e);
+    void event_handler(const controller_events::dsp_load &e);
     void event_handler(const controller_events::load_preset &e);
 
     void view_event_handler(const lcd_view_events::splash_loaded &e);

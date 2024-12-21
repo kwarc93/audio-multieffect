@@ -98,15 +98,7 @@ void controller::event_handler(const events::led_toggle &e)
 {
     this->led.set(!this->led.get());
 
-    const effect_processor::event evt {effect_processor_events::get_processing_load
-    {
-        [this](auto &&... params)
-        {
-            const controller::event e {events::effect_processor_load {params...}};
-            this->send(e);
-        }
-    }};
-
+    const effect_processor::event evt {effect_processor_events::get_dsp_load {}};
     this->model->send(evt);
 }
 
@@ -125,9 +117,9 @@ void controller::event_handler(const events::button_state_changed &e)
     }
 }
 
-void controller::event_handler(const events::effect_processor_load &e)
+void controller::event_handler(const events::dsp_load &e)
 {
-    this->view->send({lcd_view_events::update_processor_load {e.load_pct}});
+    this->view->send({lcd_view_events::update_dsp_load {e.load_pct}});
 }
 
 void controller::event_handler(const events::load_preset &e)
@@ -273,7 +265,7 @@ void controller::view_event_handler(const lcd_view_events::move_effect_request &
 
 void controller::model_event_handler(const effect_processor_events::dsp_load_changed &e)
 {
-    const controller::event evt {events::effect_processor_load {e.load}};
+    const controller::event evt {events::dsp_load {e.load_pct}};
     this->send(evt);
 }
 
@@ -295,16 +287,7 @@ void controller::model_event_handler(const effect_processor_events::effect_attri
 
 void controller::update_effect_attributes(effect_id id)
 {
-    const effect_processor::event e {effect_processor_events::get_effect_attributes
-    {
-        id,
-        [this](auto &&... params)
-        {
-            const lcd_view::event e {lcd_view_events::set_effect_attributes {params...}};
-            this->view->send(e);
-        }
-    }};
-
+    const effect_processor::event e {effect_processor_events::get_effect_attributes {id}};
     this->model->send(e);
 }
 

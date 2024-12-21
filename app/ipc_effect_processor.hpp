@@ -52,10 +52,18 @@ private:
     {
         if (std::holds_alternative<effect_processor_events::process_data>(e.data))
         {
-            this->event_handler(std::get<effect_processor_events::process_data>(e.data));
+            /* IPC: receive data from CM7 */
+            effect_processor_events::outgoing evt;
+            const size_t bytes_received = xMessageBufferReceive(ipc_struct.cm7_to_cm4.mb_handle, &evt, sizeof(evt), 0);
+            if (bytes_received == sizeof(evt))
+            {
+                /* Notify observers about event */
+                this->notify(evt);
+            }
         }
         else
         {
+            /* IPC: send data to CM7 */
             const size_t bytes_sent = xMessageBufferSend(ipc_struct.cm4_to_cm7.mb_handle, (void *)&e.data, sizeof(e.data), 0);
             if (bytes_sent != sizeof(e.data))
             {
@@ -63,25 +71,13 @@ private:
             }
         }
     }
-
-    /* Event handlers */
-    void event_handler(const effect_processor_events::process_data &e)
-    {
-        effect_processor_events::outgoing evt;
-        const size_t bytes_received = xMessageBufferReceive(ipc_struct.cm7_to_cm4.mb_handle, &evt, sizeof(evt), 0);
-
-        /* Check the number of bytes received was as expected. */
-        if (bytes_received == sizeof(evt))
-        {
-            /* Notify observers about event */
-            this->notify(evt);
-        }
-    }
 };
 
 }
 
-void generate_cm7_interrupt(void * xUpdatedMessageBuffer)
+//-----------------------------------------------------------------------------
+
+void ipc_notify_cm7(void * xUpdatedMessageBuffer)
 {
     MessageBufferHandle_t updated_buffer = (MessageBufferHandle_t) xUpdatedMessageBuffer;
 

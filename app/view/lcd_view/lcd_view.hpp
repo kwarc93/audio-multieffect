@@ -133,7 +133,7 @@ struct set_effect_attributes
     effect_specific_attributes specific;
 };
 
-struct update_processor_load
+struct update_dsp_load
 {
     uint8_t load_pct;
 };
@@ -163,7 +163,7 @@ using incoming = std::variant
     show_next_effect_screen,
     show_prev_effect_screen,
     set_effect_attributes,
-    update_processor_load
+    update_dsp_load
 >;
 
 }
@@ -184,7 +184,7 @@ private:
     void event_handler(const lcd_view_events::show_next_effect_screen &e);
     void event_handler(const lcd_view_events::show_prev_effect_screen &e);
     void event_handler(const lcd_view_events::set_effect_attributes &e);
-    void event_handler(const lcd_view_events::update_processor_load &e);
+    void event_handler(const lcd_view_events::update_dsp_load &e);
 
     void set_effect_attr(const effect_attr &basic, const tremolo_attr &specific);
     void set_effect_attr(const effect_attr &basic, const echo_attr &specific);

@@ -9,6 +9,7 @@
 #define IPC_DEFS_HPP_
 
 #ifdef DUAL_CORE_APP
+
 #include "FreeRTOS.h"
 #include "message_buffer.h"
 

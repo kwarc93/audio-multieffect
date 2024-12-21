@@ -36,9 +36,9 @@ struct process_data
 
 };
 
-struct get_processing_load
+struct get_dsp_load
 {
-    std::function<void(uint8_t load)> response;
+
 };
 
 struct add_effect
@@ -102,7 +102,6 @@ struct set_effect_controls
 struct get_effect_attributes
 {
     effect_id id;
-    std::function<void(const effect_attr &basic, const effect_specific_attributes &specific)> response;
 };
 
 struct effect_attributes_changed
@@ -113,7 +112,7 @@ struct effect_attributes_changed
 
 struct dsp_load_changed
 {
-    uint8_t load;
+    uint8_t load_pct;
 };
 
 using input_volume_changed = set_input_volume;
@@ -123,7 +122,7 @@ using incoming = std::variant
 <
     shutdown,
     process_data,
-    get_processing_load,
+    get_dsp_load,
     add_effect,
     remove_effect,
     move_effect,
@@ -175,7 +174,7 @@ private:
     void event_handler(const effect_processor_events::route_mic_to_aux &e);
     void event_handler(const effect_processor_events::set_mute &e);
     void event_handler(const effect_processor_events::process_data &e);
-    void event_handler(const effect_processor_events::get_processing_load &e);
+    void event_handler(const effect_processor_events::get_dsp_load &e);
     void event_handler(const effect_processor_events::set_effect_controls &e);
     void event_handler(const effect_processor_events::get_effect_attributes &e);
 

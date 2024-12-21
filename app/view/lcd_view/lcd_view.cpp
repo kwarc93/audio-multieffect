@@ -131,10 +131,10 @@ void lcd_view::event_handler(const events::set_effect_attributes &e)
     std::visit([this, &e](auto &&specific) { this->set_effect_attr(e.basic, specific); }, e.specific);
 }
 
-void lcd_view::event_handler(const events::update_processor_load &e)
+void lcd_view::event_handler(const events::update_dsp_load &e)
 {
     if (ui_lbl_sett_cpu_load != nullptr)
-        lv_label_set_text_fmt(ui_lbl_sett_cpu_load, "CPU load: %u%%", e.load_pct);
+        lv_label_set_text_fmt(ui_lbl_sett_cpu_load, "DSP load: %u%%", e.load_pct);
 }
 
 void lcd_view::set_effect_attr(const effect_attr &basic, const tremolo_attr &specific)
