@@ -28,6 +28,7 @@
 #include "app/model/overdrive/overdrive.hpp"
 #include "app/model/cabinet_sim/cabinet_sim.hpp"
 #include "app/model/vocoder/vocoder.hpp"
+#include "app/model/phaser/phaser.hpp"
 
 using namespace mfx;
 namespace events = effect_processor_events;
@@ -299,6 +300,16 @@ void effect_processor::set_controls(const vocoder_attr::controls &ctrl)
     }
 }
 
+void effect_processor::set_controls(const phaser_attr::controls &ctrl)
+{
+    auto phaser_effect = static_cast<phaser*>(this->find_effect(effect_id::phaser));
+
+    if (phaser_effect == nullptr)
+        return;
+
+    phaser_effect->set_rate(ctrl.rate);
+}
+
 void effect_processor::notify_effect_attributes_changed(effect *e)
 {
     this->notify(events::effect_attributes_changed {e->get_basic_attributes(), e->get_specific_attributes()});
@@ -314,7 +325,8 @@ std::unique_ptr<effect> effect_processor::create_new(effect_id id)
         { effect_id::reverb,        []() { return std::make_unique<reverb>(); } },
         { effect_id::overdrive,     []() { return std::make_unique<overdrive>(); } },
         { effect_id::cabinet_sim,   []() { return std::make_unique<cabinet_sim>(); } },
-        { effect_id::vocoder,       []() { return std::make_unique<vocoder>(); } }
+        { effect_id::vocoder,       []() { return std::make_unique<vocoder>(); } },
+        { effect_id::phaser,        []() { return std::make_unique<phaser>(); } }
     };
 
     return effect_factory.at(id)();

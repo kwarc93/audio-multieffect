@@ -243,6 +243,22 @@ extern lv_obj_t * ui_lbl_voc_mode_mod;
 void ui_event_btn_vocoder_hold(lv_event_t * e);
 extern lv_obj_t * ui_btn_voc_hold;
 extern lv_obj_t * ui_lbl_btn_voc_hold;
+// SCREEN: ui_fx_phaser
+void ui_fx_phaser_screen_init(void);
+void ui_event_fx_phaser(lv_event_t * e);
+extern lv_obj_t * ui_fx_phaser;
+extern lv_obj_t * ui_pnl_pha_content;
+extern lv_obj_t * ui_lbl_pha_fx_name;
+void ui_event_btn_pha_bypass(lv_event_t * e);
+extern lv_obj_t * ui_btn_pha_bypass;
+extern lv_obj_t * ui_lbl_btn_pha_bypass;
+extern lv_obj_t * ui_pnl_pha_controls;
+extern lv_obj_t * ui_pnl_pha_rate;
+extern lv_obj_t * ui_img_pha_rate;
+void ui_event_arc_pha_rate(lv_event_t * e);
+extern lv_obj_t * ui_arc_pha_rate;
+extern lv_obj_t * ui_lbl_pha_rate;
+
 
 LV_IMG_DECLARE(ui_img_pot_ver_line_png);    // assets/pot_ver_line.png
 LV_IMG_DECLARE(ui_img_pot_ver_knob_png);    // assets/pot_ver_knob.png

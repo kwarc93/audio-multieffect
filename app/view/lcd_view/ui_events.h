@@ -55,6 +55,8 @@ void ui_vocoder_tone_changed(lv_event_t * e);
 void ui_vocoder_bands_changed(lv_event_t * e);
 void ui_vocoder_mode_changed(lv_event_t * e);
 void ui_vocoder_hold_changed(lv_event_t * e);
+void ui_phaser_bypass(lv_event_t * e);
+void ui_phaser_rate_changed(lv_event_t * e);
 
 #ifdef __cplusplus
 } /*extern "C"*/

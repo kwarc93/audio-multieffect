@@ -242,6 +242,22 @@ void ui_event_btn_vocoder_hold(lv_event_t * e);
 lv_obj_t * ui_btn_voc_hold;
 lv_obj_t * ui_lbl_btn_voc_hold;
 
+// SCREEN: ui_fx_phaser
+void ui_fx_phaser_screen_init(void);
+void ui_event_fx_phaser(lv_event_t * e);
+lv_obj_t * ui_fx_phaser;
+lv_obj_t * ui_pnl_pha_content;
+lv_obj_t * ui_lbl_pha_fx_name;
+void ui_event_btn_pha_bypass(lv_event_t * e);
+lv_obj_t * ui_btn_pha_bypass;
+lv_obj_t * ui_lbl_btn_pha_bypass;
+lv_obj_t * ui_pnl_pha_controls;
+lv_obj_t * ui_pnl_pha_rate;
+lv_obj_t * ui_img_pha_rate;
+void ui_event_arc_pha_rate(lv_event_t * e);
+lv_obj_t * ui_arc_pha_rate;
+lv_obj_t * ui_lbl_pha_rate;
+
 ///////////////////// TEST LVGL SETTINGS ////////////////////
 #if LV_COLOR_DEPTH != 16
     #error "LV_COLOR_DEPTH should be 16bit to match SquareLine Studio's settings"
@@ -650,6 +666,26 @@ void ui_event_btn_vocoder_hold(lv_event_t * e)
 
     if(event_code == LV_EVENT_VALUE_CHANGED) {
         ui_vocoder_hold_changed(e);
+    }
+}
+void ui_event_fx_phaser(lv_event_t * e)
+{
+    ui_screen_gesture_handler(e);
+}
+void ui_event_btn_pha_bypass(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_CLICKED) {
+        ui_phaser_bypass(e);
+    }
+}
+void ui_event_arc_pha_rate(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_phaser_rate_changed(e);
     }
 }
 

@@ -14,6 +14,7 @@ Device captures audio signal from line-in jack (left channel, labeled as MAIN), 
 - overdrive
 - speaker cabinet emulator
 - vocoder
+- phaser
 
 Effects order (in signal chain) can be changed through settings menu and each effect can be enabled/disabled separately. Changing between effects is done by left/right *swipe* gesture. Settings screen can be accessed by *swipe down* gesture.
 

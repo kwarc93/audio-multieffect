@@ -166,6 +166,18 @@ void notify_vocoder_controls_changed(void)
     view->notify(events::effect_controls_changed {ctrl});
 }
 
+void notify_phaser_controls_changed(void)
+{
+    lv_obj_t *rate_knob = ui_arc_pha_rate;
+
+    const mfx::phaser_attr::controls ctrl
+    {
+        static_cast<float>(lv_arc_get_value(rate_knob) / 10.0f),
+    };
+
+    view->notify(events::effect_controls_changed {ctrl});
+}
+
 }
 
 //-----------------------------------------------------------------------------
@@ -413,6 +425,16 @@ void ui_vocoder_mode_changed(lv_event_t * e)
 void ui_vocoder_hold_changed(lv_event_t * e)
 {
     notify_vocoder_controls_changed();
+}
+
+void ui_phaser_bypass(lv_event_t * e)
+{
+    notify_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::phaser);
+}
+
+void ui_phaser_rate_changed(lv_event_t * e)
+{
+    notify_phaser_controls_changed();
 }
 
 

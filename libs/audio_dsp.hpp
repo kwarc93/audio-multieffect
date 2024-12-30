@@ -93,29 +93,28 @@ public:
         this->counter %= this->counter_limit;
         float out = static_cast<float>(this->counter++) / this->counter_limit;
 
-        if (this->wave_shape == shape::sawtooth)
+        switch (this->wave_shape)
         {
-            out = 2 * (out - 0.5f);
-        }
-        else if (this->wave_shape == shape::square)
-        {
-            out = (2 * (out - 0.5f) >= 0) ? 1 : -1;
-        }
-        else if (this->wave_shape == shape::triangle)
-        {
-            out = -4 * std::abs(out - 0.5f) + 1;
-        }
-        else if (this->wave_shape == shape::sine)
-        {
-            out = arm_sin_f32(-2 * pi * out + pi);
-        }
-        else if (this->wave_shape == shape::cosine)
-        {
-            out = arm_cos_f32(-2 * pi * out + pi);
-        }
-        else if (this->wave_shape == shape::noise)
-        {
-            /* TODO */
+            case shape::sawtooth:
+                out = 2 * (out - 0.5f);
+                break;
+            case shape::square:
+                out = (2 * (out - 0.5f) >= 0) ? 1 : -1;
+                break;
+            case shape::triangle:
+                out = -4 * std::abs(out - 0.5f) + 1;
+                break;
+            case shape::sine:
+                out = arm_sin_f32(-2 * pi * out + pi);
+                break;
+            case shape::cosine:
+                out = arm_cos_f32(-2 * pi * out + pi);
+                break;
+            case shape::noise:
+                /* TODO */
+                break;
+            default:
+                break;
         }
 
         return out;

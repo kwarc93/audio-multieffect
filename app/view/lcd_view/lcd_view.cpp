@@ -318,6 +318,16 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const vocoder_attr &spe
     }
 }
 
+void lcd_view::set_effect_attr(const effect_attr &basic, const phaser_attr &specific)
+{
+    if (basic.bypassed)
+        lv_obj_clear_state(ui_btn_pha_bypass, LV_STATE_CHECKED);
+    else
+        lv_obj_add_state(ui_btn_pha_bypass, LV_STATE_CHECKED);
+
+    lv_arc_set_value(ui_arc_pha_rate, utils::map_range<float>(0.1f, 10, lv_arc_get_min_value(ui_arc_pha_rate), lv_arc_get_max_value(ui_arc_pha_rate), specific.ctrl.rate));
+}
+
 void lcd_view::change_effect_screen(effect_id id, int dir)
 {
     lv_obj_t *new_screen = nullptr;
@@ -351,6 +361,10 @@ void lcd_view::change_effect_screen(effect_id id, int dir)
     case effect_id::vocoder:
         ui_fx_vocoder_screen_init();
         new_screen = ui_fx_vocoder;
+        break;
+    case effect_id::phaser:
+        ui_fx_phaser_screen_init();
+        new_screen = ui_fx_phaser;
         break;
     default:
         return;
