@@ -169,10 +169,16 @@ void notify_vocoder_controls_changed(void)
 void notify_phaser_controls_changed(void)
 {
     lv_obj_t *rate_knob = ui_arc_pha_rate;
+    lv_obj_t *depth_knob = ui_arc_pha_depth;
+    lv_obj_t *contour_sw = ui_sw_pha_contour;
 
     const mfx::phaser_attr::controls ctrl
     {
-        static_cast<float>(lv_arc_get_value(rate_knob) / 10.0f),
+        static_cast<float>(lv_arc_get_value(rate_knob) / 100.0f),
+        static_cast<float>(lv_arc_get_value(depth_knob) / 100.0f),
+        lv_obj_has_state(contour_sw, LV_STATE_CHECKED) ?
+        mfx::phaser_attr::controls::contour_mode::on :
+        mfx::phaser_attr::controls::contour_mode::off
     };
 
     view->notify(events::effect_controls_changed {ctrl});
@@ -433,6 +439,16 @@ void ui_phaser_bypass(lv_event_t * e)
 }
 
 void ui_phaser_rate_changed(lv_event_t * e)
+{
+    notify_phaser_controls_changed();
+}
+
+void ui_phaser_depth_changed(lv_event_t * e)
+{
+    notify_phaser_controls_changed();
+}
+
+void ui_phaser_contour_changed(lv_event_t * e)
 {
     notify_phaser_controls_changed();
 }

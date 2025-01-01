@@ -325,7 +325,21 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const phaser_attr &spec
     else
         lv_obj_add_state(ui_btn_pha_bypass, LV_STATE_CHECKED);
 
-    lv_arc_set_value(ui_arc_pha_rate, utils::map_range<float>(0.1f, 10, lv_arc_get_min_value(ui_arc_pha_rate), lv_arc_get_max_value(ui_arc_pha_rate), specific.ctrl.rate));
+    lv_arc_set_value(ui_arc_pha_rate, utils::map_range<float>(0.01f, 1.0f, lv_arc_get_min_value(ui_arc_pha_rate), lv_arc_get_max_value(ui_arc_pha_rate), specific.ctrl.rate));
+    lv_arc_set_value(ui_arc_pha_depth, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_pha_depth), lv_arc_get_max_value(ui_arc_pha_depth), specific.ctrl.depth));
+
+    if (specific.ctrl.contour == phaser_attr::controls::contour_mode::off)
+    {
+        lv_obj_clear_state(ui_sw_pha_contour, LV_STATE_CHECKED);
+        lv_obj_clear_state(ui_lbl_pha_contour_on, LV_STATE_CHECKED);
+        lv_obj_add_state(ui_lbl_pha_contour_off, LV_STATE_CHECKED);
+    }
+    else
+    {
+        lv_obj_add_state(ui_sw_pha_contour, LV_STATE_CHECKED);
+        lv_obj_add_state(ui_lbl_pha_contour_on, LV_STATE_CHECKED);
+        lv_obj_clear_state(ui_lbl_pha_contour_off, LV_STATE_CHECKED);
+    }
 }
 
 void lcd_view::change_effect_screen(effect_id id, int dir)

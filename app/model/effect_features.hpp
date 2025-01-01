@@ -142,7 +142,9 @@ struct phaser_attr
 {
     struct controls
     {
-        float rate; // LFO frequency in Hz, range: [0.1, 10]
+        float rate; // LFO frequency in Hz/10, range: [0.01, 1]
+        float depth; // LFO modulation depth, range: [0, 1]
+        enum class contour_mode {off, on} contour; // Contour enabled/disabled
     } ctrl;
 };
 

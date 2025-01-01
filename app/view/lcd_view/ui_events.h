@@ -57,6 +57,8 @@ void ui_vocoder_mode_changed(lv_event_t * e);
 void ui_vocoder_hold_changed(lv_event_t * e);
 void ui_phaser_bypass(lv_event_t * e);
 void ui_phaser_rate_changed(lv_event_t * e);
+void ui_phaser_depth_changed(lv_event_t * e);
+void ui_phaser_contour_changed(lv_event_t * e);
 
 #ifdef __cplusplus
 } /*extern "C"*/

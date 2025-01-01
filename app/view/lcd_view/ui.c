@@ -257,6 +257,17 @@ lv_obj_t * ui_img_pha_rate;
 void ui_event_arc_pha_rate(lv_event_t * e);
 lv_obj_t * ui_arc_pha_rate;
 lv_obj_t * ui_lbl_pha_rate;
+lv_obj_t * ui_pnl_pha_depth;
+lv_obj_t * ui_img_pha_depth;
+void ui_event_arc_pha_depth(lv_event_t * e);
+lv_obj_t * ui_arc_pha_depth;
+lv_obj_t * ui_lbl_pha_depth;
+lv_obj_t * ui_pnl_pha_contour;
+lv_obj_t * ui_lbl_pha_contour;
+void ui_event_sw_pha_contour(lv_event_t * e);
+lv_obj_t * ui_sw_pha_contour;
+lv_obj_t * ui_lbl_pha_contour_on;
+lv_obj_t * ui_lbl_pha_contour_off;
 
 ///////////////////// TEST LVGL SETTINGS ////////////////////
 #if LV_COLOR_DEPTH != 16
@@ -686,6 +697,24 @@ void ui_event_arc_pha_rate(lv_event_t * e)
 
     if(event_code == LV_EVENT_VALUE_CHANGED) {
         ui_phaser_rate_changed(e);
+    }
+}
+void ui_event_arc_pha_depth(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_phaser_depth_changed(e);
+    }
+}
+void ui_event_sw_pha_contour(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_phaser_contour_changed(e);
+        _ui_state_modify(ui_lbl_pha_contour_off, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
+        _ui_state_modify(ui_lbl_pha_contour_on, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
     }
 }
 

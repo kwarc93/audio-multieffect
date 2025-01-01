@@ -18,13 +18,15 @@ namespace mfx
 class phaser : public effect
 {
 public:
-    phaser(float rate = 1);
+    phaser(float rate = 0.5f, float depth = 0.7f, phaser_attr::controls::contour_mode contour = phaser_attr::controls::contour_mode::on);
     virtual ~phaser();
 
     void process(const dsp_input &in, dsp_output &out) override;
     const effect_specific_attributes get_specific_attributes(void) const override;
 
     void set_rate(float rate);
+    void set_depth(float depth);
+    void set_contour(phaser_attr::controls::contour_mode contour);
 private:
     float calc_apf_coeff(float fc, float fs);
 

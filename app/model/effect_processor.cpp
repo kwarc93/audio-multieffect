@@ -308,6 +308,8 @@ void effect_processor::set_controls(const phaser_attr::controls &ctrl)
         return;
 
     phaser_effect->set_rate(ctrl.rate);
+    phaser_effect->set_depth(ctrl.depth);
+    phaser_effect->set_contour(ctrl.contour);
 }
 
 void effect_processor::notify_effect_attributes_changed(effect *e)

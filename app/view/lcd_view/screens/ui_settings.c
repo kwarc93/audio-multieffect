@@ -390,8 +390,11 @@ void ui_settings_screen_init(void)
     lv_obj_t * sub_hardware_page = lv_menu_page_create(menu, "Hardware");
     lv_obj_set_style_pad_hor(sub_hardware_page, menu_pad_hor, 0);
     section = lv_menu_section_create(sub_hardware_page);
-    menu_create_text(section, NULL, "Board: STM32F746G-DISCO MB1191B\nCPU: ARM Cortex-M7 200MHz\nRAM: 8MB\nAudio: 24bit/48kHz\nDisplay: 480x272 RGB565");
-
+#ifdef DUAL_CORE_APP
+    menu_create_text(section, NULL, "Board: STM32H745I-DISCO DKH745IO$AT2\nCPU1: ARM Cortex-M7 400MHz\nCPU2: ARM Cortex-M4 200MHz\nRAM: 8MB\nStorage: 64MB\nAudio: 24bit/48kHz\nDisplay: 480x272 RGB565");
+#else
+    menu_create_text(section, NULL, "Board: STM32F746G-DISCO MB1191B\nCPU: ARM Cortex-M7 200MHz\nRAM: 8MB\nStorage: 16MB\nAudio: 24bit/48kHz\nDisplay: 480x272 RGB565");
+#endif
     lv_obj_t * sub_about_page = lv_menu_page_create(menu, "About");
     lv_obj_set_style_pad_hor(sub_about_page, menu_pad_hor, 0);
     cont = menu_create_text(sub_about_page, NULL, "Guitar MFX - Guitar Multi Effect Processor\nCopyright 2023 Kamil Worek. All rights reserved.");

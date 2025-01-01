@@ -258,6 +258,17 @@ extern lv_obj_t * ui_img_pha_rate;
 void ui_event_arc_pha_rate(lv_event_t * e);
 extern lv_obj_t * ui_arc_pha_rate;
 extern lv_obj_t * ui_lbl_pha_rate;
+extern lv_obj_t * ui_pnl_pha_depth;
+extern lv_obj_t * ui_img_pha_depth;
+void ui_event_arc_pha_depth(lv_event_t * e);
+extern lv_obj_t * ui_arc_pha_depth;
+extern lv_obj_t * ui_lbl_pha_depth;
+extern lv_obj_t * ui_pnl_pha_contour;
+extern lv_obj_t * ui_lbl_pha_contour;
+void ui_event_sw_pha_contour(lv_event_t * e);
+extern lv_obj_t * ui_sw_pha_contour;
+extern lv_obj_t * ui_lbl_pha_contour_on;
+extern lv_obj_t * ui_lbl_pha_contour_off;
 
 
 LV_IMG_DECLARE(ui_img_pot_ver_line_png);    // assets/pot_ver_line.png
