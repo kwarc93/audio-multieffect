@@ -294,6 +294,37 @@ lv_obj_t * ui_sw_pha_contour;
 lv_obj_t * ui_lbl_pha_contour_on;
 lv_obj_t * ui_lbl_pha_contour_off;
 
+// SCREEN: ui_fx_amp_sim
+void ui_fx_amp_sim_screen_init(void);
+void ui_event_fx_amp_sim(lv_event_t * e);
+lv_obj_t * ui_fx_amp_sim;
+lv_obj_t * ui_pnl_amp_sim_content;
+lv_obj_t * ui_lbl_amp_sim_fx_name;
+void ui_event_btn_amp_sim_bypass(lv_event_t * e);
+lv_obj_t * ui_btn_amp_sim_bypass;
+lv_obj_t * ui_lbl_btn_amp_sim_bypass;
+lv_obj_t * ui_pnl_amp_sim_controls;
+lv_obj_t * ui_pnl_amp_sim_input;
+lv_obj_t * ui_img_amp_sim_input;
+void ui_event_arc_amp_sim_input(lv_event_t * e);
+lv_obj_t * ui_arc_amp_sim_input;
+lv_obj_t * ui_lbl_amp_sim_input;
+lv_obj_t * ui_pnl_amp_sim_compr;
+lv_obj_t * ui_img_amp_sim_compr;
+void ui_event_arc_amp_sim_drive(lv_event_t * e);
+lv_obj_t * ui_arc_amp_sim_compr;
+lv_obj_t * ui_lbl_amp_sim_compr;
+lv_obj_t * ui_pnl_amp_sim_drive;
+lv_obj_t * ui_img_amp_sim_drive;
+void ui_event_arc_amp_sim_compression(lv_event_t * e);
+lv_obj_t * ui_arc_amp_sim_drive;
+lv_obj_t * ui_lbl_amp_sim_drive;
+lv_obj_t * ui_pnl_amp_sim_mode;
+void ui_event_sw_amp_sim_mode(lv_event_t * e);
+lv_obj_t * ui_sw_amp_sim_mode;
+lv_obj_t * ui_lbl_amp_sim_mode_logain;
+lv_obj_t * ui_lbl_amp_sim_mode_higain;
+
 ///////////////////// TEST LVGL SETTINGS ////////////////////
 #if LV_COLOR_DEPTH != 16
     #error "LV_COLOR_DEPTH should be 16bit to match SquareLine Studio's settings"
@@ -735,6 +766,52 @@ void ui_event_sw_pha_contour(lv_event_t * e)
         ui_phaser_contour_changed(e);
         _ui_state_modify(ui_lbl_pha_contour_off, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
         _ui_state_modify(ui_lbl_pha_contour_on, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
+    }
+}
+void ui_event_fx_amp_sim(lv_event_t * e)
+{
+    ui_screen_gesture_handler(e);
+}
+void ui_event_btn_amp_sim_bypass(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_CLICKED) {
+        ui_amp_sim_bypass(e);
+    }
+}
+void ui_event_arc_amp_sim_input(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_CLICKED) {
+        ui_amp_sim_input_changed(e);
+    }
+}
+void ui_event_arc_amp_sim_drive(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_CLICKED) {
+        ui_amp_sim_drive_changed(e);
+    }
+}
+void ui_event_arc_amp_sim_compression(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_CLICKED) {
+        ui_amp_sim_compression_changed(e);
+    }
+}
+void ui_event_sw_amp_sim_mode(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_amp_sim_mode_changed(e);
+        _ui_state_modify(ui_lbl_amp_sim_mode_logain, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
+        _ui_state_modify(ui_lbl_amp_sim_mode_higain, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
     }
 }
 

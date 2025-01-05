@@ -27,6 +27,7 @@ enum class effect_id : uint8_t
     cabinet_sim,
     vocoder,
     phaser,
+    amplifier_sim,
 
     _count // Indicates total number of effects
 };
@@ -41,7 +42,8 @@ constexpr inline std::array<const char*, static_cast<uint8_t>(effect_id::_count)
     "Overdrive",
     "Cabinet simulator",
     "Vocoder",
-    "Phaser"
+    "Phaser",
+    "Amplifier simulator"
 }};
 
 //-----------------------------------------------------------------------------
@@ -234,6 +236,17 @@ struct phaser_attr
     };
 };
 
+struct amp_sim_attr
+{
+    struct controls
+    {
+        float input; // Input volume, range: [0, 1]
+        float drive; // Preamp drive, range: [0, 1]
+        float compression; // Tube compression, range: [0, 1]
+        enum class mode_type {logain, higain} mode; // Amp overall gain: low/high
+    } ctrl;
+};
+
 typedef std::variant
 <
     tuner_attr,
@@ -244,6 +257,7 @@ typedef std::variant
     overdrive_attr,
     cabinet_sim_attr,
     vocoder_attr,
+<<<<<<< Upstream, based on master
     phaser_attr
 > effect_specific_attr;
 
@@ -259,6 +273,11 @@ typedef std::variant
     vocoder_attr::controls,
     phaser_attr::controls
 > effect_controls;
+=======
+    phaser_attr,
+    amp_sim_attr
+> effect_specific_attributes;
+>>>>>>> ab45782 Add guitar amplifier simlator efect (based on W. Pirkle's OneMarkAmp)
 
 }
 

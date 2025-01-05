@@ -296,6 +296,36 @@ void ui_event_sw_pha_contour(lv_event_t * e);
 extern lv_obj_t * ui_sw_pha_contour;
 extern lv_obj_t * ui_lbl_pha_contour_on;
 extern lv_obj_t * ui_lbl_pha_contour_off;
+// SCREEN: ui_fx_amp_sim
+void ui_fx_amp_sim_screen_init(void);
+void ui_event_fx_amp_sim(lv_event_t * e);
+extern lv_obj_t * ui_fx_amp_sim;
+extern lv_obj_t * ui_pnl_amp_sim_content;
+extern lv_obj_t * ui_lbl_amp_sim_fx_name;
+void ui_event_btn_amp_sim_bypass(lv_event_t * e);
+extern lv_obj_t * ui_btn_amp_sim_bypass;
+extern lv_obj_t * ui_lbl_btn_amp_sim_bypass;
+extern lv_obj_t * ui_pnl_amp_sim_controls;
+extern lv_obj_t * ui_pnl_amp_sim_input;
+extern lv_obj_t * ui_img_amp_sim_input;
+void ui_event_arc_amp_sim_input(lv_event_t * e);
+extern lv_obj_t * ui_arc_amp_sim_input;
+extern lv_obj_t * ui_lbl_amp_sim_input;
+extern lv_obj_t * ui_pnl_amp_sim_compr;
+extern lv_obj_t * ui_img_amp_sim_compr;
+void ui_event_arc_amp_sim_drive(lv_event_t * e);
+extern lv_obj_t * ui_arc_amp_sim_compr;
+extern lv_obj_t * ui_lbl_amp_sim_compr;
+extern lv_obj_t * ui_pnl_amp_sim_drive;
+extern lv_obj_t * ui_img_amp_sim_drive;
+void ui_event_arc_amp_sim_compression(lv_event_t * e);
+extern lv_obj_t * ui_arc_amp_sim_drive;
+extern lv_obj_t * ui_lbl_amp_sim_drive;
+extern lv_obj_t * ui_pnl_amp_sim_mode;
+void ui_event_sw_amp_sim_mode(lv_event_t * e);
+extern lv_obj_t * ui_sw_amp_sim_mode;
+extern lv_obj_t * ui_lbl_amp_sim_mode_logain;
+extern lv_obj_t * ui_lbl_amp_sim_mode_higain;
 
 
 LV_IMG_DECLARE(ui_img_pot_ver_line_png);    // assets/pot_ver_line.png

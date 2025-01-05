@@ -184,6 +184,26 @@ void notify_phaser_controls_changed(void)
     view->notify(events::effect_controls_changed {ctrl});
 }
 
+void notify_amp_sim_controls_changed(void)
+{
+    lv_obj_t *input_knob = ui_arc_amp_sim_input;
+    lv_obj_t *drive_knob = ui_arc_amp_sim_drive;
+    lv_obj_t *compression_knob = ui_arc_amp_sim_compr;
+    lv_obj_t *mode_sw = ui_sw_amp_sim_mode;
+
+    const mfx::amp_sim_attr::controls ctrl
+    {
+        static_cast<float>(lv_arc_get_value(input_knob)) * 0.01f,
+        static_cast<float>(lv_arc_get_value(drive_knob)) * 0.01f,
+        static_cast<float>(lv_arc_get_value(compression_knob)) * 0.01f,
+        lv_obj_has_state(mode_sw, LV_STATE_CHECKED) ?
+        mfx::amp_sim_attr::controls::mode_type::higain :
+        mfx::amp_sim_attr::controls::mode_type::logain
+    };
+
+    view->notify(events::effect_controls_changed {ctrl});
+}
+
 }
 
 //-----------------------------------------------------------------------------
@@ -498,5 +518,31 @@ void ui_phaser_contour_changed(lv_event_t * e)
 {
     notify_phaser_controls_changed();
 }
+
+void ui_amp_sim_bypass(lv_event_t * e)
+{
+    notify_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::amplifier_sim);
+}
+
+void ui_amp_sim_input_changed(lv_event_t * e)
+{
+    notify_amp_sim_controls_changed();
+}
+
+void ui_amp_sim_drive_changed(lv_event_t * e)
+{
+    notify_amp_sim_controls_changed();
+}
+
+void ui_amp_sim_compression_changed(lv_event_t * e)
+{
+    notify_amp_sim_controls_changed();
+}
+
+void ui_amp_sim_mode_changed(lv_event_t * e)
+{
+    notify_amp_sim_controls_changed();
+}
+
 
 

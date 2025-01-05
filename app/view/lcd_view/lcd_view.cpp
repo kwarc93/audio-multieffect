@@ -510,6 +510,31 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const phaser_attr &spec
     }
 }
 
+void lcd_view::set_effect_attr(const effect_attr &basic, const amp_sim_attr &specific)
+{
+    if (basic.bypassed)
+        lv_obj_clear_state(ui_btn_amp_sim_bypass, LV_STATE_CHECKED);
+    else
+        lv_obj_add_state(ui_btn_amp_sim_bypass, LV_STATE_CHECKED);
+
+    lv_arc_set_value(ui_arc_amp_sim_input, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_amp_sim_input), lv_arc_get_max_value(ui_arc_amp_sim_input), specific.ctrl.input));
+    lv_arc_set_value(ui_arc_amp_sim_drive, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_amp_sim_drive), lv_arc_get_max_value(ui_arc_amp_sim_drive), specific.ctrl.drive));
+    lv_arc_set_value(ui_arc_amp_sim_compr, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_amp_sim_compr), lv_arc_get_max_value(ui_arc_amp_sim_compr), specific.ctrl.compression));
+
+    if (specific.ctrl.mode == amp_sim_attr::controls::mode_type::logain)
+    {
+        lv_obj_clear_state(ui_sw_amp_sim_mode, LV_STATE_CHECKED);
+        lv_obj_clear_state(ui_lbl_amp_sim_mode_higain, LV_STATE_CHECKED);
+        lv_obj_add_state(ui_lbl_amp_sim_mode_logain, LV_STATE_CHECKED);
+    }
+    else
+    {
+        lv_obj_add_state(ui_sw_amp_sim_mode, LV_STATE_CHECKED);
+        lv_obj_add_state(ui_lbl_amp_sim_mode_higain, LV_STATE_CHECKED);
+        lv_obj_clear_state(ui_lbl_amp_sim_mode_logain, LV_STATE_CHECKED);
+    }
+}
+
 void lcd_view::change_effect_screen(effect_id id, int dir)
 {
     lv_obj_t *new_screen = nullptr;
@@ -551,6 +576,10 @@ void lcd_view::change_effect_screen(effect_id id, int dir)
     case effect_id::phaser:
         ui_fx_phaser_screen_init();
         new_screen = ui_fx_phaser;
+        break;
+    case effect_id::amplifier_sim:
+        ui_fx_amp_sim_screen_init();
+        new_screen = ui_fx_amp_sim;
         break;
     default:
         return;

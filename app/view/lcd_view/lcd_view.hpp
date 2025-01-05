@@ -151,7 +151,23 @@ struct effect_bypass_changed
 
 struct effect_controls_changed
 {
+<<<<<<< Upstream, based on master
     effect_controls ctrl;
+=======
+    std::variant
+    <
+        tremolo_attr::controls,
+        echo_attr::controls,
+        chorus_attr::controls,
+        reverb_attr::controls,
+        overdrive_attr::controls,
+        cabinet_sim_attr::controls,
+        vocoder_attr::controls,
+        phaser_attr::controls,
+        amp_sim_attr::controls
+    >
+    ctrl;
+>>>>>>> ab45782 Add guitar amplifier simlator efect (based on W. Pirkle's OneMarkAmp)
 };
 
 struct add_effect_request
@@ -263,6 +279,7 @@ private:
     void set_effect_attr(const effect_attr &basic, const cabinet_sim_attr &specific);
     void set_effect_attr(const effect_attr &basic, const vocoder_attr &specific);
     void set_effect_attr(const effect_attr &basic, const phaser_attr &specific);
+    void set_effect_attr(const effect_attr &basic, const amp_sim_attr &specific);
 
     void change_effect_screen(effect_id id, int dir);
 

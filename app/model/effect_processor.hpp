@@ -110,7 +110,23 @@ struct set_mute
 
 struct set_effect_controls
 {
+<<<<<<< Upstream, based on master
     effect_controls ctrl;
+=======
+    std::variant
+    <
+        tremolo_attr::controls,
+        echo_attr::controls,
+        chorus_attr::controls,
+        reverb_attr::controls,
+        overdrive_attr::controls,
+        cabinet_sim_attr::controls,
+        vocoder_attr::controls,
+        phaser_attr::controls,
+        amp_sim_attr::controls
+    >
+    ctrl;
+>>>>>>> ab45782 Add guitar amplifier simlator efect (based on W. Pirkle's OneMarkAmp)
 };
 
 struct get_effect_attributes
@@ -224,6 +240,7 @@ private:
     void set_controls(const cabinet_sim_attr::controls &ctrl);
     void set_controls(const vocoder_attr::controls &ctrl);
     void set_controls(const phaser_attr::controls &ctrl);
+    void set_controls(const amp_sim_attr::controls &ctrl);
 
     void notify_effect_attributes_changed(const effect *eff);
 
