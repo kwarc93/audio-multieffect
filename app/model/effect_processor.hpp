@@ -100,7 +100,8 @@ struct set_effect_controls
         overdrive_attr::controls,
         cabinet_sim_attr::controls,
         vocoder_attr::controls,
-        phaser_attr::controls
+        phaser_attr::controls,
+        amp_sim_attr::controls
     >
     ctrl;
 };
@@ -194,6 +195,7 @@ private:
     void set_controls(const cabinet_sim_attr::controls &ctrl);
     void set_controls(const vocoder_attr::controls &ctrl);
     void set_controls(const phaser_attr::controls &ctrl);
+    void set_controls(const amp_sim_attr::controls &ctrl);
 
     void notify_effect_attributes_changed(effect *eff);
 
