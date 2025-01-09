@@ -1582,7 +1582,7 @@ struct OneMarkAmpParameters
 		bright = params.bright;
 		ampGainStyle = params.ampGainStyle;
 
-		for (int i = 0; i < PREAMP_TRIODES; i++)
+		for (unsigned i = 0; i < PREAMP_TRIODES; i++)
 			dcShift[i] = params.dcShift[i];
 
 		// --- MUST be last
@@ -1736,28 +1736,28 @@ public:
 		float t3Out = triodes[2].processAudioSample(t2Out);
 		float t4Out = triodes[3].processAudioSample(t3Out);
 
+		// --- tone stack (note: relocating makes a big difference)
+		float toneStackOut = toneStack.processAudioSample(t4Out);
+
 		// --- class B drive gain
-		t4Out *= tubeComress;
+		toneStackOut *= tubeComress;
 		
 		// --- class B model
-		float classBOut = outputPentodes.processAudioSample(t4Out);
-
-		// --- tone stack (note: relocating makes a big difference)
-		float toneStackOut = toneStack.processAudioSample(classBOut);
+		float classBOut = outputPentodes.processAudioSample(toneStackOut);
 
 		// --- speaker sim
 		//float dcBlock = outputHPF.processAudioSample(toneStackOut);
 		//float outputLPFout = outputLPF.processAudioSample(dcBlock);
 
 		// --- for metering the DC Shifts only - can ignore if you want
-		for(int i=0; i< PREAMP_TRIODES; i++)
-			parameters.dcShift[i] = triodes[i].getParameters().dcOffsetDetected;
+		//for(int i=0; i< PREAMP_TRIODES; i++)
+			//parameters.dcShift[i] = triodes[i].getParameters().dcOffsetDetected;
 
 		// --- the FIRST meter is binary
-		if (parameters.dcShift[0] > 0.125)
-			parameters.dcShift[0] = 1.0;
+		//if (parameters.dcShift[0] > 0.125)
+			//parameters.dcShift[0] = 1.0;
 
-		return toneStackOut * outputGain;
+		return classBOut * outputGain;
 	}
 
 	/** get parameters: note use of custom structure for passing param data */
@@ -1785,7 +1785,7 @@ public:
 			saturation = 5.0;
 
 		// --- update
-		for (int i = 0; i < PREAMP_TRIODES; i++)
+		for (unsigned i = 0; i < PREAMP_TRIODES; i++)
 		{
 			ClassAValveParameters triodeParams = triodes[i].getParameters();
 			triodeParams.waveshaperSaturation = saturation;

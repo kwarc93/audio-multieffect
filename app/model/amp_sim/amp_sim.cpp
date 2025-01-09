@@ -105,6 +105,8 @@ void amp_sim::set_mode(amp_sim_attr::controls::mode_type mode)
 
     this->attr.ctrl.mode = mode;
 
+    this->amp_params.inputHPF_010 = 2;
+
     if (mode == amp_sim_attr::controls::mode_type::higain)
     {
         this->amp_params.toneStackParameters.LFToneControl_010 = 5;
