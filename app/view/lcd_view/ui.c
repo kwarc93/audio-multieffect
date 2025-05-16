@@ -108,35 +108,19 @@ lv_obj_t * ui_lbl_echo_mode_echo;
 lv_obj_t * ui_lbl_echo_mode_delay;
 
 // SCREEN: ui_fx_chorus
-void ui_fx_chorus_screen_init(void);
+lv_obj_t * ui_fx_chorus_screen_create(void);
 void ui_event_fx_chorus(lv_event_t * e);
-lv_obj_t * ui_fx_chorus;
-lv_obj_t * ui_pnl_chorus_content;
-lv_obj_t * ui_lbl_chorus_fx_name;
+lv_obj_t * ui_scr_chorus;
 void ui_event_btn_chorus_bypass(lv_event_t * e);
 lv_obj_t * ui_btn_chorus_bypass;
-lv_obj_t * ui_lbl_btn_chorus_bypass;
-lv_obj_t * ui_pnl_chorus_controls;
-lv_obj_t * ui_pnl_chorus_mix;
-lv_obj_t * ui_img_chorus_mix;
 void ui_event_arc_chorus_mix(lv_event_t * e);
 lv_obj_t * ui_arc_chorus_mix;
-lv_obj_t * ui_lbl_chorus_mix;
-lv_obj_t * ui_pnl_chorus_rate;
-lv_obj_t * ui_img_chorus_rate;
 void ui_event_arc_chorus_rate(lv_event_t * e);
 lv_obj_t * ui_arc_chorus_rate;
-lv_obj_t * ui_lbl_chorus_rate;
-lv_obj_t * ui_pnl_chorus_depth;
-lv_obj_t * ui_img_chorus_depth;
 void ui_event_arc_chorus_depth(lv_event_t * e);
 lv_obj_t * ui_arc_chorus_depth;
-lv_obj_t * ui_lbl_chorus_depth;
-lv_obj_t * ui_pnl_chorus_mode;
 void ui_event_sw_chorus_mode(lv_event_t * e);
 lv_obj_t * ui_sw_chorus_mode;
-lv_obj_t * ui_lbl_chorus_mode_white;
-lv_obj_t * ui_lbl_chorus_mode_deep;
 
 // SCREEN: ui_fx_reverb
 void ui_fx_reverb_screen_init(void);
@@ -496,8 +480,6 @@ void ui_event_sw_chorus_mode(lv_event_t * e)
 
     if(event_code == LV_EVENT_VALUE_CHANGED) {
         ui_chorus_mode_changed(e);
-        _ui_state_modify(ui_lbl_chorus_mode_white, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
-        _ui_state_modify(ui_lbl_chorus_mode_deep, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
     }
 }
 void ui_event_fx_reverb(lv_event_t * e)
