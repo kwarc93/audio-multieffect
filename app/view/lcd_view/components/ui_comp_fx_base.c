@@ -7,7 +7,7 @@
 
 #include "../ui.h"
 
-lv_obj_t * ui_comp_fx_base(lv_obj_t * parent, const char * name)
+lv_obj_t * ui_comp_fx_base_create(lv_obj_t * parent, const char * name)
 {
     lv_obj_t * fx_base = lv_obj_create(parent);
     lv_obj_set_width(fx_base, lv_pct(100));

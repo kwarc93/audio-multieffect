@@ -7,7 +7,7 @@
 
 #include "../ui.h"
 
-lv_obj_t * ui_comp_fx_ctrl_pnl(lv_obj_t * parent)
+lv_obj_t * ui_comp_fx_ctrl_pnl_create(lv_obj_t * parent)
 {
     lv_obj_t * fx_ctrl_pnl = lv_obj_create(parent);
     lv_obj_set_width(fx_ctrl_pnl, lv_pct(90));

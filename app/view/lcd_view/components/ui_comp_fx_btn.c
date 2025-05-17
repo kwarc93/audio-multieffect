@@ -7,7 +7,10 @@
 
 #include "../ui.h"
 
-lv_obj_t * ui_comp_fx_btn(lv_obj_t * parent, const char * name, lv_align_t align)
+LV_IMG_DECLARE(ui_img_btn_1_inact_png);
+LV_IMG_DECLARE(ui_img_btn_1_act_png);
+
+lv_obj_t * ui_comp_fx_btn_create(lv_obj_t * parent, const char * name, lv_align_t align)
 {
     lv_obj_t * fx_btn = lv_imgbtn_create(parent);
     lv_imgbtn_set_src(fx_btn, LV_IMGBTN_STATE_RELEASED, NULL, &ui_img_btn_1_inact_png, NULL);
