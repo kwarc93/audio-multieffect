@@ -22,13 +22,65 @@ namespace middlewares
 namespace filesystem
 {
 
-inline void test(void)
-{
-    // variables used by the filesystem
-    static lfs_t lfs;
-    static lfs_file_t file;
-    static struct lfs_config cfg;
+inline lfs_t lfs;
+inline lfs_config lfs_cfg;
 
+inline void init(void)
+{
+    static hal::nvms::qspi_flash storage;
+
+    lfs_cfg.context = &storage;
+
+    // block device operations
+    lfs_cfg.read = [](const struct lfs_config *c, lfs_block_t block, lfs_off_t off, void *buffer, lfs_size_t size) -> int
+                   {
+                       auto nvm = static_cast<hal::nvm*>(c->context);
+                       int result = nvm->read((std::byte*)buffer, block * c->block_size + off, size) ? LFS_ERR_OK : LFS_ERR_IO;
+                       assert(result == LFS_ERR_OK);
+                       return result;
+                   };
+    lfs_cfg.prog = [](const struct lfs_config *c, lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size) -> int
+                   {
+                       auto nvm = static_cast<hal::nvm*>(c->context);
+                       int result = nvm->write((std::byte*)buffer, block * c->block_size + off, size) ? LFS_ERR_OK : LFS_ERR_IO;
+                       assert(result == LFS_ERR_OK);
+                       return result;
+                   };
+    lfs_cfg.erase = [](const struct lfs_config *c, lfs_block_t block) -> int
+                    {
+                        auto nvm = static_cast<hal::nvm*>(c->context);
+                        int result = nvm->erase(block * c->block_size, c->block_size) ? LFS_ERR_OK : LFS_ERR_IO;
+                        assert(result == LFS_ERR_OK);
+                        return result;
+                    };
+    lfs_cfg.sync = [](const struct lfs_config *c) -> int
+                   {
+                        return LFS_ERR_OK; // No buffering so return
+                   };
+
+    // block device configuration
+    lfs_cfg.read_size = 1;
+    lfs_cfg.prog_size = storage.prog_size();
+    lfs_cfg.block_size = storage.erase_size();
+    lfs_cfg.block_count = storage.total_size() / storage.erase_size();
+    lfs_cfg.cache_size = lfs_cfg.prog_size;
+    lfs_cfg.lookahead_size = 64;
+    lfs_cfg.block_cycles = 512;
+
+    // mount the filesystem
+    int err = lfs_mount(&lfs, &lfs_cfg);
+
+    // reformat if we can't mount the filesystem
+    // this should only happen on the first boot
+    if (err)
+    {
+        lfs_format(&lfs, &lfs_cfg);
+        lfs_mount(&lfs, &lfs_cfg);
+    }
+}
+
+inline void memtest(void)
+{
     hal::random::enable(true);
     hal::buttons::blue_btn button;
     hal::nvms::qspi_flash storage;
@@ -41,7 +93,7 @@ inline void test(void)
         printf("QSPI FLASH erasing %s\r\n", result ? "done" : "error");
     }
 
-    printf("Starting file system test...\r\n");
+    printf("Starting QSPI FLASH memory test...\r\n");
 
     // random subsector test
     constexpr size_t subsector_size = 4096;
@@ -64,57 +116,17 @@ inline void test(void)
             }
         }
     }
+}
 
-    cfg.context = &storage;
+inline void test(void)
+{
+    hal::random::enable(true);
+    hal::buttons::blue_btn button;
+    hal::nvms::qspi_flash storage;
 
-    // block device operations
-    cfg.read = [](const struct lfs_config *c, lfs_block_t block, lfs_off_t off, void *buffer, lfs_size_t size) -> int
-                {
-                    auto nvm = static_cast<hal::nvm*>(c->context);
-                    int result = nvm->read((std::byte*)buffer, block * c->block_size + off, size) ? LFS_ERR_OK : LFS_ERR_IO;
-                    assert(result == LFS_ERR_OK);
-                    return result;
-                };
-    cfg.prog = [](const struct lfs_config *c, lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size) -> int
-                {
-                    auto nvm = static_cast<hal::nvm*>(c->context);
-                    int result = nvm->write((std::byte*)buffer, block * c->block_size + off, size) ? LFS_ERR_OK : LFS_ERR_IO;
-                    assert(result == LFS_ERR_OK);
-                    return result;
-                };
-    cfg.erase = [](const struct lfs_config *c, lfs_block_t block) -> int
-                {
-                    auto nvm = static_cast<hal::nvm*>(c->context);
-                    int result = nvm->erase(block * c->block_size, c->block_size) ? LFS_ERR_OK : LFS_ERR_IO;
-                    assert(result == LFS_ERR_OK);
-                    return result;
-                };
-    cfg.sync = [](const struct lfs_config *c) -> int
-               {
-                    return LFS_ERR_OK; // No buffering so return
-               };
+    printf("Starting file system test...\r\n");
 
-    // block device configuration
-    cfg.read_size = 1;
-    cfg.prog_size = storage.prog_size();
-    cfg.block_size = storage.erase_size();
-    cfg.block_count = storage.total_size() / storage.erase_size();
-    cfg.cache_size = cfg.prog_size;
-    cfg.lookahead_size = 64;
-    cfg.block_cycles = 512;
-
-    // mount the filesystem
-    int err = lfs_mount(&lfs, &cfg);
-
-    // reformat if we can't mount the filesystem
-    // this should only happen on the first boot
-    if (err)
-    {
-        lfs_format(&lfs, &cfg);
-        lfs_mount(&lfs, &cfg);
-    }
-
-     // Test file benchmark
+    // Test file benchmark
     #define SIZE (128ul * 1024ul)
     #define CHUNK_SIZE (128ul)
 
@@ -124,6 +136,7 @@ inline void test(void)
     std::generate(pattern.begin(), pattern.end(), [](){ return hal::random::get() % 256; });
 
     // first write the file
+    lfs_file_t file;
     uint32_t start = hal::system::clock::cycles();
     assert(lfs_file_open(&lfs, &file, "file", LFS_O_WRONLY | LFS_O_CREAT) == 0);
     for (lfs_size_t i = 0; i < chunks; i++)

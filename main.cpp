@@ -16,6 +16,7 @@
 #include "app/view/lcd_view/lcd_view.hpp"
 #include "app/model/effect_processor.hpp"
 #include "app/controller/controller.hpp"
+#include "app/settings/settings.hpp"
 
 #include "middlewares/filesystem.hpp"
 
@@ -25,8 +26,14 @@
 
 static void init_thread(void *arg)
 {
-    /* Test filesystem */
-    //middlewares::filesystem::test();
+    /* Init filesystem */
+    middlewares::filesystem::init();
+
+    /* Load settings */
+    auto settings = std::make_unique<settings_manager>(std::make_unique<settings_storage_file>("settings0.cbor"));
+    settings->set_boot_counter(settings->get_boot_counter() + 1);
+    settings->save();
+    printf("Settings:\r\n%s", settings->dump().c_str());
 
     /* Create active objects */
     auto model = std::make_unique<mfx::ipc_effect_processor>();
@@ -50,8 +57,14 @@ static void init_thread(void *arg)
 #else
 static void init_thread(void *arg)
 {
-    /* Test filesystem */
-    //middlewares::filesystem::test();
+    /* Init filesystem */
+    middlewares::filesystem::init();
+
+    /* Load settings */
+    auto settings = std::make_unique<settings_manager>(std::make_unique<settings_storage_file>("settings0.cbor"));
+    settings->set_boot_counter(settings->get_boot_counter() + 1);
+    settings->save();
+    printf("Settings:\r\n%s\r\n", settings->dump().c_str());
 
     /* Create active objects */
     auto model = std::make_unique<mfx::effect_processor>();
