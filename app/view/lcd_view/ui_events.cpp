@@ -6,6 +6,7 @@
 #include "ui.h"
 
 #include "lcd_view.hpp"
+#include "app/utils.hpp"
 
 #include <cassert>
 #include <string>
@@ -67,18 +68,16 @@ void notify_echo_controls_changed(void)
 
 void notify_chorus_controls_changed(void)
 {
-    lv_obj_t *mix_knob = ui_arc_chorus_mix;
-    lv_obj_t *depth_knob = ui_arc_chorus_depth;
-    lv_obj_t *rate_knob = ui_arc_chorus_rate;
-    lv_obj_t *mode_sw = ui_sw_chorus_mode;
+    ui_scr_chorus_t *ui_comp = ui_scr_chorus_get_components();
+    if (!ui_comp) return;
 
     const mfx::chorus_attr::controls ctrl
     {
-        lv_arc_get_value(depth_knob) * 0.01f,
-        lv_arc_get_value(rate_knob) * 0.01f,
+        mfx::utils::map_range<float>(0, 100, 0, 1, ui_comp_fx_knob_get_value(ui_comp->depth_knob)),
+        mfx::utils::map_range<float>(0, 100, 0, 1, ui_comp_fx_knob_get_value(ui_comp->rate_knob)),
         0, // Not used
-        lv_arc_get_value(mix_knob) * 0.01f,
-        lv_obj_has_state(mode_sw, LV_STATE_CHECKED) ?
+        mfx::utils::map_range<float>(0, 100, 0, 1, ui_comp_fx_knob_get_value(ui_comp->mix_knob)),
+        ui_comp_fx_switch_get_state(ui_comp->mode_switch) ?
         mfx::chorus_attr::controls::mode_type::deep :
         mfx::chorus_attr::controls::mode_type::white
     };

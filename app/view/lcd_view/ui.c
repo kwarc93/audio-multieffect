@@ -108,19 +108,14 @@ lv_obj_t * ui_lbl_echo_mode_echo;
 lv_obj_t * ui_lbl_echo_mode_delay;
 
 // SCREEN: ui_fx_chorus
-lv_obj_t * ui_fx_chorus_screen_create(void);
+lv_obj_t * ui_scr_chorus_create(void);
 void ui_event_fx_chorus(lv_event_t * e);
 lv_obj_t * ui_scr_chorus;
 void ui_event_btn_chorus_bypass(lv_event_t * e);
-lv_obj_t * ui_btn_chorus_bypass;
 void ui_event_arc_chorus_mix(lv_event_t * e);
-lv_obj_t * ui_arc_chorus_mix;
 void ui_event_arc_chorus_rate(lv_event_t * e);
-lv_obj_t * ui_arc_chorus_rate;
 void ui_event_arc_chorus_depth(lv_event_t * e);
-lv_obj_t * ui_arc_chorus_depth;
 void ui_event_sw_chorus_mode(lv_event_t * e);
-lv_obj_t * ui_sw_chorus_mode;
 
 // SCREEN: ui_fx_reverb
 void ui_fx_reverb_screen_init(void);

@@ -5,25 +5,45 @@
 
 #include "../ui.h"
 
-lv_obj_t * ui_fx_chorus_screen_create(void)
+static void delete_event_cb(lv_event_t * e)
 {
-	   ui_scr_chorus = lv_obj_create(NULL);
+    ui_scr_chorus_t * data = lv_event_get_user_data(e);
+    lv_mem_free(data);
+}
 
-    lv_obj_t * fx_base = ui_comp_fx_base(ui_scr_chorus, "CHORUS");
-    lv_obj_t * fx_controls = ui_comp_fx_ctrl_pnl(fx_base);
+lv_obj_t * ui_scr_chorus_create(void)
+{
+    ui_scr_chorus_t * data = lv_mem_alloc(sizeof(ui_scr_chorus_t));
+    if (!data) return NULL;
 
-    ui_btn_chorus_bypass = ui_comp_fx_btn(fx_base, "ON", LV_ALIGN_BOTTOM_LEFT);
-    ui_arc_chorus_mix = ui_comp_fx_knob(fx_controls, "MIX", 0, 100, 50, LV_ALIGN_LEFT_MID);
-    ui_arc_chorus_rate = ui_comp_fx_knob(fx_controls, "RATE", 0, 100, 50, LV_ALIGN_RIGHT_MID);
-    ui_arc_chorus_depth = ui_comp_fx_knob(fx_controls, "DEPTH", 0, 100, 50, LV_ALIGN_CENTER);
-    ui_sw_chorus_mode = ui_comp_fx_switch_create(fx_base, "WHITE", "DEEP  ");
+    ui_scr_chorus = lv_obj_create(NULL);
+    lv_obj_set_user_data(ui_scr_chorus, data);
+    lv_obj_add_event_cb(ui_scr_chorus, delete_event_cb, LV_EVENT_DELETE, data);
 
-    ui_comp_fx_switch_add_event_cb(ui_sw_chorus_mode, ui_event_sw_chorus_mode, LV_EVENT_ALL, NULL);
-    lv_obj_add_event_cb(ui_btn_chorus_bypass, ui_event_btn_chorus_bypass, LV_EVENT_ALL, NULL);
-    lv_obj_add_event_cb(ui_arc_chorus_mix, ui_event_arc_chorus_mix, LV_EVENT_ALL, NULL);
-    lv_obj_add_event_cb(ui_arc_chorus_rate, ui_event_arc_chorus_rate, LV_EVENT_ALL, NULL);
-    lv_obj_add_event_cb(ui_arc_chorus_depth, ui_event_arc_chorus_depth, LV_EVENT_ALL, NULL);
+    lv_obj_t * fx_base = ui_comp_fx_base_create(ui_scr_chorus, "CHORUS");
+    lv_obj_t * fx_controls = ui_comp_fx_ctrl_pnl_create(fx_base);
+
+    data->bypass_button = ui_comp_fx_btn_create(fx_base, "ON", LV_ALIGN_BOTTOM_LEFT);
+    lv_obj_add_event_cb(data->bypass_button, ui_event_btn_chorus_bypass, LV_EVENT_ALL, NULL);
+
+    data->mix_knob = ui_comp_fx_knob_create(fx_controls, "MIX", 50, LV_ALIGN_LEFT_MID);
+    ui_comp_fx_knob_add_event_cb(data->mix_knob, ui_event_arc_chorus_mix, LV_EVENT_ALL, NULL);
+
+    data->depth_knob = ui_comp_fx_knob_create(fx_controls, "DEPTH", 50, LV_ALIGN_CENTER);
+    ui_comp_fx_knob_add_event_cb(data->depth_knob, ui_event_arc_chorus_depth, LV_EVENT_ALL, NULL);
+
+    data->rate_knob = ui_comp_fx_knob_create(fx_controls, "RATE", 50, LV_ALIGN_RIGHT_MID);
+    ui_comp_fx_knob_add_event_cb(data->rate_knob, ui_event_arc_chorus_rate, LV_EVENT_ALL, NULL);
+
+    data->mode_switch = ui_comp_fx_switch_create(fx_base, "WHITE", "DEEP  ");
+    ui_comp_fx_switch_add_event_cb(data->mode_switch, ui_event_sw_chorus_mode, LV_EVENT_ALL, NULL);
+
     lv_obj_add_event_cb(ui_scr_chorus, ui_event_fx_chorus, LV_EVENT_ALL, NULL);
 
     return ui_scr_chorus;
+}
+
+ui_scr_chorus_t * ui_scr_chorus_get_components(void)
+{
+    return ui_scr_chorus ? lv_obj_get_user_data(ui_scr_chorus) : NULL;
 }

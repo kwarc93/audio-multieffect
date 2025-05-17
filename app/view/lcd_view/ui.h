@@ -14,6 +14,8 @@ extern "C" {
 
 #include "ui_helpers.h"
 #include "ui_events.h"
+#include "ui_components.h"
+#include "ui_screens.h"
 
 // USER:
 #define UI_PALETTE_SPRING_GREEN 0x50FF7D
@@ -113,19 +115,14 @@ extern lv_obj_t * ui_sw_echo_mode;
 extern lv_obj_t * ui_lbl_echo_mode_echo;
 extern lv_obj_t * ui_lbl_echo_mode_delay;
 // SCREEN: ui_fx_chorus
-lv_obj_t * ui_fx_chorus_screen_create(void);
+lv_obj_t * ui_scr_chorus_create(void);
 void ui_event_fx_chorus(lv_event_t * e);
 extern lv_obj_t * ui_scr_chorus;
 void ui_event_btn_chorus_bypass(lv_event_t * e);
-extern lv_obj_t * ui_btn_chorus_bypass;
 void ui_event_arc_chorus_mix(lv_event_t * e);
-extern lv_obj_t * ui_arc_chorus_mix;
 void ui_event_arc_chorus_rate(lv_event_t * e);
-extern lv_obj_t * ui_arc_chorus_rate;
 void ui_event_arc_chorus_depth(lv_event_t * e);
-extern lv_obj_t * ui_arc_chorus_depth;
 void ui_event_sw_chorus_mode(lv_event_t * e);
-extern lv_obj_t * ui_sw_chorus_mode;
 // SCREEN: ui_fx_reverb
 void ui_fx_reverb_screen_init(void);
 void ui_event_fx_reverb(lv_event_t * e);
@@ -256,15 +253,6 @@ void ui_event_sw_pha_contour(lv_event_t * e);
 extern lv_obj_t * ui_sw_pha_contour;
 extern lv_obj_t * ui_lbl_pha_contour_on;
 extern lv_obj_t * ui_lbl_pha_contour_off;
-
-// COMPONENTS:
-lv_obj_t * ui_comp_fx_base(lv_obj_t * parent, const char * name);
-lv_obj_t * ui_comp_fx_btn(lv_obj_t * parent, const char * name, lv_align_t align);
-lv_obj_t * ui_comp_fx_ctrl_pnl(lv_obj_t * parent);
-lv_obj_t * ui_comp_fx_knob(lv_obj_t * parent, const char * name, int16_t min, int16_t max, int16_t val, lv_align_t align);
-lv_obj_t * ui_comp_fx_switch_create(lv_obj_t * parent, const char * left_txt, const char * right_txt);
-void       ui_comp_fx_switch_set_state(lv_obj_t * obj, bool state);
-void       ui_comp_fx_switch_add_event_cb(lv_obj_t * obj, lv_event_cb_t cb, lv_event_code_t filter, void * user_data);
 
 LV_IMG_DECLARE(ui_img_pot_ver_line_png);    // assets/pot_ver_line.png
 LV_IMG_DECLARE(ui_img_pot_ver_knob_png);    // assets/pot_ver_knob.png
