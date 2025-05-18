@@ -33,6 +33,12 @@ struct shutdown
 
 };
 
+struct configuration
+{
+    bool dark_mode;
+    uint8_t display_brightness;
+};
+
 struct show_splash_screen
 {
 
@@ -141,6 +147,7 @@ struct update_dsp_load
 
 using outgoing = std::variant
 <
+    configuration,
     splash_loaded,
     next_effect_screen_request,
     prev_effect_screen_request,
@@ -159,6 +166,7 @@ using incoming = std::variant
 <
     timer,
     shutdown,
+    configuration,
     show_splash_screen,
     show_blank_screen,
     show_next_effect_screen,
@@ -180,6 +188,7 @@ private:
     /* Event handlers */
     void event_handler(const lcd_view_events::timer &e);
     void event_handler(const lcd_view_events::shutdown &e);
+    void event_handler(const lcd_view_events::configuration &e);
     void event_handler(const lcd_view_events::show_splash_screen &e);
     void event_handler(const lcd_view_events::show_blank_screen &e);
     void event_handler(const lcd_view_events::show_next_effect_screen &e);

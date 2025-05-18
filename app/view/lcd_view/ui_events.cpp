@@ -20,6 +20,15 @@ namespace events = mfx::lcd_view_events;
 
 mfx::lcd_view *view;
 
+void notify_configuration_changed(void)
+{
+    bool dark_mode = lv_obj_get_state(ui_sw_sett_dark_mode) == LV_STATE_CHECKED;
+    uint8_t brightness = lv_slider_get_value(ui_sld_sett_displ_bright);
+
+    const events::configuration evt {dark_mode, brightness};
+    view->notify(evt);
+}
+
 void notify_effect_bypass_changed(lv_obj_t *obj, mfx::effect_id effect)
 {
     bool bypassed = !lv_obj_has_state(obj, LV_STATE_CHECKED);
@@ -214,6 +223,16 @@ void ui_effect_next(lv_event_t * e)
 void ui_effect_prev(lv_event_t * e)
 {
     view->notify(events::prev_effect_screen_request {});
+}
+
+void ui_settings_dark_mode_changed(lv_event_t * e)
+{
+    notify_configuration_changed();
+}
+
+void ui_settings_display_brightess_changed(lv_event_t * e)
+{
+    notify_configuration_changed();
 }
 
 void ui_settings_in_vol_changed(lv_event_t * e)

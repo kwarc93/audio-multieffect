@@ -20,6 +20,7 @@
 
 #include "app/view/lcd_view/lcd_view.hpp"
 #include "app/model/effect_processor.hpp"
+#include "app/settings/settings.hpp"
 
 namespace mfx
 {
@@ -62,7 +63,7 @@ class controller : public middlewares::active_object<controller_events::incoming
                    public middlewares::observer<lcd_view_events::outgoing>
 {
 public:
-    controller(std::unique_ptr<effect_processor_base> model, std::unique_ptr<lcd_view> view);
+    controller(std::unique_ptr<effect_processor_base> model, std::unique_ptr<lcd_view> view, std::unique_ptr<settings_manager> settings);
     ~controller();
 
 private:
@@ -76,6 +77,7 @@ private:
     void event_handler(const controller_events::dsp_load &e);
     void event_handler(const controller_events::load_preset &e);
 
+    void view_event_handler(const lcd_view_events::configuration &e);
     void view_event_handler(const lcd_view_events::splash_loaded &e);
     void view_event_handler(const lcd_view_events::next_effect_screen_request &e);
     void view_event_handler(const lcd_view_events::prev_effect_screen_request &e);
@@ -100,6 +102,7 @@ private:
 
     std::unique_ptr<effect_processor_base> model;
     std::unique_ptr<lcd_view> view;
+    std::unique_ptr<settings_manager> settings;
 
     effect_id current_effect;
     std::vector<effect_id> active_effects;

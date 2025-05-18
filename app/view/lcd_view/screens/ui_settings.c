@@ -18,26 +18,6 @@ static void menu_exit_handler(lv_event_t * e)
         _ui_screen_change(&ui_settings_parent_screen, LV_SCR_LOAD_ANIM_MOVE_TOP, 250, 0, NULL);
 }
 
-static void menu_set_theme_handler(lv_event_t * e)
-{
-    lv_event_code_t code = lv_event_get_code(e);
-    lv_obj_t * obj = lv_event_get_target(e);
-
-    if (code == LV_EVENT_VALUE_CHANGED)
-    {
-        bool dark_mode = lv_obj_has_state(obj, LV_STATE_CHECKED);
-
-        lv_disp_t *disp = lv_disp_get_default();
-        lv_color_t primary_color = lv_color_hex(UI_PALETTE_SPRING_GREEN);
-        lv_color_t secondary_color = lv_color_hex(UI_PALETTE_BATTLESHIP_GRAY);
-        lv_theme_t *theme = lv_theme_default_init(disp, primary_color, secondary_color, dark_mode, LV_FONT_DEFAULT);
-        lv_disp_set_theme(disp, theme);
-
-        lv_color_t menu_bg_color = dark_mode ? lv_color_lighten(lv_color_black(), 25) : lv_color_darken(lv_color_white(), 25);
-        lv_obj_set_style_bg_color(ui_menu_sett, menu_bg_color, 0);
-    }
-}
-
 static lv_obj_t * menu_create_text(lv_obj_t * parent, const char * icon, const char * txt)
 {
     lv_obj_t * obj = lv_menu_cont_create(parent);
@@ -379,8 +359,10 @@ void ui_settings_screen_init(void)
     lv_obj_t * sub_display_page = lv_menu_page_create(menu, "Display");
     lv_obj_set_style_pad_hor(sub_display_page, menu_pad_hor, 0);
     section = lv_menu_section_create(sub_display_page);
-    menu_create_slider(section, NULL, "Brightness", 0, 150, 100, NULL);
-    cont = menu_create_switch(section, NULL, "Dark mode", true, menu_set_theme_handler);
+    cont = menu_create_slider(section, NULL, "Brightness", 0, 100, 100, ui_event_sld_display_brightness);
+    ui_sld_sett_displ_bright = lv_obj_get_child(cont, -1);
+    cont = menu_create_switch(section, NULL, "Dark mode", true, ui_event_sw_dark_mode);
+    ui_sw_sett_dark_mode = lv_obj_get_child(cont, -1);
 
     lv_obj_t * sub_software_page = lv_menu_page_create(menu, "Software");
     lv_obj_set_style_pad_hor(sub_software_page, menu_pad_hor, 0);

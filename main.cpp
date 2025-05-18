@@ -30,9 +30,7 @@ static void init_thread(void *arg)
     middlewares::filesystem::init();
 
     /* Load settings */
-    auto settings = std::make_unique<settings_manager>(std::make_unique<settings_storage_file>("settings0.cbor"));
-    settings->set_boot_counter(settings->get_boot_counter() + 1);
-    settings->save();
+    auto settings = std::make_unique<settings_manager>(std::make_unique<settings_storage_file>("settings1.cbor"));
     printf("Settings:\r\n%s", settings->dump().c_str());
 
     /* Create active objects */
@@ -61,15 +59,13 @@ static void init_thread(void *arg)
     middlewares::filesystem::init();
 
     /* Load settings */
-    auto settings = std::make_unique<settings_manager>(std::make_unique<settings_storage_file>("settings0.cbor"));
-    settings->set_boot_counter(settings->get_boot_counter() + 1);
-    settings->save();
+    auto settings = std::make_unique<settings_manager>(std::make_unique<settings_storage_file>("settings1.cbor"));
     printf("Settings:\r\n%s\r\n", settings->dump().c_str());
 
     /* Create active objects */
     auto model = std::make_unique<mfx::effect_processor>();
     auto lcd_view = std::make_unique<mfx::lcd_view>();
-    auto ctrl = std::make_unique<mfx::controller>(std::move(model), std::move(lcd_view));
+    auto ctrl = std::make_unique<mfx::controller>(std::move(model), std::move(lcd_view), std::move(settings));
 
     osThreadSuspend(osThreadGetId());
 }

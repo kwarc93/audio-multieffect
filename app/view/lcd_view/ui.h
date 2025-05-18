@@ -41,16 +41,20 @@ extern lv_obj_t * ui_list_sett_fx_chain;
 extern lv_obj_t * ui_list_sett_fx_ops;
 extern lv_obj_t * ui_list_sett_fx_items;
 extern lv_obj_t * ui_btn_sett_curr_fx;
+extern lv_obj_t * ui_sld_sett_displ_bright;
 extern lv_obj_t * ui_sld_sett_main_in_vol;
 extern lv_obj_t * ui_sld_sett_aux_in_vol;
 extern lv_obj_t * ui_sld_sett_out_vol;
+extern lv_obj_t * ui_sw_sett_dark_mode;
 extern lv_obj_t * ui_sw_sett_mute_audio;
 extern lv_obj_t * ui_sw_sett_route_mic_to_aux;
 extern lv_obj_t * ui_lbl_sett_cpu_load;
 extern const char * const *ui_fx_names;
 extern size_t ui_fx_names_size;
+void ui_event_sld_display_brightness(lv_event_t * e);
 void ui_event_sld_in_vol(lv_event_t * e);
 void ui_event_sld_out_vol(lv_event_t * e);
+void ui_event_sw_dark_mode(lv_event_t * e);
 void ui_event_sw_mute_audio(lv_event_t * e);
 void ui_event_sw_route_mic_to_aux(lv_event_t * e);
 // SCREEN: ui_fx_tremolo
@@ -281,6 +285,7 @@ LV_IMG_DECLARE(ui_img_logo_gmfx);   // assets/gmfx-logo-gimp.png
 LV_FONT_DECLARE(ui_font_14_bold);
 
 void ui_init(void * user_data);
+void ui_set_dark_theme(bool enabled);
 
 #ifdef __cplusplus
 } /*extern "C"*/

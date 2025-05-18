@@ -10,6 +10,7 @@
 
 #include <vector>
 #include <cstdint>
+#include <string>
 
 #include "libs/littlefs/lfs.h"
 #include "middlewares/filesystem.hpp"
@@ -41,7 +42,7 @@ public:
         bool result = false;
         auto fs = &middlewares::filesystem::lfs;
 
-        if (lfs_file_open(fs, &this->file, this->file_name.c_str(), LFS_O_WRONLY | LFS_O_CREAT) == LFS_ERR_OK)
+        if (lfs_file_open(fs, &this->file, this->file_name.c_str(), LFS_O_WRONLY | LFS_O_CREAT | LFS_O_TRUNC) == LFS_ERR_OK)
         {
             const lfs_ssize_t bytes_to_write = data.size();
             result =  (lfs_file_write(fs, &this->file, data.data(), bytes_to_write) == bytes_to_write);

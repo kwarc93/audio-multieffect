@@ -84,7 +84,7 @@ inline void init(void)
         err = lfs_mount(&lfs, &lfs_cfg);
     }
 
-    printf("Filesystem initialization %s\r\n", err == LFS_ERR_OK ? "failed" : "successful");
+    printf("Filesystem initialization %s\r\n", err == LFS_ERR_OK ? "successful" : "failed");
 }
 
 inline void test(void)

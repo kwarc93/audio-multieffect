@@ -147,6 +147,14 @@ void controller::event_handler(const events::load_preset &e)
     this->update_effect_attributes(this->current_effect);
 }
 
+void controller::view_event_handler(const lcd_view_events::configuration &e)
+{
+    this->settings->set_dark_mode(e.dark_mode);
+    this->settings->set_display_brightness(e.display_brightness);
+
+    this->settings->save();
+}
+
 void controller::view_event_handler(const lcd_view_events::splash_loaded &e)
 {
     this->view->send({lcd_view_events::show_blank_screen {}});
@@ -294,11 +302,12 @@ void controller::update_effect_attributes(effect_id id)
 //-----------------------------------------------------------------------------
 /* public */
 
-controller::controller(std::unique_ptr<effect_processor_base> model, std::unique_ptr<lcd_view> view) :
+controller::controller(std::unique_ptr<effect_processor_base> model, std::unique_ptr<lcd_view> view, std::unique_ptr<settings_manager> settings) :
 active_object("controller", osPriorityNormal, 2048),
 error_code{0},
 model {std::move(model)},
-view {std::move(view)}
+view {std::move(view)},
+settings {std::move(settings)}
 {
     /* Create timer for button debouncing */
     this->button_timer = osTimerNew(button_timer_cb, osTimerPeriodic, &this->button, NULL);
@@ -315,6 +324,11 @@ view {std::move(view)}
 
     /* Start observing view(s) */
     this->view->attach(this);
+
+    /* Configure view & model */
+    this->view->send({lcd_view_events::configuration { this->settings->get_dark_mode(), this->settings->get_display_brightness() }});
+    this->settings->set_boot_counter(this->settings->get_boot_counter() + 1);
+    this->settings->save();
 
     /* Show splash screen */
     this->view->send({lcd_view_events::show_splash_screen {}});

@@ -89,6 +89,21 @@ void lcd_view::event_handler(const events::shutdown &e)
     this->display.backlight(false);
 }
 
+void lcd_view::event_handler(const lcd_view_events::configuration &e)
+{
+    if (ui_sw_sett_dark_mode)
+    {
+        ui_set_dark_theme(e.dark_mode);
+        e.dark_mode ? lv_obj_add_state(ui_sw_sett_dark_mode, LV_STATE_CHECKED) :
+                      lv_obj_clear_state(ui_sw_sett_dark_mode, LV_STATE_CHECKED);
+    }
+
+    if (ui_sld_sett_displ_bright)
+    {
+        lv_slider_set_value(ui_sld_sett_displ_bright, e.display_brightness, LV_ANIM_OFF);
+    }
+}
+
 void lcd_view::event_handler(const events::timer &e)
 {
     lv_timer_handler();
