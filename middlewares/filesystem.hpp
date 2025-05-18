@@ -8,6 +8,9 @@
 #ifndef FILESYSTEM_HPP_
 #define FILESYSTEM_HPP_
 
+#include <cstdio>
+#include <cassert>
+
 #include "libs/littlefs/lfs.h"
 
 #include <hal_system.hpp>
@@ -27,6 +30,8 @@ inline lfs_config lfs_cfg;
 
 inline void init(void)
 {
+    printf("Initializing filesystem...\r\n");
+
     static hal::nvms::qspi_flash storage;
 
     lfs_cfg.context = &storage;
@@ -55,7 +60,7 @@ inline void init(void)
                     };
     lfs_cfg.sync = [](const struct lfs_config *c) -> int
                    {
-                        return LFS_ERR_OK; // No buffering so return
+                        return LFS_ERR_OK; // no buffering so return
                    };
 
     // block device configuration
@@ -74,9 +79,62 @@ inline void init(void)
     // this should only happen on the first boot
     if (err)
     {
+        printf("Failed to mount filesystem, formatting...\r\n");
         lfs_format(&lfs, &lfs_cfg);
-        lfs_mount(&lfs, &lfs_cfg);
+        err = lfs_mount(&lfs, &lfs_cfg);
     }
+
+    printf("Filesystem initialization %s\r\n", err == LFS_ERR_OK ? "failed" : "successful");
+}
+
+inline void test(void)
+{
+    hal::random::enable(true);
+    hal::buttons::blue_btn button;
+    hal::nvms::qspi_flash storage;
+
+    printf("Starting file system test...\r\n");
+
+    // test file benchmark
+    #define SIZE (128ul * 1024ul)
+    #define CHUNK_SIZE (128ul)
+
+    lfs_size_t chunks = (SIZE+CHUNK_SIZE-1)/CHUNK_SIZE;
+
+    static std::array<uint8_t, CHUNK_SIZE> pattern;
+    std::generate(pattern.begin(), pattern.end(), [](){ return hal::random::get() % 256; });
+
+    // first write the file
+    lfs_file_t file;
+    uint32_t start = hal::system::clock::cycles();
+    assert(lfs_file_open(&lfs, &file, "file", LFS_O_WRONLY | LFS_O_CREAT) == LFS_ERR_OK);
+    for (lfs_size_t i = 0; i < chunks; i++)
+        assert(lfs_file_write(&lfs, &file, pattern.data(), CHUNK_SIZE) == CHUNK_SIZE);
+    assert(lfs_file_write(&lfs, &file, pattern.data(), CHUNK_SIZE) == CHUNK_SIZE);
+    assert(lfs_file_close(&lfs, &file) == LFS_ERR_OK);
+
+    uint32_t duration = hal::system::clock::cycles() - start;
+    constexpr uint32_t cycles_per_us = hal::system::system_clock / 1000000ul;
+    printf("lfs write benchmark: %.2f MBit/s\r\n", (float)(SIZE * 8 * cycles_per_us) / (duration));
+
+    // then read the file
+    start = hal::system::clock::cycles();
+    assert(lfs_file_open(&lfs, &file, "file", LFS_O_RDONLY) == LFS_ERR_OK);
+    std::array<uint8_t, CHUNK_SIZE> buffer;
+    for (lfs_size_t i = 0; i < chunks; i++)
+    {
+        assert(lfs_file_read(&lfs, &file, buffer.data(), CHUNK_SIZE) == CHUNK_SIZE);
+
+        for (lfs_size_t j = 0; j < CHUNK_SIZE; j++)
+            assert(buffer[j] == pattern[j]);
+    }
+    assert(lfs_file_close(&lfs, &file) == LFS_ERR_OK);
+    duration = hal::system::clock::cycles() - start;
+    printf("lfs read benchmark: %.1f MBit/s\r\n", (float)(SIZE * 8 * cycles_per_us) / (duration));
+
+    assert(lfs_unmount(&lfs) == LFS_ERR_OK);
+
+    printf("File system test done\r\n");
 }
 
 inline void memtest(void)
@@ -116,56 +174,6 @@ inline void memtest(void)
             }
         }
     }
-}
-
-inline void test(void)
-{
-    hal::random::enable(true);
-    hal::buttons::blue_btn button;
-    hal::nvms::qspi_flash storage;
-
-    printf("Starting file system test...\r\n");
-
-    // Test file benchmark
-    #define SIZE (128ul * 1024ul)
-    #define CHUNK_SIZE (128ul)
-
-    lfs_size_t chunks = (SIZE+CHUNK_SIZE-1)/CHUNK_SIZE;
-
-    static std::array<uint8_t, CHUNK_SIZE> pattern;
-    std::generate(pattern.begin(), pattern.end(), [](){ return hal::random::get() % 256; });
-
-    // first write the file
-    lfs_file_t file;
-    uint32_t start = hal::system::clock::cycles();
-    assert(lfs_file_open(&lfs, &file, "file", LFS_O_WRONLY | LFS_O_CREAT) == 0);
-    for (lfs_size_t i = 0; i < chunks; i++)
-        assert(lfs_file_write(&lfs, &file, pattern.data(), CHUNK_SIZE) == CHUNK_SIZE);
-    assert(lfs_file_write(&lfs, &file, pattern.data(), CHUNK_SIZE) == CHUNK_SIZE);
-    assert(lfs_file_close(&lfs, &file) == 0);
-
-    uint32_t duration = hal::system::clock::cycles() - start;
-    constexpr uint32_t cycles_per_us = hal::system::system_clock / 1000000ul;
-    printf("lfs write benchmark: %.2f MBit/s\r\n", (float)(SIZE * 8 * cycles_per_us) / (duration));
-
-    // then read the file
-    start = hal::system::clock::cycles();
-    assert(lfs_file_open(&lfs, &file, "file", LFS_O_RDONLY) == 0);
-    std::array<uint8_t, CHUNK_SIZE> buffer;
-    for (lfs_size_t i = 0; i < chunks; i++)
-    {
-        assert(lfs_file_read(&lfs, &file, buffer.data(), CHUNK_SIZE) == CHUNK_SIZE);
-
-        for (lfs_size_t j = 0; j < CHUNK_SIZE; j++)
-            assert(buffer[j] == pattern[j]);
-    }
-    assert(lfs_file_close(&lfs, &file) == 0);
-    duration = hal::system::clock::cycles() - start;
-    printf("lfs read benchmark: %.1f MBit/s\r\n", (float)(SIZE * 8 * cycles_per_us) / (duration));
-
-    assert(lfs_unmount(&lfs) == 0);
-
-    printf("File system test done\r\n");
 }
 
 }

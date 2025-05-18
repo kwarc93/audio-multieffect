@@ -36,11 +36,13 @@ public:
 
     bool load(void)
     {
-        auto data = this->storage->load();
-        if (data.size() > 0)
+        std::vector<uint8_t> data;
+        bool result = this->storage->load(data);
+        if (result)
             this->settings = json::from_cbor(data);
+        result &= this->settings.is_object();
 
-        return data.size() > 0;
+        return result;
     }
 
     bool save(void)

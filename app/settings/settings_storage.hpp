@@ -23,7 +23,7 @@ public:
     virtual ~settings_storage() = default;
 
     virtual bool save(const std::vector<std::uint8_t> &data) = 0;
-    virtual std::vector<std::uint8_t> load(void) = 0;
+    virtual bool load(std::vector<std::uint8_t> &data) = 0;
 };
 
 //------------------------------------------------------------------------------
@@ -41,37 +41,35 @@ public:
         bool result = false;
         auto fs = &middlewares::filesystem::lfs;
 
-        if (lfs_file_open(fs, &this->file, this->file_name.c_str(), LFS_O_WRONLY | LFS_O_CREAT) == 0)
+        if (lfs_file_open(fs, &this->file, this->file_name.c_str(), LFS_O_WRONLY | LFS_O_CREAT) == LFS_ERR_OK)
         {
             const lfs_ssize_t bytes_to_write = data.size();
-            if (lfs_file_write(fs, &this->file, data.data(), bytes_to_write) == bytes_to_write)
-            {
-                result = true;
-            }
-
-            result &= lfs_file_close(fs, &this->file) == 0;
+            result =  (lfs_file_write(fs, &this->file, data.data(), bytes_to_write) == bytes_to_write);
+            result &= (lfs_file_close(fs, &this->file) == LFS_ERR_OK);
         }
 
         return result;
     }
 
-    std::vector<std::uint8_t> load(void) override
+    bool load(std::vector<std::uint8_t> &data) override
     {
+        bool result = false;
         auto fs = &middlewares::filesystem::lfs;
-        if (lfs_file_open(fs, &this->file, this->file_name.c_str(), LFS_O_RDONLY) == 0)
+
+        data.clear();
+
+        if (lfs_file_open(fs, &this->file, this->file_name.c_str(), LFS_O_RDONLY) == LFS_ERR_OK)
         {
             const lfs_soff_t size = lfs_file_size(fs, &this->file);
-            std::vector<std::uint8_t> contents(size);
-            if (lfs_file_read(fs, &file, contents.data(), size) == size)
+            if (size > 0)
             {
-                lfs_file_close(fs, &this->file);
-                return contents;
+                data.resize(size);
+                result =  (lfs_file_read(fs, &file, data.data(), size) == size);
+                result &= (lfs_file_close(fs, &this->file) == LFS_ERR_OK);
             }
-
-            lfs_file_close(fs, &this->file);
         }
 
-        return std::vector<std::uint8_t>(); // File error
+        return result;
     }
 private:
     lfs_file_t file;
