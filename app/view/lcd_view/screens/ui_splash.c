@@ -32,7 +32,6 @@ static void logo_fadein_anim(lv_obj_t * target, int delay)
     lv_anim_set_early_apply(&fadein_anim, false);
     lv_anim_set_ready_cb(&fadein_anim, logo_fadein_anim_ready);
     lv_anim_start(&fadein_anim);
-
 }
 
 static void screen_load_start_callback(lv_event_t * e)
@@ -43,9 +42,9 @@ static void screen_load_start_callback(lv_event_t * e)
 void ui_splash_screen_init(void)
 {
     ui_splash = lv_obj_create(NULL);
-    bool dark_theme = lv_color_brightness(lv_obj_get_style_bg_color(ui_splash, 0)) < 127;
-
     lv_obj_clear_flag(ui_splash, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    bool dark_theme = lv_color_brightness(lv_obj_get_style_bg_color(ui_splash, 0)) < 127;
 
     ui_logo_gmfx = lv_img_create(ui_splash);
     lv_img_set_src(ui_logo_gmfx, &ui_img_logo_gmfx);

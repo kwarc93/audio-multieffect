@@ -22,7 +22,7 @@ mfx::lcd_view *view;
 
 void notify_configuration_changed(void)
 {
-    bool dark_mode = lv_obj_get_state(ui_sw_sett_dark_mode) == LV_STATE_CHECKED;
+    bool dark_mode = lv_obj_has_state(ui_sw_sett_dark_mode, LV_STATE_CHECKED);
     uint8_t brightness = lv_slider_get_value(ui_sld_sett_displ_bright);
 
     const events::configuration evt {dark_mode, brightness};

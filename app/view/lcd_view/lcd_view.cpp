@@ -112,7 +112,7 @@ void lcd_view::event_handler(const events::timer &e)
 void lcd_view::event_handler(const events::show_splash_screen &e)
 {
     ui_splash_screen_init();
-    lv_scr_load_anim(ui_splash, LV_SCR_LOAD_ANIM_NONE, 0, 0, false);
+    lv_scr_load(ui_splash);
 }
 
 void lcd_view::event_handler(const events::show_blank_screen &e)
