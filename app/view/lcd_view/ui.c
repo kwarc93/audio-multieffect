@@ -282,37 +282,6 @@ lv_obj_t * ui_lbl_pha_contour_off;
 #endif
 
 ///////////////////// ANIMATIONS ////////////////////
-static void ui_splash_fadein_anim_ready(lv_anim_t *anim)
-{
-    lv_event_t e;
-    e.code = LV_EVENT_READY;
-
-    ui_splash_loaded(&e);
-}
-
-void ui_splash_fadein_anim(lv_obj_t * target, int delay)
-{
-    ui_anim_user_data_t * user_data = lv_mem_alloc(sizeof(ui_anim_user_data_t));
-    user_data->target = target;
-    user_data->val = -1;
-
-    lv_anim_t fadein_anim;
-    lv_anim_init(&fadein_anim);
-    lv_anim_set_time(&fadein_anim, 1500);
-    lv_anim_set_user_data(&fadein_anim, user_data);
-    lv_anim_set_custom_exec_cb(&fadein_anim, _ui_anim_callback_set_opacity);
-    lv_anim_set_values(&fadein_anim, 0, 255);
-    lv_anim_set_path_cb(&fadein_anim, lv_anim_path_linear);
-    lv_anim_set_delay(&fadein_anim, delay);
-    lv_anim_set_deleted_cb(&fadein_anim, _ui_anim_callback_free_user_data);
-    lv_anim_set_playback_time(&fadein_anim, 1500);
-    lv_anim_set_playback_delay(&fadein_anim, 0);
-    lv_anim_set_repeat_count(&fadein_anim, 0);
-    lv_anim_set_repeat_delay(&fadein_anim, 0);
-    lv_anim_set_early_apply(&fadein_anim, false);
-    lv_anim_set_ready_cb(&fadein_anim, ui_splash_fadein_anim_ready);
-    lv_anim_start(&fadein_anim);
-}
 
 ///////////////////// EVENTS ////////////////////
 static void ui_screen_gesture_handler(lv_event_t * e)
@@ -342,8 +311,8 @@ void ui_event_splash(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
-    if(event_code == LV_EVENT_SCREEN_LOAD_START) {
-        ui_splash_fadein_anim(ui_logo_gmfx, 0);
+    if(event_code == LV_EVENT_READY) {
+        ui_splash_loaded(e);
     }
 }
 void ui_event_blank(lv_event_t * e)
@@ -742,8 +711,8 @@ void ui_init(void * user_data)
 {
     ui_set_user_data(user_data);
     ui_user_init_actions();
-    ui_settings_screen_init();
     ui_set_dark_theme(true);
+    ui_settings_screen_init();
 }
 
 void ui_set_dark_theme(bool enabled)
@@ -753,7 +722,4 @@ void ui_set_dark_theme(bool enabled)
     lv_color_t secondary_color = lv_color_hex(UI_PALETTE_BATTLESHIP_GRAY);
     lv_theme_t *theme = lv_theme_default_init(disp, primary_color, secondary_color, enabled, LV_FONT_DEFAULT);
     lv_disp_set_theme(disp, theme);
-
-    lv_color_t menu_bg_color = enabled ? lv_color_lighten(lv_color_black(), 25) : lv_color_darken(lv_color_white(), 25);
-    lv_obj_set_style_bg_color(ui_menu_sett, menu_bg_color, 0);
 }

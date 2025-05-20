@@ -5,11 +5,47 @@
 
 #include "../ui.h"
 
+static void logo_fadein_anim_ready(lv_anim_t *anim)
+{
+    lv_event_send(ui_splash, LV_EVENT_READY, NULL);
+}
+
+static void logo_fadein_anim(lv_obj_t * target, int delay)
+{
+    ui_anim_user_data_t * user_data = lv_mem_alloc(sizeof(ui_anim_user_data_t));
+    user_data->target = target;
+    user_data->val = -1;
+
+    lv_anim_t fadein_anim;
+    lv_anim_init(&fadein_anim);
+    lv_anim_set_time(&fadein_anim, 1500);
+    lv_anim_set_user_data(&fadein_anim, user_data);
+    lv_anim_set_custom_exec_cb(&fadein_anim, _ui_anim_callback_set_opacity);
+    lv_anim_set_values(&fadein_anim, 0, 255);
+    lv_anim_set_path_cb(&fadein_anim, lv_anim_path_linear);
+    lv_anim_set_delay(&fadein_anim, delay);
+    lv_anim_set_deleted_cb(&fadein_anim, _ui_anim_callback_free_user_data);
+    lv_anim_set_playback_time(&fadein_anim, 1500);
+    lv_anim_set_playback_delay(&fadein_anim, 0);
+    lv_anim_set_repeat_count(&fadein_anim, 0);
+    lv_anim_set_repeat_delay(&fadein_anim, 0);
+    lv_anim_set_early_apply(&fadein_anim, false);
+    lv_anim_set_ready_cb(&fadein_anim, logo_fadein_anim_ready);
+    lv_anim_start(&fadein_anim);
+
+}
+
+static void screen_load_start_callback(lv_event_t * e)
+{
+    logo_fadein_anim(ui_logo_gmfx, 10);
+}
+
 void ui_splash_screen_init(void)
 {
     ui_splash = lv_obj_create(NULL);
+    bool dark_theme = lv_color_brightness(lv_obj_get_style_bg_color(ui_splash, 0)) < 127;
+
     lv_obj_clear_flag(ui_splash, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_color(ui_splash, lv_color_black(), LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_logo_gmfx = lv_img_create(ui_splash);
     lv_img_set_src(ui_logo_gmfx, &ui_img_logo_gmfx);
@@ -20,7 +56,8 @@ void ui_splash_screen_init(void)
     lv_obj_clear_flag(ui_logo_gmfx, LV_OBJ_FLAG_SCROLLABLE);    /// Flags
     lv_obj_set_style_opa(ui_logo_gmfx, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_img_recolor_opa(ui_logo_gmfx, LV_OPA_100, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_img_recolor(ui_logo_gmfx, lv_color_white(), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_img_recolor(ui_logo_gmfx, dark_theme ? lv_color_white() : lv_color_black(), LV_PART_MAIN | LV_STATE_DEFAULT);
 
+    lv_obj_add_event_cb(ui_splash, screen_load_start_callback, LV_EVENT_SCREEN_LOADED, NULL);
     lv_obj_add_event_cb(ui_splash, ui_event_splash, LV_EVENT_ALL, NULL);
 }
