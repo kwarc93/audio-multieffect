@@ -314,7 +314,7 @@ void ui_settings_screen_init(void)
 
     /* Create menu */
     lv_obj_t * menu = lv_menu_create(ui_settings);
-    const lv_coord_t menu_pad_hor = lv_obj_get_style_pad_left(lv_menu_get_main_header(menu),0);
+    ui_menu_sett = menu;
 
     lv_obj_set_style_bg_color(menu, lv_obj_get_style_bg_color(ui_settings, 0), 0);
     lv_menu_set_mode_root_back_btn(menu, LV_MENU_ROOT_BACK_BTN_ENABLED);
@@ -322,9 +322,9 @@ void ui_settings_screen_init(void)
     lv_obj_add_event_cb(menu, menu_exit_handler, LV_EVENT_CLICKED, menu);
     lv_obj_set_size(menu, lv_pct(100), lv_pct(100));
     lv_obj_center(menu);
-    ui_menu_sett = menu;
 
     /* Modify the back button */
+    const lv_coord_t menu_pad_hor = lv_obj_get_style_pad_left(lv_menu_get_main_header(menu),0);
     lv_obj_t * back_btn = lv_menu_get_main_header_back_btn(menu);
     lv_obj_set_style_pad_hor(back_btn, menu_pad_hor, 0);
 

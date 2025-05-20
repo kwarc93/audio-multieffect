@@ -710,9 +710,7 @@ void ui_event_sw_pha_contour(lv_event_t * e)
 void ui_init(void * user_data)
 {
     ui_set_user_data(user_data);
-    ui_user_init_actions();
-    ui_set_dark_theme(true);
-    ui_settings_screen_init();
+    ui_init_user_actions();
 }
 
 void ui_set_dark_theme(bool enabled)

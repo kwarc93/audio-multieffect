@@ -204,7 +204,7 @@ void ui_set_user_data(void *user_data)
     view = static_cast<mfx::lcd_view*>(user_data);
 }
 
-void ui_user_init_actions(void)
+void ui_init_user_actions(void)
 {
     ui_fx_names_size = mfx::effect_name.size();
     ui_fx_names = mfx::effect_name.data();

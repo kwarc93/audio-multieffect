@@ -68,10 +68,10 @@ void lvgl_input_read(lv_indev_drv_t * drv, lv_indev_data_t * data)
 
 void lcd_view_timer_callback(void *arg)
 {
-    lcd_view *lcd_view_ao = static_cast<lcd_view*>(arg);
+    lcd_view *this_lcd_view = static_cast<lcd_view*>(arg);
 
     static const lcd_view::event e { events::timer{}, lcd_view::event::flags::immutable };
-    lcd_view_ao->send(e);
+    this_lcd_view->send(e);
 }
 
 }
@@ -91,6 +91,8 @@ void lcd_view::event_handler(const events::shutdown &e)
 
 void lcd_view::event_handler(const lcd_view_events::configuration &e)
 {
+    ui_settings_screen_init();
+
     if (ui_sw_sett_dark_mode)
     {
         ui_set_dark_theme(e.dark_mode);
