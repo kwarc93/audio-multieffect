@@ -54,11 +54,47 @@ void effect_processor::dispatch(const event &e)
     std::visit([this](auto &&e) { this->event_handler(e); }, e.data);
 }
 
+void effect_processor::event_handler(const events::initialize &e)
+{
+    /* DSP buffers contain only one channel */
+    this->dsp_main_input.resize(config::dsp_vector_size);
+    this->dsp_aux_input.resize(config::dsp_vector_size);
+    this->dsp_output.resize(config::dsp_vector_size);
+}
+
 void effect_processor::event_handler(const events::shutdown &e)
 {
     this->audio.mute(true);
     this->audio.stop();
     this->audio.stop_capture();
+}
+
+void effect_processor::event_handler(const events::configuration &e)
+{
+    this->audio.set_input_volume(e.main_input_vol, 0);
+    this->audio.set_input_volume(e.aux_input_vol, 1);
+    this->audio.set_output_volume(e.output_vol);
+    this->audio.mute(e.output_muted);
+    this->audio.route_onboard_mic_to_aux(e.mic_routed_to_aux);
+}
+
+void effect_processor::event_handler(const events::start_audio &e)
+{
+    /* Start audio capture */
+    this->audio.capture(this->audio_input.buffer.data(), this->audio_input.buffer.size(),
+    [this](auto && ...params)
+    {
+        this->audio_capture_cb(params...);
+    },
+    true);
+
+    /* Start audio playback */
+    this->audio.play(this->audio_output.buffer.data(), this->audio_output.buffer.size(),
+    [this](auto && ...params)
+    {
+        this->audio_play_cb(params...);
+    },
+    true);
 }
 
 void effect_processor::event_handler(const events::add_effect &e)
@@ -404,26 +440,7 @@ audio{middlewares::i2c_managers::main::get_instance()}
 {
     this->processing_time_us = 0;
 
-    /* DSP buffers contain only one channel */
-    this->dsp_main_input.resize(config::dsp_vector_size);
-    this->dsp_aux_input.resize(config::dsp_vector_size);
-    this->dsp_output.resize(config::dsp_vector_size);
-
-    /* Start audio capture */
-    this->audio.capture(this->audio_input.buffer.data(), this->audio_input.buffer.size(),
-    [this](auto && ...params)
-    {
-        this->audio_capture_cb(params...);
-    },
-    true);
-
-    /* Start audio playback */
-    this->audio.play(this->audio_output.buffer.data(), this->audio_output.buffer.size(),
-    [this](auto && ...params)
-    {
-        this->audio_play_cb(params...);
-    },
-    true);
+    this->send({events::initialize {}});
 }
 
 effect_processor::~effect_processor()

@@ -40,23 +40,17 @@ inline void init(void)
     lfs_cfg.read = [](const struct lfs_config *c, lfs_block_t block, lfs_off_t off, void *buffer, lfs_size_t size) -> int
                    {
                        auto nvm = static_cast<hal::nvm*>(c->context);
-                       int result = nvm->read((std::byte*)buffer, block * c->block_size + off, size) ? LFS_ERR_OK : LFS_ERR_IO;
-                       assert(result == LFS_ERR_OK);
-                       return result;
+                       return nvm->read((std::byte*)buffer, block * c->block_size + off, size) ? LFS_ERR_OK : LFS_ERR_IO;
                    };
     lfs_cfg.prog = [](const struct lfs_config *c, lfs_block_t block, lfs_off_t off, const void *buffer, lfs_size_t size) -> int
                    {
                        auto nvm = static_cast<hal::nvm*>(c->context);
-                       int result = nvm->write((std::byte*)buffer, block * c->block_size + off, size) ? LFS_ERR_OK : LFS_ERR_IO;
-                       assert(result == LFS_ERR_OK);
-                       return result;
+                       return nvm->write((std::byte*)buffer, block * c->block_size + off, size) ? LFS_ERR_OK : LFS_ERR_IO;
                    };
     lfs_cfg.erase = [](const struct lfs_config *c, lfs_block_t block) -> int
                     {
                         auto nvm = static_cast<hal::nvm*>(c->context);
-                        int result = nvm->erase(block * c->block_size, c->block_size) ? LFS_ERR_OK : LFS_ERR_IO;
-                        assert(result == LFS_ERR_OK);
-                        return result;
+                        return nvm->erase(block * c->block_size, c->block_size) ? LFS_ERR_OK : LFS_ERR_IO;
                     };
     lfs_cfg.sync = [](const struct lfs_config *c) -> int
                    {

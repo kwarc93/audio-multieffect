@@ -91,8 +91,6 @@ void lcd_view::event_handler(const events::shutdown &e)
 
 void lcd_view::event_handler(const lcd_view_events::configuration &e)
 {
-    ui_settings_screen_init();
-
     if (ui_sw_sett_dark_mode)
     {
         ui_set_dark_theme(e.dark_mode);
@@ -104,6 +102,77 @@ void lcd_view::event_handler(const lcd_view_events::configuration &e)
     {
         lv_slider_set_value(ui_sld_sett_displ_bright, e.display_brightness, LV_ANIM_OFF);
     }
+
+    if (ui_sld_sett_main_in_vol)
+    {
+        lv_slider_set_value(ui_sld_sett_main_in_vol, e.main_input_vol, LV_ANIM_OFF);
+    }
+
+    if (ui_sld_sett_aux_in_vol)
+    {
+        lv_slider_set_value(ui_sld_sett_aux_in_vol, e.aux_input_vol, LV_ANIM_OFF);
+    }
+
+    if (ui_sld_sett_out_vol)
+    {
+        lv_slider_set_value(ui_sld_sett_out_vol, e.output_vol, LV_ANIM_OFF);
+    }
+
+    if (ui_sw_sett_mute_audio)
+    {
+        e.output_muted ? lv_obj_add_state(ui_sw_sett_mute_audio, LV_STATE_CHECKED) :
+                         lv_obj_clear_state(ui_sw_sett_mute_audio, LV_STATE_CHECKED);
+    }
+
+    if (ui_sw_sett_route_mic_to_aux)
+    {
+        e.mic_routed_to_aux ? lv_obj_add_state(ui_sw_sett_route_mic_to_aux, LV_STATE_CHECKED) :
+                              lv_obj_clear_state(ui_sw_sett_route_mic_to_aux, LV_STATE_CHECKED);
+    }
+}
+
+void lcd_view::event_handler(const events::initialize &e)
+{
+    lv_init();
+
+    if constexpr (display.use_double_framebuf)
+    {
+        hal::displays::main::pixel_t *fb1 = display.get_frame_buffers().first.data();
+        hal::displays::main::pixel_t *fb2 = display.get_frame_buffers().second.data();
+        lv_disp_draw_buf_init(&lvgl_draw_buf, fb1, fb2, display.width() * display.height());
+    }
+    else
+    {
+#ifdef STM32F7 // TODO: Make it independent from CPU architecture
+        __attribute__((section(".dtcmram"))) static lv_color_t lvgl_buf[64 * 1024 / sizeof(lv_color_t)];
+#else
+        static lv_color_t lvgl_buf[64 * 1024 / sizeof(lv_color_t)];
+#endif
+        lv_disp_draw_buf_init(&lvgl_draw_buf, lvgl_buf, NULL, sizeof(lvgl_buf) / sizeof(lv_color_t));
+    }
+
+    lv_disp_drv_init(&lvgl_disp_drv);
+    lvgl_disp_drv.hor_res = display.width();
+    lvgl_disp_drv.ver_res = display.height();
+    lvgl_disp_drv.flush_cb = lvgl_disp_flush;
+    lvgl_disp_drv.user_data = &this->display;
+    lvgl_disp_drv.draw_buf = &lvgl_draw_buf;
+    lvgl_disp_drv.full_refresh = display.use_double_framebuf;
+    lv_disp_drv_register(&lvgl_disp_drv);
+
+    lv_indev_drv_init(&lvgl_indev_drv);
+    lvgl_indev_drv.type = LV_INDEV_TYPE_POINTER;
+    lvgl_indev_drv.read_cb = lvgl_input_read;
+    lvgl_indev_drv.user_data = &this->display;
+    lv_indev_drv_register(&lvgl_indev_drv);
+
+    display.vsync(display.use_double_framebuf);
+    display.set_draw_callback([](){ lv_disp_flush_ready(&lvgl_disp_drv); });
+    display.backlight(true);
+
+    osTimerStart(this->timer, 10);
+
+    ui_init(this);
 }
 
 void lcd_view::event_handler(const events::timer &e)
@@ -419,46 +488,8 @@ void lcd_view::change_effect_screen(effect_id id, int dir)
 lcd_view::lcd_view() : active_object("lcd_view", osPriorityNormal, 8192),
 display {middlewares::i2c_managers::main::get_instance()}
 {
-    lv_init();
-
-    if constexpr (display.use_double_framebuf)
-    {
-        hal::displays::main::pixel_t *fb1 = display.get_frame_buffers().first.data();
-        hal::displays::main::pixel_t *fb2 = display.get_frame_buffers().second.data();
-        lv_disp_draw_buf_init(&lvgl_draw_buf, fb1, fb2, display.width() * display.height());
-    }
-    else
-    {
-#ifdef STM32F7 // TODO: Make it independent from CPU architecture
-        __attribute__((section(".dtcmram"))) static lv_color_t lvgl_buf[64 * 1024 / sizeof(lv_color_t)];
-#else
-        static lv_color_t lvgl_buf[64 * 1024 / sizeof(lv_color_t)];
-#endif
-        lv_disp_draw_buf_init(&lvgl_draw_buf, lvgl_buf, NULL, sizeof(lvgl_buf) / sizeof(lv_color_t));
-    }
-
-    lv_disp_drv_init(&lvgl_disp_drv);
-    lvgl_disp_drv.hor_res = display.width();
-    lvgl_disp_drv.ver_res = display.height();
-    lvgl_disp_drv.flush_cb = lvgl_disp_flush;
-    lvgl_disp_drv.user_data = &this->display;
-    lvgl_disp_drv.draw_buf = &lvgl_draw_buf;
-    lvgl_disp_drv.full_refresh = display.use_double_framebuf;
-    lv_disp_drv_register(&lvgl_disp_drv);
-
-    lv_indev_drv_init(&lvgl_indev_drv);
-    lvgl_indev_drv.type = LV_INDEV_TYPE_POINTER;
-    lvgl_indev_drv.read_cb = lvgl_input_read;
-    lvgl_indev_drv.user_data = &this->display;
-    lv_indev_drv_register(&lvgl_indev_drv);
-
-    display.vsync(display.use_double_framebuf);
-    display.set_draw_callback([](){ lv_disp_flush_ready(&lvgl_disp_drv); });
-    display.backlight(true);
-
     this->timer = osTimerNew(lcd_view_timer_callback, osTimerPeriodic, this, NULL);
     assert(this->timer != nullptr);
-    osTimerStart(this->timer, 10);
 
-    ui_init(this);
+    this->send({events::initialize {}});
 };

@@ -23,6 +23,11 @@ namespace mfx
 namespace lcd_view_events
 {
 
+struct initialize
+{
+
+};
+
 struct timer
 {
 
@@ -37,6 +42,11 @@ struct configuration
 {
     bool dark_mode;
     uint8_t display_brightness;
+    uint8_t main_input_vol;
+    uint8_t aux_input_vol;
+    uint8_t output_vol;
+    bool output_muted;
+    bool mic_routed_to_aux;
 };
 
 struct show_splash_screen
@@ -72,6 +82,16 @@ struct next_effect_screen_request
 struct prev_effect_screen_request
 {
 
+};
+
+struct theme_changed
+{
+    bool dark;
+};
+
+struct lcd_brightness_changed
+{
+    uint8_t value;
 };
 
 struct input_volume_changed
@@ -147,10 +167,11 @@ struct update_dsp_load
 
 using outgoing = std::variant
 <
-    configuration,
     splash_loaded,
     next_effect_screen_request,
     prev_effect_screen_request,
+    theme_changed,
+    lcd_brightness_changed,
     input_volume_changed,
     output_volume_changed,
     mute_changed,
@@ -164,6 +185,7 @@ using outgoing = std::variant
 
 using incoming = std::variant
 <
+    initialize,
     timer,
     shutdown,
     configuration,
@@ -186,6 +208,7 @@ private:
     void dispatch(const event &e) override;
 
     /* Event handlers */
+    void event_handler(const lcd_view_events::initialize &e);
     void event_handler(const lcd_view_events::timer &e);
     void event_handler(const lcd_view_events::shutdown &e);
     void event_handler(const lcd_view_events::configuration &e);

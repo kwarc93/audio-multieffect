@@ -81,17 +81,60 @@ void controller::dispatch(const event& e)
 void controller::update(const effect_processor_events::outgoing &e)
 {
     /* WARNING: This method could have been called from another thread */
-    /* FIXME: Forward this event dispatching to the controller thread (to avoid race conditions) */
-
-    std::visit([this](auto &&e) { this->model_event_handler(e); }, e);
+    /* Forward this event dispatching to the controller thread (to avoid race conditions) */
+    const controller::event evt {e};
+    this->send(evt);
 }
 
 void controller::update(const lcd_view_events::outgoing &e)
 {
     /* WARNING: This method could have been called from another thread */
-    /* FIXME: Forward this event dispatching to the controller thread (to avoid race conditions) */
+    /* Forward this event dispatching to the controller thread (to avoid race conditions) */
+    const controller::event evt {e};
+    this->send(evt);
+}
 
-    std::visit([this](auto &&e) { this->view_event_handler(e); }, e);
+void controller::event_handler(const controller_events::initialize &e)
+{
+    printf("Settings:\r\n%s\r\n", settings->dump().data());
+
+    /* Start observing model */
+    this->model->attach(this);
+
+    /* Start observing view(s) */
+    this->view->attach(this);
+
+    /* Configure view & model */
+    this->model->send({effect_processor_events::configuration
+                      {
+                          this->settings->get_main_input_volume(),
+                          this->settings->get_aux_input_volume(),
+                          this->settings->get_output_volume(),
+                          this->settings->get_output_muted(),
+                          this->settings->get_mic_routed_to_aux(),
+                      }});
+
+    this->view->send({lcd_view_events::configuration
+                     {
+                         this->settings->get_dark_mode(),
+                         this->settings->get_display_brightness(),
+                         this->settings->get_main_input_volume(),
+                         this->settings->get_aux_input_volume(),
+                         this->settings->get_output_volume(),
+                         this->settings->get_output_muted(),
+                         this->settings->get_mic_routed_to_aux(),
+                     }});
+
+    this->settings->set_boot_counter(this->settings->get_boot_counter() + 1);
+    this->settings->save();
+
+    /* Start timers */
+    osTimerStart(this->button_timer, 20);
+    osTimerStart(this->led_timer, 500);
+
+    /* Start view & model */
+    this->view->send({lcd_view_events::show_splash_screen {}});
+    this->model->send({effect_processor_events::start_audio {}});
 }
 
 void controller::event_handler(const events::led_toggle &e)
@@ -115,11 +158,6 @@ void controller::event_handler(const events::button_state_changed &e)
         hal::system::stop();
         hal::system::reset();
     }
-}
-
-void controller::event_handler(const events::dsp_load &e)
-{
-    this->view->send({lcd_view_events::update_dsp_load {e.load_pct}});
 }
 
 void controller::event_handler(const events::load_preset &e)
@@ -147,12 +185,14 @@ void controller::event_handler(const events::load_preset &e)
     this->update_effect_attributes(this->current_effect);
 }
 
-void controller::view_event_handler(const lcd_view_events::configuration &e)
+void controller::event_handler(const lcd_view_events::outgoing &e)
 {
-    this->settings->set_dark_mode(e.dark_mode);
-    this->settings->set_display_brightness(e.display_brightness);
+    std::visit([this](auto &&e) { this->view_event_handler(e); }, e);
+}
 
-    this->settings->save();
+void controller::event_handler(const effect_processor_events::outgoing &e)
+{
+    std::visit([this](auto &&e) { this->model_event_handler(e); }, e);
 }
 
 void controller::view_event_handler(const lcd_view_events::splash_loaded &e)
@@ -182,28 +222,53 @@ void controller::view_event_handler(const lcd_view_events::prev_effect_screen_re
     this->update_effect_attributes(this->current_effect);
 }
 
+void controller::view_event_handler(const lcd_view_events::theme_changed &e)
+{
+    this->settings->set_dark_mode(e.dark);
+    this->settings->save();
+}
+
+void controller::view_event_handler(const lcd_view_events::lcd_brightness_changed &e)
+{
+    this->settings->set_display_brightness(e.value);
+    this->settings->save();
+}
+
 void controller::view_event_handler(const lcd_view_events::input_volume_changed &e)
 {
     const effect_processor::event evt {effect_processor_events::set_input_volume {e.main_input_vol, e.aux_input_vol}};
     this->model->send(evt);
+
+    this->settings->set_main_input_volume(e.main_input_vol);
+    this->settings->set_aux_input_volume(e.aux_input_vol);
+    this->settings->save();
 }
 
 void controller::view_event_handler(const lcd_view_events::output_volume_changed &e)
 {
     const effect_processor::event evt {effect_processor_events::set_output_volume {e.output_vol}};
     this->model->send(evt);
+
+    this->settings->set_output_volume(e.output_vol);
+    this->settings->save();
 }
 
 void controller::view_event_handler(const lcd_view_events::route_mic_to_aux_changed &e)
 {
     const effect_processor::event evt {effect_processor_events::route_mic_to_aux {e.value}};
     this->model->send(evt);
+
+    this->settings->set_mic_routed_to_aux(e.value);
+    this->settings->save();
 }
 
 void controller::view_event_handler(const lcd_view_events::mute_changed &e)
 {
     const effect_processor::event evt {effect_processor_events::set_mute {e.value}};
     this->model->send(evt);
+
+    this->settings->set_output_muted(e.value);
+    this->settings->save();
 }
 
 void controller::view_event_handler(const lcd_view_events::effect_bypass_changed &e)
@@ -273,8 +338,7 @@ void controller::view_event_handler(const lcd_view_events::move_effect_request &
 
 void controller::model_event_handler(const effect_processor_events::dsp_load_changed &e)
 {
-    const controller::event evt {events::dsp_load {e.load_pct}};
-    this->send(evt);
+    this->view->send({lcd_view_events::update_dsp_load {e.load_pct}});
 }
 
 void controller::model_event_handler(const effect_processor_events::input_volume_changed &e)
@@ -312,26 +376,16 @@ settings {std::move(settings)}
     /* Create timer for button debouncing */
     this->button_timer = osTimerNew(button_timer_cb, osTimerPeriodic, &this->button, NULL);
     assert(this->button_timer != nullptr);
-    osTimerStart(this->button_timer, 20);
 
-    /* Create timer for LED blink */
+    /* Create timer for LED status */
     this->led_timer = osTimerNew(led_timer_cb, osTimerPeriodic, this, NULL);
     assert(this->led_timer != nullptr);
-    osTimerStart(this->led_timer, 500);
 
-    /* Start observing model */
-    this->model->attach(this);
+//    /* Create timer for settings auto-save */
+//    this->settings_timer = osTimerNew(settings_timer_cb, osTimerPeriodic, this, NULL);
+//    assert(this->settings_timer != nullptr);
 
-    /* Start observing view(s) */
-    this->view->attach(this);
-
-    /* Configure view & model */
-    this->view->send({lcd_view_events::configuration { this->settings->get_dark_mode(), this->settings->get_display_brightness() }});
-    this->settings->set_boot_counter(this->settings->get_boot_counter() + 1);
-    this->settings->save();
-
-    /* Show splash screen */
-    this->view->send({lcd_view_events::show_splash_screen {}});
+    this->send({events::initialize {}});
 }
 
 controller::~controller()

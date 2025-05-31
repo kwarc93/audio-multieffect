@@ -28,6 +28,11 @@ namespace mfx
 namespace controller_events
 {
 
+struct initialize
+{
+
+};
+
 struct led_toggle
 {
 
@@ -43,17 +48,15 @@ struct load_preset
 
 };
 
-struct dsp_load
-{
-    uint8_t load_pct;
-};
-
 using incoming = std::variant
 <
+    initialize,
     led_toggle,
     button_state_changed,
-    dsp_load,
-    load_preset
+    load_preset,
+
+    effect_processor_events::outgoing,
+    lcd_view_events::outgoing
 >;
 
 }
@@ -72,15 +75,18 @@ private:
     void update(const lcd_view_events::outgoing &e) override;
 
     /* Event handlers */
+    void event_handler(const controller_events::initialize &e);
     void event_handler(const controller_events::led_toggle &e);
     void event_handler(const controller_events::button_state_changed &e);
-    void event_handler(const controller_events::dsp_load &e);
     void event_handler(const controller_events::load_preset &e);
+    void event_handler(const lcd_view_events::outgoing &e);
+    void event_handler(const effect_processor_events::outgoing &e);
 
-    void view_event_handler(const lcd_view_events::configuration &e);
     void view_event_handler(const lcd_view_events::splash_loaded &e);
     void view_event_handler(const lcd_view_events::next_effect_screen_request &e);
     void view_event_handler(const lcd_view_events::prev_effect_screen_request &e);
+    void view_event_handler(const lcd_view_events::theme_changed &e);
+    void view_event_handler(const lcd_view_events::lcd_brightness_changed &e);
     void view_event_handler(const lcd_view_events::input_volume_changed &e);
     void view_event_handler(const lcd_view_events::output_volume_changed &e);
     void view_event_handler(const lcd_view_events::route_mic_to_aux_changed &e);
@@ -103,6 +109,7 @@ private:
     std::unique_ptr<effect_processor_base> model;
     std::unique_ptr<lcd_view> view;
     std::unique_ptr<settings_manager> settings;
+//    osTimerId_t settings_timer;
 
     effect_id current_effect;
     std::vector<effect_id> active_effects;

@@ -711,6 +711,8 @@ void ui_init(void * user_data)
 {
     ui_set_user_data(user_data);
     ui_init_user_actions();
+
+    ui_settings_screen_init();
 }
 
 void ui_set_dark_theme(bool enabled)

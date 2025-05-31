@@ -31,7 +31,6 @@ static void init_thread(void *arg)
 
     /* Load settings */
     auto settings = std::make_unique<settings_manager>(std::make_unique<settings_storage_file>("settings1.cbor"));
-    printf("Settings:\r\n%s", settings->dump().c_str());
 
     /* Create active objects */
     auto model = std::make_unique<mfx::ipc_effect_processor>();
@@ -60,7 +59,6 @@ static void init_thread(void *arg)
 
     /* Load settings */
     auto settings = std::make_unique<settings_manager>(std::make_unique<settings_storage_file>("settings1.cbor"));
-    printf("Settings:\r\n%s\r\n", settings->dump().c_str());
 
     /* Create active objects */
     auto model = std::make_unique<mfx::effect_processor>();
@@ -79,7 +77,10 @@ int main(void)
     printf("Software version: " GIT_REVISION "\r\n");
 
     osKernelInitialize();
-    osThreadNew(init_thread, NULL, NULL);
+    osThreadAttr_t thread_attr {0};
+    thread_attr.name = "init";
+    thread_attr.stack_size = 4096;
+    osThreadNew(init_thread, NULL, &thread_attr);
     if (osKernelGetState() == osKernelReady)
         osKernelStart();
 
@@ -89,3 +90,4 @@ int main(void)
 
     return 0;
 }
+
