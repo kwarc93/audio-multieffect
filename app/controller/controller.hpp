@@ -38,6 +38,11 @@ struct led_toggle
 
 };
 
+struct button_debounce
+{
+
+};
+
 struct button_state_changed
 {
     enum class state { released, pressed, hold } state;
@@ -48,12 +53,19 @@ struct load_preset
 
 };
 
+struct save_settings
+{
+
+};
+
 using incoming = std::variant
 <
     initialize,
     led_toggle,
+    button_debounce,
     button_state_changed,
     load_preset,
+    save_settings,
 
     effect_processor_events::outgoing,
     lcd_view_events::outgoing
@@ -77,8 +89,10 @@ private:
     /* Event handlers */
     void event_handler(const controller_events::initialize &e);
     void event_handler(const controller_events::led_toggle &e);
+    void event_handler(const controller_events::button_debounce &e);
     void event_handler(const controller_events::button_state_changed &e);
     void event_handler(const controller_events::load_preset &e);
+    void event_handler(const controller_events::save_settings &e);
     void event_handler(const lcd_view_events::outgoing &e);
     void event_handler(const effect_processor_events::outgoing &e);
 
@@ -109,16 +123,12 @@ private:
     std::unique_ptr<effect_processor_base> model;
     std::unique_ptr<lcd_view> view;
     std::unique_ptr<settings_manager> settings;
-//    osTimerId_t settings_timer;
 
     effect_id current_effect;
     std::vector<effect_id> active_effects;
 
     hal::buttons::blue_btn button;
-    osTimerId_t button_timer;
-
     hal::leds::debug led;
-    osTimerId_t led_timer;
 };
 
 }

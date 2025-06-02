@@ -40,6 +40,8 @@ public:
         {
             this->save();
         }
+
+        this->dirty = false;
     }
 
     bool load(void)
@@ -55,9 +57,13 @@ public:
 
     bool save(void)
     {
-        // TODO: Throttle saves to min. 1 save/s (use dirty flag)
+        if (!this->dirty)
+            return true;
+
         const auto binary = json::to_cbor(this->settings);
-        return this->storage->save(binary);
+        bool result = this->storage->save(binary);
+        this->dirty = !result;
+        return result;
     }
 
     std::string_view dump(void)
@@ -67,32 +73,33 @@ public:
 
     // TOOD: Add checks for safer access & modification
     unsigned get_boot_counter(void) { return this->settings[k_boot_counter].get<unsigned>(); };
-    void set_boot_counter(unsigned value) { this->settings[k_boot_counter] = value; }
+    void set_boot_counter(unsigned value) { this->settings[k_boot_counter] = value; this->dirty = true; }
 
     bool get_dark_mode(void) { return this->settings[k_dark_mode].get<bool>(); };
-    void set_dark_mode(bool value) { this->settings[k_dark_mode] = value; }
+    void set_dark_mode(bool value) { this->settings[k_dark_mode] = value; this->dirty = true; }
 
     uint8_t get_display_brightness(void) { return this->settings[k_displ_brightness].get<uint8_t>(); };
-    void set_display_brightness(uint8_t value) { this->settings[k_displ_brightness] = value; }
+    void set_display_brightness(uint8_t value) { this->settings[k_displ_brightness] = value; this->dirty = true; }
 
     uint8_t get_main_input_volume(void) { return this->settings[k_main_input_volume].get<uint8_t>(); }
-    void set_main_input_volume(uint8_t value) { this->settings[k_main_input_volume] = value; }
+    void set_main_input_volume(uint8_t value) { this->settings[k_main_input_volume] = value; this->dirty = true; }
 
     uint8_t get_aux_input_volume(void) { return this->settings[k_aux_input_volume].get<uint8_t>(); }
-    void set_aux_input_volume(uint8_t value) { this->settings[k_aux_input_volume] = value; }
+    void set_aux_input_volume(uint8_t value) { this->settings[k_aux_input_volume] = value; this->dirty = true; }
 
     uint8_t get_output_volume(void) { return this->settings[k_output_volume].get<uint8_t>(); }
-    void set_output_volume(uint8_t value) { this->settings[k_output_volume] = value; }
+    void set_output_volume(uint8_t value) { this->settings[k_output_volume] = value; this->dirty = true; }
 
     bool get_output_muted(void) { return this->settings[k_output_muted].get<bool>(); };
-    void set_output_muted(bool value) { this->settings[k_output_muted] = value; }
+    void set_output_muted(bool value) { this->settings[k_output_muted] = value; this->dirty = true; }
 
     bool get_mic_routed_to_aux(void) { return this->settings[k_mic_routed_to_aux].get<bool>(); };
-    void set_mic_routed_to_aux(bool value) { this->settings[k_mic_routed_to_aux] = value; }
+    void set_mic_routed_to_aux(bool value) { this->settings[k_mic_routed_to_aux] = value; this->dirty = true; }
 
 private:
     json settings;
     std::unique_ptr<settings_storage> storage;
+    bool dirty;
 
     // Setting keys
     static constexpr const char *k_boot_counter = "boot_cnt";

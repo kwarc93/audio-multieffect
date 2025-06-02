@@ -231,7 +231,6 @@ private:
     void change_effect_screen(effect_id id, int dir);
 
     hal::displays::main display;
-    osTimerId_t timer;
 };
 
 }

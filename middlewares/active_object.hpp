@@ -11,6 +11,7 @@
 #include "cmsis_os2.h"
 
 #include <string>
+#include <vector>
 #include <cassert>
 
 namespace middlewares
@@ -52,8 +53,14 @@ public:
     virtual ~active_object()
     {
         osStatus_t status;
+
+        for (auto timer : this->timers)
+        {
+            status = osTimerDelete(timer);
+            assert(status == osOK);
+        }
+
         status = osMessageQueueDelete(this->queue);
-        assert(status == osOK);
         this->queue = nullptr;
 
         status = osThreadTerminate(this->thread);
@@ -73,7 +80,45 @@ public:
             evt = new event(e);
 
         assert(evt != nullptr);
-        assert(osMessageQueuePut(this->queue, &evt, 0, timeout) == osOK);
+
+        osStatus_t status = osMessageQueuePut(this->queue, &evt, 0, timeout);
+        assert(status == osOK);
+    }
+
+    void schedule(const event &e, uint32_t time, bool periodic)
+    {
+        struct timer_event : public event
+        {
+            active_object* target;
+            osTimerId_t timer;
+            timer_event(const T &data, uint32_t flags, active_object *target, osTimerId_t timer) :
+            event(data, flags), target{target}, timer{timer} {}
+        };
+
+        auto *timer_evt = new timer_event(e.data, (periodic ? event::flags::immutable : 0), this, nullptr);
+        assert(timer_evt != nullptr);
+
+        auto timer_cb = [](void *arg)
+                          {
+                              timer_event *evt = static_cast<timer_event*>(arg);
+                              evt->target->send(*evt);
+                              if (!(evt->flags & event::flags::immutable))
+                              {
+                                  osStatus_t status = osTimerDelete(evt->timer);
+                                  assert(status == osOK);
+                                  delete evt;
+                              }
+                          };
+
+        auto timer = osTimerNew(timer_cb, periodic ? osTimerPeriodic : osTimerOnce, timer_evt, NULL);
+        assert(timer != nullptr);
+
+        if (periodic)
+            this->timers.push_back(timer);
+        timer_evt->timer = timer;
+
+        osStatus_t status = osTimerStart(timer, time);
+        assert(status == osOK);
     }
 
     /* Used for global access (e.g. from interrupt) */
@@ -104,6 +149,7 @@ private:
     osMessageQueueAttr_t queue_attr = { 0 };
     osThreadId_t thread;
     osThreadAttr_t thread_attr = { 0 };
+    std::vector<osTimerId_t> timers;
 };
 
 }

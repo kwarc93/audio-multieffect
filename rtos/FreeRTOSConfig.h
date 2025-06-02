@@ -99,7 +99,7 @@ extern uint32_t SystemCoreClock;
 /* Software timer related definitions. */
 #define configUSE_TIMERS                        1
 #define configTIMER_TASK_PRIORITY               (configMAX_PRIORITIES - 1)
-#define configTIMER_QUEUE_LENGTH                10
+#define configTIMER_QUEUE_LENGTH                16
 #define configTIMER_TASK_STACK_DEPTH            (2 * configMINIMAL_STACK_SIZE)
 
 /* Interrupt nesting behaviour configuration. */

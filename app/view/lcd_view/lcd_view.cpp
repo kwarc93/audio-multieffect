@@ -66,14 +66,6 @@ void lvgl_input_read(lv_indev_drv_t * drv, lv_indev_data_t * data)
     }
 }
 
-void lcd_view_timer_callback(void *arg)
-{
-    lcd_view *this_lcd_view = static_cast<lcd_view*>(arg);
-
-    static const lcd_view::event e { events::timer{}, lcd_view::event::flags::immutable };
-    this_lcd_view->send(e);
-}
-
 }
 
 //-----------------------------------------------------------------------------
@@ -170,7 +162,7 @@ void lcd_view::event_handler(const events::initialize &e)
     display.set_draw_callback([](){ lv_disp_flush_ready(&lvgl_disp_drv); });
     display.backlight(true);
 
-    osTimerStart(this->timer, 10);
+    this->schedule({events::timer {}}, 10, true);
 
     ui_init(this);
 }
@@ -488,8 +480,5 @@ void lcd_view::change_effect_screen(effect_id id, int dir)
 lcd_view::lcd_view() : active_object("lcd_view", osPriorityNormal, 8192),
 display {middlewares::i2c_managers::main::get_instance()}
 {
-    this->timer = osTimerNew(lcd_view_timer_callback, osTimerPeriodic, this, NULL);
-    assert(this->timer != nullptr);
-
     this->send({events::initialize {}});
 };

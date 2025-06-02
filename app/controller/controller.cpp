@@ -21,53 +21,6 @@ namespace events = controller_events;
 namespace
 {
 
-void button_timer_cb(void *arg)
-{
-    if (arg == nullptr)
-        return;
-
-    hal::button *button = static_cast<hal::button*>(arg);
-
-    button->debounce();
-
-    static uint32_t press_time_ms;
-    static controller::event e { events::button_state_changed {}, controller::event::flags::immutable };
-
-    if (button->was_pressed())
-    {
-        std::get<events::button_state_changed>(e.data).state = events::button_state_changed::state::pressed;
-        controller::instance->send(e);
-        press_time_ms = 0;
-    }
-    else if (button->was_released())
-    {
-        std::get<events::button_state_changed>(e.data).state = events::button_state_changed::state::released;
-        controller::instance->send(e);
-        press_time_ms = 0;
-    }
-
-    if (button->is_pressed() && press_time_ms < 2000)
-    {
-        press_time_ms += 20;
-        if (press_time_ms >= 2000)
-        {
-            std::get<events::button_state_changed>(e.data).state = events::button_state_changed::state::hold;
-            controller::instance->send(e);
-        }
-    }
-}
-
-void led_timer_cb(void *arg)
-{
-    if (arg == nullptr)
-        return;
-
-    auto *ctrl = static_cast<controller*>(arg);
-
-    static const controller::event e { events::led_toggle {}, controller::event::flags::immutable };
-    ctrl->send(e);
-}
-
 }
 
 //-----------------------------------------------------------------------------
@@ -126,11 +79,11 @@ void controller::event_handler(const controller_events::initialize &e)
                      }});
 
     this->settings->set_boot_counter(this->settings->get_boot_counter() + 1);
-    this->settings->save();
 
-    /* Start timers */
-    osTimerStart(this->button_timer, 20);
-    osTimerStart(this->led_timer, 500);
+    /* Schedule periodic events */
+    this->schedule({events::button_debounce {}}, 20, true);
+    this->schedule({events::led_toggle {}}, 500, true);
+    this->schedule({events::save_settings {}}, 1000, true);
 
     /* Start view & model */
     this->view->send({lcd_view_events::show_splash_screen {}});
@@ -143,6 +96,37 @@ void controller::event_handler(const events::led_toggle &e)
 
     const effect_processor::event evt {effect_processor_events::get_dsp_load {}};
     this->model->send(evt);
+}
+
+void controller::event_handler(const controller_events::button_debounce &e)
+{
+    this->button.debounce();
+
+    static uint32_t press_time_ms;
+    static controller::event evt { events::button_state_changed {}, controller::event::flags::immutable };
+
+    if (this->button.was_pressed())
+    {
+        std::get<events::button_state_changed>(evt.data).state = events::button_state_changed::state::pressed;
+        this->send(evt);
+        press_time_ms = 0;
+    }
+    else if (this->button.was_released())
+    {
+        std::get<events::button_state_changed>(evt.data).state = events::button_state_changed::state::released;
+        this->send(evt);
+        press_time_ms = 0;
+    }
+
+    if (this->button.is_pressed() && press_time_ms < 2000)
+    {
+        press_time_ms += 20;
+        if (press_time_ms >= 2000)
+        {
+            std::get<events::button_state_changed>(evt.data).state = events::button_state_changed::state::hold;
+            this->send(evt);
+        }
+    }
 }
 
 void controller::event_handler(const events::button_state_changed &e)
@@ -185,6 +169,14 @@ void controller::event_handler(const events::load_preset &e)
     this->update_effect_attributes(this->current_effect);
 }
 
+void controller::event_handler(const controller_events::save_settings &e)
+{
+    if (!this->settings->save())
+    {
+        printf("Failed to save settings");
+    }
+}
+
 void controller::event_handler(const lcd_view_events::outgoing &e)
 {
     std::visit([this](auto &&e) { this->view_event_handler(e); }, e);
@@ -225,13 +217,11 @@ void controller::view_event_handler(const lcd_view_events::prev_effect_screen_re
 void controller::view_event_handler(const lcd_view_events::theme_changed &e)
 {
     this->settings->set_dark_mode(e.dark);
-    this->settings->save();
 }
 
 void controller::view_event_handler(const lcd_view_events::lcd_brightness_changed &e)
 {
     this->settings->set_display_brightness(e.value);
-    this->settings->save();
 }
 
 void controller::view_event_handler(const lcd_view_events::input_volume_changed &e)
@@ -241,7 +231,6 @@ void controller::view_event_handler(const lcd_view_events::input_volume_changed 
 
     this->settings->set_main_input_volume(e.main_input_vol);
     this->settings->set_aux_input_volume(e.aux_input_vol);
-    this->settings->save();
 }
 
 void controller::view_event_handler(const lcd_view_events::output_volume_changed &e)
@@ -250,7 +239,6 @@ void controller::view_event_handler(const lcd_view_events::output_volume_changed
     this->model->send(evt);
 
     this->settings->set_output_volume(e.output_vol);
-    this->settings->save();
 }
 
 void controller::view_event_handler(const lcd_view_events::route_mic_to_aux_changed &e)
@@ -259,7 +247,6 @@ void controller::view_event_handler(const lcd_view_events::route_mic_to_aux_chan
     this->model->send(evt);
 
     this->settings->set_mic_routed_to_aux(e.value);
-    this->settings->save();
 }
 
 void controller::view_event_handler(const lcd_view_events::mute_changed &e)
@@ -268,7 +255,6 @@ void controller::view_event_handler(const lcd_view_events::mute_changed &e)
     this->model->send(evt);
 
     this->settings->set_output_muted(e.value);
-    this->settings->save();
 }
 
 void controller::view_event_handler(const lcd_view_events::effect_bypass_changed &e)
@@ -373,18 +359,6 @@ model {std::move(model)},
 view {std::move(view)},
 settings {std::move(settings)}
 {
-    /* Create timer for button debouncing */
-    this->button_timer = osTimerNew(button_timer_cb, osTimerPeriodic, &this->button, NULL);
-    assert(this->button_timer != nullptr);
-
-    /* Create timer for LED status */
-    this->led_timer = osTimerNew(led_timer_cb, osTimerPeriodic, this, NULL);
-    assert(this->led_timer != nullptr);
-
-//    /* Create timer for settings auto-save */
-//    this->settings_timer = osTimerNew(settings_timer_cb, osTimerPeriodic, this, NULL);
-//    assert(this->settings_timer != nullptr);
-
     this->send({events::initialize {}});
 }
 
