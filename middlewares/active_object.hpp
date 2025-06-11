@@ -11,7 +11,6 @@
 #include "cmsis_os2.h"
 
 #include <string>
-#include <vector>
 #include <cassert>
 
 namespace middlewares
@@ -25,16 +24,12 @@ public:
     {
         T data;
         uint32_t flags;
-        enum flags { immutable = 1 << 0 };
+        enum flags { immutable = 1 << 0, periodic = 1 << 1 };
         event(const T &data, uint32_t flags = 0) : data {data}, flags {flags} {}
     };
 
     active_object(const std::string_view &name, osPriority_t priority, size_t stack_size, uint32_t queue_size = 32)
     {
-        /* It is assumed that each active object is unique */
-        assert(this->instance == nullptr);
-        this->instance = this;
-
         /* Create queue of events */
         this->queue_attr.name = name.data();
 
@@ -54,75 +49,78 @@ public:
     {
         osStatus_t status;
 
-        for (auto timer : this->timers)
-        {
-            status = osTimerDelete(timer);
-            assert(status == osOK);
-        }
-
         status = osMessageQueueDelete(this->queue);
+        assert(status == osOK);
         this->queue = nullptr;
 
         status = osThreadTerminate(this->thread);
         assert(status == osOK);
         this->thread = nullptr;
-
-        this->instance = nullptr;
     }
 
     void send(const event &e, uint32_t timeout = osWaitForever)
     {
         const event *evt = nullptr;
 
-        if (e.flags & event::flags::immutable)
-            evt = &e;
-        else
-            evt = new event(e);
-
+        evt = (e.flags & event::flags::immutable) ? &e : new event(e);
         assert(evt != nullptr);
 
         osStatus_t status = osMessageQueuePut(this->queue, &evt, 0, timeout);
         assert(status == osOK);
     }
 
-    void schedule(const event &e, uint32_t time, bool periodic)
+    osTimerId_t schedule(const event &e, uint32_t time, bool periodic)
     {
-        struct timer_event : public event
+        struct timer_context
         {
-            active_object* target;
+            event evt;
             osTimerId_t timer;
-            timer_event(const T &data, uint32_t flags, active_object *target, osTimerId_t timer) :
-            event(data, flags), target{target}, timer{timer} {}
+            active_object* target;
+            timer_context(const T &data, uint32_t flags, active_object *target, osTimerId_t timer) :
+            evt{data, flags}, timer{timer}, target{target} {}
         };
 
-        auto *timer_evt = new timer_event(e.data, (periodic ? event::flags::immutable : 0), this, nullptr);
-        assert(timer_evt != nullptr);
+        auto *timer_arg = new timer_context(e.data, (periodic ? event::flags::immutable | event::flags::periodic : 0), this, nullptr);
+        assert(timer_arg != nullptr);
 
         auto timer_cb = [](void *arg)
                           {
-                              timer_event *evt = static_cast<timer_event*>(arg);
-                              evt->target->send(*evt);
-                              if (!(evt->flags & event::flags::immutable))
+                              timer_context *ctx = static_cast<timer_context*>(arg);
+                              ctx->target->send(ctx->evt);
+                              if (!(ctx->evt.flags & event::flags::periodic))
                               {
-                                  osStatus_t status = osTimerDelete(evt->timer);
+                                  /* Delete one-shot timer and its argument */
+                                  osStatus_t status = osTimerDelete(ctx->timer);
                                   assert(status == osOK);
-                                  delete evt;
+                                  delete ctx;
                               }
                           };
 
-        auto timer = osTimerNew(timer_cb, periodic ? osTimerPeriodic : osTimerOnce, timer_evt, NULL);
+        auto timer = osTimerNew(timer_cb, periodic ? osTimerPeriodic : osTimerOnce, timer_arg, NULL);
         assert(timer != nullptr);
 
-        if (periodic)
-            this->timers.push_back(timer);
-        timer_evt->timer = timer;
+        timer_arg->timer = timer;
 
         osStatus_t status = osTimerStart(timer, time);
         assert(status == osOK);
+
+        return timer;
     }
 
-    /* Used for global access (e.g. from interrupt) */
-    static inline active_object *instance;
+    void cancel(osTimerId_t timer)
+    {
+        osStatus_t status = osTimerStop(timer);
+        assert(status == osOK);
+
+        while (osTimerIsRunning(timer))
+            osThreadYield();
+
+        delete osTimerGetArgument(timer);
+
+        status = osTimerDelete(timer);
+        assert(status == osOK);
+    }
+
 private:
     virtual void dispatch(const event &e) = 0;
 
@@ -149,7 +147,6 @@ private:
     osMessageQueueAttr_t queue_attr = { 0 };
     osThreadId_t thread;
     osThreadAttr_t thread_attr = { 0 };
-    std::vector<osTimerId_t> timers;
 };
 
 }

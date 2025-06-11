@@ -1249,6 +1249,28 @@ const char *osTimerGetName (osTimerId_t timer_id) {
 }
 
 /*
+  Get argument passed to a timer.
+*/
+void *osTimerGetArgument (osTimerId_t timer_id)
+{
+  TimerCallback_t *callb;
+  TimerHandle_t hTimer = (TimerHandle_t)timer_id;
+
+  /* Retrieve pointer to callback function and argument */
+  callb = (TimerCallback_t *)pvTimerGetTimerID (hTimer);
+
+  /* Remove dynamic allocation flag */
+  callb = (TimerCallback_t *)((uint32_t)callb & ~1U);
+
+  if (callb != NULL) {
+    return callb->arg;
+  }
+  else {
+    return NULL;
+  }
+}
+
+/*
   Start or restart a timer.
 */
 osStatus_t osTimerStart (osTimerId_t timer_id, uint32_t ticks) {

@@ -500,6 +500,11 @@ osTimerId_t osTimerNew (osTimerFunc_t func, osTimerType_t type, void *argument, 
 /// \param[in]     timer_id      timer ID obtained by \ref osTimerNew.
 /// \return name as null-terminated string.
 const char *osTimerGetName (osTimerId_t timer_id);
+
+/// Get argument passed to a timer.
+/// \param[in]     timer_id      timer ID obtained by \ref osTimerNew.
+/// \return pointer to argument.
+void *osTimerGetArgument (osTimerId_t timer_id);
  
 /// Start or restart a timer.
 /// \param[in]     timer_id      timer ID obtained by \ref osTimerNew.

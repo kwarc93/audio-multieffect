@@ -100,44 +100,48 @@ void controller::event_handler(const events::led_toggle &e)
 
 void controller::event_handler(const controller_events::button_debounce &e)
 {
-    this->button.debounce();
+    static uint32_t press_time_ms = 0;
+    static bool press_state = false;
 
-    static uint32_t press_time_ms;
-    static controller::event evt { events::button_state_changed {}, controller::event::flags::immutable };
+    bool new_press_state = this->button.debounce(2); // debounce time: 2 * event period
 
-    if (this->button.was_pressed())
+    if (new_press_state != press_state)
     {
-        std::get<events::button_state_changed>(evt.data).state = events::button_state_changed::state::pressed;
-        this->send(evt);
         press_time_ms = 0;
-    }
-    else if (this->button.was_released())
-    {
-        std::get<events::button_state_changed>(evt.data).state = events::button_state_changed::state::released;
-        this->send(evt);
-        press_time_ms = 0;
+        press_state = new_press_state;
+        auto btn_state = press_state ? events::button_state_changed::state::pressed : events::button_state_changed::state::released;
+        this->send({events::button_state_changed {btn_state}});
     }
 
-    if (this->button.is_pressed() && press_time_ms < 2000)
+    constexpr uint32_t btn_hold_time_ms = 2000;
+    if (press_state && press_time_ms < btn_hold_time_ms)
     {
         press_time_ms += 20;
-        if (press_time_ms >= 2000)
+        if (press_time_ms >= btn_hold_time_ms)
         {
-            std::get<events::button_state_changed>(evt.data).state = events::button_state_changed::state::hold;
-            this->send(evt);
+            this->send({events::button_state_changed {events::button_state_changed::state::hold}});
         }
     }
 }
 
 void controller::event_handler(const events::button_state_changed &e)
 {
-    if (e.state == events::button_state_changed::state::hold)
+    if (e.state == events::button_state_changed::state::pressed)
     {
+        printf("Button pressed\r\n");
+    }
+    else if (e.state == events::button_state_changed::state::released)
+    {
+        printf("Button released\r\n");
+    }
+    else if (e.state == events::button_state_changed::state::hold)
+    {
+        printf("System shutdown\r\n");
+
+        this->settings->save();
         this->view->send({lcd_view_events::shutdown {}});
         this->model->send({effect_processor_events::shutdown {}});
-        this->led.set(false);
 
-        printf("System shutdown\r\n");
         osDelay(100);
         hal::system::stop();
         hal::system::reset();
