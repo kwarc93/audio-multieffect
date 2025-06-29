@@ -49,6 +49,13 @@ void controller::update(const lcd_view_events::outgoing &e)
 
 void controller::event_handler(const controller_events::initialize &e)
 {
+    /* Load & dump settings */
+    if (!this->settings->load())
+    {
+        printf("Failed to load settings, using defaults\r\n");
+        this->settings->restore_defaults();
+    }
+
     printf("Settings:\r\n%s\r\n", settings->dump().data());
 
     /* Start observing model */
@@ -177,7 +184,7 @@ void controller::event_handler(const controller_events::save_settings &e)
 {
     if (!this->settings->save())
     {
-        printf("Failed to save settings");
+        printf("Failed to save settings\r\n");
     }
 }
 

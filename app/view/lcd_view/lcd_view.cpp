@@ -477,7 +477,7 @@ void lcd_view::change_effect_screen(effect_id id, int dir)
 //-----------------------------------------------------------------------------
 /* public */
 
-lcd_view::lcd_view() : active_object("lcd_view", osPriorityNormal, 8192),
+lcd_view::lcd_view() : active_object("lcd_view", osPriorityAboveNormal, 8192),
 display {middlewares::i2c_managers::main::get_instance()}
 {
     this->send({events::initialize {}});
