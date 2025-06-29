@@ -29,7 +29,7 @@ static void init_thread(void *arg)
     /* Init filesystem */
     middlewares::filesystem::init();
 
-    /* Load settings */
+    /* Create settings */
     auto settings = std::make_unique<settings_manager>(std::make_unique<settings_storage_file>("settings1.cbor"));
 
     /* Create active objects */
