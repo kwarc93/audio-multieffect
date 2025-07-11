@@ -24,6 +24,7 @@ void ui_settings_route_mic_to_aux(lv_event_t * e);
 void ui_settings_add_effect(uint32_t new_effect_id, uint32_t curr_effect_id);
 void ui_settings_remove_effect(uint32_t effect_id);
 void ui_settings_move_effect(uint32_t effect_id, int32_t dir);
+void ui_settings_factory_reset(void);
 void ui_tremolo_bypass(lv_event_t * e);
 void ui_tremolo_rate_changed(lv_event_t * e);
 void ui_tremolo_depth_changed(lv_event_t * e);

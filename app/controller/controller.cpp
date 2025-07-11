@@ -7,6 +7,8 @@
 
 #include "controller.hpp"
 
+#include "middlewares/filesystem.hpp"
+
 #include <array>
 #include <algorithm>
 
@@ -196,6 +198,20 @@ void controller::event_handler(const lcd_view_events::outgoing &e)
 void controller::event_handler(const effect_processor_events::outgoing &e)
 {
     std::visit([this](auto &&e) { this->model_event_handler(e); }, e);
+}
+
+void controller::view_event_handler(const lcd_view_events::factory_reset &e)
+{
+	/* Do necessary things and restart */
+	middlewares::filesystem::format();
+
+    printf("System restart\r\n");
+
+    this->view->send({lcd_view_events::shutdown {}});
+    this->model->send({effect_processor_events::shutdown {}});
+
+    osDelay(100);
+    hal::system::reset();
 }
 
 void controller::view_event_handler(const lcd_view_events::splash_loaded &e)

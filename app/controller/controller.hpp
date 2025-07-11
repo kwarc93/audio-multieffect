@@ -96,6 +96,7 @@ private:
     void event_handler(const lcd_view_events::outgoing &e);
     void event_handler(const effect_processor_events::outgoing &e);
 
+    void view_event_handler(const lcd_view_events::factory_reset &e);
     void view_event_handler(const lcd_view_events::splash_loaded &e);
     void view_event_handler(const lcd_view_events::next_effect_screen_request &e);
     void view_event_handler(const lcd_view_events::prev_effect_screen_request &e);

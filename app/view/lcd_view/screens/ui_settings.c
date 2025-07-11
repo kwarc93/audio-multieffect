@@ -308,6 +308,29 @@ static void create_effects_management_lists(lv_obj_t * parent)
     lv_group_remove_obj(btn);
 }
 
+static void msgbox_factory_reset_handler(lv_event_t * e)
+{
+	lv_obj_t * mbox = lv_event_get_current_target(e);
+
+	uint16_t btn_idx = lv_msgbox_get_active_btn(mbox);
+
+	if (btn_idx == 0)
+	{
+		ui_settings_factory_reset();
+	}
+
+	lv_msgbox_close(mbox);
+}
+
+static void menu_factory_reset_handler(lv_event_t * e)
+{
+    static const char * btns[] = {"Yes", "No", ""};
+
+    lv_obj_t * mbox = lv_msgbox_create(NULL, "Factory reset", "Do you want to reset device to a factory state?", btns, true);
+    lv_obj_add_event_cb(mbox, msgbox_factory_reset_handler, LV_EVENT_VALUE_CHANGED, NULL);
+    lv_obj_center(mbox);
+}
+
 void ui_settings_screen_init(void)
 {
     ui_settings = lv_obj_create(NULL);
@@ -393,6 +416,11 @@ void ui_settings_screen_init(void)
     lv_menu_set_load_page_event(menu, cont, sub_software_page);
     cont = menu_create_text(section, NULL, "Hardware information");
     lv_menu_set_load_page_event(menu, cont, sub_hardware_page);
+    cont = menu_create_text(section, NULL, "Factory reset");
+    lv_obj_add_flag(cont, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_add_flag(cont, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
+    lv_obj_add_event_cb(cont, menu_factory_reset_handler, LV_EVENT_CLICKED, NULL);
 
     /* Create a root page */
     lv_obj_t * menu_root_page = lv_menu_page_create(menu, "Settings");

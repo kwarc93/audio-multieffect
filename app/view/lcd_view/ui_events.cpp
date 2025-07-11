@@ -284,6 +284,11 @@ void ui_settings_move_effect(uint32_t effect_id, int32_t step)
     view->notify(evt);
 }
 
+void ui_settings_factory_reset(void)
+{
+	view->notify(events::factory_reset {});
+}
+
 void ui_tremolo_bypass(lv_event_t * e)
 {
     notify_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::tremolo);

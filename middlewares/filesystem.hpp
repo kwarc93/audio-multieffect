@@ -81,10 +81,16 @@ inline void init(void)
     printf("Filesystem initialization %s\r\n", err == LFS_ERR_OK ? "successful" : "failed");
 }
 
+inline void format(void)
+{
+    printf("Formatting filesystem...\r\n");
+    int err = lfs_format(&lfs, &lfs_cfg);
+    printf("Filesystem formatting %s\r\n", err == LFS_ERR_OK ? "successful" : "failed");
+}
+
 inline void test(void)
 {
     hal::random::enable(true);
-    hal::buttons::blue_btn button;
     hal::nvms::qspi_flash storage;
 
     printf("Starting file system test...\r\n");

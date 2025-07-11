@@ -30,7 +30,7 @@ static void init_thread(void *arg)
     middlewares::filesystem::init();
 
     /* Create settings */
-    auto settings = std::make_unique<settings_manager>(std::make_unique<settings_storage_file>("settings1.cbor"));
+    auto settings = std::make_unique<settings_manager>(std::make_unique<settings_storage_file>("settings.cbor"));
 
     /* Create active objects */
     auto model = std::make_unique<mfx::ipc_effect_processor>();
@@ -58,7 +58,7 @@ static void init_thread(void *arg)
     middlewares::filesystem::init();
 
     /* Create settings */
-    auto settings = std::make_unique<settings_manager>(std::make_unique<settings_storage_file>("settings1.cbor"));
+    auto settings = std::make_unique<settings_manager>(std::make_unique<settings_storage_file>("settings.cbor"));
 
     /* Create active objects */
     auto model = std::make_unique<mfx::effect_processor>();
@@ -69,7 +69,7 @@ static void init_thread(void *arg)
 }
 #endif /* DUAL_CORE_APP */
 
-int main(void)
+int main(int argc, const char* argv[])
 {
     hal::system::init();
 
