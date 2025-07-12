@@ -52,7 +52,7 @@ extern uint32_t SystemCoreClock;
 #define configCPU_CLOCK_HZ                      (SystemCoreClock)
 #define configTICK_RATE_HZ                      1000
 #define configMAX_PRIORITIES                    56
-#define configMINIMAL_STACK_SIZE                128
+#define configMINIMAL_STACK_SIZE                256
 #define configMAX_TASK_NAME_LEN                 16
 #define configUSE_16_BIT_TICKS                  0
 #define configIDLE_SHOULD_YIELD                 1
@@ -73,19 +73,15 @@ extern uint32_t SystemCoreClock;
 #define configHEAP_CLEAR_MEMORY_ON_FREE         1
 
 /* Memory allocation related definitions. */
-#define configSUPPORT_STATIC_ALLOCATION             1
-#define configSUPPORT_DYNAMIC_ALLOCATION            1
-#define configTOTAL_HEAP_SIZE                       (32 * 1024)
-//#define configAPPLICATION_ALLOCATED_HEAP            1
-//#define configSTACK_ALLOCATION_FROM_SEPARATE_HEAP   1
+#define configSUPPORT_STATIC_ALLOCATION         1
+#define configSUPPORT_DYNAMIC_ALLOCATION        1
+#define configTOTAL_HEAP_SIZE                   (32 * 1024)
 
 /* Hook function related definitions. */
 #define configUSE_TICK_HOOK                     0
 #define configUSE_IDLE_HOOK                     1
 #define configUSE_MALLOC_FAILED_HOOK            1
 #define configCHECK_FOR_STACK_OVERFLOW          2
-//#define configUSE_DAEMON_TASK_STARTUP_HOOK      0
-//#define configUSE_SB_COMPLETED_CALLBACK         0
 
 /* Run time and task stats gathering related definitions. */
 #define configGENERATE_RUN_TIME_STATS           0
@@ -100,15 +96,15 @@ extern uint32_t SystemCoreClock;
 #define configUSE_TIMERS                        1
 #define configTIMER_TASK_PRIORITY               (configMAX_PRIORITIES - 1)
 #define configTIMER_QUEUE_LENGTH                16
-#define configTIMER_TASK_STACK_DEPTH            (2 * configMINIMAL_STACK_SIZE)
+#define configTIMER_TASK_STACK_DEPTH            (configMINIMAL_STACK_SIZE)
 
 /* Interrupt nesting behaviour configuration. */
 /* Cortex-M specific definitions. */
 #ifdef __NVIC_PRIO_BITS
-    /* __BVIC_PRIO_BITS will be specified when CMSIS is being used. */
-    #define configPRIO_BITS             __NVIC_PRIO_BITS
+/* __BVIC_PRIO_BITS will be specified when CMSIS is being used. */
+#define configPRIO_BITS                         __NVIC_PRIO_BITS
 #else
-    #define configPRIO_BITS             4        /* 15 priority levels */
+#define configPRIO_BITS                         4 /* 15 priority levels */
 #endif
 
 /* The lowest interrupt priority that can be used in a call to a "set priority"

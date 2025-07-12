@@ -326,7 +326,7 @@ static void menu_factory_reset_handler(lv_event_t * e)
 {
     static const char * btns[] = {"Yes", "No", ""};
 
-    lv_obj_t * mbox = lv_msgbox_create(NULL, "Factory reset", "Do you want to reset device to a factory state?", btns, true);
+    lv_obj_t * mbox = lv_msgbox_create(NULL, NULL, "Do you want to reset device to a factory state?", btns, false);
     lv_obj_add_event_cb(mbox, msgbox_factory_reset_handler, LV_EVENT_VALUE_CHANGED, NULL);
     lv_obj_center(mbox);
 }
