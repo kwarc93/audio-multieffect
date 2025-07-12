@@ -308,18 +308,18 @@ static void create_effects_management_lists(lv_obj_t * parent)
     lv_group_remove_obj(btn);
 }
 
-static void msgbox_factory_reset_handler(lv_event_t * e)
+static void msgbox_factory_reset_handler(lv_event_t *e)
 {
-	lv_obj_t * mbox = lv_event_get_current_target(e);
+    lv_obj_t *mbox = lv_event_get_current_target(e);
 
-	uint16_t btn_idx = lv_msgbox_get_active_btn(mbox);
+    uint16_t btn_idx = lv_msgbox_get_active_btn(mbox);
 
-	if (btn_idx == 0)
-	{
-		ui_settings_factory_reset();
-	}
+    if (btn_idx == 0)
+    {
+        ui_settings_factory_reset();
+    }
 
-	lv_msgbox_close(mbox);
+    lv_msgbox_close(mbox);
 }
 
 static void menu_factory_reset_handler(lv_event_t * e)

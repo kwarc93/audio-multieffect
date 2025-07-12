@@ -172,7 +172,7 @@ struct update_dsp_load
 
 using outgoing = std::variant
 <
-	factory_reset,
+    factory_reset,
     splash_loaded,
     next_effect_screen_request,
     prev_effect_screen_request,

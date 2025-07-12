@@ -202,8 +202,8 @@ void controller::event_handler(const effect_processor_events::outgoing &e)
 
 void controller::view_event_handler(const lcd_view_events::factory_reset &e)
 {
-	/* Do necessary things and restart */
-	middlewares::filesystem::format();
+    /* Do necessary things and restart */
+    middlewares::filesystem::format();
 
     printf("System restart\r\n");
 
