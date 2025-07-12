@@ -24,7 +24,7 @@ public:
     virtual ~cabinet_sim();
 
     void process(const dsp_input &in, dsp_output &out) override;
-    const effect_specific_attributes get_specific_attributes(void) const override;
+    const effect_specific_attr get_specific_attributes(void) const override;
 
     void set_ir(const ir_t &ir);
     void set_ir(uint8_t idx);

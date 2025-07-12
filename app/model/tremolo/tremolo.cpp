@@ -54,7 +54,7 @@ void tremolo::process(const dsp_input& in, dsp_output& out)
     );
 }
 
-const effect_specific_attributes tremolo::get_specific_attributes(void) const
+const effect_specific_attr tremolo::get_specific_attributes(void) const
 {
     return this->attr;
 }

@@ -128,18 +128,7 @@ struct effect_bypass_changed
 
 struct effect_controls_changed
 {
-    std::variant
-    <
-        tremolo_attr::controls,
-        echo_attr::controls,
-        chorus_attr::controls,
-        reverb_attr::controls,
-        overdrive_attr::controls,
-        cabinet_sim_attr::controls,
-        vocoder_attr::controls,
-        phaser_attr::controls
-    >
-    ctrl;
+    effect_controls ctrl;
 };
 
 struct add_effect_request
@@ -162,7 +151,7 @@ struct move_effect_request
 struct set_effect_attributes
 {
     effect_attr basic;
-    effect_specific_attributes specific;
+    effect_specific_attr specific;
 };
 
 struct update_dsp_load

@@ -22,7 +22,7 @@ public:
     virtual ~reverb();
 
     void process(const dsp_input &in, dsp_output &out) override;
-    const effect_specific_attributes get_specific_attributes(void) const override;
+    const effect_specific_attr get_specific_attributes(void) const override;
 
     void set_bandwidth(float bw);
     void set_damping(float d);

@@ -54,7 +54,7 @@ void cabinet_sim::process(const dsp_input& in, dsp_output& out)
     this->fast_conv.process(in.data(), out.data());
 }
 
-const effect_specific_attributes cabinet_sim::get_specific_attributes(void) const
+const effect_specific_attr cabinet_sim::get_specific_attributes(void) const
 {
     return this->attr;
 }

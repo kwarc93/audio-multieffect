@@ -74,8 +74,8 @@ void effect_processor::event_handler(const events::configuration &e)
     this->audio.set_input_volume(e.main_input_vol, 0);
     this->audio.set_input_volume(e.aux_input_vol, 1);
     this->audio.set_output_volume(e.output_vol);
-    this->audio.mute(e.output_muted);
     this->audio.route_onboard_mic_to_aux(e.mic_routed_to_aux);
+    this->audio.mute(e.output_muted);
 }
 
 void effect_processor::event_handler(const events::start_audio &e)

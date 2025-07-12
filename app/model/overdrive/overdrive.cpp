@@ -97,7 +97,7 @@ void overdrive::process(const dsp_input& in, dsp_output& out)
     this->iir_lp.process(out.data(), out.data(), out.size());
 }
 
-const effect_specific_attributes overdrive::get_specific_attributes(void) const
+const effect_specific_attr overdrive::get_specific_attributes(void) const
 {
     return this->attr;
 }

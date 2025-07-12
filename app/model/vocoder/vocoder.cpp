@@ -705,7 +705,7 @@ void vocoder::process(const dsp_input& in, dsp_output& out)
     }
 }
 
-const effect_specific_attributes vocoder::get_specific_attributes(void) const
+const effect_specific_attr vocoder::get_specific_attributes(void) const
 {
     vocoder_attr attributes { this->attr };
     attributes.ctrl.clarity = utils::inv_log_to_lin(this->attr.ctrl.clarity);

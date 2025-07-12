@@ -85,7 +85,7 @@ void phaser::process(const dsp_input& in, dsp_output& out)
     );
 }
 
-const effect_specific_attributes phaser::get_specific_attributes(void) const
+const effect_specific_attr phaser::get_specific_attributes(void) const
 {
     phaser_attr attributes { this->attr };
     attributes.ctrl.rate = utils::log_to_lin(this->attr.ctrl.rate);

@@ -158,7 +158,19 @@ typedef std::variant
     cabinet_sim_attr,
     vocoder_attr,
     phaser_attr
-> effect_specific_attributes;
+> effect_specific_attr;
+
+typedef std::variant
+<
+    tremolo_attr::controls,
+    echo_attr::controls,
+    chorus_attr::controls,
+    reverb_attr::controls,
+    overdrive_attr::controls,
+    cabinet_sim_attr::controls,
+    vocoder_attr::controls,
+    phaser_attr::controls
+> effect_controls;
 
 }
 
