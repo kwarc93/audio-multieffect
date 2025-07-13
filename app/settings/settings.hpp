@@ -108,7 +108,7 @@ private:
         this->settings[k_aux_input_volume] = 11;       // AUX input volume, values: 0 - 31 (-16.5dB to 30dB)
         this->settings[k_output_volume] = 57;          // Output volume, values: 0 - 63 (-57dB to 6dB)
         this->settings[k_output_muted] = false;        // Output muted, values: true/false
-        this->settings[k_mic_routed_to_aux] = false;   // Route microphone signal to AUX, values: true/false
+        this->settings[k_mic_routed_to_aux] = true;    // Route microphone signal to AUX, values: true/false
     }
 
     template<typename T>
