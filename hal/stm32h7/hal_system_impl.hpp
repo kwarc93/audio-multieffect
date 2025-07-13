@@ -21,6 +21,7 @@
 #include <drivers/stm32h7/hsem.hpp>
 
 #include "hal_sdram_impl.hpp"
+#include "hal_ipc_impl.hpp"
 
 namespace hal::system
 {
@@ -122,6 +123,7 @@ namespace hal::system
         SCB_EnableDCache();
 
         hal::sdram::init();
+        hal::ipc::init();
 
 #ifdef DUAL_CORE_APP
         /* Take, then release HSEM 0 in order to notify the Cortex-M4 */

@@ -167,14 +167,8 @@ standard names. */
 //#define xPortSysTickHandler SysTick_Handler
 
 #ifdef DUAL_CORE_APP
-#ifdef CORE_CM4
-void ipc_notify_cm7( void * xUpdatedMessageBuffer );
-#define sbSEND_COMPLETED( pxStreamBuffer ) ipc_notify_cm7( pxStreamBuffer )
-#endif /* CORE_CM4 */
-#ifdef CORE_CM7
-void ipc_notify_cm4( void * xUpdatedMessageBuffer );
-#define sbSEND_COMPLETED( pxStreamBuffer ) ipc_notify_cm4( pxStreamBuffer )
-#endif /* CORE_CM7 */
+void ipc_notify_core( void * xUpdatedMessageBuffer );
+#define sbSEND_COMPLETED( pxStreamBuffer ) ipc_notify_core( pxStreamBuffer )
 #endif /* DUAL_CORE_APP */
 
 /* A header file that defines trace macro can be included here. */

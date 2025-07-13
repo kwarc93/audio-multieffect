@@ -12,10 +12,10 @@
 
 #include <cstddef>
 
+#include <drivers/stm32h7/exti.hpp>
+
 #include "FreeRTOS.h"
 #include "message_buffer.h"
-
-#include <drivers/stm32h7/exti.hpp>
 
 namespace hal::ipc
 {
@@ -23,6 +23,7 @@ namespace hal::ipc
     {
         struct channel
         {
+            volatile bool initialized;
             MessageBufferHandle_t mb_handle;
             StaticMessageBuffer_t mb_object;
             uint8_t mb_buffer[4096];
@@ -33,6 +34,12 @@ namespace hal::ipc
     };
 
     inline ipc ipc_struct __attribute__((section(".ipc")));
+
+    inline void init(void)
+    {
+        ipc_struct.cm4_to_cm7.initialized = false;
+        ipc_struct.cm7_to_cm4.initialized = false;
+    }
 
     inline bool init_cm4_to_cm7(std::function<void(void)> cm7_callback)
     {
@@ -48,7 +55,9 @@ namespace hal::ipc
                                                                      ipc_struct.cm4_to_cm7.mb_buffer,
                                                                      &ipc_struct.cm4_to_cm7.mb_object);
 
-        return ipc_struct.cm4_to_cm7.mb_handle != NULL;
+        ipc_struct.cm4_to_cm7.initialized = ipc_struct.cm4_to_cm7.mb_handle != NULL;
+        while (!ipc_struct.cm7_to_cm4.initialized);
+        return ipc_struct.cm4_to_cm7.initialized;
     }
 
     inline bool init_cm7_to_cm4(std::function<void(void)> cm4_callback)
@@ -65,7 +74,9 @@ namespace hal::ipc
                                                                      ipc_struct.cm7_to_cm4.mb_buffer,
                                                                      &ipc_struct.cm7_to_cm4.mb_object);
 
-        return ipc_struct.cm7_to_cm4.mb_handle != NULL;
+        ipc_struct.cm7_to_cm4.initialized = ipc_struct.cm7_to_cm4.mb_handle != NULL;
+        while (!ipc_struct.cm4_to_cm7.initialized);
+        return ipc_struct.cm7_to_cm4.initialized;
     }
 
     inline size_t receive_from_cm7(void *data, size_t data_size, uint32_t timeout_ms = 0)
@@ -87,23 +98,13 @@ namespace hal::ipc
     {
         return xMessageBufferSend(ipc_struct.cm7_to_cm4.mb_handle, data, data_size, timeout_ms);
     }
-}
 
-void ipc_notify_cm7(void * xUpdatedMessageBuffer)
-{
-    MessageBufferHandle_t updated_buffer = static_cast<MessageBufferHandle_t>(xUpdatedMessageBuffer);
-
-    if (updated_buffer == hal::ipc::ipc_struct.cm4_to_cm7.mb_handle)
+    inline void notify_cm7(void)
     {
         drivers::exti::trigger(drivers::exti::line::line0);
     }
-}
 
-void ipc_notify_cm4( void * xUpdatedMessageBuffer )
-{
-    MessageBufferHandle_t updated_buffer = static_cast<MessageBufferHandle_t>(xUpdatedMessageBuffer);
-
-    if (updated_buffer == hal::ipc::ipc_struct.cm7_to_cm4.mb_handle)
+    inline void notify_cm4(void)
     {
         drivers::exti::trigger(drivers::exti::line::line1);
     }

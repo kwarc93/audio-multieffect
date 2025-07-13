@@ -59,6 +59,23 @@ extern "C" void system_init(void)
 #endif /* CORE_CM4 */
 }
 
+/* Inter-Processor Communication (IPC) handlers */
+#ifdef DUAL_CORE_APP
+extern "C" void ipc_notify_core(void * xUpdatedMessageBuffer)
+{
+    MessageBufferHandle_t updated_buffer = static_cast<MessageBufferHandle_t>(xUpdatedMessageBuffer);
+
+    if (updated_buffer == hal::ipc::ipc_struct.cm4_to_cm7.mb_handle)
+    {
+        hal::ipc::notify_cm7();
+    }
+    else if (updated_buffer == hal::ipc::ipc_struct.cm7_to_cm4.mb_handle)
+    {
+        hal::ipc::notify_cm4();
+    }
+}
+#endif /* DUAL_CORE_APP */
+
 //-----------------------------------------------------------------------------
 /* syscalls */
 
