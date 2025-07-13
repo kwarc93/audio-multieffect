@@ -123,9 +123,10 @@ namespace hal::system
         SCB_EnableDCache();
 
         hal::sdram::init();
-        hal::ipc::init();
 
 #ifdef DUAL_CORE_APP
+        hal::ipc::init();
+
         /* Take, then release HSEM 0 in order to notify the Cortex-M4 */
         drivers::hsem::take(hsem_id, 0);
         drivers::hsem::release(hsem_id, 0);
