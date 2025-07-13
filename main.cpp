@@ -33,9 +33,9 @@ static void init_thread(void *arg)
     auto settings = std::make_unique<settings_manager>(std::make_unique<settings_storage_file>("settings.cbor"));
 
     /* Create active objects */
+    auto view = std::make_unique<mfx::lcd_view>();
     auto model = std::make_unique<mfx::ipc_effect_processor>();
-    auto lcd_view = std::make_unique<mfx::lcd_view>();
-    auto ctrl = std::make_unique<mfx::controller>(std::move(model), std::move(lcd_view), std::move(settings));
+    auto ctrl = std::make_unique<mfx::controller>(std::move(model), std::move(view), std::move(settings));
 
     osThreadSuspend(osThreadGetId());
 }
@@ -61,9 +61,9 @@ static void init_thread(void *arg)
     auto settings = std::make_unique<settings_manager>(std::make_unique<settings_storage_file>("settings.cbor"));
 
     /* Create active objects */
+    auto view = std::make_unique<mfx::lcd_view>();
     auto model = std::make_unique<mfx::effect_processor>();
-    auto lcd_view = std::make_unique<mfx::lcd_view>();
-    auto ctrl = std::make_unique<mfx::controller>(std::move(model), std::move(lcd_view), std::move(settings));
+    auto ctrl = std::make_unique<mfx::controller>(std::move(model), std::move(view), std::move(settings));
 
     osThreadSuspend(osThreadGetId());
 }

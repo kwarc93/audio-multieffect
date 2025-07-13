@@ -62,7 +62,7 @@ void echo::set_blur(float blur)
 {
     blur = std::clamp(blur, 0.0f, 1.0f);
 
-    if (this->attr.ctrl.blur == blur || this->attr.ctrl.mode == echo_attr::controls::mode_type::delay)
+    if (this->attr.ctrl.blur == blur)
         return;
 
     this->attr.ctrl.blur = blur;
