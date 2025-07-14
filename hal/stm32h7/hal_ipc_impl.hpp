@@ -56,7 +56,6 @@ namespace hal::ipc
                                                                      &ipc_struct.cm4_to_cm7.mb_object);
 
         ipc_struct.cm4_to_cm7.initialized = ipc_struct.cm4_to_cm7.mb_handle != NULL;
-        while (!ipc_struct.cm7_to_cm4.initialized);
         return ipc_struct.cm4_to_cm7.initialized;
     }
 
@@ -75,7 +74,6 @@ namespace hal::ipc
                                                                      &ipc_struct.cm7_to_cm4.mb_object);
 
         ipc_struct.cm7_to_cm4.initialized = ipc_struct.cm7_to_cm4.mb_handle != NULL;
-        while (!ipc_struct.cm4_to_cm7.initialized);
         return ipc_struct.cm7_to_cm4.initialized;
     }
 
@@ -91,11 +89,13 @@ namespace hal::ipc
 
     inline size_t send_to_cm7(void *data, size_t data_size, uint32_t timeout_ms = 0)
     {
+        while (!ipc_struct.cm7_to_cm4.initialized) { portYIELD(); };
         return xMessageBufferSend(ipc_struct.cm4_to_cm7.mb_handle, data, data_size, timeout_ms);
     }
 
     inline size_t send_to_cm4(void *data, size_t data_size, uint32_t timeout_ms = 0)
     {
+        while (!ipc_struct.cm4_to_cm7.initialized) { portYIELD(); };
         return xMessageBufferSend(ipc_struct.cm7_to_cm4.mb_handle, data, data_size, timeout_ms);
     }
 
