@@ -379,13 +379,19 @@ void controller::update_effect_attributes(effect_id id)
 //-----------------------------------------------------------------------------
 /* public */
 
-controller::controller(std::unique_ptr<effect_processor_base> model, std::unique_ptr<lcd_view> view, std::unique_ptr<settings_manager> settings) :
+controller::controller(std::unique_ptr<effect_processor_base> model,
+                       std::unique_ptr<lcd_view> view,
+                       std::unique_ptr<settings_manager> settings,
+                       std::unique_ptr<presets_manager> presets) :
 active_object("controller", osPriorityNormal, 2048),
 error_code{0},
 model {std::move(model)},
 view {std::move(view)},
-settings {std::move(settings)}
+settings {std::move(settings)},
+presets {std::move(presets)}
 {
+    this->current_effect = effect_id::_count;
+
     this->send({events::initialize {}});
 }
 

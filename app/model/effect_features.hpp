@@ -9,7 +9,6 @@
 #define MODEL_EFFECT_FEATURES_HPP_
 
 #include <array>
-#include <vector>
 #include <variant>
 
 namespace mfx

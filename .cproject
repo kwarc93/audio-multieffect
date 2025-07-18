@@ -256,13 +256,13 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="drivers|app|system|hal|middlewares|rtos|effect_types.hpp|libs" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="libs|middlewares|drivers|effect_types.hpp|app|system|hal|rtos" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 						<entry excluding="ipc|tests" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="app"/>
 						<entry excluding="stm32h7" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="drivers"/>
 						<entry excluding="stm32h7" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="hal"/>
-						<entry excluding="nlohmann_json/include|nlohmann_json/docs|nlohmann_json/cmake|nlohmann_json/tools|nlohmann_json/tests|littlefs/tests|littlefs/scripts|littlefs/runners|littlefs/benches|littlefs/bd" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="libs"/>
+						<entry excluding="littlefs/runners|littlefs/scripts|nlohmann_json/tools|littlefs/benches|nlohmann_json/cmake|littlefs/tests|littlefs/bd|nlohmann_json/include|nlohmann_json/tests|nlohmann_json/docs" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="libs"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="middlewares"/>
-						<entry excluding="FreeRTOS/Source/portable/MemMang/heap_1.c|FreeRTOS/Source/portable/MemMang/heap_3.c|FreeRTOS/Source/portable/MemMang/heap_5.c|FreeRTOS/Source/portable/MemMang/heap_4.c|FreeRTOS/Source/portable/MemMang/heap_2.c|FreeRTOS/Source/portable/GCC/ARM_CM4F" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="rtos"/>
+						<entry excluding="FreeRTOS/Source/portable/MemMang/heap_2.c|FreeRTOS/Source/portable/MemMang/heap_1.c|FreeRTOS/Source/portable/GCC/ARM_CM4F|FreeRTOS/Source/portable/MemMang/heap_5.c|FreeRTOS/Source/portable/MemMang/heap_4.c|FreeRTOS/Source/portable/MemMang/heap_3.c" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="rtos"/>
 						<entry excluding="stm32h745" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="system"/>
 					</sourceEntries>
 				</configuration>
@@ -528,13 +528,13 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="drivers|app|system|hal|middlewares|rtos|effect_types.hpp|libs" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="libs|middlewares|drivers|effect_types.hpp|app|system|hal|rtos" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 						<entry excluding="tests" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="app"/>
 						<entry excluding="stm32f7" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="drivers"/>
 						<entry excluding="stm32f7" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="hal"/>
-						<entry excluding="nlohmann_json/include|nlohmann_json/docs|nlohmann_json/cmake|nlohmann_json/tools|nlohmann_json/tests|littlefs/tests|littlefs/scripts|littlefs/runners|littlefs/benches|littlefs/bd" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="libs"/>
+						<entry excluding="littlefs/runners|littlefs/scripts|nlohmann_json/tools|littlefs/benches|nlohmann_json/cmake|littlefs/tests|littlefs/bd|nlohmann_json/include|nlohmann_json/tests|nlohmann_json/docs" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="libs"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="middlewares"/>
-						<entry excluding="FreeRTOS/Source/portable/GCC/ARM_CM7|FreeRTOS/Source/portable/MemMang/heap_1.c|FreeRTOS/Source/portable/MemMang/heap_3.c|FreeRTOS/Source/portable/MemMang/heap_5.c|FreeRTOS/Source/portable/MemMang/heap_4.c|FreeRTOS/Source/portable/MemMang/heap_2.c" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="rtos"/>
+						<entry excluding="FreeRTOS/Source/portable/MemMang/heap_2.c|FreeRTOS/Source/portable/MemMang/heap_1.c|FreeRTOS/Source/portable/MemMang/heap_5.c|FreeRTOS/Source/portable/MemMang/heap_4.c|FreeRTOS/Source/portable/GCC/ARM_CM7|FreeRTOS/Source/portable/MemMang/heap_3.c" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="rtos"/>
 						<entry excluding="stm32f746" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="system"/>
 					</sourceEntries>
 				</configuration>
@@ -800,13 +800,13 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="drivers|app|system|hal|middlewares|rtos|effect_types.hpp|libs" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="libs|middlewares|drivers|effect_types.hpp|app|system|hal|rtos" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 						<entry excluding="tests" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="app"/>
 						<entry excluding="stm32f7" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="drivers"/>
 						<entry excluding="stm32f7" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="hal"/>
-						<entry excluding="nlohmann_json/include|nlohmann_json/docs|nlohmann_json/cmake|nlohmann_json/tools|nlohmann_json/tests|littlefs/tests|littlefs/scripts|littlefs/runners|littlefs/benches|littlefs/bd" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="libs"/>
+						<entry excluding="littlefs/runners|littlefs/scripts|nlohmann_json/tools|littlefs/benches|nlohmann_json/cmake|littlefs/tests|littlefs/bd|nlohmann_json/include|nlohmann_json/tests|nlohmann_json/docs" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="libs"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="middlewares"/>
-						<entry excluding="FreeRTOS/Source/portable/GCC/ARM_CM7|FreeRTOS/Source/portable/MemMang/heap_1.c|FreeRTOS/Source/portable/MemMang/heap_3.c|FreeRTOS/Source/portable/MemMang/heap_5.c|FreeRTOS/Source/portable/MemMang/heap_4.c|FreeRTOS/Source/portable/MemMang/heap_2.c" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="rtos"/>
+						<entry excluding="FreeRTOS/Source/portable/MemMang/heap_2.c|FreeRTOS/Source/portable/MemMang/heap_1.c|FreeRTOS/Source/portable/MemMang/heap_5.c|FreeRTOS/Source/portable/MemMang/heap_4.c|FreeRTOS/Source/portable/GCC/ARM_CM7|FreeRTOS/Source/portable/MemMang/heap_3.c" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="rtos"/>
 						<entry excluding="stm32f746" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="system"/>
 					</sourceEntries>
 				</configuration>
@@ -1069,13 +1069,13 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="drivers|app|system|hal|middlewares|rtos|effect_types.hpp|libs" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="libs|middlewares|drivers|effect_types.hpp|app|system|hal|rtos" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 						<entry excluding="ipc|tests" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="app"/>
 						<entry excluding="stm32f7" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="drivers"/>
 						<entry excluding="stm32f7" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="hal"/>
-						<entry excluding="nlohmann_json/include|nlohmann_json/docs|nlohmann_json/cmake|nlohmann_json/tools|nlohmann_json/tests|littlefs/tests|littlefs/scripts|littlefs/runners|littlefs/benches|littlefs/bd" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="libs"/>
+						<entry excluding="littlefs/runners|littlefs/scripts|nlohmann_json/tools|littlefs/benches|nlohmann_json/cmake|littlefs/tests|littlefs/bd|nlohmann_json/include|nlohmann_json/tests|nlohmann_json/docs" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="libs"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="middlewares"/>
-						<entry excluding="FreeRTOS/Source/portable/GCC/ARM_CM7|FreeRTOS/Source/portable/MemMang/heap_1.c|FreeRTOS/Source/portable/MemMang/heap_3.c|FreeRTOS/Source/portable/MemMang/heap_5.c|FreeRTOS/Source/portable/MemMang/heap_4.c|FreeRTOS/Source/portable/MemMang/heap_2.c" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="rtos"/>
+						<entry excluding="FreeRTOS/Source/portable/MemMang/heap_2.c|FreeRTOS/Source/portable/MemMang/heap_1.c|FreeRTOS/Source/portable/MemMang/heap_5.c|FreeRTOS/Source/portable/MemMang/heap_4.c|FreeRTOS/Source/portable/GCC/ARM_CM7|FreeRTOS/Source/portable/MemMang/heap_3.c" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="rtos"/>
 						<entry excluding="stm32f746" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="system"/>
 					</sourceEntries>
 				</configuration>

@@ -16,7 +16,8 @@
 #include "app/view/lcd_view/lcd_view.hpp"
 #include "app/model/effect_processor.hpp"
 #include "app/controller/controller.hpp"
-#include "app/settings/settings.hpp"
+#include "app/modules/settings.hpp"
+#include "app/modules/presets.hpp"
 
 #include "middlewares/filesystem.hpp"
 
@@ -29,7 +30,7 @@ static void init_thread(void *arg)
     /* Init filesystem */
     middlewares::filesystem::init();
 
-    /* Create settings */
+    /* Create settings manager */
     auto settings = std::make_unique<settings_manager>(std::make_unique<settings_storage_file>("settings.cbor"));
 
     /* Create active objects */
@@ -57,13 +58,16 @@ static void init_thread(void *arg)
     /* Init filesystem */
     middlewares::filesystem::init();
 
-    /* Create settings */
+    /* Create settings manager */
     auto settings = std::make_unique<settings_manager>(std::make_unique<settings_storage_file>("settings.cbor"));
+
+    /* Create preset manager */
+    auto presets = std::make_unique<presets_manager>(std::make_unique<presets_storage_file>("presets"));
 
     /* Create active objects */
     auto view = std::make_unique<mfx::lcd_view>();
     auto model = std::make_unique<mfx::effect_processor>();
-    auto ctrl = std::make_unique<mfx::controller>(std::move(model), std::move(view), std::move(settings));
+    auto ctrl = std::make_unique<mfx::controller>(std::move(model), std::move(view), std::move(settings), std::move(presets));
 
     osThreadSuspend(osThreadGetId());
 }

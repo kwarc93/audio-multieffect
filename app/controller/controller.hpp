@@ -20,7 +20,8 @@
 
 #include "app/view/lcd_view/lcd_view.hpp"
 #include "app/model/effect_processor.hpp"
-#include "app/settings/settings.hpp"
+#include "app/modules/settings.hpp"
+#include "app/modules/presets.hpp"
 
 namespace mfx
 {
@@ -78,7 +79,10 @@ class controller : public middlewares::active_object<controller_events::incoming
                    public middlewares::observer<lcd_view_events::outgoing>
 {
 public:
-    controller(std::unique_ptr<effect_processor_base> model, std::unique_ptr<lcd_view> view, std::unique_ptr<settings_manager> settings);
+    controller(std::unique_ptr<effect_processor_base> model,
+               std::unique_ptr<lcd_view> view,
+               std::unique_ptr<settings_manager> settings,
+               std::unique_ptr<presets_manager> presets);
     ~controller();
 
 private:
@@ -124,6 +128,7 @@ private:
     std::unique_ptr<effect_processor_base> model;
     std::unique_ptr<lcd_view> view;
     std::unique_ptr<settings_manager> settings;
+    std::unique_ptr<presets_manager> presets;
 
     effect_id current_effect;
     std::vector<effect_id> active_effects;
