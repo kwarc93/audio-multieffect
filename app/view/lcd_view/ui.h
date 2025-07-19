@@ -285,6 +285,7 @@ LV_FONT_DECLARE(ui_font_14_bold);
 
 void ui_init(void * user_data);
 void ui_set_dark_theme(bool enabled);
+bool ui_is_active_screen(const lv_obj_t * scr);
 
 #ifdef __cplusplus
 } /*extern "C"*/

@@ -723,3 +723,8 @@ void ui_set_dark_theme(bool enabled)
     lv_theme_t *theme = lv_theme_default_init(disp, primary_color, secondary_color, enabled, LV_FONT_DEFAULT);
     lv_disp_set_theme(disp, theme);
 }
+
+bool ui_is_active_screen(const lv_obj_t * scr)
+{
+    return scr == lv_scr_act() || scr == ui_settings_parent_screen;
+}

@@ -5,12 +5,16 @@
  *      Author: kwarc
  */
 
-#include "presets.hpp"
+#define JSON_NO_IO
+#define JSON_USE_IMPLICIT_CONVERSIONS 0
+#include "nlohmann/json.hpp"
 
-using json = nlohmann::json;
+#include "presets.hpp"
 
 //-----------------------------------------------------------------------------
 /* helpers */
+
+using json = nlohmann::json;
 
 // JSON serializers/deserializers for effects
 namespace mfx
@@ -182,7 +186,9 @@ bool presets_manager::verify(std::string_view name)
         /* Parse from CBOR without exceptions */
         auto obj = json::from_cbor(data, true, false);
         result &= !obj.is_discarded();
-        result &=obj.contains("effects");
+        result &= obj.contains("effects");
+
+        // TODO: Check "version" field
     }
 
     return result;

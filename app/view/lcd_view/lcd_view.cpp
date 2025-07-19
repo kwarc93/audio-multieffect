@@ -217,7 +217,7 @@ void lcd_view::event_handler(const events::update_dsp_load &e)
 
 void lcd_view::set_effect_attr(const effect_attr &basic, const tremolo_attr &specific)
 {
-    if (ui_fx_tremolo == NULL)
+    if (!ui_is_active_screen(ui_fx_tremolo))
         return;
 
     if (basic.bypassed)
@@ -244,7 +244,7 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const tremolo_attr &spe
 
 void lcd_view::set_effect_attr(const effect_attr &basic, const echo_attr &specific)
 {
-    if (ui_fx_echo == NULL)
+    if (!ui_is_active_screen(ui_fx_echo))
         return;
 
     if (basic.bypassed)
@@ -272,7 +272,7 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const echo_attr &specif
 
 void lcd_view::set_effect_attr(const effect_attr &basic, const chorus_attr &specific)
 {
-    if (ui_fx_chorus == NULL)
+    if (!ui_is_active_screen(ui_fx_chorus))
         return;
 
     if (basic.bypassed)
@@ -300,7 +300,7 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const chorus_attr &spec
 
 void lcd_view::set_effect_attr(const effect_attr &basic, const reverb_attr &specific)
 {
-    if (ui_fx_reverb == NULL)
+    if (!ui_is_active_screen(ui_fx_reverb))
         return;
 
     if (basic.bypassed)
@@ -328,7 +328,7 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const reverb_attr &spec
 
 void lcd_view::set_effect_attr(const effect_attr &basic, const overdrive_attr &specific)
 {
-    if (ui_fx_overdrive == NULL)
+    if (!ui_is_active_screen(ui_fx_overdrive))
         return;
 
     if (basic.bypassed)
@@ -356,7 +356,7 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const overdrive_attr &s
 
 void lcd_view::set_effect_attr(const effect_attr &basic, const cabinet_sim_attr &specific)
 {
-    if (ui_fx_cabinet_sim == NULL)
+    if (!ui_is_active_screen(ui_fx_cabinet_sim))
         return;
 
     if (basic.bypassed)
@@ -375,7 +375,7 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const cabinet_sim_attr 
 
 void lcd_view::set_effect_attr(const effect_attr &basic, const vocoder_attr &specific)
 {
-    if (ui_fx_vocoder == NULL)
+    if (!ui_is_active_screen(ui_fx_vocoder))
         return;
 
     if (basic.bypassed)
@@ -419,7 +419,7 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const vocoder_attr &spe
 
 void lcd_view::set_effect_attr(const effect_attr &basic, const phaser_attr &specific)
 {
-    if (ui_fx_phaser == NULL)
+    if (!ui_is_active_screen(ui_fx_phaser))
         return;
 
     if (basic.bypassed)

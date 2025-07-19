@@ -8,19 +8,17 @@
 #ifndef PRESETS_HPP_
 #define PRESETS_HPP_
 
-#include <string_view>
 #include <memory>
 #include <cstdint>
-#include <functional>
 #include <optional>
+#include <functional>
+#include <string_view>
+
+#include "nlohmann/json_fwd.hpp"
 
 #include "app/model/effect_features.hpp"
 
 #include "presets_storage.hpp"
-
-#define JSON_NO_IO
-#define JSON_USE_IMPLICIT_CONVERSIONS 0
-#include "nlohmann/json.hpp"
 
 class presets_manager
 {
