@@ -33,10 +33,13 @@ static void init_thread(void *arg)
     /* Create settings manager */
     auto settings = std::make_unique<settings_manager>(std::make_unique<settings_storage_file>("settings.cbor"));
 
+    /* Create preset manager */
+    auto presets = std::make_unique<presets_manager>(std::make_unique<presets_storage_file>("presets"));
+
     /* Create active objects */
     auto view = std::make_unique<mfx::lcd_view>();
     auto model = std::make_unique<mfx::ipc_effect_processor>();
-    auto ctrl = std::make_unique<mfx::controller>(std::move(model), std::move(view), std::move(settings));
+    auto ctrl = std::make_unique<mfx::controller>(std::move(model), std::move(view), std::move(settings), std::move(presets));
 
     osThreadSuspend(osThreadGetId());
 }
@@ -81,10 +84,7 @@ int main(int argc, const char* argv[])
     printf("Software version: " GIT_REVISION "\r\n");
 
     osKernelInitialize();
-    osThreadAttr_t thread_attr {0};
-    thread_attr.name = "init";
-    thread_attr.stack_size = 4096;
-    osThreadNew(init_thread, NULL, &thread_attr);
+    osThreadNew(init_thread, NULL, NULL);
     if (osKernelGetState() == osKernelReady)
         osKernelStart();
 

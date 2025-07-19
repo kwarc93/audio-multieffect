@@ -192,6 +192,8 @@ void lcd_view::event_handler(const events::show_blank_screen &e)
     {
         lv_scr_load_anim(ui_blank, LV_SCR_LOAD_ANIM_FADE_IN, 250, 0, true);
     }
+
+    this->current_effect = effect_id::_count;
 }
 
 void lcd_view::event_handler(const events::show_next_effect_screen &e)
@@ -217,7 +219,7 @@ void lcd_view::event_handler(const events::update_dsp_load &e)
 
 void lcd_view::set_effect_attr(const effect_attr &basic, const tremolo_attr &specific)
 {
-    if (!ui_is_active_screen(ui_fx_tremolo))
+    if (this->current_effect != effect_id::tremolo)
         return;
 
     if (basic.bypassed)
@@ -244,7 +246,7 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const tremolo_attr &spe
 
 void lcd_view::set_effect_attr(const effect_attr &basic, const echo_attr &specific)
 {
-    if (!ui_is_active_screen(ui_fx_echo))
+    if (this->current_effect != effect_id::echo)
         return;
 
     if (basic.bypassed)
@@ -272,7 +274,7 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const echo_attr &specif
 
 void lcd_view::set_effect_attr(const effect_attr &basic, const chorus_attr &specific)
 {
-    if (!ui_is_active_screen(ui_fx_chorus))
+    if (this->current_effect != effect_id::chorus)
         return;
 
     if (basic.bypassed)
@@ -300,7 +302,7 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const chorus_attr &spec
 
 void lcd_view::set_effect_attr(const effect_attr &basic, const reverb_attr &specific)
 {
-    if (!ui_is_active_screen(ui_fx_reverb))
+    if (this->current_effect != effect_id::reverb)
         return;
 
     if (basic.bypassed)
@@ -328,7 +330,7 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const reverb_attr &spec
 
 void lcd_view::set_effect_attr(const effect_attr &basic, const overdrive_attr &specific)
 {
-    if (!ui_is_active_screen(ui_fx_overdrive))
+    if (this->current_effect != effect_id::overdrive)
         return;
 
     if (basic.bypassed)
@@ -356,7 +358,7 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const overdrive_attr &s
 
 void lcd_view::set_effect_attr(const effect_attr &basic, const cabinet_sim_attr &specific)
 {
-    if (!ui_is_active_screen(ui_fx_cabinet_sim))
+    if (this->current_effect != effect_id::cabinet_sim)
         return;
 
     if (basic.bypassed)
@@ -375,7 +377,7 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const cabinet_sim_attr 
 
 void lcd_view::set_effect_attr(const effect_attr &basic, const vocoder_attr &specific)
 {
-    if (!ui_is_active_screen(ui_fx_vocoder))
+    if (this->current_effect != effect_id::vocoder)
         return;
 
     if (basic.bypassed)
@@ -419,7 +421,7 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const vocoder_attr &spe
 
 void lcd_view::set_effect_attr(const effect_attr &basic, const phaser_attr &specific)
 {
-    if (!ui_is_active_screen(ui_fx_phaser))
+    if (this->current_effect != effect_id::phaser)
         return;
 
     if (basic.bypassed)
@@ -496,13 +498,16 @@ void lcd_view::change_effect_screen(effect_id id, int dir)
     {
         lv_scr_load_anim(new_screen, static_cast<lv_scr_load_anim_t>(dir), 250, 0, true);
     }
+
+    this->current_effect = id;
 }
 
 //-----------------------------------------------------------------------------
 /* public */
 
-lcd_view::lcd_view() : active_object("lcd_view", osPriorityAboveNormal, 8192),
-display {middlewares::i2c_managers::main::get_instance()}
+lcd_view::lcd_view() : active_object("lcd_view", osPriorityAboveNormal, 4096),
+display {middlewares::i2c_managers::main::get_instance()},
+current_effect {effect_id::_count}
 {
     this->send({events::initialize {}});
 };

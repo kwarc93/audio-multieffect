@@ -244,6 +244,7 @@ private:
     void change_effect_screen(effect_id id, int dir);
 
     hal::displays::main display;
+    effect_id current_effect;
 };
 
 }
