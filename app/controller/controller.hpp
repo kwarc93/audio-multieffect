@@ -49,11 +49,6 @@ struct button_state_changed
     enum class state { released, pressed, hold } state;
 };
 
-struct load_preset
-{
-
-};
-
 struct save_settings
 {
 
@@ -65,7 +60,6 @@ using incoming = std::variant
     led_toggle,
     button_debounce,
     button_state_changed,
-    load_preset,
     save_settings,
 
     effect_processor_events::outgoing,
@@ -95,13 +89,15 @@ private:
     void event_handler(const controller_events::led_toggle &e);
     void event_handler(const controller_events::button_debounce &e);
     void event_handler(const controller_events::button_state_changed &e);
-    void event_handler(const controller_events::load_preset &e);
     void event_handler(const controller_events::save_settings &e);
     void event_handler(const lcd_view_events::outgoing &e);
     void event_handler(const effect_processor_events::outgoing &e);
 
     void view_event_handler(const lcd_view_events::factory_reset &e);
     void view_event_handler(const lcd_view_events::splash_loaded &e);
+    void view_event_handler(const lcd_view_events::load_preset &e);
+    void view_event_handler(const lcd_view_events::save_preset &e);
+    void view_event_handler(const lcd_view_events::remove_preset &e);
     void view_event_handler(const lcd_view_events::next_effect_screen_request &e);
     void view_event_handler(const lcd_view_events::prev_effect_screen_request &e);
     void view_event_handler(const lcd_view_events::theme_changed &e);
@@ -120,6 +116,7 @@ private:
     void model_event_handler(const effect_processor_events::input_volume_changed &e);
     void model_event_handler(const effect_processor_events::output_volume_changed &e);
     void model_event_handler(const effect_processor_events::effect_attributes_changed &e);
+    void model_event_handler(const effect_processor_events::effect_attributes_enumerated &e);
 
     void update_effect_attributes(effect_id id);
 

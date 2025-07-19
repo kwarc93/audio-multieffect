@@ -289,6 +289,21 @@ void ui_settings_factory_reset(void)
     view->notify(events::factory_reset {});
 }
 
+void ui_settings_load_preset(void)
+{
+    view->notify(events::load_preset {});
+}
+
+void ui_settings_save_preset(void)
+{
+    view->notify(events::save_preset {});
+}
+
+void ui_settings_remove_preset(void)
+{
+    view->notify(events::remove_preset {});
+}
+
 void ui_tremolo_bypass(lv_event_t * e)
 {
     notify_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::tremolo);

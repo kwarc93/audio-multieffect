@@ -54,6 +54,21 @@ struct factory_reset
 
 };
 
+struct load_preset
+{
+
+};
+
+struct save_preset
+{
+
+};
+
+struct remove_preset
+{
+
+};
+
 struct show_splash_screen
 {
 
@@ -163,6 +178,9 @@ using outgoing = std::variant
 <
     factory_reset,
     splash_loaded,
+    load_preset,
+    save_preset,
+    remove_preset,
     next_effect_screen_request,
     prev_effect_screen_request,
     theme_changed,

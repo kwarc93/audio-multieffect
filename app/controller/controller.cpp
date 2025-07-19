@@ -23,6 +23,8 @@ namespace events = controller_events;
 namespace
 {
 
+const char *preset_name = "recent";
+
 }
 
 //-----------------------------------------------------------------------------
@@ -137,14 +139,16 @@ void controller::event_handler(const events::button_state_changed &e)
 {
     if (e.state == events::button_state_changed::state::pressed)
     {
-        printf("Button pressed\r\n");
+        printf("Button: <pressed>\r\n");
     }
     else if (e.state == events::button_state_changed::state::released)
     {
-        printf("Button released\r\n");
+        printf("Button: <released>\r\n");
     }
     else if (e.state == events::button_state_changed::state::hold)
     {
+        printf("Button: <hold>\r\n");
+
         printf("System shutdown\r\n");
 
         this->settings->save();
@@ -155,31 +159,6 @@ void controller::event_handler(const events::button_state_changed &e)
         hal::system::stop();
         hal::system::reset();
     }
-}
-
-void controller::event_handler(const events::load_preset &e)
-{
-    /* TODO: Load last active preset ('pedal board') of effects */
-
-    /* Example of simple preset (order is important!) */
-    static constexpr std::array<effect_id, 4> preset =
-    {{
-        effect_id::overdrive,
-        effect_id::tremolo,
-        effect_id::echo,
-        effect_id::cabinet_sim,
-    }};
-
-    for (auto &&p : preset)
-    {
-        this->active_effects.push_back(p);
-        this->model->send({effect_processor_events::add_effect {p}});
-    }
-
-    /* Show screen of the first effect in preset */
-    this->current_effect = this->active_effects.at(0);
-    this->view->send({lcd_view_events::show_next_effect_screen {this->current_effect}});
-    this->update_effect_attributes(this->current_effect);
 }
 
 void controller::event_handler(const controller_events::save_settings &e)
@@ -217,6 +196,67 @@ void controller::view_event_handler(const lcd_view_events::factory_reset &e)
 void controller::view_event_handler(const lcd_view_events::splash_loaded &e)
 {
     this->view->send({lcd_view_events::show_blank_screen {}});
+}
+
+void controller::view_event_handler(const lcd_view_events::load_preset &e)
+{
+    if (!this->presets->verify(preset_name))
+    {
+        printf("Preset %s does not exist or is corrupted\r\n", preset_name);
+        return;
+    }
+
+    printf("Loading preset: '%s'...\r\n", preset_name);
+
+    /* Mute whole operation */
+    this->model->send({effect_processor_events::set_mute {true}});
+
+    /* Remove existing effects */
+    for (auto id : this->active_effects)
+    {
+        this->model->send({effect_processor_events::remove_effect {id}});
+        // TODO: Notify view to update menu list of effects
+    }
+
+    this->active_effects.clear();
+
+    auto effect_callback = [this](effect_id id, const char *name, bool bypassed, const effect_controls &ctrl)
+    {
+        printf("Effect '%s' loaded from preset\r\n", name);
+
+        this->active_effects.push_back(id);
+        this->model->send({effect_processor_events::add_effect {id}});
+        this->model->send({effect_processor_events::bypass_effect {id, bypassed}});
+        this->model->send({effect_processor_events::set_effect_controls {ctrl}});
+    };
+
+    bool result = this->presets->load(preset_name, effect_callback);
+
+    printf("Preset loading %s\r\n", result ? "successful" : "failed");
+
+    /* Show screen of the first effect in preset */
+    this->current_effect = this->active_effects.at(0);
+    this->view->send({lcd_view_events::show_next_effect_screen {this->current_effect}});
+    this->update_effect_attributes(this->current_effect);
+
+    /* Umnute */
+    this->model->send({effect_processor_events::set_mute {false}});
+}
+
+void controller::view_event_handler(const lcd_view_events::save_preset &e)
+{
+    if (this->active_effects.size() == 0)
+        return;
+
+    printf("Saving preset: '%s'...\r\n", preset_name);
+
+    this->presets->create(preset_name);
+    this->model->send({effect_processor_events::enumerate_effects_attributes {}});
+}
+
+void controller::view_event_handler(const lcd_view_events::remove_preset &e)
+{
+    this->presets->remove(preset_name);
 }
 
 void controller::view_event_handler(const lcd_view_events::next_effect_screen_request &e)
@@ -370,6 +410,20 @@ void controller::model_event_handler(const effect_processor_events::effect_attri
     this->view->send(evt);
 }
 
+void controller::model_event_handler(const effect_processor_events::effect_attributes_enumerated &e)
+{
+    effect_controls ctrl;
+    std::visit([&ctrl](auto&& arg) { ctrl = arg.ctrl; }, e.specific);
+
+    this->presets->add(e.basic.id, e.basic.name, e.basic.bypassed, ctrl);
+
+    if (e.last)
+    {
+        bool result = this->presets->save();
+        printf("Saving preset %s\r\n", result ? "successful" : "failed");
+    }
+}
+
 void controller::update_effect_attributes(effect_id id)
 {
     const effect_processor::event e {effect_processor_events::get_effect_attributes {id}};
@@ -383,7 +437,7 @@ controller::controller(std::unique_ptr<effect_processor_base> model,
                        std::unique_ptr<lcd_view> view,
                        std::unique_ptr<settings_manager> settings,
                        std::unique_ptr<presets_manager> presets) :
-active_object("controller", osPriorityNormal, 2048),
+active_object("controller", osPriorityNormal, 4096),
 error_code{0},
 model {std::move(model)},
 view {std::move(view)},

@@ -118,15 +118,27 @@ struct get_effect_attributes
     effect_id id;
 };
 
+struct enumerate_effects_attributes
+{
+
+};
+
+struct dsp_load_changed
+{
+    uint8_t load_pct;
+};
+
 struct effect_attributes_changed
 {
     effect_attr basic;
     effect_specific_attr specific;
 };
 
-struct dsp_load_changed
+struct effect_attributes_enumerated
 {
-    uint8_t load_pct;
+    bool last;
+    effect_attr basic;
+    effect_specific_attr specific;
 };
 
 using input_volume_changed = set_input_volume;
@@ -150,7 +162,8 @@ using incoming = std::variant
     route_mic_to_aux,
     set_mute,
     set_effect_controls,
-    get_effect_attributes
+    get_effect_attributes,
+    enumerate_effects_attributes
 >;
 
 using outgoing = std::variant
@@ -158,7 +171,8 @@ using outgoing = std::variant
     dsp_load_changed,
     input_volume_changed,
     output_volume_changed,
-    effect_attributes_changed
+    effect_attributes_changed,
+    effect_attributes_enumerated
 >;
 
 }
@@ -199,6 +213,7 @@ private:
     void event_handler(const effect_processor_events::get_dsp_load &e);
     void event_handler(const effect_processor_events::set_effect_controls &e);
     void event_handler(const effect_processor_events::get_effect_attributes &e);
+    void event_handler(const effect_processor_events::enumerate_effects_attributes &e);
 
     void set_controls(const tremolo_attr::controls &ctrl);
     void set_controls(const echo_attr::controls &ctrl);
@@ -209,7 +224,7 @@ private:
     void set_controls(const vocoder_attr::controls &ctrl);
     void set_controls(const phaser_attr::controls &ctrl);
 
-    void notify_effect_attributes_changed(effect *eff);
+    void notify_effect_attributes_changed(const effect *eff);
 
     std::unique_ptr<effect> create_new(effect_id id);
     bool find_effect(effect_id id, std::vector<std::unique_ptr<effect>>::iterator &it);

@@ -46,6 +46,10 @@ static lv_obj_t * menu_create_text(lv_obj_t * parent, const char * icon, const c
         lv_obj_set_flex_grow(label, 1);
     }
 
+    lv_obj_add_flag(obj, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_clear_flag(obj, LV_OBJ_FLAG_SCROLLABLE);
+    lv_obj_add_flag(obj, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
+
     return obj;
 }
 
@@ -331,6 +335,21 @@ static void menu_factory_reset_handler(lv_event_t * e)
     lv_obj_center(mbox);
 }
 
+static void menu_load_preset_handler(lv_event_t * e)
+{
+    ui_settings_load_preset();
+}
+
+static void menu_save_preset_handler(lv_event_t * e)
+{
+    ui_settings_save_preset();
+}
+
+static void menu_remove_preset_handler(lv_event_t * e)
+{
+    ui_settings_remove_preset();
+}
+
 void ui_settings_screen_init(void)
 {
     ui_settings = lv_obj_create(NULL);
@@ -383,9 +402,12 @@ void ui_settings_screen_init(void)
     lv_obj_t * sub_presets_page = lv_menu_page_create(menu, "Presets");
     lv_obj_set_style_pad_hor(sub_presets_page, menu_pad_hor, 0);
     section = lv_menu_section_create(sub_presets_page);
-    menu_create_text(section, NULL, "Load preset");
-    menu_create_text(section, NULL, "Save preset");
-    menu_create_text(section, NULL, "Remove all");
+    cont = menu_create_text(section, NULL, "Load");
+    lv_obj_add_event_cb(cont, menu_load_preset_handler, LV_EVENT_CLICKED, NULL);
+    cont = menu_create_text(section, NULL, "Save");
+    lv_obj_add_event_cb(cont, menu_save_preset_handler, LV_EVENT_CLICKED, NULL);
+    cont = menu_create_text(section, NULL, "Remove");
+    lv_obj_add_event_cb(cont, menu_remove_preset_handler, LV_EVENT_CLICKED, NULL);
 
     lv_obj_t * sub_display_page = lv_menu_page_create(menu, "Display");
     lv_obj_set_style_pad_hor(sub_display_page, menu_pad_hor, 0);
@@ -417,9 +439,6 @@ void ui_settings_screen_init(void)
     cont = menu_create_text(section, NULL, "Hardware information");
     lv_menu_set_load_page_event(menu, cont, sub_hardware_page);
     cont = menu_create_text(section, NULL, "Factory reset");
-    lv_obj_add_flag(cont, LV_OBJ_FLAG_CLICKABLE);
-    lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_add_flag(cont, LV_OBJ_FLAG_SCROLL_ON_FOCUS);
     lv_obj_add_event_cb(cont, menu_factory_reset_handler, LV_EVENT_CLICKED, NULL);
 
     /* Create a root page */

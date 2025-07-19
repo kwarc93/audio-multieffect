@@ -167,7 +167,25 @@ presets_manager::presets_manager(std::unique_ptr<presets_storage> ps) : storage(
 
 bool presets_manager::remove(std::string_view name)
 {
-    return this->storage->remove(name);
+    return this->storage->remove(std::string(name) + ".cbor");
+}
+
+bool presets_manager::verify(std::string_view name)
+{
+    bool result = false;
+    std::vector<uint8_t> data;
+
+    result = this->storage->load(std::string(name) + ".cbor", data);
+
+    if (result)
+    {
+        /* Parse from CBOR without exceptions */
+        auto obj = json::from_cbor(data, true, false);
+        result &= !obj.is_discarded();
+        result &=obj.contains("effects");
+    }
+
+    return result;
 }
 
 bool presets_manager::load(std::string_view name, effect_cb cb)

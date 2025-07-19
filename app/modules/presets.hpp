@@ -29,6 +29,7 @@ public:
 
     presets_manager(std::unique_ptr<presets_storage> ps);
 
+    bool verify(std::string_view name);
     bool remove(std::string_view name);
     bool load(std::string_view name, effect_cb cb);
     void create(std::string_view name);

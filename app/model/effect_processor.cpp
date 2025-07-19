@@ -238,6 +238,15 @@ void effect_processor::event_handler(const events::get_effect_attributes &e)
     }
 }
 
+void effect_processor::event_handler(const effect_processor_events::enumerate_effects_attributes &e)
+{
+    for (auto it = this->effects.begin(); it != this->effects.end(); ++it)
+    {
+        bool is_last = std::next(it) == this->effects.end();
+        this->notify(events::effect_attributes_enumerated {is_last, (*it)->get_basic_attributes(), (*it)->get_specific_attributes()});
+    }
+}
+
 void effect_processor::set_controls(const tremolo_attr::controls &ctrl)
 {
     auto tremolo_effect = static_cast<tremolo*>(this->find_effect(effect_id::tremolo));
@@ -348,7 +357,7 @@ void effect_processor::set_controls(const phaser_attr::controls &ctrl)
     phaser_effect->set_contour(ctrl.contour);
 }
 
-void effect_processor::notify_effect_attributes_changed(effect *e)
+void effect_processor::notify_effect_attributes_changed(const effect *e)
 {
     this->notify(events::effect_attributes_changed {e->get_basic_attributes(), e->get_specific_attributes()});
 }

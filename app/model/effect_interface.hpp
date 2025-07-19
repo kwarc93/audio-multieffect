@@ -30,7 +30,7 @@ public:
     virtual void process(const dsp_input &in, dsp_output &out) = 0;
     virtual const effect_specific_attr get_specific_attributes(void) const = 0;
 
-    const effect_attr& get_basic_attributes(void) { return this->basic; };
+    const effect_attr& get_basic_attributes(void) const { return this->basic; };
     bool is_bypassed() const { return this->basic.bypassed; };
     void bypass(bool state) { this->basic.bypassed = state; };
     void set_aux_input(const dsp_input &aux_in) { this->aux_in = &aux_in; };

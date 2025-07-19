@@ -36,7 +36,7 @@ public:
     presets_storage_file(std::string_view directory) : dir(directory)
     {
         auto fs = &middlewares::filesystem::lfs;
-        lfs_mkdir(fs, directory.data());
+        lfs_mkdir(fs, this->dir.c_str());
     }
 
     bool save(std::string_view name, const std::vector<std::uint8_t> &data) override
@@ -44,13 +44,14 @@ public:
         bool result = false;
         auto fs = &middlewares::filesystem::lfs;
 
-        const std::string path = std::string(this->dir) + "/" + std::string(name);
+        const std::string path = this->dir + "/" + std::string(name);
 
-        if (lfs_file_open(fs, &this->file, path.c_str(), LFS_O_WRONLY | LFS_O_CREAT | LFS_O_TRUNC) == LFS_ERR_OK)
+        lfs_file_t file;
+        if (lfs_file_open(fs, &file, path.c_str(), LFS_O_WRONLY | LFS_O_CREAT | LFS_O_TRUNC) == LFS_ERR_OK)
         {
             const lfs_ssize_t bytes_to_write = data.size();
-            result =  (lfs_file_write(fs, &this->file, data.data(), bytes_to_write) == bytes_to_write);
-            result &= (lfs_file_close(fs, &this->file) == LFS_ERR_OK);
+            result =  (lfs_file_write(fs, &file, data.data(), bytes_to_write) == bytes_to_write);
+            result &= (lfs_file_close(fs, &file) == LFS_ERR_OK);
         }
 
         return result;
@@ -63,16 +64,17 @@ public:
 
         data.clear();
 
-        const std::string path = std::string(this->dir) + "/" + std::string(name);
+        const std::string path = this->dir + "/" + std::string(name);
 
-        if (lfs_file_open(fs, &this->file, path.c_str(), LFS_O_RDONLY) == LFS_ERR_OK)
+        lfs_file_t file;
+        if (lfs_file_open(fs, &file, path.c_str(), LFS_O_RDONLY) == LFS_ERR_OK)
         {
-            const lfs_soff_t size = lfs_file_size(fs, &this->file);
+            const lfs_soff_t size = lfs_file_size(fs, &file);
             if (size > 0)
             {
                 data.resize(size);
                 result =  (lfs_file_read(fs, &file, data.data(), size) == size);
-                result &= (lfs_file_close(fs, &this->file) == LFS_ERR_OK);
+                result &= (lfs_file_close(fs, &file) == LFS_ERR_OK);
             }
         }
 
@@ -83,27 +85,26 @@ public:
     {
         auto fs = &middlewares::filesystem::lfs;
 
-        const std::string path = std::string(this->dir) + "/" + std::string(name);
+        const std::string path = this->dir + "/" + std::string(name);
 
         return lfs_remove(fs, path.c_str()) == LFS_ERR_OK;
     }
 private:
-    lfs_file_t file;
-    std::string_view dir;
+    std::string dir;
 };
 
 //------------------------------------------------------------------------------
 // One of the ways of presets storage - EEPROM
 class presets_storage_eeprom : public presets_storage
 {
-    // TODO
+
 };
 
 //------------------------------------------------------------------------------
 // One of the ways of presets storage - RAM
 class presets_storage_ram : public presets_storage
 {
-    // TODO
+
 };
 
 #endif /* PRESETS_STORAGE_HPP_ */

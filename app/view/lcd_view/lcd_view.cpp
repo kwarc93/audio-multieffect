@@ -217,6 +217,9 @@ void lcd_view::event_handler(const events::update_dsp_load &e)
 
 void lcd_view::set_effect_attr(const effect_attr &basic, const tremolo_attr &specific)
 {
+    if (ui_fx_tremolo == NULL)
+        return;
+
     if (basic.bypassed)
         lv_obj_clear_state(ui_btn_trem_bypass, LV_STATE_CHECKED);
     else
@@ -241,6 +244,9 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const tremolo_attr &spe
 
 void lcd_view::set_effect_attr(const effect_attr &basic, const echo_attr &specific)
 {
+    if (ui_fx_echo == NULL)
+        return;
+
     if (basic.bypassed)
         lv_obj_clear_state(ui_btn_echo_bypass, LV_STATE_CHECKED);
     else
@@ -266,6 +272,9 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const echo_attr &specif
 
 void lcd_view::set_effect_attr(const effect_attr &basic, const chorus_attr &specific)
 {
+    if (ui_fx_chorus == NULL)
+        return;
+
     if (basic.bypassed)
         lv_obj_clear_state(ui_btn_chorus_bypass, LV_STATE_CHECKED);
     else
@@ -291,6 +300,9 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const chorus_attr &spec
 
 void lcd_view::set_effect_attr(const effect_attr &basic, const reverb_attr &specific)
 {
+    if (ui_fx_reverb == NULL)
+        return;
+
     if (basic.bypassed)
         lv_obj_clear_state(ui_btn_reverb_bypass, LV_STATE_CHECKED);
     else
@@ -316,6 +328,9 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const reverb_attr &spec
 
 void lcd_view::set_effect_attr(const effect_attr &basic, const overdrive_attr &specific)
 {
+    if (ui_fx_overdrive == NULL)
+        return;
+
     if (basic.bypassed)
         lv_obj_clear_state(ui_btn_od_bypass, LV_STATE_CHECKED);
     else
@@ -341,6 +356,9 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const overdrive_attr &s
 
 void lcd_view::set_effect_attr(const effect_attr &basic, const cabinet_sim_attr &specific)
 {
+    if (ui_fx_cabinet_sim == NULL)
+        return;
+
     if (basic.bypassed)
         lv_obj_clear_state(ui_btn_cab_sim_bypass, LV_STATE_CHECKED);
     else
@@ -357,6 +375,9 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const cabinet_sim_attr 
 
 void lcd_view::set_effect_attr(const effect_attr &basic, const vocoder_attr &specific)
 {
+    if (ui_fx_vocoder == NULL)
+        return;
+
     if (basic.bypassed)
         lv_obj_clear_state(ui_btn_voc_bypass, LV_STATE_CHECKED);
     else
@@ -398,6 +419,9 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const vocoder_attr &spe
 
 void lcd_view::set_effect_attr(const effect_attr &basic, const phaser_attr &specific)
 {
+    if (ui_fx_phaser == NULL)
+        return;
+
     if (basic.bypassed)
         lv_obj_clear_state(ui_btn_pha_bypass, LV_STATE_CHECKED);
     else
