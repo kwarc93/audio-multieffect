@@ -211,6 +211,14 @@ void lcd_view::event_handler(const events::set_effect_attributes &e)
     std::visit([this, &e](auto &&specific) { this->set_effect_attr(e.basic, specific); }, e.specific);
 }
 
+void lcd_view::event_handler(const lcd_view_events::update_effects_list &e)
+{
+    if (ui_settings == nullptr)
+        return;
+
+    ui_settings_update_effects_list(reinterpret_cast<const std::underlying_type_t<effect_id>*>(e.effects.data()), e.count);
+}
+
 void lcd_view::event_handler(const events::update_dsp_load &e)
 {
     if (ui_lbl_sett_cpu_load != nullptr)

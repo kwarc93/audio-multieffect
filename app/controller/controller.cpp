@@ -208,15 +208,10 @@ void controller::view_event_handler(const lcd_view_events::load_preset &e)
 
     printf("Loading preset: '%s'...\r\n", preset_name);
 
-    /* Mute whole operation */
     this->model->send({effect_processor_events::set_mute {true}});
 
-    /* Remove existing effects */
     for (auto id : this->active_effects)
-    {
         this->model->send({effect_processor_events::remove_effect {id}});
-        // TODO: Notify view to update menu list of effects
-    }
 
     this->active_effects.clear();
 
@@ -234,12 +229,16 @@ void controller::view_event_handler(const lcd_view_events::load_preset &e)
 
     printf("Preset loading %s\r\n", result ? "successful" : "failed");
 
-    /* Show screen of the first effect in preset */
     this->current_effect = this->active_effects.at(0);
+
+    lcd_view_events::update_effects_list evt;
+    evt.count = this->active_effects.size();
+    std::copy_n(this->active_effects.begin(), this->active_effects.size(), evt.effects.begin());
+    this->view->send({evt});
+
     this->view->send({lcd_view_events::show_next_effect_screen {this->current_effect}});
     this->update_effect_attributes(this->current_effect);
 
-    /* Umnute */
     this->model->send({effect_processor_events::set_mute {false}});
 }
 

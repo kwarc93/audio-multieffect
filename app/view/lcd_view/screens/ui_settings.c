@@ -350,6 +350,37 @@ static void menu_remove_preset_handler(lv_event_t * e)
     ui_settings_remove_preset();
 }
 
+void ui_settings_update_effects_list(const uint8_t *effects, uint32_t count)
+{
+    /* Delete all items in the effects chain list */
+    uint32_t index = lv_obj_get_child_cnt(ui_list_sett_fx_chain);
+
+    while (index--)
+    {
+        lv_obj_t * fx = lv_obj_get_child(ui_list_sett_fx_chain, index);
+        lv_obj_del(fx);
+    }
+
+    ui_btn_sett_curr_fx = NULL;
+
+    /* Add all effects to the chain */
+    for (unsigned i = 0; i < count; i++)
+    {
+        index = lv_obj_get_child_cnt(ui_list_sett_fx_chain);
+
+        lv_obj_t * btn = lv_btn_create(ui_list_sett_fx_chain);
+        lv_obj_set_width(btn, LV_SIZE_CONTENT);
+        lv_obj_set_style_text_color(btn, lv_color_black(), LV_STATE_DEFAULT);
+        lv_obj_add_event_cb(btn, fx_chain_btn_handler, LV_EVENT_CLICKED, NULL);
+        lv_obj_add_state(btn, LV_STATE_CHECKED);
+        lv_obj_move_to_index(btn, index);
+        lv_obj_scroll_to_view(btn, LV_ANIM_ON);
+
+        lv_obj_t * lab = lv_label_create(btn);
+        lv_label_set_text(lab, ui_fx_names[effects[i]]);
+    }
+}
+
 void ui_settings_screen_init(void)
 {
     ui_settings = lv_obj_create(NULL);

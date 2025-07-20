@@ -32,6 +32,7 @@ extern lv_obj_t * ui_blank;
 extern lv_obj_t * ui_logo_gmfx;
 // SCREEN: ui_settings
 void ui_settings_screen_init(void);
+void ui_settings_update_effects_list(const uint8_t *effects, uint32_t count);
 void ui_event_settings(lv_event_t * e);
 extern lv_obj_t * ui_settings;
 extern lv_obj_t * ui_settings_parent_screen;

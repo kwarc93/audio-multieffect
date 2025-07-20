@@ -9,6 +9,7 @@
 #define GUI_HPP_
 
 #include <variant>
+#include <array>
 
 #include <hal_lcd.hpp>
 
@@ -169,6 +170,12 @@ struct set_effect_attributes
     effect_specific_attr specific;
 };
 
+struct update_effects_list
+{
+    std::size_t count;
+    std::array<effect_id, static_cast<std::size_t>(effect_id::_count)> effects;
+};
+
 struct update_dsp_load
 {
     uint8_t load_pct;
@@ -207,6 +214,7 @@ using incoming = std::variant
     show_next_effect_screen,
     show_prev_effect_screen,
     set_effect_attributes,
+    update_effects_list,
     update_dsp_load
 >;
 
@@ -230,6 +238,7 @@ private:
     void event_handler(const lcd_view_events::show_next_effect_screen &e);
     void event_handler(const lcd_view_events::show_prev_effect_screen &e);
     void event_handler(const lcd_view_events::set_effect_attributes &e);
+    void event_handler(const lcd_view_events::update_effects_list &e);
     void event_handler(const lcd_view_events::update_dsp_load &e);
 
     void set_effect_attr(const effect_attr &basic, const tremolo_attr &specific);
