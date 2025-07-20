@@ -444,7 +444,6 @@ settings {std::move(settings)},
 presets {std::move(presets)}
 {
     this->current_effect = effect_id::_count;
-
     this->send({events::initialize {}});
 }
 
