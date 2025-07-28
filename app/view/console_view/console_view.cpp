@@ -37,7 +37,7 @@ void console_view::character_received_callback(const std::byte *data, std::size_
 
     if (queue_was_empty)
     {
-        static const console_view::event e { events::char_queue_not_empty{}, console_view::event::flags::immutable };
+        static const console_view::event e { events::char_queue_not_empty{}, event::immutable };
         this->send(e, 0);
     }
 }

@@ -56,7 +56,7 @@ public:
 
     void transfer(transfer_desc &descriptor) override
     {
-        const event e {perform_transfer_evt_t {descriptor, osThreadGetId()}, event::flags::immutable};
+        const event e {perform_transfer_evt_t {descriptor, osThreadGetId()}, event::immutable};
 
         auto bytes_to_write = descriptor.tx_size;
         auto bytes_to_read = descriptor.rx_size;
@@ -84,7 +84,7 @@ public:
             }
         };
 
-        this->send(e);
+        this->send(std::move(e));
     }
 private:
 

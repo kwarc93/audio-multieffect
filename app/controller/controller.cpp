@@ -39,16 +39,14 @@ void controller::update(const effect_processor_events::outgoing &e)
 {
     /* WARNING: This method could have been called from another thread */
     /* Forward this event dispatching to the controller thread (to avoid race conditions) */
-    const controller::event evt {e};
-    this->send(evt);
+    this->send({e});
 }
 
 void controller::update(const lcd_view_events::outgoing &e)
 {
     /* WARNING: This method could have been called from another thread */
     /* Forward this event dispatching to the controller thread (to avoid race conditions) */
-    const controller::event evt {e};
-    this->send(evt);
+    this->send({e});
 }
 
 void controller::event_handler(const controller_events::initialize &e)
@@ -105,8 +103,7 @@ void controller::event_handler(const events::led_toggle &e)
 {
     this->led.set(!this->led.get());
 
-    const effect_processor::event evt {effect_processor_events::get_dsp_load {}};
-    this->model->send(evt);
+    this->model->send({effect_processor_events::get_dsp_load {}});
 }
 
 void controller::event_handler(const controller_events::button_debounce &e)
@@ -292,8 +289,7 @@ void controller::view_event_handler(const lcd_view_events::lcd_brightness_change
 
 void controller::view_event_handler(const lcd_view_events::input_volume_changed &e)
 {
-    const effect_processor::event evt {effect_processor_events::set_input_volume {e.main_input_vol, e.aux_input_vol}};
-    this->model->send(evt);
+    this->model->send({effect_processor_events::set_input_volume {e.main_input_vol, e.aux_input_vol}});
 
     this->settings->set_main_input_volume(e.main_input_vol);
     this->settings->set_aux_input_volume(e.aux_input_vol);
@@ -301,38 +297,33 @@ void controller::view_event_handler(const lcd_view_events::input_volume_changed 
 
 void controller::view_event_handler(const lcd_view_events::output_volume_changed &e)
 {
-    const effect_processor::event evt {effect_processor_events::set_output_volume {e.output_vol}};
-    this->model->send(evt);
+    this->model->send({effect_processor_events::set_output_volume {e.output_vol}});
 
     this->settings->set_output_volume(e.output_vol);
 }
 
 void controller::view_event_handler(const lcd_view_events::route_mic_to_aux_changed &e)
 {
-    const effect_processor::event evt {effect_processor_events::route_mic_to_aux {e.value}};
-    this->model->send(evt);
+    this->model->send({effect_processor_events::route_mic_to_aux {e.value}});
 
     this->settings->set_mic_routed_to_aux(e.value);
 }
 
 void controller::view_event_handler(const lcd_view_events::mute_changed &e)
 {
-    const effect_processor::event evt {effect_processor_events::set_mute {e.value}};
-    this->model->send(evt);
+    this->model->send({effect_processor_events::set_mute {e.value}});
 
     this->settings->set_output_muted(e.value);
 }
 
 void controller::view_event_handler(const lcd_view_events::effect_bypass_changed &e)
 {
-    const effect_processor::event evt {effect_processor_events::bypass_effect {e.id, e.bypassed}};
-    this->model->send(evt);
+    this->model->send({effect_processor_events::bypass_effect {e.id, e.bypassed}});
 }
 
 void controller::view_event_handler(const lcd_view_events::effect_controls_changed &e)
 {
-    effect_processor::event evt {effect_processor_events::set_effect_controls {e.ctrl}};
-    this->model->send(evt);
+    this->model->send({effect_processor_events::set_effect_controls {e.ctrl}});
 }
 
 void controller::view_event_handler(const lcd_view_events::add_effect_request &e)
@@ -405,8 +396,7 @@ void controller::model_event_handler(const effect_processor_events::output_volum
 
 void controller::model_event_handler(const effect_processor_events::effect_attributes_changed &e)
 {
-    lcd_view::event evt {lcd_view_events::set_effect_attributes {e.basic, e.specific}};
-    this->view->send(evt);
+    this->view->send({lcd_view_events::set_effect_attributes {e.basic, e.specific}});
 }
 
 void controller::model_event_handler(const effect_processor_events::effect_attributes_enumerated &e)
@@ -425,8 +415,7 @@ void controller::model_event_handler(const effect_processor_events::effect_attri
 
 void controller::update_effect_attributes(effect_id id)
 {
-    const effect_processor::event e {effect_processor_events::get_effect_attributes {id}};
-    this->model->send(e);
+    this->model->send({effect_processor_events::get_effect_attributes {id}});
 }
 
 //-----------------------------------------------------------------------------

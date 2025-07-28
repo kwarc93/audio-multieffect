@@ -58,11 +58,22 @@ public:
         this->thread = nullptr;
     }
 
-    void send(const event &e, uint32_t timeout = osWaitForever)
+    template <typename E = event>
+    void send(E &&e, uint32_t timeout = osWaitForever)
     {
         const event *evt = nullptr;
 
-        evt = (e.flags & event::flags::immutable) ? &e : new event(e);
+        if (e.flags & event::immutable)
+        {
+            /* rvalue must not be passed with immutable, it would cause dangling pointer */
+            assert(!std::is_rvalue_reference<E&&>::value);
+            evt = &e;
+        }
+        else
+        {
+            evt = new event(std::forward<E>(e));
+        }
+
         assert(evt != nullptr);
 
         osStatus_t status = osMessageQueuePut(this->queue, &evt, 0, timeout);
@@ -80,14 +91,14 @@ public:
             evt{data, flags}, timer{timer}, target{target} {}
         };
 
-        auto *timer_arg = new timer_context(e.data, (periodic ? event::flags::immutable | event::flags::periodic : 0), this, nullptr);
+        auto *timer_arg = new timer_context(e.data, (periodic ? event::immutable | event::periodic : 0), this, nullptr);
         assert(timer_arg != nullptr);
 
         auto timer_cb = [](void *arg)
                           {
                               timer_context *ctx = static_cast<timer_context*>(arg);
                               ctx->target->send(ctx->evt);
-                              if (!(ctx->evt.flags & event::flags::periodic))
+                              if (!(ctx->evt.flags & event::periodic))
                               {
                                   /* Delete one-shot timer and its argument */
                                   osStatus_t status = osTimerDelete(ctx->timer);
@@ -137,7 +148,7 @@ private:
             {
                 this_->dispatch(*evt);
 
-                if (!((*evt).flags & event::flags::immutable))
+                if (!((*evt).flags & event::immutable))
                     delete evt;
             }
         }
