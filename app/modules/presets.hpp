@@ -27,9 +27,13 @@ public:
 
     presets_manager(std::unique_ptr<presets_storage> ps);
 
+    void list(std::vector<std::string> &names);
     bool verify(std::string_view name);
+    bool rename(std::string_view old_name, std::string_view new_name);
     bool remove(std::string_view name);
     bool load(std::string_view name, effect_cb cb);
+
+    /* These three methods are used together to create a new preset */
     void create(std::string_view name);
     void add(mfx::effect_id id, const char *name, bool bypassed, const mfx::effect_controls &ctrl);
     bool save(void);

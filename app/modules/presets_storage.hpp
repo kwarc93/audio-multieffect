@@ -23,8 +23,10 @@ class presets_storage
 public:
     virtual ~presets_storage() = default;
 
+    virtual void list(std::vector<std::string> &names) = 0;
     virtual bool save(std::string_view name, const std::vector<std::uint8_t> &data) = 0;
     virtual bool load(std::string_view name, std::vector<std::uint8_t> &data) = 0;
+    virtual bool rename(std::string_view old_name, std::string_view new_name) = 0;
     virtual bool remove(std::string_view name) = 0;
 };
 
@@ -37,6 +39,30 @@ public:
     {
         auto fs = &middlewares::filesystem::lfs;
         lfs_mkdir(fs, this->dir.c_str());
+    }
+
+    void list(std::vector<std::string> &names)
+    {
+        auto fs = &middlewares::filesystem::lfs;
+
+        lfs_dir_t dir;
+        if (lfs_dir_open(fs, &dir, this->dir.c_str()) == LFS_ERR_OK)
+        {
+            lfs_info info;
+            while (lfs_dir_read(fs, &dir, &info) > 0)
+            {
+                if (info.type == LFS_TYPE_REG)
+                {
+                    std::string filename {info.name};
+                    size_t dot_pos = filename.find_last_of('.');
+                    if (dot_pos != std::string::npos)
+                        filename.erase(dot_pos);
+                    names.push_back(std::move(filename));
+                }
+            }
+
+            lfs_dir_close(fs, &dir);
+        }
     }
 
     bool save(std::string_view name, const std::vector<std::uint8_t> &data) override
@@ -79,6 +105,16 @@ public:
         }
 
         return result;
+    }
+
+    bool rename(std::string_view old_name, std::string_view new_name)
+    {
+        auto fs = &middlewares::filesystem::lfs;
+
+        const std::string old_path = this->dir + "/" + std::string(old_name);
+        const std::string new_path = this->dir + "/" + std::string(new_name);
+
+        return lfs_rename(fs, old_path.c_str(), new_path.c_str()) == LFS_ERR_OK;
     }
 
     bool remove(std::string_view name)

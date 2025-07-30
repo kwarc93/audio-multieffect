@@ -301,7 +301,7 @@ void ui_settings_save_preset(const char * name)
 
 void ui_settings_rename_preset(const char * old_name, const char * new_name)
 {
-
+    view->notify(events::rename_preset {old_name, new_name});
 }
 
 void ui_settings_remove_preset(const char * name)

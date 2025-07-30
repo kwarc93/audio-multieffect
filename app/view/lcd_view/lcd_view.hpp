@@ -66,6 +66,12 @@ struct save_preset
     std::string name;
 };
 
+struct rename_preset
+{
+    std::string old_name;
+    std::string new_name;
+};
+
 struct remove_preset
 {
     std::string name;
@@ -191,6 +197,7 @@ using outgoing = std::variant
     splash_loaded,
     load_preset,
     save_preset,
+    rename_preset,
     remove_preset,
     next_effect_screen_request,
     prev_effect_screen_request,

@@ -169,9 +169,9 @@ presets_manager::presets_manager(std::unique_ptr<presets_storage> ps) : storage(
 
 }
 
-bool presets_manager::remove(std::string_view name)
+void presets_manager::list(std::vector<std::string> &names)
 {
-    return this->storage->remove(std::string(name) + ".cbor");
+    this->storage->list(names);
 }
 
 bool presets_manager::verify(std::string_view name)
@@ -192,6 +192,16 @@ bool presets_manager::verify(std::string_view name)
     }
 
     return result;
+}
+
+bool presets_manager::remove(std::string_view name)
+{
+    return this->storage->remove(std::string(name) + ".cbor");
+}
+
+bool presets_manager::rename(std::string_view old_name, std::string_view new_name)
+{
+    return this->storage->rename(std::string(old_name) + ".cbor", std::string(new_name) + ".cbor");
 }
 
 bool presets_manager::load(std::string_view name, effect_cb cb)

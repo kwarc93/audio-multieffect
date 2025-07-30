@@ -97,6 +97,7 @@ private:
     void view_event_handler(const lcd_view_events::splash_loaded &e);
     void view_event_handler(const lcd_view_events::load_preset &e);
     void view_event_handler(const lcd_view_events::save_preset &e);
+    void view_event_handler(const lcd_view_events::rename_preset &e);
     void view_event_handler(const lcd_view_events::remove_preset &e);
     void view_event_handler(const lcd_view_events::next_effect_screen_request &e);
     void view_event_handler(const lcd_view_events::prev_effect_screen_request &e);

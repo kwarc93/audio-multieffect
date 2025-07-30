@@ -193,6 +193,12 @@ void controller::view_event_handler(const lcd_view_events::factory_reset &e)
 void controller::view_event_handler(const lcd_view_events::splash_loaded &e)
 {
     this->view->send({lcd_view_events::show_blank_screen {}});
+
+    /* Update available presets list */
+    std::vector<std::string> presets;
+    this->presets->list(presets);
+
+    this->view->send({lcd_view_events::update_presets_list {std::move(presets)}});
 }
 
 void controller::view_event_handler(const lcd_view_events::load_preset &e)
@@ -243,16 +249,26 @@ void controller::view_event_handler(const lcd_view_events::save_preset &e)
         return;
 
     const char *preset_name = e.name.c_str();
-    printf("Saving preset: '%s'...\r\n", preset_name);
+    printf("Saving preset '%s'...\r\n", preset_name);
 
     this->presets->create(preset_name);
     this->model->send({effect_processor_events::enumerate_effects_attributes {}});
 }
 
+void controller::view_event_handler(const lcd_view_events::rename_preset &e)
+{
+    const char *old_name = e.old_name.c_str();
+    const char *new_name = e.new_name.c_str();
+
+    bool result = this->presets->rename(old_name, new_name);
+    printf("Renaming preset ('%s' -> '%s') %s\r\n", old_name, new_name, result ? "successful" : "failed");
+}
+
 void controller::view_event_handler(const lcd_view_events::remove_preset &e)
 {
     const char *preset_name = e.name.c_str();
-    this->presets->remove(preset_name);
+    bool result = this->presets->remove(preset_name);
+    printf("Removing preset '%s' %s\r\n", preset_name, result ? "successful" : "failed");
 }
 
 void controller::view_event_handler(const lcd_view_events::next_effect_screen_request &e)
@@ -409,7 +425,7 @@ void controller::model_event_handler(const effect_processor_events::effect_attri
     if (e.last)
     {
         bool result = this->presets->save();
-        printf("Saving preset %s\r\n", result ? "successful" : "failed");
+        printf("Saving preset '%s'\r\n", result ? "successful" : "failed");
     }
 }
 

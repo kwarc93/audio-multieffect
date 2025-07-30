@@ -325,7 +325,7 @@ void ui_event_blank(lv_event_t * e)
 void ui_event_settings(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
-    if(event_code == LV_EVENT_GESTURE &&  lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_TOP) {
+    if(event_code == LV_EVENT_GESTURE && lv_indev_get_gesture_dir(lv_indev_get_act()) == LV_DIR_TOP) {
         lv_indev_wait_release(lv_indev_get_act());
         _ui_screen_change(&ui_settings_parent_screen, LV_SCR_LOAD_ANIM_MOVE_TOP, 250, 0, NULL);
     }
