@@ -266,9 +266,9 @@ void ui_settings_route_mic_to_aux(lv_event_t * e)
     view->notify(evt);
 }
 
-void ui_settings_add_effect(uint32_t id, uint32_t curr_id)
+void ui_settings_add_effect(uint32_t id)
 {
-    const events::add_effect_request evt {static_cast<mfx::effect_id>(id), static_cast<mfx::effect_id>(curr_id)};
+    const events::add_effect_request evt {static_cast<mfx::effect_id>(id)};
     view->notify(evt);
 }
 
@@ -289,19 +289,24 @@ void ui_settings_factory_reset(void)
     view->notify(events::factory_reset {});
 }
 
-void ui_settings_load_preset(void)
+void ui_settings_load_preset(const char * name)
 {
-    view->notify(events::load_preset {});
+    view->notify(events::load_preset {name});
 }
 
-void ui_settings_save_preset(void)
+void ui_settings_save_preset(const char * name)
 {
-    view->notify(events::save_preset {});
+    view->notify(events::save_preset {name});
 }
 
-void ui_settings_remove_preset(void)
+void ui_settings_rename_preset(const char * old_name, const char * new_name)
 {
-    view->notify(events::remove_preset {});
+
+}
+
+void ui_settings_remove_preset(const char * name)
+{
+    view->notify(events::remove_preset {name});
 }
 
 void ui_tremolo_bypass(lv_event_t * e)

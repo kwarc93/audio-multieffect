@@ -216,7 +216,21 @@ void lcd_view::event_handler(const lcd_view_events::update_effects_list &e)
     if (ui_settings == nullptr)
         return;
 
-    ui_settings_update_effects_list(reinterpret_cast<const std::underlying_type_t<effect_id>*>(e.effects.data()), e.count);
+    ui_settings_clear_effects_list();
+
+    for (auto id : e.effects)
+        ui_settings_update_effects_list(static_cast<std::underlying_type_t<effect_id>>(id));
+}
+
+void lcd_view::event_handler(const lcd_view_events::update_presets_list &e)
+{
+    if (ui_settings == nullptr)
+        return;
+
+    ui_settings_clear_presets_list();
+
+    for (auto name : e.presets)
+        ui_settings_update_presets_list(name.c_str());
 }
 
 void lcd_view::event_handler(const events::update_dsp_load &e)

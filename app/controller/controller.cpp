@@ -23,7 +23,7 @@ namespace events = controller_events;
 namespace
 {
 
-const char *preset_name = "recent";
+//const char *preset_name = "recent";
 
 }
 
@@ -197,6 +197,8 @@ void controller::view_event_handler(const lcd_view_events::splash_loaded &e)
 
 void controller::view_event_handler(const lcd_view_events::load_preset &e)
 {
+    const char *preset_name = e.name.c_str();
+
     if (!this->presets->verify(preset_name))
     {
         printf("Preset %s does not exist or is corrupted\r\n", preset_name);
@@ -228,11 +230,7 @@ void controller::view_event_handler(const lcd_view_events::load_preset &e)
 
     this->current_effect = this->active_effects.at(0);
 
-    lcd_view_events::update_effects_list evt;
-    evt.count = this->active_effects.size();
-    std::copy_n(this->active_effects.begin(), this->active_effects.size(), evt.effects.begin());
-    this->view->send({evt});
-
+    this->view->send({lcd_view_events::update_effects_list {this->active_effects}});
     this->view->send({lcd_view_events::show_next_effect_screen {this->current_effect}});
     this->update_effect_attributes(this->current_effect);
 
@@ -244,6 +242,7 @@ void controller::view_event_handler(const lcd_view_events::save_preset &e)
     if (this->active_effects.size() == 0)
         return;
 
+    const char *preset_name = e.name.c_str();
     printf("Saving preset: '%s'...\r\n", preset_name);
 
     this->presets->create(preset_name);
@@ -252,6 +251,7 @@ void controller::view_event_handler(const lcd_view_events::save_preset &e)
 
 void controller::view_event_handler(const lcd_view_events::remove_preset &e)
 {
+    const char *preset_name = e.name.c_str();
     this->presets->remove(preset_name);
 }
 

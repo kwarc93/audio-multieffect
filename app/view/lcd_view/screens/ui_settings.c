@@ -9,6 +9,19 @@
 #include <string.h>
 #include <stdbool.h>
 
+#ifndef GIT_REVISION
+#define GIT_REVISION "unknown"
+#endif
+
+//-----------------------------------------------------------------------------
+/* private */
+
+static const char * msgbox_btns[] = {"Yes", "No", ""};
+static const uint16_t msgbox_yes_btn_idx = 0;
+
+//-----------------------------------------------------------------------------
+/* menu handlers */
+
 static void menu_exit_handler(lv_event_t * e)
 {
     lv_obj_t * obj = lv_event_get_target(e);
@@ -84,6 +97,48 @@ static lv_obj_t * menu_create_switch(lv_obj_t * parent, const char * icon, const
     return obj;
 }
 
+static void list_btn_handler(lv_event_t * e)
+{
+    const lv_event_code_t code = lv_event_get_code(e);
+    lv_obj_t * obj = lv_event_get_target(e);
+    lv_obj_t ** selected_btn = (lv_obj_t **)e->user_data;
+
+    if (code == LV_EVENT_CLICKED)
+    {
+        (*selected_btn) = ((*selected_btn) == obj) ? NULL : obj;
+
+        lv_obj_t * parent = lv_obj_get_parent(obj);
+        for (unsigned i = 0; i < lv_obj_get_child_cnt(parent); i++)
+        {
+            lv_obj_t * child = lv_obj_get_child(parent, i);
+
+            if (child == (*selected_btn))
+                lv_obj_clear_state(child, LV_STATE_CHECKED);
+            else
+                lv_obj_add_state(child, LV_STATE_CHECKED);
+        }
+    }
+}
+
+static void add_btn_to_list(lv_obj_t * list, const char * text, lv_obj_t ** selected_btn)
+{
+    uint32_t index = lv_obj_get_child_cnt(list);
+
+    lv_obj_t * btn = lv_btn_create(list);
+    lv_obj_set_width(btn, LV_SIZE_CONTENT);
+    lv_obj_set_style_text_color(btn, lv_color_black(), LV_STATE_DEFAULT);
+    lv_obj_add_event_cb(btn, list_btn_handler, LV_EVENT_CLICKED, selected_btn);
+    lv_obj_add_state(btn, LV_STATE_CHECKED);
+    lv_obj_move_to_index(btn, index);
+    lv_obj_scroll_to_view(btn, LV_ANIM_ON);
+
+    lv_obj_t * lab = lv_label_create(btn);
+    lv_label_set_text(lab, text);
+}
+
+//-----------------------------------------------------------------------------
+/* effects handlers */
+
 static bool is_fx_name_in_chain(const char *name)
 {
     for (unsigned i = 0; i < lv_obj_get_child_cnt(ui_list_sett_fx_chain); i++)
@@ -107,31 +162,6 @@ static int fx_name_to_id(const char *name)
     return -1;
 }
 
-static void fx_chain_btn_handler(lv_event_t * e)
-{
-    const lv_event_code_t code = lv_event_get_code(e);
-    lv_obj_t * obj = lv_event_get_target(e);
-
-    if (code == LV_EVENT_CLICKED)
-    {
-        if (ui_btn_sett_curr_fx == obj)
-            ui_btn_sett_curr_fx = NULL;
-        else
-            ui_btn_sett_curr_fx = obj;
-
-        lv_obj_t * parent = lv_obj_get_parent(obj);
-        for (unsigned i = 0; i < lv_obj_get_child_cnt(parent); i++)
-        {
-            lv_obj_t * child = lv_obj_get_child(parent, i);
-
-            if (child == ui_btn_sett_curr_fx)
-                lv_obj_clear_state(child, LV_STATE_CHECKED);
-            else
-                lv_obj_add_state(child, LV_STATE_CHECKED);
-        }
-    }
-}
-
 static void fx_ops_back_handler(lv_event_t * e)
 {
     const lv_event_code_t code = lv_event_get_code(e);
@@ -150,24 +180,9 @@ static void fx_ops_add_fx_handler(lv_event_t * e)
 
     if (code == LV_EVENT_CLICKED)
     {
-        uint32_t index = lv_obj_get_child_cnt(ui_list_sett_fx_chain);
+        add_btn_to_list(ui_list_sett_fx_chain, lv_list_get_btn_text(ui_list_sett_fx_items, fx_item), &ui_btn_sett_curr_fx);
 
-        /* Add effect after selected one */
-//        if (ui_btn_sett_curr_fx != NULL)
-//            index = lv_obj_get_index(ui_btn_sett_curr_fx) + 1;
-
-        lv_obj_t * btn = lv_btn_create(ui_list_sett_fx_chain);
-        lv_obj_set_width(btn, LV_SIZE_CONTENT);
-        lv_obj_set_style_text_color(btn, lv_color_black(), LV_STATE_DEFAULT);
-        lv_obj_add_event_cb(btn, fx_chain_btn_handler, LV_EVENT_CLICKED, NULL);
-        lv_obj_add_state(btn, LV_STATE_CHECKED);
-        lv_obj_move_to_index(btn, index);
-        lv_obj_scroll_to_view(btn, LV_ANIM_ON);
-
-        lv_obj_t * lab = lv_label_create(btn);
-        lv_label_set_text(lab, lv_list_get_btn_text(ui_list_sett_fx_items, fx_item));
-
-        ui_settings_add_effect(lv_obj_get_index(fx_item) - 1, index - 1);
+        ui_settings_add_effect(lv_obj_get_index(fx_item) - 1);
 
         lv_obj_clear_flag(ui_list_sett_fx_ops, LV_OBJ_FLAG_HIDDEN);
         lv_obj_del(ui_list_sett_fx_items);
@@ -217,7 +232,7 @@ static void fx_ops_remove_handler(lv_event_t * e)
         if (ui_btn_sett_curr_fx == NULL)
             return;
 
-        int fx_id = fx_name_to_id(lv_label_get_text(lv_obj_get_child(ui_btn_sett_curr_fx, -1)));
+        int fx_id = fx_name_to_id(lv_list_get_btn_text(ui_list_sett_fx_chain, ui_btn_sett_curr_fx));
         if (fx_id >= 0)
             ui_settings_remove_effect(fx_id);
 
@@ -253,7 +268,7 @@ static void fx_ops_move_up_handler(lv_event_t * e)
         lv_obj_move_to_index(ui_btn_sett_curr_fx, index - 1);
         lv_obj_scroll_to_view(ui_btn_sett_curr_fx, LV_ANIM_ON);
 
-        int fx_id = fx_name_to_id(lv_label_get_text(lv_obj_get_child(ui_btn_sett_curr_fx, -1)));
+        int fx_id = fx_name_to_id(lv_list_get_btn_text(ui_list_sett_fx_chain, ui_btn_sett_curr_fx));
         if (fx_id >= 0)
             ui_settings_move_effect(fx_id, -1);
     }
@@ -272,7 +287,7 @@ static void fx_ops_move_down_handler(lv_event_t * e)
         lv_obj_move_to_index(ui_btn_sett_curr_fx, index + 1);
         lv_obj_scroll_to_view(ui_btn_sett_curr_fx, LV_ANIM_ON);
 
-        int fx_id = fx_name_to_id(lv_label_get_text(lv_obj_get_child(ui_btn_sett_curr_fx, -1)));
+        int fx_id = fx_name_to_id(lv_list_get_btn_text(ui_list_sett_fx_chain, ui_btn_sett_curr_fx));
         if (fx_id >= 0)
             ui_settings_move_effect(fx_id, 1);
     }
@@ -286,13 +301,13 @@ static void create_effects_management_lists(lv_obj_t * parent)
     ui_list_sett_fx_chain = lv_list_create(parent);
     lv_obj_add_flag(ui_list_sett_fx_chain, LV_OBJ_FLAG_IGNORE_LAYOUT);
     lv_obj_set_style_pad_row(ui_list_sett_fx_chain, 5, 0);
-    lv_obj_set_size(ui_list_sett_fx_chain, lv_pct(58), lv_pct(100));
+    lv_obj_set_size(ui_list_sett_fx_chain, lv_pct(60-1), lv_pct(100));
     lv_obj_align(ui_list_sett_fx_chain, LV_ALIGN_TOP_LEFT, 0, 0);
 
     /* Create a second list with buttons for various operations on effects chain */
     ui_list_sett_fx_ops = lv_list_create(parent);
     lv_obj_add_flag(ui_list_sett_fx_ops, LV_OBJ_FLAG_IGNORE_LAYOUT);
-    lv_obj_set_size(ui_list_sett_fx_ops, lv_pct(40), LV_SIZE_CONTENT);
+    lv_obj_set_size(ui_list_sett_fx_ops, lv_pct(40-1), LV_SIZE_CONTENT);
     lv_obj_align(ui_list_sett_fx_ops, LV_ALIGN_TOP_RIGHT, 0, 0);
 
     lv_obj_t * btn = lv_list_add_btn(ui_list_sett_fx_ops, LV_SYMBOL_PLUS, "Add...");
@@ -312,47 +327,211 @@ static void create_effects_management_lists(lv_obj_t * parent)
     lv_group_remove_obj(btn);
 }
 
-static void msgbox_factory_reset_handler(lv_event_t *e)
+//-----------------------------------------------------------------------------
+/* presets handlers */
+
+static void preset_ops_load_handler(lv_event_t * e)
+{
+    if (ui_btn_sett_curr_preset == NULL)
+        return;
+
+    const char * preset_name = lv_list_get_btn_text(ui_list_sett_avail_presets, ui_btn_sett_curr_preset);
+    ui_settings_load_preset(preset_name);
+}
+
+static void msgbox_preset_overwrite_handler(lv_event_t * e)
 {
     lv_obj_t *mbox = lv_event_get_current_target(e);
 
     uint16_t btn_idx = lv_msgbox_get_active_btn(mbox);
 
-    if (btn_idx == 0)
+    if (btn_idx == msgbox_yes_btn_idx)
     {
-        ui_settings_factory_reset();
+        const char * preset_name = lv_list_get_btn_text(ui_list_sett_avail_presets, ui_btn_sett_curr_preset);
+        ui_settings_save_preset(preset_name);
     }
+
+    lv_msgbox_close(mbox);
+}
+
+static void textarea_event_cb(lv_event_t * e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    lv_obj_t * ta = lv_event_get_target(e);
+
+    if (code == LV_EVENT_READY)
+    {
+        const char * text = lv_textarea_get_text(ta);
+        if (text && strlen(text) > 0)
+        {
+            if (ui_btn_sett_curr_preset)
+            {
+                /* Rename existing preset */
+                const char * old_text = lv_list_get_btn_text(ui_list_sett_avail_presets, ui_btn_sett_curr_preset);
+                ui_settings_rename_preset(old_text, text);
+                lv_label_set_text(lv_obj_get_child(ui_btn_sett_curr_preset, -1), text);
+            }
+            else
+            {
+                /* Save new preset */
+                ui_settings_save_preset(text);
+                add_btn_to_list(ui_list_sett_avail_presets, text, &ui_btn_sett_curr_preset);
+            }
+
+            lv_obj_t * background = lv_obj_get_parent(ta);
+            lv_obj_del(background);
+        }
+    }
+    else if (code == LV_EVENT_CANCEL)
+    {
+        lv_obj_t * background = lv_obj_get_parent(ta);
+        lv_obj_del(background);
+    }
+}
+
+static void show_keyboard_with_textarea(const char * placeholder_txt, const char * initial_txt)
+{
+    lv_obj_t * background;
+    background = lv_obj_create(lv_scr_act());
+    lv_obj_set_style_pad_all(background, 0, 0);
+
+    lv_obj_set_size(background, lv_pct(100), lv_pct(100));
+    lv_obj_set_style_bg_color(background, lv_color_black(), 0);
+    lv_obj_set_style_bg_opa(background, LV_OPA_50, 0);
+
+    lv_obj_t * kb = lv_keyboard_create(background);
+    lv_obj_t * ta = lv_textarea_create(background);
+    lv_textarea_set_one_line(ta, true);
+    //lv_textarea_set_max_length(ta, max_char_num);
+    //lv_textarea_set_accepted_chars(ta, "0123456789.+-");
+    lv_obj_align_to(ta, kb, LV_ALIGN_OUT_TOP_MID, 0, -5);
+    lv_obj_add_event_cb(ta, textarea_event_cb, LV_EVENT_ALL, kb);
+    lv_obj_add_state(ta, LV_STATE_FOCUSED);
+
+    if (placeholder_txt)
+        lv_textarea_set_placeholder_text(ta, placeholder_txt);
+
+    if (initial_txt)
+        lv_textarea_add_text(ta, initial_txt);
+
+    lv_keyboard_set_textarea(kb, ta);
+}
+
+static void preset_ops_save_handler(lv_event_t * e)
+{
+    if (ui_btn_sett_curr_preset)
+    {
+        /* Show a messagebox to confirm overwriting */
+        lv_obj_t * mbox = lv_msgbox_create(NULL, NULL, "Do you want to overwrite existing preset?", msgbox_btns, false);
+        lv_obj_add_event_cb(mbox, msgbox_preset_overwrite_handler, LV_EVENT_VALUE_CHANGED, NULL);
+        lv_obj_center(mbox);
+    }
+    else
+    {
+        /* Show a keyboard to enter new preset name */
+        show_keyboard_with_textarea("Enter preset name", NULL);
+    }
+}
+
+static void preset_ops_rename_handler(lv_event_t * e)
+{
+    if (ui_btn_sett_curr_preset == NULL)
+        return;
+
+    /* Show a keyboard to modify current preset name */
+    const char * preset_name = lv_list_get_btn_text(ui_list_sett_avail_presets, ui_btn_sett_curr_preset);
+    show_keyboard_with_textarea("Enter new preset name", preset_name);
+}
+
+static void msgbox_preset_remove_handler(lv_event_t * e)
+{
+    lv_obj_t *mbox = lv_event_get_current_target(e);
+
+    uint16_t btn_idx = lv_msgbox_get_active_btn(mbox);
+
+    if (btn_idx == msgbox_yes_btn_idx)
+    {
+        const char * preset_name = lv_list_get_btn_text(ui_list_sett_avail_presets, ui_btn_sett_curr_preset);
+        ui_settings_remove_preset(preset_name);
+        lv_obj_del(ui_btn_sett_curr_preset);
+        ui_btn_sett_curr_preset = NULL;
+    }
+
+    lv_msgbox_close(mbox);
+}
+
+static void preset_ops_remove_handler(lv_event_t * e)
+{
+    if (ui_btn_sett_curr_preset == NULL)
+        return;
+
+    /* Show a messagebox to confirm removal */
+    lv_obj_t * mbox = lv_msgbox_create(NULL, NULL, "Do you want to remove preset?", msgbox_btns, false);
+    lv_obj_add_event_cb(mbox, msgbox_preset_remove_handler, LV_EVENT_VALUE_CHANGED, NULL);
+    lv_obj_center(mbox);
+}
+
+static void create_presets_management_lists(lv_obj_t * parent)
+{
+    ui_btn_sett_curr_preset = NULL;
+
+    /* Create a list of available presets */
+    ui_list_sett_avail_presets = lv_list_create(parent);
+    lv_obj_add_flag(ui_list_sett_avail_presets, LV_OBJ_FLAG_IGNORE_LAYOUT);
+    lv_obj_set_style_pad_row(ui_list_sett_avail_presets, 5, 0);
+    lv_obj_set_size(ui_list_sett_avail_presets, lv_pct(60-1), lv_pct(100));
+    lv_obj_align(ui_list_sett_avail_presets, LV_ALIGN_TOP_LEFT, 0, 0);
+
+    /* Create a second list with buttons for various operations on presets */
+    ui_list_sett_presets_ops = lv_list_create(parent);
+    lv_obj_add_flag(ui_list_sett_presets_ops, LV_OBJ_FLAG_IGNORE_LAYOUT);
+    lv_obj_set_size(ui_list_sett_presets_ops, lv_pct(40-1), LV_SIZE_CONTENT);
+    lv_obj_align(ui_list_sett_presets_ops, LV_ALIGN_TOP_RIGHT, 0, 0);
+
+    lv_obj_t * btn = lv_list_add_btn(ui_list_sett_presets_ops, LV_SYMBOL_FILE, "Load");
+    lv_obj_add_event_cb(btn, preset_ops_load_handler, LV_EVENT_CLICKED, NULL);
+    lv_group_remove_obj(btn);
+
+    btn = lv_list_add_btn(ui_list_sett_presets_ops, LV_SYMBOL_SAVE, "Save");
+    lv_obj_add_event_cb(btn, preset_ops_save_handler, LV_EVENT_CLICKED, NULL);
+    lv_group_remove_obj(btn);
+
+    btn = lv_list_add_btn(ui_list_sett_presets_ops, LV_SYMBOL_EDIT, "Rename");
+    lv_obj_add_event_cb(btn, preset_ops_rename_handler, LV_EVENT_CLICKED, NULL);
+    lv_group_remove_obj(btn);
+
+    btn = lv_list_add_btn(ui_list_sett_presets_ops, LV_SYMBOL_TRASH, "Remove");
+    lv_obj_add_event_cb(btn, preset_ops_remove_handler, LV_EVENT_CLICKED, NULL);
+    lv_group_remove_obj(btn);
+}
+
+//-----------------------------------------------------------------------------
+/* factory reset handlers */
+
+static void msgbox_factory_reset_handler(lv_event_t * e)
+{
+    lv_obj_t *mbox = lv_event_get_current_target(e);
+
+    uint16_t btn_idx = lv_msgbox_get_active_btn(mbox);
+
+    if (btn_idx == msgbox_yes_btn_idx)
+        ui_settings_factory_reset();
 
     lv_msgbox_close(mbox);
 }
 
 static void menu_factory_reset_handler(lv_event_t * e)
 {
-    static const char * btns[] = {"Yes", "No", ""};
-
-    lv_obj_t * mbox = lv_msgbox_create(NULL, NULL, "Do you want to reset device to a factory state?", btns, false);
+    lv_obj_t * mbox = lv_msgbox_create(NULL, NULL, "Do you want to reset device to a factory state?", msgbox_btns, false);
     lv_obj_add_event_cb(mbox, msgbox_factory_reset_handler, LV_EVENT_VALUE_CHANGED, NULL);
     lv_obj_center(mbox);
 }
 
-static void menu_load_preset_handler(lv_event_t * e)
-{
-    ui_settings_load_preset();
-}
+//-----------------------------------------------------------------------------
+/* public */
 
-static void menu_save_preset_handler(lv_event_t * e)
+void ui_settings_clear_effects_list(void)
 {
-    ui_settings_save_preset();
-}
-
-static void menu_remove_preset_handler(lv_event_t * e)
-{
-    ui_settings_remove_preset();
-}
-
-void ui_settings_update_effects_list(const uint8_t *effects, uint32_t count)
-{
-    /* Delete all items in the effects chain list */
     uint32_t index = lv_obj_get_child_cnt(ui_list_sett_fx_chain);
 
     while (index--)
@@ -362,23 +541,29 @@ void ui_settings_update_effects_list(const uint8_t *effects, uint32_t count)
     }
 
     ui_btn_sett_curr_fx = NULL;
+}
 
-    /* Add all effects to the chain */
-    for (unsigned i = 0; i < count; i++)
+void ui_settings_clear_presets_list(void)
+{
+    uint32_t index = lv_obj_get_child_cnt(ui_list_sett_avail_presets);
+
+    while (index--)
     {
-        index = lv_obj_get_child_cnt(ui_list_sett_fx_chain);
-
-        lv_obj_t * btn = lv_btn_create(ui_list_sett_fx_chain);
-        lv_obj_set_width(btn, LV_SIZE_CONTENT);
-        lv_obj_set_style_text_color(btn, lv_color_black(), LV_STATE_DEFAULT);
-        lv_obj_add_event_cb(btn, fx_chain_btn_handler, LV_EVENT_CLICKED, NULL);
-        lv_obj_add_state(btn, LV_STATE_CHECKED);
-        lv_obj_move_to_index(btn, index);
-        lv_obj_scroll_to_view(btn, LV_ANIM_ON);
-
-        lv_obj_t * lab = lv_label_create(btn);
-        lv_label_set_text(lab, ui_fx_names[effects[i]]);
+        lv_obj_t * fx = lv_obj_get_child(ui_list_sett_avail_presets, index);
+        lv_obj_del(fx);
     }
+
+    ui_btn_sett_curr_preset = NULL;
+}
+
+void ui_settings_update_presets_list(const char * preset_name)
+{
+    add_btn_to_list(ui_list_sett_avail_presets, preset_name, &ui_btn_sett_curr_preset);
+}
+
+void ui_settings_update_effects_list(uint8_t effect_id)
+{
+    add_btn_to_list(ui_list_sett_fx_chain, ui_fx_names[effect_id], &ui_btn_sett_curr_fx);
 }
 
 void ui_settings_screen_init(void)
@@ -432,13 +617,11 @@ void ui_settings_screen_init(void)
 
     lv_obj_t * sub_presets_page = lv_menu_page_create(menu, "Presets");
     lv_obj_set_style_pad_hor(sub_presets_page, menu_pad_hor, 0);
-    section = lv_menu_section_create(sub_presets_page);
-    cont = menu_create_text(section, NULL, "Load");
-    lv_obj_add_event_cb(cont, menu_load_preset_handler, LV_EVENT_CLICKED, NULL);
-    cont = menu_create_text(section, NULL, "Save");
-    lv_obj_add_event_cb(cont, menu_save_preset_handler, LV_EVENT_CLICKED, NULL);
-    cont = menu_create_text(section, NULL, "Remove");
-    lv_obj_add_event_cb(cont, menu_remove_preset_handler, LV_EVENT_CLICKED, NULL);
+    cont = lv_menu_cont_create(sub_presets_page);
+    lv_obj_set_style_pad_top(cont, 0, 0);
+    lv_obj_set_style_pad_hor(cont, 0, 0);
+    lv_obj_set_size(cont, lv_pct(100), lv_pct(100));
+    create_presets_management_lists(cont);
 
     lv_obj_t * sub_display_page = lv_menu_page_create(menu, "Display");
     lv_obj_set_style_pad_hor(sub_display_page, menu_pad_hor, 0);

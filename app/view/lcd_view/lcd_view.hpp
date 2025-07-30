@@ -9,7 +9,8 @@
 #define GUI_HPP_
 
 #include <variant>
-#include <array>
+#include <vector>
+#include <string>
 
 #include <hal_lcd.hpp>
 
@@ -57,17 +58,17 @@ struct factory_reset
 
 struct load_preset
 {
-
+    std::string name;
 };
 
 struct save_preset
 {
-
+    std::string name;
 };
 
 struct remove_preset
 {
-
+    std::string name;
 };
 
 struct show_splash_screen
@@ -150,7 +151,6 @@ struct effect_controls_changed
 struct add_effect_request
 {
     effect_id id;
-    effect_id curr_id;
 };
 
 struct remove_effect_request
@@ -172,8 +172,12 @@ struct set_effect_attributes
 
 struct update_effects_list
 {
-    std::size_t count;
-    std::array<effect_id, static_cast<std::size_t>(effect_id::_count)> effects;
+    std::vector<effect_id> effects;
+};
+
+struct update_presets_list
+{
+    std::vector<std::string> presets;
 };
 
 struct update_dsp_load
@@ -215,6 +219,7 @@ using incoming = std::variant
     show_prev_effect_screen,
     set_effect_attributes,
     update_effects_list,
+    update_presets_list,
     update_dsp_load
 >;
 
@@ -239,6 +244,7 @@ private:
     void event_handler(const lcd_view_events::show_prev_effect_screen &e);
     void event_handler(const lcd_view_events::set_effect_attributes &e);
     void event_handler(const lcd_view_events::update_effects_list &e);
+    void event_handler(const lcd_view_events::update_presets_list &e);
     void event_handler(const lcd_view_events::update_dsp_load &e);
 
     void set_effect_attr(const effect_attr &basic, const tremolo_attr &specific);
