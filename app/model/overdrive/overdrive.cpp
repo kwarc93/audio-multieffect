@@ -53,14 +53,16 @@ float overdrive::soft_clip(float in)
 /* public */
 
 
-overdrive::overdrive(float low, float high, float gain, float mix, overdrive_attr::controls::mode_type mode) : effect { effect_id::overdrive },
+overdrive::overdrive() : effect { effect_id::overdrive },
 attr {}
 {
-    this->set_mode(mode);
-    this->set_low(low);
-    this->set_high(high);
-    this->set_gain(gain);
-    this->set_mix(mix);
+    const auto& def = overdrive_attr::default_ctrl;
+
+    this->set_mode(def.mode);
+    this->set_low(def.low);
+    this->set_high(def.high);
+    this->set_gain(def.gain);
+    this->set_mix(def.mix);
 }
 
 overdrive::~overdrive()

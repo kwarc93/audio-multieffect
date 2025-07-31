@@ -11,6 +11,7 @@
 
 #include <array>
 #include <algorithm>
+#include <malloc.h>
 
 #include <hal_system.hpp>
 
@@ -22,8 +23,6 @@ namespace events = controller_events;
 
 namespace
 {
-
-//const char *preset_name = "recent";
 
 }
 
@@ -137,6 +136,9 @@ void controller::event_handler(const events::button_state_changed &e)
     if (e.state == events::button_state_changed::state::pressed)
     {
         printf("Button: <pressed>\r\n");
+
+        struct mallinfo mi = mallinfo();
+        printf("Heap used: %d bytes\r\n", mi.uordblks);
     }
     else if (e.state == events::button_state_changed::state::released)
     {

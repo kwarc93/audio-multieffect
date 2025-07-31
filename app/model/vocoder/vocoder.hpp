@@ -21,8 +21,8 @@ namespace mfx
 class vocoder : public effect
 {
 public:
-    vocoder (float clarity = 0.8f,float tone = 0.2f, unsigned bands = 64, vocoder_attr::controls::mode_type mode = vocoder_attr::controls::mode_type::modern);
-    virtual ~vocoder ();
+    vocoder();
+    virtual ~vocoder();
 
     void process(const dsp_input &in, dsp_output &out) override;
     const effect_specific_attr get_specific_attributes(void) const override;

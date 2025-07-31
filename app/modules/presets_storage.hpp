@@ -51,9 +51,13 @@ public:
             lfs_info info;
             while (lfs_dir_read(fs, &dir, &info) > 0)
             {
+                std::string filename {info.name};
+
+                if (filename == "." || filename == "..")
+                    continue;
+
                 if (info.type == LFS_TYPE_REG)
                 {
-                    std::string filename {info.name};
                     size_t dot_pos = filename.find_last_of('.');
                     if (dot_pos != std::string::npos)
                         filename.erase(dot_pos);
@@ -70,7 +74,7 @@ public:
         bool result = false;
         auto fs = &middlewares::filesystem::lfs;
 
-        const std::string path = this->dir + "/" + std::string(name);
+        const std::string path {get_full_path(name)};
 
         lfs_file_t file;
         if (lfs_file_open(fs, &file, path.c_str(), LFS_O_WRONLY | LFS_O_CREAT | LFS_O_TRUNC) == LFS_ERR_OK)
@@ -90,7 +94,7 @@ public:
 
         data.clear();
 
-        const std::string path = this->dir + "/" + std::string(name);
+        const std::string path {get_full_path(name)};
 
         lfs_file_t file;
         if (lfs_file_open(fs, &file, path.c_str(), LFS_O_RDONLY) == LFS_ERR_OK)
@@ -111,8 +115,8 @@ public:
     {
         auto fs = &middlewares::filesystem::lfs;
 
-        const std::string old_path = this->dir + "/" + std::string(old_name);
-        const std::string new_path = this->dir + "/" + std::string(new_name);
+        const std::string old_path {get_full_path(old_name)};
+        const std::string new_path {get_full_path(new_name)};
 
         return lfs_rename(fs, old_path.c_str(), new_path.c_str()) == LFS_ERR_OK;
     }
@@ -121,11 +125,16 @@ public:
     {
         auto fs = &middlewares::filesystem::lfs;
 
-        const std::string path = this->dir + "/" + std::string(name);
+        const std::string path {get_full_path(name)};
 
         return lfs_remove(fs, path.c_str()) == LFS_ERR_OK;
     }
 private:
+    std::string get_full_path(std::string_view name) const
+    {
+        return this->dir + "/" + std::string(name);
+    }
+
     std::string dir;
 };
 

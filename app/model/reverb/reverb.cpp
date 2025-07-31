@@ -85,7 +85,7 @@ std::array<float, static_cast<uint32_t>(del4_len * config::sampling_frequency_hz
 /* public */
 
 
-reverb::reverb(float bandwidth, float damping, float decay, reverb_attr::controls::mode_type mode) : effect { effect_id::reverb },
+reverb::reverb() : effect { effect_id::reverb },
 pdel { pdel_line_memory.data(), pdel_line_memory.size(), config::sampling_frequency_hz },
 del1 { del1_line_memory.data(), del1_line_memory.size(), config::sampling_frequency_hz },
 del2 { del2_line_memory.data(), del2_line_memory.size(), config::sampling_frequency_hz },
@@ -104,14 +104,16 @@ lfo2 { libs::adsp::oscillator::shape::cosine, 0.95f * mapf_rate, config::samplin
 mix { 0.35f },
 attr {}
 {
+    const auto& def = reverb_attr::default_ctrl;
+
     this->pdel.set_delay(0.006f);
     this->mapf1.set_delay(mapf1_del_len);
     this->mapf2.set_delay(mapf2_del_len);
 
-    this->set_bandwidth(bandwidth);
-    this->set_damping(damping);
-    this->set_decay(decay);
-    this->set_mode(mode);
+    this->set_bandwidth(def.bandwidth);
+    this->set_damping(def.damping);
+    this->set_decay(def.decay);
+    this->set_mode(def.mode);
 }
 
 reverb::~reverb()

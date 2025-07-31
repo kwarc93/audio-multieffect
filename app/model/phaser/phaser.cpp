@@ -34,14 +34,16 @@ float phaser::calc_apf_coeff(float fc, float fs)
 //-----------------------------------------------------------------------------
 /* public */
 
-phaser::phaser(float rate, float depth, phaser_attr::controls::contour_mode contour) : effect { effect_id::phaser },
+phaser::phaser() : effect { effect_id::phaser },
 apf_feedback {0},
-lfo { libs::adsp::oscillator::shape::sine, rate, config::sampling_frequency_hz },
+lfo { libs::adsp::oscillator::shape::sine, phaser_attr::default_ctrl.rate, config::sampling_frequency_hz },
 attr {}
 {
-    this->set_rate(rate);
-    this->set_depth(depth);
-    this->set_contour(contour);
+    const auto& def = phaser_attr::default_ctrl;
+
+    this->set_rate(def.rate);
+    this->set_depth(def.depth);
+    this->set_contour(def.contour);
 }
 
 phaser::~phaser()

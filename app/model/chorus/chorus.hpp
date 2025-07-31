@@ -18,7 +18,7 @@ namespace mfx
 class chorus : public effect
 {
 public:
-    chorus(float depth = 0.4f, float rate = 0.3f, float tone = 0.5f, float mix = 0.5f);
+    chorus();
     virtual ~chorus();
 
     void process(const dsp_input &in, dsp_output &out) override;

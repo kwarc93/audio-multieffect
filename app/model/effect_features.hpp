@@ -64,6 +64,13 @@ struct tremolo_attr
         float depth; // Effect depth, range: [0, 0.5]
         enum class shape_type {sine, square} shape; // LFO shape
     } ctrl;
+
+    static constexpr controls default_ctrl
+    {
+        8.0f, // rate
+        0.3f, // depth
+        controls::shape_type::sine // shape
+    };
 };
 
 struct echo_attr
@@ -75,6 +82,14 @@ struct echo_attr
         float feedback; // Feedback, range: [0, 0.9]
         enum class mode_type {delay, echo} mode; // Mode of effect
     } ctrl;
+
+    static constexpr controls default_ctrl
+    {
+        0.5f, // blur
+        0.3f, // time
+        0.6f, // feedback
+        controls::mode_type::echo // mode
+    };
 };
 
 struct chorus_attr
@@ -87,6 +102,15 @@ struct chorus_attr
         float mix; // Wet/dry mix, range: [0, 1.0]
         enum class mode_type {white, deep} mode; // Mode of effect
     } ctrl;
+
+    static constexpr controls default_ctrl
+    {
+        0.4f, // depth
+        0.3f, // rate
+        0.5f, // tone
+        0.5f, // mix
+        controls::mode_type::white // mode
+    };
 };
 
 struct reverb_attr
@@ -98,6 +122,14 @@ struct reverb_attr
         float decay; // Reverb time, range: [0, 0.99]
         enum class mode_type {plate, mod} mode; // Mode of effect
     } ctrl;
+
+    static constexpr controls default_ctrl
+    {
+        0.9995f, // bandwidth
+        0.0005f, // damping
+        0.5f, // decay
+        controls::mode_type::plate // mode
+    };
 };
 
 struct overdrive_attr
@@ -110,6 +142,15 @@ struct overdrive_attr
         float mix; // Wet/dry mix, range: [0, 1.0]
         enum class mode_type {soft, hard} mode; // Clip mode
     } ctrl;
+
+    static constexpr controls default_ctrl
+    {
+        0.5f, // low
+        80.0f, // gain
+        0.5f, // high
+        0.5f, // mix
+        controls::mode_type::soft // mode
+    };
 };
 
 struct cabinet_sim_attr
@@ -119,6 +160,12 @@ struct cabinet_sim_attr
         uint8_t ir_idx; // Currently selected IR index
         enum class resolution {standart = 1024, high = 2048} ir_res; // IR resolution in samples
     } ctrl;
+
+    static constexpr controls default_ctrl
+    {
+        0, // ir_idx
+        controls::resolution::standart // ir_res
+    };
 
     std::array<const char *, 3> ir_names; // List of available impulses
 };
@@ -134,6 +181,15 @@ struct vocoder_attr
         enum class mode_type {vintage, modern} mode; // Vocoder type, IIR bandpass filters or FFT
     } ctrl;
 
+    static constexpr controls default_ctrl
+    {
+        64, // bands
+        0.8f, // clarity
+        0.2f, // tone
+        false, // hold
+        controls::mode_type::modern // mode
+    };
+
     std::array<unsigned, 8> bands_list; // List of available bands
 };
 
@@ -145,6 +201,13 @@ struct phaser_attr
         float depth; // LFO modulation depth, range: [0, 1]
         enum class contour_mode {off, on} contour; // Contour enabled/disabled
     } ctrl;
+
+    static constexpr controls default_ctrl
+    {
+        0.25f, // rate
+        0.7f, // depth
+        controls::contour_mode::on // contour
+    };
 };
 
 typedef std::variant

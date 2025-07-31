@@ -36,18 +36,20 @@ std::array<float, static_cast<unsigned>(2 * delay_line2_tap_samples)> delay_line
 /* public */
 
 
-chorus::chorus(float depth, float rate, float tone, float mix) : effect { effect_id::chorus },
+chorus::chorus() : effect { effect_id::chorus },
 lfo1 { libs::adsp::oscillator::shape::sine, 0.2f, config::sampling_frequency_hz },
 lfo2 { libs::adsp::oscillator::shape::cosine, 0.2f, config::sampling_frequency_hz },
 unicomb1 { 0.7f, -0.7f, 1, delay_line1_memory.data(), delay_line1_memory.size(), config::sampling_frequency_hz},
 unicomb2 { 0, 0, 1, delay_line2_memory.data(), delay_line2_memory.size(), config::sampling_frequency_hz},
 attr {}
 {
-    this->set_depth(depth);
-    this->set_rate(rate);
-    this->set_tone(tone);
-    this->set_mix(mix);
-    this->set_mode(chorus_attr::controls::mode_type::white);
+    const auto& def = chorus_attr::default_ctrl;
+
+    this->set_depth(def.depth);
+    this->set_rate(def.rate);
+    this->set_tone(def.tone);
+    this->set_mix(def.mix);
+    this->set_mode(def.mode);
 }
 
 chorus::~chorus()

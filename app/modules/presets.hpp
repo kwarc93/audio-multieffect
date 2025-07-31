@@ -39,6 +39,8 @@ public:
     bool save(void);
 
 private:
+    std::string append_extension(std::string_view name) const;
+
     nlohmann::json tmp;
     std::unique_ptr<presets_storage> storage;
 };

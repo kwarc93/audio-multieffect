@@ -35,7 +35,7 @@ constexpr std::array<std::pair<const char*, const ir_t*>, 3> ir_map
 cabinet_sim::cabinet_sim() : effect { effect_id::cabinet_sim },
 attr {}
 {
-    this->attr.ctrl.ir_idx = 0;
+    this->attr.ctrl.ir_idx = cabinet_sim_attr::default_ctrl.ir_idx;
     this->fast_conv.set_ir(ir_map.at(0).second->data());
 
     //this->attr.ir_names.reserve(ir_map.size());

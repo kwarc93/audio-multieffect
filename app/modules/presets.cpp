@@ -23,9 +23,10 @@ namespace mfx
 // tremolo
 void from_json(const json& j, tremolo_attr::controls& c)
 {
-    c.rate = j.value("rate", 5.0f);
-    c.depth = j.value("depth", 0.2f);
-    c.shape = j.value("shape", tremolo_attr::controls::shape_type::sine);
+    const auto& def = tremolo_attr::default_ctrl;
+    c.rate = j.value("rate", def.rate);
+    c.depth = j.value("depth", def.depth);
+    c.shape = j.value("shape", def.shape);
 }
 
 void to_json(json& j, const tremolo_attr::controls& c)
@@ -36,10 +37,11 @@ void to_json(json& j, const tremolo_attr::controls& c)
 // echo
 void from_json(const json& j, echo_attr::controls& c)
 {
-    c.blur = j.value("blur", 0.5f);
-    c.time = j.value("time", 0.5f);
-    c.feedback = j.value("feedback", 0.5f);
-    c.mode = j.value("mode", echo_attr::controls::mode_type::delay);
+    const auto& def = echo_attr::default_ctrl;
+    c.blur = j.value("blur", def.blur);
+    c.time = j.value("time", def.time);
+    c.feedback = j.value("feedback", def.feedback);
+    c.mode = j.value("mode", def.mode);
 }
 
 void to_json(json& j, const echo_attr::controls& c)
@@ -50,11 +52,12 @@ void to_json(json& j, const echo_attr::controls& c)
 // chorus
 void from_json(const json& j, chorus_attr::controls& c)
 {
-    c.depth = j.value("depth", 0.5f);
-    c.rate = j.value("rate", 0.5f);
-    c.tone = j.value("tone", 0.5f);
-    c.mix = j.value("mix", 0.5f);
-    c.mode = j.value("mode", chorus_attr::controls::mode_type::white);
+    const auto& def = chorus_attr::default_ctrl;
+    c.depth = j.value("depth", def.depth);
+    c.rate = j.value("rate", def.rate);
+    c.tone = j.value("tone", def.tone);
+    c.mix = j.value("mix", def.mix);
+    c.mode = j.value("mode", def.mode);
 }
 
 void to_json(json& j, const chorus_attr::controls& c)
@@ -65,10 +68,11 @@ void to_json(json& j, const chorus_attr::controls& c)
 // reverb
 void from_json(const json& j, reverb_attr::controls& c)
 {
-    c.bandwidth = j.value("bandwidth", 0.99f);
-    c.damping = j.value("damping", 0.01f);
-    c.decay = j.value("decay", 0.5f);
-    c.mode = j.value("mode", reverb_attr::controls::mode_type::plate);
+    const auto& def = reverb_attr::default_ctrl;
+    c.bandwidth = j.value("bandwidth", def.bandwidth);
+    c.damping = j.value("damping", def.damping);
+    c.decay = j.value("decay", def.decay);
+    c.mode = j.value("mode", def.mode);
 }
 
 void to_json(json& j, const reverb_attr::controls& c)
@@ -79,11 +83,12 @@ void to_json(json& j, const reverb_attr::controls& c)
 // overdrive
 void from_json(const json& j, overdrive_attr::controls& c)
 {
-    c.low = j.value("low", 0.0f);
-    c.gain = j.value("gain", 1.0f);
-    c.high = j.value("high", 1.0f);
-    c.mix = j.value("mix", 0.5f);
-    c.mode = j.value("mode", overdrive_attr::controls::mode_type::soft);
+    const auto& def = overdrive_attr::default_ctrl;
+    c.low = j.value("low", def.low);
+    c.gain = j.value("gain", def.gain);
+    c.high = j.value("high", def.high);
+    c.mix = j.value("mix", def.mix);
+    c.mode = j.value("mode", def.mode);
 }
 
 void to_json(json& j, const overdrive_attr::controls& c)
@@ -94,8 +99,9 @@ void to_json(json& j, const overdrive_attr::controls& c)
 // cabinet_sim
 void from_json(const json& j, cabinet_sim_attr::controls& c)
 {
-    c.ir_idx = j.value("ir_idx", 0);
-    c.ir_res = j.value("ir_res", cabinet_sim_attr::controls::resolution::standart);
+    const auto& def = cabinet_sim_attr::default_ctrl;
+    c.ir_idx = j.value("ir_idx", def.ir_idx);
+    c.ir_res = j.value("ir_res", def.ir_res);
 }
 
 void to_json(json& j, const cabinet_sim_attr::controls& c)
@@ -106,11 +112,12 @@ void to_json(json& j, const cabinet_sim_attr::controls& c)
 // vocoder
 void from_json(const json& j, vocoder_attr::controls& c)
 {
-    c.bands = j.value("bands", 12u);
-    c.clarity = j.value("clarity", 0.5f);
-    c.tone = j.value("tone", 0.5f);
-    c.hold = j.value("hold", false);
-    c.mode = j.value("mode", vocoder_attr::controls::mode_type::vintage);
+    const auto& def = vocoder_attr::default_ctrl;
+    c.bands = j.value("bands", def.bands);
+    c.clarity = j.value("clarity", def.clarity);
+    c.tone = j.value("tone", def.tone);
+    c.hold = j.value("hold", def.hold);
+    c.mode = j.value("mode", def.mode);
 }
 
 void to_json(json& j, const vocoder_attr::controls& c)
@@ -121,9 +128,10 @@ void to_json(json& j, const vocoder_attr::controls& c)
 // phaser
 void from_json(const json& j, phaser_attr::controls& c)
 {
-    c.rate = j.value("rate", 0.1f);
-    c.depth = j.value("depth", 0.5f);
-    c.contour = j.value("contour", phaser_attr::controls::contour_mode::off);
+    const auto& def = phaser_attr::default_ctrl;
+    c.rate = j.value("rate", def.rate);
+    c.depth = j.value("depth", def.depth);
+    c.contour = j.value("contour", def.contour);
 }
 
 void to_json(json& j, const phaser_attr::controls& c)
@@ -161,6 +169,11 @@ std::optional<effect_controls> get_controls(effect_id id, const json& ctrl_json)
 //-----------------------------------------------------------------------------
 /* private */
 
+std::string presets_manager::append_extension(std::string_view name) const
+{
+    return std::string(name) + ".cbor";
+}
+
 //-----------------------------------------------------------------------------
 /* public */
 
@@ -179,7 +192,7 @@ bool presets_manager::verify(std::string_view name)
     bool result = false;
     std::vector<uint8_t> data;
 
-    result = this->storage->load(std::string(name) + ".cbor", data);
+    result = this->storage->load(this->append_extension(name), data);
 
     if (result)
     {
@@ -196,12 +209,12 @@ bool presets_manager::verify(std::string_view name)
 
 bool presets_manager::remove(std::string_view name)
 {
-    return this->storage->remove(std::string(name) + ".cbor");
+    return this->storage->remove(this->append_extension(name));
 }
 
 bool presets_manager::rename(std::string_view old_name, std::string_view new_name)
 {
-    return this->storage->rename(std::string(old_name) + ".cbor", std::string(new_name) + ".cbor");
+    return this->storage->rename(this->append_extension(old_name), this->append_extension(new_name));
 }
 
 bool presets_manager::load(std::string_view name, effect_cb cb)
@@ -209,7 +222,7 @@ bool presets_manager::load(std::string_view name, effect_cb cb)
     bool result = false;
     std::vector<uint8_t> data;
 
-    result = this->storage->load(std::string(name) + ".cbor", data);
+    result = this->storage->load(this->append_extension(name), data);
     if (result)
     {
         /* Parse from CBOR without exceptions */
@@ -258,8 +271,7 @@ bool presets_manager::save(void)
     if (this->tmp.empty() || this->tmp["effects"].empty())
         return false;
 
-    bool result = this->storage->save(this->tmp["name"].get<std::string>() + ".cbor", json::to_cbor(this->tmp));
+    bool result = this->storage->save(this->append_extension(this->tmp["name"].get<std::string>()), json::to_cbor(this->tmp));
     this->tmp.clear();
     return result;
 }
-

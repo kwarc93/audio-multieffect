@@ -673,14 +673,16 @@ private:
 //-----------------------------------------------------------------------------
 /* public */
 
-vocoder::vocoder(float clarity, float tone, unsigned bands, vocoder_attr::controls::mode_type mode) : effect {effect_id::vocoder},
+vocoder::vocoder() : effect {effect_id::vocoder},
 vintage {std::make_unique<vintage_vocoder>(attr)}, modern {std::make_unique<modern_vocoder>(attr)}
 {
-    this->set_mode(mode);
-    this->hold(false);
-    this->set_tone(tone);
-    this->set_clarity(clarity);
-    this->set_bands(bands);
+    const auto& def = vocoder_attr::default_ctrl;
+
+    this->set_mode(def.mode);
+    this->hold(def.hold);
+    this->set_tone(def.tone);
+    this->set_clarity(def.clarity);
+    this->set_bands(def.bands);
 }
 
 vocoder::~vocoder()

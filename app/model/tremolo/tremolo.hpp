@@ -18,7 +18,7 @@ namespace mfx
 class tremolo : public effect
 {
 public:
-    tremolo(float rate = 8, float depth = 0.3f, tremolo_attr::controls::shape_type shape = tremolo_attr::controls::shape_type::sine);
+    tremolo();
     virtual ~tremolo();
 
     void process(const dsp_input &in, dsp_output &out) override;

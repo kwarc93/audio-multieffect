@@ -28,14 +28,16 @@ std::array<float, 1 * config::sampling_frequency_hz + 1> delay_line_memory; // M
 /* public */
 
 
-echo::echo(float blur, float time, float feedback, echo_attr::controls::mode_type mode) : effect { effect_id::echo },
+echo::echo() : effect { effect_id::echo },
 unicomb { 0, 0, 0, delay_line_memory.data(), delay_line_memory.size(), config::sampling_frequency_hz },
 attr {}
 {
-    this->set_mode(mode);
-    this->set_blur(blur);
-    this->set_time(time);
-    this->set_feedback(feedback);
+    const auto& def = echo_attr::default_ctrl;
+
+    this->set_mode(def.mode);
+    this->set_blur(def.blur);
+    this->set_time(def.time);
+    this->set_feedback(def.feedback);
 }
 
 echo::~echo()

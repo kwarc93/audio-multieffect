@@ -26,13 +26,15 @@ namespace
 //-----------------------------------------------------------------------------
 /* public */
 
-tremolo::tremolo(float rate, float depth, tremolo_attr::controls::shape_type shape) : effect { effect_id::tremolo },
-lfo { libs::adsp::oscillator::shape::sine, rate, config::sampling_frequency_hz },
+tremolo::tremolo() : effect { effect_id::tremolo },
+lfo { libs::adsp::oscillator::shape::sine, tremolo_attr::default_ctrl.rate, config::sampling_frequency_hz },
 attr {}
 {
-    this->set_shape(shape);
-    this->set_depth(depth);
-    this->set_rate(rate);
+    const auto& def = tremolo_attr::default_ctrl;
+
+    this->set_shape(def.shape);
+    this->set_depth(def.depth);
+    this->set_rate(def.rate);
 }
 
 tremolo::~tremolo()

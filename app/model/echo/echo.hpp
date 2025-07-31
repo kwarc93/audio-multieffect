@@ -18,7 +18,7 @@ namespace mfx
 class echo : public effect
 {
 public:
-    echo(float blur = 0.5f, float time = 0.3f, float feedback = 0.6f, echo_attr::controls::mode_type mode = echo_attr::controls::mode_type::echo);
+    echo();
     virtual ~echo();
 
     void process(const dsp_input &in, dsp_output &out) override;

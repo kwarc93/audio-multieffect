@@ -18,7 +18,7 @@ namespace mfx
 class phaser : public effect
 {
 public:
-    phaser(float rate = 0.5f, float depth = 0.7f, phaser_attr::controls::contour_mode contour = phaser_attr::controls::contour_mode::on);
+    phaser();
     virtual ~phaser();
 
     void process(const dsp_input &in, dsp_output &out) override;
