@@ -120,7 +120,7 @@ static void list_btn_handler(lv_event_t * e)
     }
 }
 
-static void add_btn_to_list(lv_obj_t * list, const char * text, lv_obj_t ** selected_btn)
+static void list_add_btn(lv_obj_t * list, const char * text, lv_obj_t ** selected_btn)
 {
     uint32_t index = lv_obj_get_child_cnt(list);
 
@@ -180,7 +180,7 @@ static void fx_ops_add_fx_handler(lv_event_t * e)
 
     if (code == LV_EVENT_CLICKED)
     {
-        add_btn_to_list(ui_list_sett_fx_chain, lv_list_get_btn_text(ui_list_sett_fx_items, fx_item), &ui_btn_sett_curr_fx);
+        list_add_btn(ui_list_sett_fx_chain, lv_list_get_btn_text(ui_list_sett_fx_items, fx_item), &ui_btn_sett_curr_fx);
 
         ui_settings_add_effect(lv_obj_get_index(fx_item) - 1);
 
@@ -361,8 +361,9 @@ static void textarea_event_cb(lv_event_t * e)
 
     if (code == LV_EVENT_READY)
     {
+        /* Verify filename */
         const char * text = lv_textarea_get_text(ta);
-        if (text && strlen(text) > 0)
+        if (text && strlen(text) > 0 && strchr(text, '/') == NULL && strcmp(text, ".") != 0 && strcmp(text, "..") != 0)
         {
             if (ui_btn_sett_curr_preset)
             {
@@ -375,35 +376,35 @@ static void textarea_event_cb(lv_event_t * e)
             {
                 /* Save new preset */
                 ui_settings_save_preset(text);
-                add_btn_to_list(ui_list_sett_avail_presets, text, &ui_btn_sett_curr_preset);
+                list_add_btn(ui_list_sett_avail_presets, text, &ui_btn_sett_curr_preset);
             }
 
-            lv_obj_t * background = lv_obj_get_parent(ta);
-            lv_obj_del(background);
+            /* Delete dialog */
+            lv_obj_del_async(lv_obj_get_parent(ta));
         }
     }
     else if (code == LV_EVENT_CANCEL)
     {
-        lv_obj_t * background = lv_obj_get_parent(ta);
-        lv_obj_del(background);
+        /* Delete dialog */
+        lv_obj_del_async(lv_obj_get_parent(ta));
     }
 }
 
 static void show_keyboard_with_textarea(const char * placeholder_txt, const char * initial_txt)
 {
-    lv_obj_t * background;
-    background = lv_obj_create(lv_scr_act());
-    lv_obj_set_style_pad_all(background, 0, 0);
+    /* Create dialog with background, keyboard and text area */
+    lv_obj_t * bg;
+    bg = lv_obj_create(lv_scr_act());
+    lv_obj_remove_style_all(bg);
+    lv_obj_set_size(bg, lv_pct(100), lv_pct(100));
+    lv_obj_set_style_bg_color(bg, lv_palette_lighten(LV_PALETTE_GREY, 1), 0);
+    lv_obj_set_style_bg_opa(bg, LV_OPA_40, 0);
+    lv_obj_add_flag(bg, LV_OBJ_FLAG_CLICKABLE);
 
-    lv_obj_set_size(background, lv_pct(100), lv_pct(100));
-    lv_obj_set_style_bg_color(background, lv_color_black(), 0);
-    lv_obj_set_style_bg_opa(background, LV_OPA_50, 0);
-
-    lv_obj_t * kb = lv_keyboard_create(background);
-    lv_obj_t * ta = lv_textarea_create(background);
+    lv_obj_t * kb = lv_keyboard_create(bg);
+    lv_obj_t * ta = lv_textarea_create(bg);
     lv_textarea_set_one_line(ta, true);
-    //lv_textarea_set_max_length(ta, max_char_num);
-    //lv_textarea_set_accepted_chars(ta, "0123456789.+-");
+    lv_textarea_set_max_length(ta, 32);
     lv_obj_align_to(ta, kb, LV_ALIGN_OUT_TOP_MID, 0, -5);
     lv_obj_add_event_cb(ta, textarea_event_cb, LV_EVENT_ALL, kb);
     lv_obj_add_state(ta, LV_STATE_FOCUSED);
@@ -440,7 +441,7 @@ static void preset_ops_rename_handler(lv_event_t * e)
 
     /* Show a keyboard to modify current preset name */
     const char * preset_name = lv_list_get_btn_text(ui_list_sett_avail_presets, ui_btn_sett_curr_preset);
-    show_keyboard_with_textarea("Enter new preset name", preset_name);
+    show_keyboard_with_textarea("Enter preset name", preset_name);
 }
 
 static void msgbox_preset_remove_handler(lv_event_t * e)
@@ -558,12 +559,12 @@ void ui_settings_clear_presets_list(void)
 
 void ui_settings_update_presets_list(const char * preset_name)
 {
-    add_btn_to_list(ui_list_sett_avail_presets, preset_name, &ui_btn_sett_curr_preset);
+    list_add_btn(ui_list_sett_avail_presets, preset_name, &ui_btn_sett_curr_preset);
 }
 
 void ui_settings_update_effects_list(uint8_t effect_id)
 {
-    add_btn_to_list(ui_list_sett_fx_chain, ui_fx_names[effect_id], &ui_btn_sett_curr_fx);
+    list_add_btn(ui_list_sett_fx_chain, ui_fx_names[effect_id], &ui_btn_sett_curr_fx);
 }
 
 void ui_settings_screen_init(void)

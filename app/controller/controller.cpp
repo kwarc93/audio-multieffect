@@ -197,7 +197,6 @@ void controller::view_event_handler(const lcd_view_events::splash_loaded &e)
     /* Update available presets list */
     std::vector<std::string> presets;
     this->presets->list(presets);
-
     this->view->send({lcd_view_events::update_presets_list {std::move(presets)}});
 }
 
@@ -207,7 +206,7 @@ void controller::view_event_handler(const lcd_view_events::load_preset &e)
 
     if (!this->presets->verify(preset_name))
     {
-        printf("Preset %s does not exist or is corrupted\r\n", preset_name);
+        printf("Preset '%s' does not exist or is corrupted\r\n", preset_name);
         return;
     }
 
