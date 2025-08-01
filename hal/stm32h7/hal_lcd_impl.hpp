@@ -67,11 +67,11 @@ namespace hal::displays
         using pixel_t = drivers::glcd_rk043fn48h::pixel_t;
         using fb_t = drivers::glcd_rk043fn48h::framebuffer_t;
 
-        static constexpr bool use_double_framebuf = false;
+        static constexpr bool use_double_framebuf = true;
 
         main(hal::interface::i2c_proxy &i2c) :
         display {&lcd_drv, &backlight_drv , &touch_drv},
-        lcd_drv {main_lcd_en_io, main_lcd_ios, get_frame_buffers().first},
+        lcd_drv {main_lcd_en_io, main_lcd_ios, get_frame_buffers().second},
         backlight_drv {{drivers::gpio::port::portk, drivers::gpio::pin::pin0}},
         touch_drv {i2c, drivers::touch_ft5336::i2c_address, {drivers::gpio::port::portg, drivers::gpio::pin::pin2}, drivers::touch_ft5336::orientation::mirror_xy}
         {

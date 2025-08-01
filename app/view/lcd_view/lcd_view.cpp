@@ -8,6 +8,7 @@
 #include "lcd_view.hpp"
 
 #include "libs/lvgl/lvgl.h"
+#include "libs/lvgl/demos/lv_demos.h"
 
 #include "ui.h"
 #include "app/utils.hpp"
@@ -35,7 +36,12 @@ void lvgl_disp_flush(_lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color
 
     if constexpr (display_t::use_double_framebuf)
     {
-        display->set_frame_buffer(reinterpret_cast<display_t::pixel_t*>(color_p));
+        if (lv_disp_flush_is_last(disp_drv))
+        {
+            //display->set_frame_buffer(reinterpret_cast<display_t::pixel_t*>(color_p));
+            display->set_frame_buffer(reinterpret_cast<display_t::pixel_t*>(disp_drv->draw_buf->buf_act));
+        }
+
         lv_disp_flush_ready(disp_drv);
     }
     else
@@ -143,13 +149,32 @@ void lcd_view::event_handler(const events::initialize &e)
         lv_disp_draw_buf_init(&lvgl_draw_buf, lvgl_buf, NULL, sizeof(lvgl_buf) / sizeof(lv_color_t));
     }
 
+//    lv_disp_drv_init(&lvgl_disp_drv);
+//    lvgl_disp_drv.hor_res = display.width();
+//    lvgl_disp_drv.ver_res = display.height();
+//    lvgl_disp_drv.flush_cb = lvgl_disp_flush;
+//    lvgl_disp_drv.user_data = &this->display;
+//    lvgl_disp_drv.draw_buf = &lvgl_draw_buf;
+//    lvgl_disp_drv.full_refresh = display.use_double_framebuf;
+//    lv_disp_drv_register(&lvgl_disp_drv);
+//
+//    lv_indev_drv_init(&lvgl_indev_drv);
+//    lvgl_indev_drv.type = LV_INDEV_TYPE_POINTER;
+//    lvgl_indev_drv.read_cb = lvgl_input_read;
+//    lvgl_indev_drv.user_data = &this->display;
+//    lv_indev_drv_register(&lvgl_indev_drv);
+//
+//    display.vsync(display.use_double_framebuf);
+//    display.set_draw_callback([](){ lv_disp_flush_ready(&lvgl_disp_drv); });
+//    display.backlight(true);
+
     lv_disp_drv_init(&lvgl_disp_drv);
     lvgl_disp_drv.hor_res = display.width();
     lvgl_disp_drv.ver_res = display.height();
     lvgl_disp_drv.flush_cb = lvgl_disp_flush;
     lvgl_disp_drv.user_data = &this->display;
     lvgl_disp_drv.draw_buf = &lvgl_draw_buf;
-    lvgl_disp_drv.full_refresh = display.use_double_framebuf;
+    lvgl_disp_drv.direct_mode = display.use_double_framebuf;
     lv_disp_drv_register(&lvgl_disp_drv);
 
     lv_indev_drv_init(&lvgl_indev_drv);
@@ -158,13 +183,14 @@ void lcd_view::event_handler(const events::initialize &e)
     lvgl_indev_drv.user_data = &this->display;
     lv_indev_drv_register(&lvgl_indev_drv);
 
-    display.vsync(display.use_double_framebuf);
-    display.set_draw_callback([](){ lv_disp_flush_ready(&lvgl_disp_drv); });
+    //display.vsync(display.use_double_framebuf);
+    //display.set_vsync_callback([](){ lv_disp_flush_ready(&lvgl_disp_drv); });
     display.backlight(true);
 
-    this->schedule({events::timer {}}, 10, true);
+    this->schedule({events::timer {}}, 5, true);
 
-    ui_init(this);
+    //ui_init(this);
+    lv_demo_benchmark();
 }
 
 void lcd_view::event_handler(const events::timer &e)
