@@ -19,6 +19,8 @@
 using namespace mfx;
 namespace events = lcd_view_events;
 
+//#define TRIPLE_BUFFERING
+
 //-----------------------------------------------------------------------------
 /* helpers */
 
@@ -29,6 +31,9 @@ lv_disp_drv_t lvgl_disp_drv;
 lv_indev_drv_t lvgl_indev_drv;
 lv_disp_draw_buf_t lvgl_draw_buf;
 
+static volatile hal::displays::main::pixel_t *new_fb = NULL;
+
+#ifdef TRIPLE_BUFFERING
 static hal::displays::main::pixel_t *triple_buffers[3];
 static int render_index = 0;    // Which buffer LVGL is currently rendering into
 static int display_index = -1;  // Which buffer LTDC is scanning
@@ -43,6 +48,7 @@ static int get_next_free_buffer_index(void)
     }
     return 0; // should never happen if logic is correct
 }
+#endif // TRIPLE_BUFFERING
 
 void lvgl_disp_flush(_lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p)
 {
@@ -51,6 +57,7 @@ void lvgl_disp_flush(_lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color
 
     if constexpr (display_t::use_double_framebuf)
     {
+#ifdef TRIPLE_BUFFERING
         // Save the finished buffer index for VSYNC to pick up
         queued_index = render_index;
 
@@ -62,6 +69,16 @@ void lvgl_disp_flush(_lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color
 
         // From LVGL’s point of view, flush is “done” now
         lv_disp_flush_ready(disp_drv);
+#else
+        if (lv_disp_flush_is_last(disp_drv))
+        {
+            new_fb = (hal::displays::main::pixel_t *)color_p;
+        }
+        else
+        {
+            lv_disp_flush_ready(disp_drv);
+        }
+#endif // TRIPLE_BUFFERING
 
     }
     else
@@ -157,6 +174,7 @@ void lcd_view::event_handler(const events::initialize &e)
     {
         hal::displays::main::pixel_t *fb1 = display.get_frame_buffers().first.data();
         hal::displays::main::pixel_t *fb2 = display.get_frame_buffers().second.data();
+#ifdef TRIPLE_BUFFERING
         hal::displays::main::pixel_t *fb3 = display.get_third_frame_buffer().data();
 
         triple_buffers[0] = fb1;
@@ -164,6 +182,9 @@ void lcd_view::event_handler(const events::initialize &e)
         triple_buffers[2] = fb3;
 
         lv_disp_draw_buf_init(&lvgl_draw_buf, triple_buffers[render_index], NULL, display.width() * display.height());
+#else
+        lv_disp_draw_buf_init(&lvgl_draw_buf, fb2, fb1, display.width() * display.height());
+#endif // TRIPLE_BUFFERING
     }
     else
     {
@@ -175,32 +196,17 @@ void lcd_view::event_handler(const events::initialize &e)
         lv_disp_draw_buf_init(&lvgl_draw_buf, lvgl_buf, NULL, sizeof(lvgl_buf) / sizeof(lv_color_t));
     }
 
-//    lv_disp_drv_init(&lvgl_disp_drv);
-//    lvgl_disp_drv.hor_res = display.width();
-//    lvgl_disp_drv.ver_res = display.height();
-//    lvgl_disp_drv.flush_cb = lvgl_disp_flush;
-//    lvgl_disp_drv.user_data = &this->display;
-//    lvgl_disp_drv.draw_buf = &lvgl_draw_buf;
-//    lvgl_disp_drv.full_refresh = display.use_double_framebuf;
-//    lv_disp_drv_register(&lvgl_disp_drv);
-//
-//    lv_indev_drv_init(&lvgl_indev_drv);
-//    lvgl_indev_drv.type = LV_INDEV_TYPE_POINTER;
-//    lvgl_indev_drv.read_cb = lvgl_input_read;
-//    lvgl_indev_drv.user_data = &this->display;
-//    lv_indev_drv_register(&lvgl_indev_drv);
-//
-//    display.vsync(display.use_double_framebuf);
-//    display.set_draw_callback([](){ lv_disp_flush_ready(&lvgl_disp_drv); });
-//    display.backlight(true);
-
     lv_disp_drv_init(&lvgl_disp_drv);
     lvgl_disp_drv.hor_res = display.width();
     lvgl_disp_drv.ver_res = display.height();
     lvgl_disp_drv.flush_cb = lvgl_disp_flush;
     lvgl_disp_drv.user_data = &this->display;
     lvgl_disp_drv.draw_buf = &lvgl_draw_buf;
-    lvgl_disp_drv.full_refresh = display.use_double_framebuf;
+#ifdef TRIPLE_BUFFERING
+    lvgl_disp_drv.full_refresh = true;
+#else
+    lvgl_disp_drv.direct_mode = true;
+#endif // TRIPLE_BUFFERING
     lv_disp_drv_register(&lvgl_disp_drv);
 
     lv_indev_drv_init(&lvgl_indev_drv);
@@ -211,12 +217,25 @@ void lcd_view::event_handler(const events::initialize &e)
 
     display.set_vsync_callback([this]()
     {
-        if (queued_index >= 0) {
+#ifdef TRIPLE_BUFFERING
+        if (queued_index >= 0)
+        {
             // Switch LTDC to show the queued buffer
             display.set_frame_buffer(triple_buffers[queued_index]);
             display_index = queued_index;
             queued_index = -1;
         }
+#else
+        if (new_fb)
+        {
+
+            lv_disp_t *disp = lv_disp_get_default();
+            display.set_frame_buffer((hal::displays::main::pixel_t *)new_fb);
+            lv_disp_flush_ready(disp->driver);
+            new_fb = NULL;
+
+        }
+#endif // TRIPLE_BUFFERING
 });
     display.backlight(true);
 
