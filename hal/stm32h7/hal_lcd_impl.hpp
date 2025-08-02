@@ -71,7 +71,7 @@ namespace hal::displays
 
         main(hal::interface::i2c_proxy &i2c) :
         display {&lcd_drv, &backlight_drv , &touch_drv},
-        lcd_drv {main_lcd_en_io, main_lcd_ios, get_frame_buffers().second},
+        lcd_drv {main_lcd_en_io, main_lcd_ios, get_frame_buffers().first},
         backlight_drv {{drivers::gpio::port::portk, drivers::gpio::pin::pin0}},
         touch_drv {i2c, drivers::touch_ft5336::i2c_address, {drivers::gpio::port::portg, drivers::gpio::pin::pin2}, drivers::touch_ft5336::orientation::mirror_xy}
         {
@@ -103,6 +103,12 @@ namespace hal::displays
                 static constexpr std::pair<fb_t&, fb_t&> fb {frame_buffer, frame_buffer2};
                 return fb;
             }
+        }
+
+        static fb_t& get_third_frame_buffer(void)
+        {
+            __attribute__((section(".sdram"))) static fb_t frame_buffer3;
+            return frame_buffer3;
         }
 
     private:

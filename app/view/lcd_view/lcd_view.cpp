@@ -29,6 +29,21 @@ lv_disp_drv_t lvgl_disp_drv;
 lv_indev_drv_t lvgl_indev_drv;
 lv_disp_draw_buf_t lvgl_draw_buf;
 
+static hal::displays::main::pixel_t *triple_buffers[3];
+static int render_index = 0;    // Which buffer LVGL is currently rendering into
+static int display_index = -1;  // Which buffer LTDC is scanning
+static int queued_index = -1;   // Which buffer is waiting for next VSYNC
+
+static int get_next_free_buffer_index(void)
+{
+    for (int i = 0; i < 3; i++) {
+        if (i != display_index && i != queued_index) {
+            return i; // free buffer
+        }
+    }
+    return 0; // should never happen if logic is correct
+}
+
 void lvgl_disp_flush(_lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p)
 {
     using display_t = hal::displays::main;
@@ -36,13 +51,18 @@ void lvgl_disp_flush(_lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color
 
     if constexpr (display_t::use_double_framebuf)
     {
-        if (lv_disp_flush_is_last(disp_drv))
-        {
-            //display->set_frame_buffer(reinterpret_cast<display_t::pixel_t*>(color_p));
-            display->set_frame_buffer(reinterpret_cast<display_t::pixel_t*>(disp_drv->draw_buf->buf_act));
-        }
+        // Save the finished buffer index for VSYNC to pick up
+        queued_index = render_index;
 
+        // Pick a free buffer for LVGL to draw next
+        render_index = get_next_free_buffer_index();
+
+        // Tell LVGL to use the new buffer immediately
+        disp_drv->draw_buf->buf_act = triple_buffers[render_index];
+
+        // From LVGL’s point of view, flush is “done” now
         lv_disp_flush_ready(disp_drv);
+
     }
     else
     {
@@ -137,7 +157,13 @@ void lcd_view::event_handler(const events::initialize &e)
     {
         hal::displays::main::pixel_t *fb1 = display.get_frame_buffers().first.data();
         hal::displays::main::pixel_t *fb2 = display.get_frame_buffers().second.data();
-        lv_disp_draw_buf_init(&lvgl_draw_buf, fb1, fb2, display.width() * display.height());
+        hal::displays::main::pixel_t *fb3 = display.get_third_frame_buffer().data();
+
+        triple_buffers[0] = fb1;
+        triple_buffers[1] = fb2;
+        triple_buffers[2] = fb3;
+
+        lv_disp_draw_buf_init(&lvgl_draw_buf, triple_buffers[render_index], NULL, display.width() * display.height());
     }
     else
     {
@@ -174,7 +200,7 @@ void lcd_view::event_handler(const events::initialize &e)
     lvgl_disp_drv.flush_cb = lvgl_disp_flush;
     lvgl_disp_drv.user_data = &this->display;
     lvgl_disp_drv.draw_buf = &lvgl_draw_buf;
-    lvgl_disp_drv.direct_mode = display.use_double_framebuf;
+    lvgl_disp_drv.full_refresh = display.use_double_framebuf;
     lv_disp_drv_register(&lvgl_disp_drv);
 
     lv_indev_drv_init(&lvgl_indev_drv);
@@ -183,8 +209,15 @@ void lcd_view::event_handler(const events::initialize &e)
     lvgl_indev_drv.user_data = &this->display;
     lv_indev_drv_register(&lvgl_indev_drv);
 
-    //display.vsync(display.use_double_framebuf);
-    //display.set_vsync_callback([](){ lv_disp_flush_ready(&lvgl_disp_drv); });
+    display.set_vsync_callback([this]()
+    {
+        if (queued_index >= 0) {
+            // Switch LTDC to show the queued buffer
+            display.set_frame_buffer(triple_buffers[queued_index]);
+            display_index = queued_index;
+            queued_index = -1;
+        }
+});
     display.backlight(true);
 
     this->schedule({events::timer {}}, 5, true);
