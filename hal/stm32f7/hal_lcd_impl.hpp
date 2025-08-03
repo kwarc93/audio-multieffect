@@ -67,11 +67,12 @@ namespace hal::displays
         using pixel_t = drivers::glcd_rk043fn48h::pixel_t;
         using fb_t = drivers::glcd_rk043fn48h::framebuffer_t;
 
+        /* Double buffering with VSYNC (lower FPS, no tearing) */
         static constexpr bool use_double_framebuf = false;
 
         main(hal::interface::i2c_proxy &i2c) :
         display {&lcd_drv, &backlight_drv , &touch_drv},
-        lcd_drv {main_lcd_en_io, main_lcd_ios, get_frame_buffers().first},
+        lcd_drv {main_lcd_en_io, main_lcd_ios, get_frame_buffers().second},
         backlight_drv {{drivers::gpio::port::portk, drivers::gpio::pin::pin3}},
         touch_drv {i2c, drivers::touch_ft5336::i2c_address, {drivers::gpio::port::porti, drivers::gpio::pin::pin13}, drivers::touch_ft5336::orientation::mirror_xy}
         {

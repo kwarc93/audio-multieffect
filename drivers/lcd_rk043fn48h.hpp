@@ -54,7 +54,6 @@ private:
     gpio::io enable_io;
     pixel_t *frame_buffer;
     draw_cb_t draw_callback;
-    volatile bool vsync;
     bool vsync_enabled;
     bool portrait_mode;
 };

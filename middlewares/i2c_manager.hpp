@@ -65,7 +65,7 @@ public:
 
         this->send(e);
 
-        bool transfer_done = osThreadFlagsWait(transfer_done_flag, osFlagsWaitAny, osWaitForever) == transfer_done_flag;
+        bool transfer_done = this->wait(transfer_done_flag, osWaitForever);
         bool transfer_error = !transfer_done || (bytes_to_write != descriptor.tx_size) || (bytes_to_read != descriptor.rx_size);
 
         descriptor.stat = transfer_error ? transfer_desc::status::error : transfer_desc::status::ok;
@@ -130,7 +130,7 @@ private:
         this->driver.set_no_stop(false);
         e.descriptor.rx_size = this->driver.read(const_cast<std::byte*>(e.descriptor.rx_data), e.descriptor.rx_size);
 
-        osThreadFlagsSet(e.caller_thread_id, transfer_done_flag);
+        this->set(transfer_done_flag, e.caller_thread_id);
     }
 };
 

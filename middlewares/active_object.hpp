@@ -132,6 +132,17 @@ public:
         assert(status == osOK);
     }
 
+protected:
+    bool wait(uint32_t flag, uint32_t timeout = osWaitForever)
+    {
+        return osThreadFlagsWait(flag, osFlagsWaitAny, osWaitForever) == flag;
+    }
+
+    void set(uint32_t flag, osThreadId_t thread_id = nullptr)
+    {
+        osThreadFlagsSet(thread_id ? thread_id : this->thread, flag);
+    }
+
 private:
     virtual void dispatch(const event &e) = 0;
 
@@ -153,6 +164,7 @@ private:
             }
         }
     }
+
 
     osMessageQueueId_t queue;
     osMessageQueueAttr_t queue_attr = { 0 };

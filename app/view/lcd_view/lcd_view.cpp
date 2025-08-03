@@ -8,7 +8,6 @@
 #include "lcd_view.hpp"
 
 #include "libs/lvgl/lvgl.h"
-#include "libs/lvgl/demos/lv_demos.h"
 
 #include "ui.h"
 #include "app/utils.hpp"
@@ -18,8 +17,6 @@
 
 using namespace mfx;
 namespace events = lcd_view_events;
-
-//#define TRIPLE_BUFFERING
 
 //-----------------------------------------------------------------------------
 /* helpers */
@@ -31,83 +28,8 @@ lv_disp_drv_t lvgl_disp_drv;
 lv_indev_drv_t lvgl_indev_drv;
 lv_disp_draw_buf_t lvgl_draw_buf;
 
-static volatile hal::displays::main::pixel_t *new_fb = NULL;
-
-#ifdef TRIPLE_BUFFERING
-static hal::displays::main::pixel_t *triple_buffers[3];
-static int render_index = 0;    // Which buffer LVGL is currently rendering into
-static int display_index = -1;  // Which buffer LTDC is scanning
-static int queued_index = -1;   // Which buffer is waiting for next VSYNC
-
-static int get_next_free_buffer_index(void)
-{
-    for (int i = 0; i < 3; i++) {
-        if (i != display_index && i != queued_index) {
-            return i; // free buffer
-        }
-    }
-    return 0; // should never happen if logic is correct
-}
-#endif // TRIPLE_BUFFERING
-
-void lvgl_disp_flush(_lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p)
-{
-    using display_t = hal::displays::main;
-    display_t *display = static_cast<display_t*>(disp_drv->user_data);
-
-    if constexpr (display_t::use_double_framebuf)
-    {
-#ifdef TRIPLE_BUFFERING
-        // Save the finished buffer index for VSYNC to pick up
-        queued_index = render_index;
-
-        // Pick a free buffer for LVGL to draw next
-        render_index = get_next_free_buffer_index();
-
-        // Tell LVGL to use the new buffer immediately
-        disp_drv->draw_buf->buf_act = triple_buffers[render_index];
-
-        // From LVGL’s point of view, flush is “done” now
-        lv_disp_flush_ready(disp_drv);
-#else
-        if (lv_disp_flush_is_last(disp_drv))
-        {
-            new_fb = (hal::displays::main::pixel_t *)color_p;
-        }
-        else
-        {
-            lv_disp_flush_ready(disp_drv);
-        }
-#endif // TRIPLE_BUFFERING
-
-    }
-    else
-    {
-#if defined(STM32H7) && defined(CORE_CM7) // TODO: Make it independent from CPU architecture
-        const size_t size = lv_area_get_width(area) * lv_area_get_height(area) * sizeof(lv_color_t);
-        SCB_CleanDCache_by_Addr(color_p, size);
-#endif
-        display->draw_data(area->x1, area->y1, area->x2, area->y2, reinterpret_cast<display_t::pixel_t*>(color_p));
-    }
-}
-
-void lvgl_input_read(lv_indev_drv_t * drv, lv_indev_data_t * data)
-{
-    using display_t = hal::displays::main;
-    display_t *display = static_cast<hal::displays::main*>(drv->user_data);
-
-    int16_t x,y;
-    if (display->get_touch(x, y))
-    {
-        data->point.x = x;
-        data->point.y = y;
-        data->state = LV_INDEV_STATE_PRESSED;
-    }
-    else
-    {
-        data->state = LV_INDEV_STATE_RELEASED;
-    }
-}
+hal::displays::main::pixel_t *lvgl_ready_fb = NULL;
+constexpr uint32_t lvgl_wait_flag = 1 << 0;
 
 }
 
@@ -174,17 +96,19 @@ void lcd_view::event_handler(const events::initialize &e)
     {
         hal::displays::main::pixel_t *fb1 = display.get_frame_buffers().first.data();
         hal::displays::main::pixel_t *fb2 = display.get_frame_buffers().second.data();
-#ifdef TRIPLE_BUFFERING
-        hal::displays::main::pixel_t *fb3 = display.get_third_frame_buffer().data();
 
-        triple_buffers[0] = fb1;
-        triple_buffers[1] = fb2;
-        triple_buffers[2] = fb3;
+        lv_disp_draw_buf_init(&lvgl_draw_buf, fb1, fb2, display.width() * display.height());
 
-        lv_disp_draw_buf_init(&lvgl_draw_buf, triple_buffers[render_index], NULL, display.width() * display.height());
-#else
-        lv_disp_draw_buf_init(&lvgl_draw_buf, fb2, fb1, display.width() * display.height());
-#endif // TRIPLE_BUFFERING
+        display.set_vsync_callback([this]()
+        {
+            if (lvgl_ready_fb)
+            {
+                display.set_frame_buffer(lvgl_ready_fb);
+                lv_disp_flush_ready(&lvgl_disp_drv);
+                this->set(lvgl_wait_flag);
+                lvgl_ready_fb = NULL;
+            }
+        });
     }
     else
     {
@@ -194,55 +118,79 @@ void lcd_view::event_handler(const events::initialize &e)
         static lv_color_t lvgl_buf[64 * 1024 / sizeof(lv_color_t)];
 #endif
         lv_disp_draw_buf_init(&lvgl_draw_buf, lvgl_buf, NULL, sizeof(lvgl_buf) / sizeof(lv_color_t));
+
+        display.set_draw_callback([this]()
+        {
+            lv_disp_flush_ready(&lvgl_disp_drv);
+            this->set(lvgl_wait_flag);
+        });
     }
 
     lv_disp_drv_init(&lvgl_disp_drv);
+    lvgl_disp_drv.user_data = this;
+    lvgl_disp_drv.draw_buf = &lvgl_draw_buf;
+    lvgl_disp_drv.direct_mode = display.use_double_framebuf;
     lvgl_disp_drv.hor_res = display.width();
     lvgl_disp_drv.ver_res = display.height();
-    lvgl_disp_drv.flush_cb = lvgl_disp_flush;
-    lvgl_disp_drv.user_data = &this->display;
-    lvgl_disp_drv.draw_buf = &lvgl_draw_buf;
-#ifdef TRIPLE_BUFFERING
-    lvgl_disp_drv.full_refresh = true;
-#else
-    lvgl_disp_drv.direct_mode = true;
-#endif // TRIPLE_BUFFERING
+    lvgl_disp_drv.wait_cb = [](lv_disp_drv_t * drv)
+    {
+        lcd_view *_this = static_cast<lcd_view*>(drv->user_data);
+        _this->wait(lvgl_wait_flag, osWaitForever);
+    };
+    lvgl_disp_drv.flush_cb = [](lv_disp_drv_t * drv, const lv_area_t * area, lv_color_t * color_p)
+    {
+        using display_t = hal::displays::main;
+
+        lcd_view *_this = static_cast<lcd_view*>(drv->user_data);
+        display_t *display = &_this->display;
+
+        if constexpr (display_t::use_double_framebuf)
+        {
+            if (lv_disp_flush_is_last(drv))
+                lvgl_ready_fb = reinterpret_cast<display_t::pixel_t*>(color_p);
+            else
+                lv_disp_flush_ready(drv);
+        }
+        else
+        {
+#if defined(STM32H7) && defined(CORE_CM7) // TODO: Make it independent from CPU architecture
+            const size_t size = lv_area_get_width(area) * lv_area_get_height(area) * sizeof(lv_color_t);
+            SCB_CleanDCache_by_Addr(color_p, size);
+#endif
+            display->draw_data(area->x1, area->y1, area->x2, area->y2, reinterpret_cast<display_t::pixel_t*>(color_p));
+        }
+    };
     lv_disp_drv_register(&lvgl_disp_drv);
 
     lv_indev_drv_init(&lvgl_indev_drv);
+    lvgl_indev_drv.user_data = this;
     lvgl_indev_drv.type = LV_INDEV_TYPE_POINTER;
-    lvgl_indev_drv.read_cb = lvgl_input_read;
-    lvgl_indev_drv.user_data = &this->display;
+    lvgl_indev_drv.read_cb = [](lv_indev_drv_t * drv, lv_indev_data_t * data)
+    {
+        using display_t = hal::displays::main;
+
+        auto *_this = static_cast<mfx::lcd_view*>(drv->user_data);
+        display_t *display = &_this->display;
+
+        int16_t x,y;
+        if (display->get_touch(x, y))
+        {
+            data->point.x = x;
+            data->point.y = y;
+            data->state = LV_INDEV_STATE_PRESSED;
+        }
+        else
+        {
+            data->state = LV_INDEV_STATE_RELEASED;
+        }
+    };
     lv_indev_drv_register(&lvgl_indev_drv);
 
-    display.set_vsync_callback([this]()
-    {
-#ifdef TRIPLE_BUFFERING
-        if (queued_index >= 0)
-        {
-            // Switch LTDC to show the queued buffer
-            display.set_frame_buffer(triple_buffers[queued_index]);
-            display_index = queued_index;
-            queued_index = -1;
-        }
-#else
-        if (new_fb)
-        {
-
-            lv_disp_t *disp = lv_disp_get_default();
-            display.set_frame_buffer((hal::displays::main::pixel_t *)new_fb);
-            lv_disp_flush_ready(disp->driver);
-            new_fb = NULL;
-
-        }
-#endif // TRIPLE_BUFFERING
-});
     display.backlight(true);
 
-    this->schedule({events::timer {}}, 5, true);
+    this->schedule({events::timer {}}, 10, true);
 
-    //ui_init(this);
-    lv_demo_benchmark();
+    ui_init(this);
 }
 
 void lcd_view::event_handler(const events::timer &e)

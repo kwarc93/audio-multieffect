@@ -33,7 +33,6 @@ using namespace drivers;
 
 glcd_rk043fn48h::glcd_rk043fn48h(const gpio::io en_io, const std::array<const gpio::io, 28> &ltdc_ios, framebuffer_t &frame_buffer, bool portrait_mode)
 {
-    this->vsync = false;
     this->vsync_enabled = false;
     this->portrait_mode = portrait_mode;
     this->frame_buffer = frame_buffer.data();

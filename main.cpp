@@ -39,7 +39,7 @@ static void init_thread(void *arg)
     /* Create active objects */
     auto view = std::make_unique<mfx::lcd_view>();
     auto model = std::make_unique<mfx::ipc_effect_processor>();
-    //auto ctrl = std::make_unique<mfx::controller>(std::move(model), std::move(view), std::move(settings), std::move(presets));
+    auto ctrl = std::make_unique<mfx::controller>(std::move(model), std::move(view), std::move(settings), std::move(presets));
 
     osThreadSuspend(osThreadGetId());
 }
