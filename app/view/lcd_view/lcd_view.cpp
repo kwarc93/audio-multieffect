@@ -134,15 +134,15 @@ void lcd_view::event_handler(const events::initialize &e)
     lvgl_disp_drv.ver_res = display.height();
     lvgl_disp_drv.wait_cb = [](lv_disp_drv_t * drv)
     {
-        lcd_view *_this = static_cast<lcd_view*>(drv->user_data);
-        _this->wait(lvgl_wait_flag, osWaitForever);
+        lcd_view *this_ = static_cast<lcd_view*>(drv->user_data);
+        this_->wait(lvgl_wait_flag, osWaitForever);
     };
     lvgl_disp_drv.flush_cb = [](lv_disp_drv_t * drv, const lv_area_t * area, lv_color_t * color_p)
     {
         using display_t = hal::displays::main;
 
-        lcd_view *_this = static_cast<lcd_view*>(drv->user_data);
-        display_t *display = &_this->display;
+        lcd_view *this_ = static_cast<lcd_view*>(drv->user_data);
+        display_t *display = &this_->display;
 
         if constexpr (display_t::use_double_framebuf)
         {
@@ -169,8 +169,8 @@ void lcd_view::event_handler(const events::initialize &e)
     {
         using display_t = hal::displays::main;
 
-        auto *_this = static_cast<mfx::lcd_view*>(drv->user_data);
-        display_t *display = &_this->display;
+        auto *this_ = static_cast<lcd_view*>(drv->user_data);
+        display_t *display = &this_->display;
 
         int16_t x,y;
         if (display->get_touch(x, y))
