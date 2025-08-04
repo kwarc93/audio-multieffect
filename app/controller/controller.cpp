@@ -426,7 +426,7 @@ void controller::model_event_handler(const effect_processor_events::effect_attri
     if (e.last)
     {
         bool result = this->presets->save();
-        printf("Saving preset '%s'\r\n", result ? "successful" : "failed");
+        printf("Saving preset %s\r\n", result ? "successful" : "failed");
     }
 }
 

@@ -84,7 +84,10 @@ int main(int argc, const char* argv[])
     printf("Software version: " GIT_REVISION "\r\n");
 
     osKernelInitialize();
-    osThreadNew(init_thread, NULL, NULL);
+    osThreadAttr_t attr {};
+    attr.name = "init_thread";
+    attr.stack_size = 2048;
+    osThreadNew(init_thread, NULL, &attr);
     if (osKernelGetState() == osKernelReady)
         osKernelStart();
 

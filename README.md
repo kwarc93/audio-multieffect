@@ -27,6 +27,8 @@ This signal can be selected from the audio settings screen.
 
 Audio quality is set to 24bit 48kHz. Audio latency is determined by the size of audio buffer, which by default is 128 samples that gives around 6ms in-out delay.
 
+Device stores its settings in a filesystem so they are persistent after power-off. User can also create, save & load their effect presets.
+
 ## Demo
 https://soundcloud.com/kwarc-1/sets/gmfx  
 https://youtu.be/xXm61wA0C68?feature=shared
@@ -70,5 +72,4 @@ Here is a brief description of how to add new effect to the system:
 After completing these steps it should be possible to compile the project. However this instruction is not very detailed so there may be compilation errors if something is missing. If so, follow the compiler error messages.
 
 ## What is not supported
-- loading and storing effect presets (work in progress)
 - changing the LCD brightness

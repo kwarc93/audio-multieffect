@@ -52,7 +52,7 @@ extern uint32_t SystemCoreClock;
 #define configCPU_CLOCK_HZ                      (SystemCoreClock)
 #define configTICK_RATE_HZ                      1000
 #define configMAX_PRIORITIES                    56
-#define configMINIMAL_STACK_SIZE                256
+#define configMINIMAL_STACK_SIZE                128
 #define configMAX_TASK_NAME_LEN                 16
 #define configUSE_16_BIT_TICKS                  0
 #define configIDLE_SHOULD_YIELD                 1
@@ -96,7 +96,7 @@ extern uint32_t SystemCoreClock;
 #define configUSE_TIMERS                        1
 #define configTIMER_TASK_PRIORITY               (configMAX_PRIORITIES - 1)
 #define configTIMER_QUEUE_LENGTH                16
-#define configTIMER_TASK_STACK_DEPTH            (configMINIMAL_STACK_SIZE)
+#define configTIMER_TASK_STACK_DEPTH            (2 * configMINIMAL_STACK_SIZE)
 
 /* Interrupt nesting behaviour configuration. */
 /* Cortex-M specific definitions. */

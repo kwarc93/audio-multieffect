@@ -16,8 +16,30 @@
 //-----------------------------------------------------------------------------
 /* private */
 
-static const char * msgbox_btns[] = {"Yes", "No", ""};
-static const uint16_t msgbox_yes_btn_idx = 0;
+static const uint16_t msgbox_yes_ok_btn_idx = 0;
+
+static void close_msgbox(lv_event_t * e)
+{
+    lv_obj_t *mbox = lv_event_get_current_target(e);
+    lv_msgbox_close(mbox);
+}
+
+static lv_obj_t * create_msgbox(const char * text, lv_event_cb_t event_cb)
+{
+    static const char * msgbox_btn[] = {"OK", ""};
+    static const char * msgbox_btns[] = {"Yes", "No", ""};
+
+    lv_obj_t * mbox = lv_msgbox_create(NULL, NULL, text, event_cb ? msgbox_btns : msgbox_btn, false);
+    lv_obj_set_flex_align(mbox, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_add_event_cb(mbox, event_cb ? event_cb : close_msgbox, LV_EVENT_VALUE_CHANGED, NULL);
+    lv_obj_center(mbox);
+
+    /* Recolor buttons */
+    lv_obj_t *btnm = lv_msgbox_get_btns(mbox);
+    lv_obj_set_style_bg_color(btnm, lv_color_hex(UI_PALETTE_SPRING_GREEN), LV_PART_ITEMS);
+
+    return mbox;
+}
 
 //-----------------------------------------------------------------------------
 /* menu handlers */
@@ -345,7 +367,7 @@ static void msgbox_preset_overwrite_handler(lv_event_t * e)
 
     uint16_t btn_idx = lv_msgbox_get_active_btn(mbox);
 
-    if (btn_idx == msgbox_yes_btn_idx)
+    if (btn_idx == msgbox_yes_ok_btn_idx)
     {
         const char * preset_name = lv_list_get_btn_text(ui_list_sett_avail_presets, ui_btn_sett_curr_preset);
         ui_settings_save_preset(preset_name);
@@ -423,17 +445,14 @@ static void preset_ops_save_handler(lv_event_t * e)
     if (lv_obj_get_child_cnt(ui_list_sett_fx_chain) == 0)
     {
         /* Show a messagebox to tell that effect list is empty */
-        lv_obj_t * mbox = lv_msgbox_create(NULL, "No effects added.", NULL, NULL, true);
-        lv_obj_center(mbox);
+        create_msgbox("No effects added.", NULL);
         return;
     }
 
     if (ui_btn_sett_curr_preset)
     {
         /* Show a messagebox to confirm overwriting */
-        lv_obj_t * mbox = lv_msgbox_create(NULL, NULL, "Do you want to overwrite existing preset?", msgbox_btns, false);
-        lv_obj_add_event_cb(mbox, msgbox_preset_overwrite_handler, LV_EVENT_VALUE_CHANGED, NULL);
-        lv_obj_center(mbox);
+        create_msgbox("Do you want to overwrite existing preset?", msgbox_preset_overwrite_handler);
     }
     else
     {
@@ -458,7 +477,7 @@ static void msgbox_preset_remove_handler(lv_event_t * e)
 
     uint16_t btn_idx = lv_msgbox_get_active_btn(mbox);
 
-    if (btn_idx == msgbox_yes_btn_idx)
+    if (btn_idx == msgbox_yes_ok_btn_idx)
     {
         const char * preset_name = lv_list_get_btn_text(ui_list_sett_avail_presets, ui_btn_sett_curr_preset);
         ui_settings_remove_preset(preset_name);
@@ -475,9 +494,7 @@ static void preset_ops_remove_handler(lv_event_t * e)
         return;
 
     /* Show a messagebox to confirm removal */
-    lv_obj_t * mbox = lv_msgbox_create(NULL, NULL, "Do you want to remove preset?", msgbox_btns, false);
-    lv_obj_add_event_cb(mbox, msgbox_preset_remove_handler, LV_EVENT_VALUE_CHANGED, NULL);
-    lv_obj_center(mbox);
+    create_msgbox("Do you want to remove preset?", msgbox_preset_remove_handler);
 }
 
 static void create_presets_management_lists(lv_obj_t * parent)
@@ -501,7 +518,7 @@ static void create_presets_management_lists(lv_obj_t * parent)
     lv_obj_add_event_cb(btn, preset_ops_load_handler, LV_EVENT_CLICKED, NULL);
     lv_group_remove_obj(btn);
 
-    btn = lv_list_add_btn(ui_list_sett_presets_ops, LV_SYMBOL_SAVE, "Save");
+    btn = lv_list_add_btn(ui_list_sett_presets_ops, LV_SYMBOL_SAVE, "New/Save");
     lv_obj_add_event_cb(btn, preset_ops_save_handler, LV_EVENT_CLICKED, NULL);
     lv_group_remove_obj(btn);
 
@@ -523,7 +540,7 @@ static void msgbox_factory_reset_handler(lv_event_t * e)
 
     uint16_t btn_idx = lv_msgbox_get_active_btn(mbox);
 
-    if (btn_idx == msgbox_yes_btn_idx)
+    if (btn_idx == msgbox_yes_ok_btn_idx)
         ui_settings_factory_reset();
 
     lv_msgbox_close(mbox);
@@ -531,9 +548,7 @@ static void msgbox_factory_reset_handler(lv_event_t * e)
 
 static void menu_factory_reset_handler(lv_event_t * e)
 {
-    lv_obj_t * mbox = lv_msgbox_create(NULL, NULL, "Do you want to reset device to a factory state?", msgbox_btns, false);
-    lv_obj_add_event_cb(mbox, msgbox_factory_reset_handler, LV_EVENT_VALUE_CHANGED, NULL);
-    lv_obj_center(mbox);
+    create_msgbox("Do you want to reset device to a factory state?", msgbox_factory_reset_handler);
 }
 
 //-----------------------------------------------------------------------------
@@ -594,6 +609,7 @@ void ui_settings_screen_init(void)
     const lv_coord_t menu_pad_hor = lv_obj_get_style_pad_left(lv_menu_get_main_header(menu),0);
     lv_obj_t * back_btn = lv_menu_get_main_header_back_btn(menu);
     lv_obj_set_style_pad_hor(back_btn, menu_pad_hor, 0);
+    lv_obj_set_ext_click_area(back_btn, LV_DPX(10));
 
     lv_obj_t * cont;
     lv_obj_t * section;
