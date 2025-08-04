@@ -420,6 +420,14 @@ static void show_keyboard_with_textarea(const char * placeholder_txt, const char
 
 static void preset_ops_save_handler(lv_event_t * e)
 {
+    if (lv_obj_get_child_cnt(ui_list_sett_fx_chain) == 0)
+    {
+        /* Show a messagebox to tell that effect list is empty */
+        lv_obj_t * mbox = lv_msgbox_create(NULL, "No effects added.", NULL, NULL, true);
+        lv_obj_center(mbox);
+        return;
+    }
+
     if (ui_btn_sett_curr_preset)
     {
         /* Show a messagebox to confirm overwriting */
