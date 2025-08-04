@@ -37,6 +37,7 @@ static lv_obj_t * create_msgbox(const char * text, lv_event_cb_t event_cb)
     /* Recolor buttons */
     lv_obj_t *btnm = lv_msgbox_get_btns(mbox);
     lv_obj_set_style_bg_color(btnm, lv_color_hex(UI_PALETTE_SPRING_GREEN), LV_PART_ITEMS);
+    lv_obj_set_style_text_color(btnm, lv_color_black(), LV_PART_ITEMS);
 
     return mbox;
 }
