@@ -31,7 +31,7 @@ Device stores its settings in a filesystem so they are persistent after power-of
 
 ## Demo
 https://soundcloud.com/kwarc-1/sets/gmfx  
-https://youtu.be/xXm61wA0C68?feature=shared
+https://youtu.be/vwppcxMA08A?feature=shared
 
 ## Supported boards
 
