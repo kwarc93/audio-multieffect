@@ -119,10 +119,10 @@ void tuner::process(const dsp_input& in, dsp_output& out)
     {
         frame_counter = 0;
 
-        if (this->callback && std::abs(prev_pitch - this->attr.out.pitch) > 0.1f)
+        if (std::abs(prev_pitch - this->attr.out.pitch) > 0.1f)
         {
             prev_pitch = this->attr.out.pitch;
-            this->callback(this);
+            if(this->callback) this->callback(this);
         }
     }
 }

@@ -5,10 +5,11 @@
 
 #include "../ui.h"
 
-static void lv_bar_add_scale(lv_obj_t * bar, int min, int max, int step, bool vertical) {
+static void lv_bar_add_scale(lv_obj_t * bar, int min, int max, int step, bool vertical)
+{
     lv_coord_t bar_x = lv_obj_get_x(bar);
     lv_coord_t bar_y = lv_obj_get_y(bar);
-    lv_coord_t bar_w = lv_obj_get_width(bar) - 1;
+    lv_coord_t bar_w = lv_obj_get_width(bar) - 2;
     lv_coord_t bar_h = lv_obj_get_height(bar);
 
     int range = max - min;
@@ -50,6 +51,8 @@ static void lv_bar_add_scale(lv_obj_t * bar, int min, int max, int step, bool ve
         else
             lv_obj_align_to(label, tick, LV_ALIGN_OUT_BOTTOM_MID, 0, 0);
     }
+
+    lv_obj_set_width(ui_bar_tuner_cents, lv_obj_get_width(bar) + 15);
 }
 
 void ui_fx_tuner_screen_init(void)
@@ -120,6 +123,8 @@ void ui_fx_tuner_screen_init(void)
     ui_bar_tuner_cents = lv_bar_create(ui_pnl_tuner_controls);
     lv_obj_set_size(ui_bar_tuner_cents, 200, 19);
     lv_obj_center(ui_bar_tuner_cents);
+    lv_obj_set_style_bg_color(ui_bar_tuner_cents, lv_color_hex(0x101418), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_bar_tuner_cents, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     // Bar indicator
     ui_bar_tuner_cents_indicator = lv_label_create(ui_pnl_tuner_controls);
