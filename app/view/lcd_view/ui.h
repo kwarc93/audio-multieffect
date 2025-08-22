@@ -218,6 +218,7 @@ extern lv_obj_t * ui_lbl_cab_sim_fx_name;
 void ui_event_btn_cab_sim_bypass(lv_event_t * e);
 extern lv_obj_t * ui_btn_cab_sim_bypass;
 extern lv_obj_t * ui_lbl_btn_cab_sim_bypass;
+extern lv_obj_t * ui_pnl_cab_sim_controls;
 void ui_event_roller_cab_sim_ir(lv_event_t * e);
 extern lv_obj_t * ui_roller_cab_sim_ir;
 extern lv_obj_t * ui_lbl_cab_sim_ir;
