@@ -22,6 +22,30 @@ using namespace q::literals;
 namespace
 {
 unsigned frame_counter = 0;
+float prev_pitch = 0.0f;
+
+/* Exponential moving average */
+
+class averaging_filter
+{
+public:
+    averaging_filter(float time_constant, float time_delta, float inital_value = 0)
+    {
+        this->time_constant = time_constant;
+        this->alpha = 1 - expf(-time_delta / time_constant);
+        this->output = inital_value;
+    }
+    virtual ~averaging_filter() = default;
+    float process(float input)
+    {
+        return output = (1 - this->alpha) * output + this->alpha * input;
+    }
+    float time_constant;
+    float alpha;
+    float output;
+};
+
+averaging_filter pitch_avg {0.0001f, 1.0f / config::sampling_frequency_hz, 440.0f};
 }
 
 //-----------------------------------------------------------------------------
@@ -47,12 +71,13 @@ tuner::~tuner()
 
 void tuner::process(const dsp_input& in, dsp_output& out)
 {
+    //auto aux = this->aux_in;
     std::transform(in.begin(), in.end(), out.begin(),
     [this](auto input)
     {
         if (this->pitch_det(input))
         {
-            this->attr.out.pitch = this->pitch_det.get_frequency();
+            this->attr.out.pitch = pitch_avg.process(this->pitch_det.get_frequency());
 
             /* Calculate note and cents deviation */
             constexpr char notes[12] =
@@ -62,8 +87,8 @@ void tuner::process(const dsp_input& in, dsp_output& out)
             };
 
             // Step 1: compute octave relative to C0 (16.35 Hz)
-            float c0 = 16.35; // frequency of C0
-            float n = 12.0 * std::log2(this->attr.out.pitch / c0);
+            float c0 = 16.35f; // frequency of C0
+            float n = 12.0f * std::log2(this->attr.out.pitch / c0);
             int nearest = static_cast<int>(std::round(n));
 
             int noteIndex = nearest % 12;
@@ -73,10 +98,10 @@ void tuner::process(const dsp_input& in, dsp_output& out)
             if (nearest < 0 && nearest % 12 != 0) octave -= 1;
 
             // Step 2: calculate the frequency of the nearest note
-            float nearestFreq = c0 * std::pow(2.0, nearest / 12.0);
+            float nearestFreq = c0 * std::pow(2.0f, nearest / 12.0f);
 
             // Step 3: calculate cents error
-            float centsError = 1200.0 * std::log2(this->attr.out.pitch / nearestFreq);
+            float centsError = 1200.0f * std::log2(this->attr.out.pitch / nearestFreq);
 
             // Fill result
             this->attr.out.note = notes[noteIndex];
@@ -94,8 +119,11 @@ void tuner::process(const dsp_input& in, dsp_output& out)
     {
         frame_counter = 0;
 
-        if (this->callback)
+        if (this->callback && std::abs(prev_pitch - this->attr.out.pitch) > 0.1f)
+        {
+            prev_pitch = this->attr.out.pitch;
             this->callback(this);
+        }
     }
 }
 

@@ -277,7 +277,7 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const tuner_attr &speci
 
     lv_label_set_text_fmt(ui_lbl_tuner_pitch, "%.1fHz", specific.out.pitch);
     lv_label_set_text_fmt(ui_lbl_tuner_cents, "%+dc", specific.out.cents);
-    lv_meter_set_indicator_value(ui_meter_tuner_cents, ui_meter_tuner_cents_indic, specific.out.cents);
+    lv_obj_set_x(ui_bar_tuner_cents_indicator, 195 + specific.out.cents * 2);
     lv_label_set_text_fmt(ui_lbl_tuner_note, "%c%s%d", std::toupper(specific.out.note), std::isupper(specific.out.note) ? "#" : "", specific.out.octave);
 }
 
