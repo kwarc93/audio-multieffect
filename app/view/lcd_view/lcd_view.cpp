@@ -265,6 +265,22 @@ void lcd_view::event_handler(const events::update_dsp_load &e)
         lv_label_set_text_fmt(ui_lbl_sett_cpu_load, "DSP load: %u%%", e.load_pct);
 }
 
+void lcd_view::set_effect_attr(const effect_attr &basic, const tuner_attr &specific)
+{
+    if (this->current_effect != effect_id::tuner)
+        return;
+
+    if (basic.bypassed)
+        lv_obj_clear_state(ui_btn_tuner_bypass, LV_STATE_CHECKED);
+    else
+        lv_obj_add_state(ui_btn_tuner_bypass, LV_STATE_CHECKED);
+
+    lv_label_set_text_fmt(ui_lbl_tuner_pitch, "%.1fHz", specific.out.pitch);
+    lv_label_set_text_fmt(ui_lbl_tuner_cents, "%+dc", specific.out.cents);
+    lv_meter_set_indicator_value(ui_meter_tuner_cents, ui_meter_tuner_cents_indic, specific.out.cents);
+    lv_label_set_text_fmt(ui_lbl_tuner_note, "%c%s%d", std::toupper(specific.out.note), std::isupper(specific.out.note) ? "#" : "", specific.out.octave);
+}
+
 void lcd_view::set_effect_attr(const effect_attr &basic, const tremolo_attr &specific)
 {
     if (this->current_effect != effect_id::tremolo)
@@ -500,6 +516,10 @@ void lcd_view::change_effect_screen(effect_id id, int dir)
 
     switch (id)
     {
+    case effect_id::tuner:
+        ui_fx_tuner_screen_init();
+        new_screen = ui_fx_tuner;
+        break;
     case effect_id::tremolo:
         ui_fx_tremolo_screen_init();
         new_screen = ui_fx_tremolo;

@@ -20,6 +20,18 @@ using json = nlohmann::json;
 namespace mfx
 {
 
+// tuner
+void from_json(const json& j, tuner_attr::controls& c)
+{
+    const auto& def = tuner_attr::default_ctrl;
+    c.a4_tuning = j.value("a4_tuning", def.a4_tuning);
+}
+
+void to_json(json& j, const tuner_attr::controls& c)
+{
+    j = json{ {"a4_tuning", c.a4_tuning} };
+}
+
 // tremolo
 void from_json(const json& j, tremolo_attr::controls& c)
 {
@@ -143,6 +155,8 @@ std::optional<effect_controls> get_controls(effect_id id, const json& ctrl_json)
 {
     switch (id)
     {
+        case mfx::effect_id::tuner:
+            return ctrl_json.get<mfx::tuner_attr::controls>();
         case mfx::effect_id::tremolo:
             return ctrl_json.get<mfx::tremolo_attr::controls>();
         case mfx::effect_id::echo:

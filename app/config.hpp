@@ -9,7 +9,6 @@
 #define CONFIG_HPP_
 
 #include <cstdint>
-#include <vector>
 
 namespace mfx::config
 {
@@ -18,7 +17,7 @@ namespace mfx::config
 constexpr inline uint16_t dsp_vector_size {128};
 
 /* Sampling frequency of audio signals */
-constexpr inline uint32_t sampling_frequency_hz {48000};
+constexpr inline uint32_t sampling_frequency_hz {48065}; // TODO: 48014 for F7, 48065 for H7
 
 }
 

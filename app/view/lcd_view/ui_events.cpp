@@ -309,6 +309,11 @@ void ui_settings_remove_preset(const char * name)
     view->notify(events::remove_preset {name});
 }
 
+void ui_tuner_bypass(lv_event_t * e)
+{
+    notify_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::tuner);
+}
+
 void ui_tremolo_bypass(lv_event_t * e)
 {
     notify_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::tremolo);

@@ -254,6 +254,7 @@ private:
     void event_handler(const lcd_view_events::update_presets_list &e);
     void event_handler(const lcd_view_events::update_dsp_load &e);
 
+    void set_effect_attr(const effect_attr &basic, const tuner_attr &specific);
     void set_effect_attr(const effect_attr &basic, const tremolo_attr &specific);
     void set_effect_attr(const effect_attr &basic, const echo_attr &specific);
     void set_effect_attr(const effect_attr &basic, const chorus_attr &specific);

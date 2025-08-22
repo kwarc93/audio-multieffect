@@ -63,6 +63,22 @@ void ui_event_sld_out_vol(lv_event_t * e);
 void ui_event_sw_dark_mode(lv_event_t * e);
 void ui_event_sw_mute_audio(lv_event_t * e);
 void ui_event_sw_route_mic_to_aux(lv_event_t * e);
+// SCREEN: ui_fx_tuner
+void ui_fx_tuner_screen_init(void);
+void ui_event_fx_tuner(lv_event_t * e);
+extern lv_obj_t * ui_fx_tuner;
+extern lv_obj_t * ui_pnl_tuner_content;
+extern lv_obj_t * ui_lbl_tuner_fx_name;
+extern lv_obj_t * ui_pnl_tuner_controls;
+extern lv_obj_t * ui_meter_tuner_cents;
+extern lv_meter_indicator_t * ui_meter_tuner_cents_indic;
+extern lv_obj_t * ui_lbl_tuner_pitch;
+extern lv_obj_t * ui_lbl_tuner_note;
+extern lv_obj_t * ui_lbl_tuner_cents;
+extern lv_obj_t * ui_spinbox_tuner_a4;
+void ui_event_btn_tuner_bypass(lv_event_t * e);
+extern lv_obj_t * ui_btn_tuner_bypass;
+extern lv_obj_t * ui_lbl_btn_tuner_bypass;
 // SCREEN: ui_fx_tremolo
 void ui_fx_tremolo_screen_init(void);
 void ui_event_fx_tremolo(lv_event_t * e);

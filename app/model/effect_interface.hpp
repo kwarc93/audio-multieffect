@@ -11,6 +11,7 @@
 #include <cstdint>
 #include <vector>
 #include <string_view>
+#include <functional>
 
 #include "effect_features.hpp"
 #include "app/config.hpp"
@@ -34,10 +35,12 @@ public:
     bool is_bypassed() const { return this->basic.bypassed; };
     void bypass(bool state) { this->basic.bypassed = state; };
     void set_aux_input(const dsp_input &aux_in) { this->aux_in = &aux_in; };
+    void set_notify_callback(std::function<void(effect*)> cb) { this->callback = cb; };
 
 protected:
     effect_attr basic;
     const dsp_input *aux_in;
+    std::function<void(effect*)> callback;
 };
 
 }

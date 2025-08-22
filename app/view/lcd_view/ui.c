@@ -52,6 +52,23 @@ void ui_event_sw_dark_mode(lv_event_t * e);
 void ui_event_sw_mute_audio(lv_event_t * e);
 void ui_event_sw_route_mic_to_aux(lv_event_t * e);
 
+// SCREEN: ui_fx_tuner
+void ui_fx_tuner_screen_init(void);
+void ui_event_fx_tuner(lv_event_t * e);
+lv_obj_t * ui_fx_tuner;
+lv_obj_t * ui_pnl_tuner_content;
+lv_obj_t * ui_lbl_tuner_fx_name;
+lv_obj_t * ui_pnl_tuner_controls;
+lv_obj_t * ui_meter_tuner_cents;
+lv_meter_indicator_t * ui_meter_tuner_cents_indic;
+lv_obj_t * ui_lbl_tuner_pitch;
+lv_obj_t * ui_lbl_tuner_note;
+lv_obj_t * ui_lbl_tuner_cents;
+lv_obj_t * ui_spinbox_tuner_a4;
+void ui_event_btn_tuner_bypass(lv_event_t * e);
+lv_obj_t * ui_btn_tuner_bypass;
+lv_obj_t * ui_lbl_btn_tuner_bypass;
+
 // SCREEN: ui_fx_tremolo
 void ui_fx_tremolo_screen_init(void);
 void ui_event_fx_tremolo(lv_event_t * e);
@@ -372,6 +389,18 @@ void ui_event_sw_route_mic_to_aux(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
     if(event_code == LV_EVENT_VALUE_CHANGED) {
         ui_settings_route_mic_to_aux(e);
+    }
+}
+void ui_event_fx_tuner(lv_event_t * e)
+{
+    ui_screen_gesture_handler(e);
+}
+void ui_event_btn_tuner_bypass(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_CLICKED) {
+        ui_tuner_bypass(e);
     }
 }
 void ui_event_fx_tremolo(lv_event_t * e)

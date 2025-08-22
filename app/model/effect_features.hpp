@@ -18,6 +18,7 @@ namespace mfx
 /* Available effects & their names */
 enum class effect_id : uint8_t
 {
+    tuner,
     tremolo,
     echo,
     chorus,
@@ -32,6 +33,7 @@ enum class effect_id : uint8_t
 
 constexpr inline std::array<const char*, static_cast<uint8_t>(effect_id::_count)> effect_name
 {{
+    "Tuner",
     "Tremolo",
     "Echo",
     "Chorus",
@@ -55,6 +57,28 @@ struct effect_attr
 
 //-----------------------------------------------------------------------------
 /* Effect specific attributes */
+
+struct tuner_attr
+{
+    struct controls
+    {
+        unsigned a4_tuning; // Reference frequency for A4 in Hz, range: [410, 480]
+        //enum class input_source {jack, mic} input; // Input source
+    } ctrl;
+
+    static constexpr controls default_ctrl
+    {
+        440 // a4_tuning
+    };
+
+    struct outputs
+    {
+        float pitch; // Detected pitch in Hz
+        char note; // Detected note (uppercase means sharp: A -> A#)
+        uint8_t octave; // Detected octave, range: [0, 8]
+        int8_t cents; // Cents deviation from the detected note, range: [-50, 50]
+    } out;
+};
 
 struct tremolo_attr
 {
@@ -212,6 +236,7 @@ struct phaser_attr
 
 typedef std::variant
 <
+    tuner_attr,
     tremolo_attr,
     echo_attr,
     chorus_attr,
@@ -224,6 +249,7 @@ typedef std::variant
 
 typedef std::variant
 <
+    tuner_attr::controls,
     tremolo_attr::controls,
     echo_attr::controls,
     chorus_attr::controls,

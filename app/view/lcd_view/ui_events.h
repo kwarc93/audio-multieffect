@@ -29,6 +29,7 @@ void ui_settings_load_preset(const char * name);
 void ui_settings_save_preset(const char * name);
 void ui_settings_rename_preset(const char * old_name, const char * new_name);
 void ui_settings_remove_preset(const char * name);
+void ui_tuner_bypass(lv_event_t * e);
 void ui_tremolo_bypass(lv_event_t * e);
 void ui_tremolo_rate_changed(lv_event_t * e);
 void ui_tremolo_depth_changed(lv_event_t * e);

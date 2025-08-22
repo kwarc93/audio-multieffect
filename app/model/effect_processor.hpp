@@ -215,6 +215,7 @@ private:
     void event_handler(const effect_processor_events::get_effect_attributes &e);
     void event_handler(const effect_processor_events::enumerate_effects_attributes &e);
 
+    void set_controls(const tuner_attr::controls &ctrl);
     void set_controls(const tremolo_attr::controls &ctrl);
     void set_controls(const echo_attr::controls &ctrl);
     void set_controls(const chorus_attr::controls &ctrl);

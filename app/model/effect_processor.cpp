@@ -21,6 +21,7 @@
 
 #include <cmsis_device.h> // For managing D-Cache & I-Cache
 
+#include "app/model/tuner/tuner.hpp"
 #include "app/model/tremolo/tremolo.hpp"
 #include "app/model/echo/echo.hpp"
 #include "app/model/chorus/chorus.hpp"
@@ -247,6 +248,16 @@ void effect_processor::event_handler(const effect_processor_events::enumerate_ef
     }
 }
 
+void effect_processor::set_controls(const tuner_attr::controls &ctrl)
+{
+    auto tuner_effect = static_cast<tuner*>(this->find_effect(effect_id::tuner));
+
+    if (tuner_effect == nullptr)
+        return;
+
+    tuner_effect->set_a4_tuning(ctrl.a4_tuning);
+}
+
 void effect_processor::set_controls(const tremolo_attr::controls &ctrl)
 {
     auto tremolo_effect = static_cast<tremolo*>(this->find_effect(effect_id::tremolo));
@@ -366,6 +377,7 @@ std::unique_ptr<effect> effect_processor::create_new(effect_id id)
 {
     static const std::map<effect_id, std::function<std::unique_ptr<effect>()>> effect_factory =
     {
+        { effect_id::tuner,         []() { return std::make_unique<tuner>(); } },
         { effect_id::tremolo,       []() { return std::make_unique<tremolo>(); } },
         { effect_id::echo,          []() { return std::make_unique<echo>(); } },
         { effect_id::chorus,        []() { return std::make_unique<chorus>(); } },
@@ -376,7 +388,9 @@ std::unique_ptr<effect> effect_processor::create_new(effect_id id)
         { effect_id::phaser,        []() { return std::make_unique<phaser>(); } }
     };
 
-    return effect_factory.at(id)();
+    std::unique_ptr<effect> e = effect_factory.at(id)();
+    e->set_notify_callback([this](effect* e) { this->notify_effect_attributes_changed(e); });
+    return e;
 }
 
 bool effect_processor::find_effect(effect_id id, std::vector<std::unique_ptr<effect>>::iterator &it)
