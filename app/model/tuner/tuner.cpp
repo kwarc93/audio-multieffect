@@ -40,6 +40,9 @@ attr {}
     const auto& def = tuner_attr::default_ctrl;
 
     this->set_a4_tuning(def.a4_tuning);
+
+    /* Initialize popcount lookup table for custom popcount() implementation */
+    //cycfi::q::detail::popcount32_lookup_init();
 }
 
 tuner::~tuner()
