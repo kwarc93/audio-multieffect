@@ -28,7 +28,10 @@ public:
 
     void set_a4_tuning(unsigned frequency);
 private:
+    libs::adsp::averaging_filter pitch_avg;
     cycfi::q::pitch_detector pitch_det;
+    float detected_pitch;
+    unsigned frame_counter;
 
     tuner_attr attr {0};
 };

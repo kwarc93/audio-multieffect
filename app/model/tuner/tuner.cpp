@@ -13,39 +13,14 @@
 #include <q/synth/sin_osc.hpp>
 
 using namespace mfx;
-namespace q = cycfi::q;
-using namespace q::literals;
+using namespace cycfi::q::literals;
 
 //-----------------------------------------------------------------------------
 /* helpers */
 
 namespace
 {
-unsigned frame_counter = 0;
-float prev_pitch = 0.0f;
 
-/* Exponential moving average */
-
-class averaging_filter
-{
-public:
-    averaging_filter(float time_constant, float time_delta, float inital_value = 0)
-    {
-        this->time_constant = time_constant;
-        this->alpha = 1 - expf(-time_delta / time_constant);
-        this->output = inital_value;
-    }
-    virtual ~averaging_filter() = default;
-    float process(float input)
-    {
-        return output = (1 - this->alpha) * output + this->alpha * input;
-    }
-    float time_constant;
-    float alpha;
-    float output;
-};
-
-averaging_filter pitch_avg {0.0001f, 1.0f / config::sampling_frequency_hz, 440.0f};
 }
 
 //-----------------------------------------------------------------------------
@@ -56,7 +31,10 @@ averaging_filter pitch_avg {0.0001f, 1.0f / config::sampling_frequency_hz, 440.0
 /* public */
 
 tuner::tuner() : effect { effect_id::tuner },
-pitch_det { 60.0_Hz, 2100.0_Hz, config::sampling_frequency_hz, -45.0_dB },
+pitch_avg {0.0002f, 1.0f / (config::sampling_frequency_hz / 2), 440.0f},
+pitch_det { /* B1 */ 61.73541_Hz, /* F6 */ 1396.913_Hz, config::sampling_frequency_hz / 2, -45.0_dB },
+detected_pitch { 0.0f },
+frame_counter { 0 },
 attr {}
 {
     const auto& def = tuner_attr::default_ctrl;
@@ -71,12 +49,26 @@ tuner::~tuner()
 
 void tuner::process(const dsp_input& in, dsp_output& out)
 {
-    std::transform(in.begin(), in.end(), out.begin(),
-    [this](auto input)
+    for (unsigned i = 0; i < in.size(); i++)
     {
-        if (this->pitch_det(input))
+        float input = in[i];
+
+        /* Update pitch detector every 2 samples*/
+        if (i % 2 == 0 && this->pitch_det(input))
+            this->detected_pitch = pitch_avg.process(this->pitch_det.get_frequency());
+
+        /* Do not alter the signal, just pass it through */
+        out[i] = input;
+    }
+
+    /* Update output every 10 frames */
+    if (++this->frame_counter >= 10)
+    {
+        this->frame_counter = 0;
+
+        if (std::abs(this->detected_pitch - this->attr.out.pitch) > 0.1f)
         {
-            this->attr.out.pitch = pitch_avg.process(this->pitch_det.get_frequency());
+            this->attr.out.pitch = this->detected_pitch;
 
             /* Calculate note, octave and cents deviation */
             constexpr char notes[12] =
@@ -90,25 +82,12 @@ void tuner::process(const dsp_input& in, dsp_output& out)
             float nearest_freq = this->attr.ctrl.a4_tuning * std::pow(2.0f, (note_number - 49) / 12.0f);
             float cents_err = 1200.0f * std::log2(this->attr.out.pitch / nearest_freq);
 
-            // Fill result
+            /* Fill result */
             this->attr.out.note = notes[note_idx];
             this->attr.out.octave = std::clamp(octave, 0, 8);
             this->attr.out.cents = std::clamp((int)std::round(cents_err), -50, 50);
-        }
 
-        /* Do not alter the signal, just pass it through */
-        return input;
-    }
-    );
-
-    // Update output every 10 frames (~26ms)
-    if (++frame_counter >= 10)
-    {
-        frame_counter = 0;
-
-        if (std::abs(prev_pitch - this->attr.out.pitch) > 0.1f)
-        {
-            prev_pitch = this->attr.out.pitch;
+            /* Notify about the change */
             if (this->callback) this->callback(this);
         }
     }

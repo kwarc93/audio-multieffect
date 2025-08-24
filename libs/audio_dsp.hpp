@@ -354,6 +354,34 @@ private:
 
 //-----------------------------------------------------------------------------
 
+class averaging_filter
+{
+public:
+    averaging_filter(float time_constant, float time_delta, float inital_value = 0)
+    {
+        this->alpha1 = 1 - expf(-time_delta / time_constant);
+        this->alpha2 = 1 - this->alpha1;
+        this->output = inital_value;
+    }
+    virtual ~averaging_filter() = default;
+
+    float process(float input)
+    {
+        return output = this->alpha2 * output + this->alpha1 * input;
+    }
+
+    void reset(float value)
+    {
+        this->output = value;
+    }
+private:
+    float alpha1, alpha2;
+    float output;
+};
+
+
+//-----------------------------------------------------------------------------
+
 enum class basic_iir_type {allpass, lowpass, highpass};
 
 template<basic_iir_type type>
