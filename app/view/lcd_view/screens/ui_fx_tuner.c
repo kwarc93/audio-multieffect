@@ -5,56 +5,6 @@
 
 #include "../ui.h"
 
-static void lv_bar_add_scale(lv_obj_t * bar, int min, int max, int step, bool vertical)
-{
-    lv_coord_t bar_x = lv_obj_get_x(bar);
-    lv_coord_t bar_y = lv_obj_get_y(bar);
-    lv_coord_t bar_w = lv_obj_get_width(bar) - 2;
-    lv_coord_t bar_h = lv_obj_get_height(bar);
-
-    int range = max - min;
-
-    for (int value = min; value <= max; value += step) {
-        float t = (float)(value - min) / range; // 0..1 fraction
-
-        lv_coord_t tick_x, tick_y;
-        if (vertical) {
-            tick_x = bar_x + bar_w + 2;                 // tick on the right
-            tick_y = bar_y + bar_h - (lv_coord_t)(t * bar_h); // top=0, bottom=bar_h
-        } else {
-            tick_x = bar_x + (lv_coord_t)(t * bar_w);
-            tick_y = bar_y + bar_h + 2;               // tick below bar
-        }
-
-        // Tick mark
-        lv_obj_t * tick = lv_obj_create(lv_obj_get_parent(bar));
-        if (vertical)
-            lv_obj_set_size(tick, 8, 2);             // horizontal tick for vertical bar
-        else
-            lv_obj_set_size(tick, 2, 8);             // vertical tick for horizontal bar
-
-        lv_obj_set_style_bg_color(tick, lv_color_hex(0x747682), 0);
-        lv_obj_set_style_border_width(tick, 0, 0);
-        lv_obj_set_style_pad_all(tick, 0, 0);
-        lv_obj_set_style_radius(tick, 0, 0);
-        lv_obj_set_pos(tick, tick_x, tick_y);
-
-        // Label
-        lv_obj_t * label = lv_label_create(lv_obj_get_parent(bar));
-        char buf[16];
-        lv_snprintf(buf, sizeof(buf), "%d", value);
-        lv_label_set_text(label, buf);
-        lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-
-        if (vertical)
-            lv_obj_align_to(label, tick, LV_ALIGN_OUT_RIGHT_MID, 2, 0);
-        else
-            lv_obj_align_to(label, tick, LV_ALIGN_OUT_BOTTOM_MID, 0, 0);
-    }
-
-    lv_obj_set_width(ui_bar_tuner_cents, lv_obj_get_width(bar) + 15);
-}
-
 void ui_fx_tuner_screen_init(void)
 {
     ui_fx_tuner = lv_obj_create(NULL);
@@ -119,14 +69,12 @@ void ui_fx_tuner_screen_init(void)
     lv_obj_set_style_border_color(ui_pnl_tuner_controls, lv_color_hex(0x747682), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_opa(ui_pnl_tuner_controls, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    // Create bar
     ui_bar_tuner_cents = lv_bar_create(ui_pnl_tuner_controls);
     lv_obj_set_size(ui_bar_tuner_cents, 200, 19);
     lv_obj_center(ui_bar_tuner_cents);
     lv_obj_set_style_bg_color(ui_bar_tuner_cents, lv_color_hex(0x101418), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_bar_tuner_cents, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    // Bar indicator
     ui_bar_tuner_cents_indicator = lv_label_create(ui_pnl_tuner_controls);
     lv_obj_set_width(ui_bar_tuner_cents_indicator, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_bar_tuner_cents_indicator, LV_SIZE_CONTENT);    /// 1
@@ -137,7 +85,42 @@ void ui_fx_tuner_screen_init(void)
     lv_obj_set_style_text_font(ui_bar_tuner_cents_indicator, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     // Bar scale
-    lv_bar_add_scale(ui_bar_tuner_cents, -50, 50, 25, false);
+    lv_coord_t bar_x = lv_obj_get_x(ui_bar_tuner_cents);
+    lv_coord_t bar_y = lv_obj_get_y(ui_bar_tuner_cents);
+    lv_coord_t bar_w = lv_obj_get_width(ui_bar_tuner_cents) - 2;
+    lv_coord_t bar_h = lv_obj_get_height(ui_bar_tuner_cents);
+    int min = -50;
+    int max = 50;
+    int step = 25;
+    int range = max - min;
+
+    for (int value = min; value <= max; value += step)
+    {
+        float t = (float)(value - min) / range;
+
+        lv_coord_t tick_x, tick_y;
+        tick_x = bar_x + (lv_coord_t)(t * bar_w);
+        tick_y = bar_y + bar_h + 2;
+
+        // Tick mark below bar
+        lv_obj_t * tick = lv_obj_create(lv_obj_get_parent(ui_bar_tuner_cents));
+        lv_obj_set_size(tick, 2, 8);
+
+        lv_obj_set_style_bg_color(tick, lv_color_hex(0x747682), 0);
+        lv_obj_set_style_border_width(tick, 0, 0);
+        lv_obj_set_style_pad_all(tick, 0, 0);
+        lv_obj_set_style_radius(tick, 0, 0);
+        lv_obj_set_pos(tick, tick_x, tick_y);
+
+        // Label
+        lv_obj_t * label = lv_label_create(lv_obj_get_parent(ui_bar_tuner_cents));
+        lv_label_set_text_fmt(label, "%d", value);
+        lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        lv_obj_align_to(label, tick, LV_ALIGN_OUT_BOTTOM_MID, 0, 0);
+    }
+
+    lv_obj_set_width(ui_bar_tuner_cents, lv_obj_get_width(ui_bar_tuner_cents) + 15);
 
     ui_lbl_tuner_pitch = lv_label_create(ui_pnl_tuner_controls);
     lv_obj_set_width(ui_lbl_tuner_pitch, LV_SIZE_CONTENT);   /// 1
@@ -153,7 +136,7 @@ void ui_fx_tuner_screen_init(void)
     lv_obj_set_width(ui_lbl_tuner_note, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_lbl_tuner_note, LV_SIZE_CONTENT);    /// 1
     lv_obj_align(ui_lbl_tuner_note, LV_ALIGN_TOP_LEFT, 0, 0);
-    lv_label_set_text(ui_lbl_tuner_note, "--");
+    lv_label_set_text(ui_lbl_tuner_note, "-");
     lv_obj_set_style_text_color(ui_lbl_tuner_note, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_lbl_tuner_note, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_lbl_tuner_note, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);

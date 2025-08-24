@@ -389,7 +389,7 @@ std::unique_ptr<effect> effect_processor::create_new(effect_id id)
     };
 
     std::unique_ptr<effect> e = effect_factory.at(id)();
-    e->set_notify_callback([this](effect* e) { this->notify_effect_attributes_changed(e); });
+    e->set_callback([this](effect* e) { this->notify_effect_attributes_changed(e); });
     return e;
 }
 
