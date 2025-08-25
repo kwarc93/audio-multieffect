@@ -90,7 +90,7 @@ void controller::event_handler(const controller_events::initialize &e)
 
     /* Schedule periodic events */
     this->schedule({events::button_debounce {}}, 20, true);
-    this->schedule({events::led_toggle {}}, 200, true);
+    this->schedule({events::led_toggle {}}, 500, true);
     this->schedule({events::save_settings {}}, 1000, true);
 
     /* Start view & model */

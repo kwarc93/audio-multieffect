@@ -28,7 +28,7 @@ void ui_fx_tuner_screen_init(void)
     lv_obj_set_x(ui_lbl_tuner_fx_name, 0);
     lv_obj_set_y(ui_lbl_tuner_fx_name, 10);
     lv_obj_set_align(ui_lbl_tuner_fx_name, LV_ALIGN_TOP_MID);
-    lv_label_set_text(ui_lbl_tuner_fx_name, "CHROMATIC TUNER");
+    lv_label_set_text(ui_lbl_tuner_fx_name, "TUNER");
     lv_obj_set_style_text_color(ui_lbl_tuner_fx_name, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_lbl_tuner_fx_name, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_lbl_tuner_fx_name, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -114,7 +114,7 @@ void ui_fx_tuner_screen_init(void)
 
         // Label
         lv_obj_t * label = lv_label_create(lv_obj_get_parent(ui_bar_tuner_cents));
-        lv_label_set_text_fmt(label, "%d", value);
+        lv_label_set_text_fmt(label, value == 0 ? "%d" : "%+d", value);
         lv_obj_set_style_text_color(label, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
 
         lv_obj_align_to(label, tick, LV_ALIGN_OUT_BOTTOM_MID, 0, 0);
@@ -136,7 +136,7 @@ void ui_fx_tuner_screen_init(void)
     lv_obj_set_width(ui_lbl_tuner_note, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_lbl_tuner_note, LV_SIZE_CONTENT);    /// 1
     lv_obj_align(ui_lbl_tuner_note, LV_ALIGN_TOP_LEFT, 0, 0);
-    lv_label_set_text(ui_lbl_tuner_note, "-");
+    lv_label_set_text(ui_lbl_tuner_note, "--");
     lv_obj_set_style_text_color(ui_lbl_tuner_note, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_lbl_tuner_note, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_lbl_tuner_note, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -149,6 +149,16 @@ void ui_fx_tuner_screen_init(void)
     lv_obj_set_style_text_color(ui_lbl_tuner_cents, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_lbl_tuner_cents, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_lbl_tuner_cents, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_t * ui_lbl_tuner_a4_tuning = lv_label_create(ui_pnl_tuner_controls);
+    lv_obj_set_width(ui_lbl_tuner_a4_tuning, LV_SIZE_CONTENT);
+    lv_obj_set_height(ui_lbl_tuner_a4_tuning, LV_SIZE_CONTENT);
+    lv_obj_set_align(ui_lbl_tuner_a4_tuning, LV_ALIGN_BOTTOM_LEFT);
+    lv_label_set_text(ui_lbl_tuner_a4_tuning, "A4: 440Hz");
+    lv_obj_set_style_text_color(ui_lbl_tuner_a4_tuning, lv_color_hex(0x9395A1), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_lbl_tuner_a4_tuning, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui_lbl_tuner_a4_tuning, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_lbl_tuner_a4_tuning, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
 
 
     lv_obj_add_event_cb(ui_btn_tuner_bypass, ui_event_btn_tuner_bypass, LV_EVENT_ALL, NULL);
