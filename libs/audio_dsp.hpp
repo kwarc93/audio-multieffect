@@ -359,7 +359,7 @@ class averaging_filter
 public:
     averaging_filter(float time_constant, float time_delta, float inital_value = 0)
     {
-        this->alpha1 = 1 - expf(-time_delta / time_constant);
+        this->alpha1 = 1 - std::exp(-time_delta / time_constant);
         this->alpha2 = 1 - this->alpha1;
         this->output = inital_value;
     }

@@ -21,6 +21,8 @@ using namespace cycfi::q::literals;
 namespace
 {
 
+constexpr unsigned decimation_factor {4};
+
 }
 
 //-----------------------------------------------------------------------------
@@ -31,8 +33,8 @@ namespace
 /* public */
 
 tuner::tuner() : effect { effect_id::tuner },
-pitch_avg {0.0002f, 1.0f / (config::sampling_frequency_hz / 2), 440.0f},
-pitch_det { /* B1 */ 61.73541_Hz, /* F6 */ 1396.913_Hz, config::sampling_frequency_hz / 2, -45.0_dB },
+pitch_avg {decimation_factor * 0.0002f, 1.0f / (config::sampling_frequency_hz / decimation_factor), 0.0f},
+pitch_det { /* E2 */ 82.40689_Hz, /* E6 */ 1318.510_Hz, config::sampling_frequency_hz / decimation_factor, -45.0_dB },
 detected_pitch { 0.0f },
 frame_counter { 0 },
 attr {}
@@ -53,9 +55,9 @@ void tuner::process(const dsp_input& in, dsp_output& out)
     {
         float input = in[i];
 
-        /* Update pitch detector every 2 samples*/
-        if (i % 2 == 0 && this->pitch_det(input))
-            this->detected_pitch = pitch_avg.process(this->pitch_det.get_frequency());
+        /* Update pitch detector every x samples*/
+        if (i % decimation_factor == 0)
+            this->detected_pitch = pitch_avg.process(this->pitch_det(input) ? this->pitch_det.get_frequency() : this->detected_pitch);
 
         /* Do not alter the signal, just pass it through */
         out[i] = input;
@@ -83,7 +85,7 @@ void tuner::process(const dsp_input& in, dsp_output& out)
             float cents_err = 1200.0f * std::log2(this->attr.out.pitch / nearest_freq);
 
             /* Fill result */
-            this->attr.out.note = notes[note_idx];
+            this->attr.out.note = notes[std::clamp(note_idx, 0, 11)];
             this->attr.out.octave = std::clamp(octave, 0, 8);
             this->attr.out.cents = std::clamp((int)std::round(cents_err), -50, 50);
 
