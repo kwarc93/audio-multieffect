@@ -10,7 +10,11 @@
 #include <algorithm>
 
 #include <q/support/literals.hpp>
-#include <q/synth/sin_osc.hpp>
+#include <q/fx/envelope.hpp>
+#include <q/fx/lowpass.hpp>
+#include <q/fx/biquad.hpp>
+#include <q/fx/dynamic.hpp>
+#include <q/fx/clip.hpp>
 
 using namespace mfx;
 using namespace cycfi::q::literals;
@@ -22,6 +26,20 @@ namespace
 {
 
 constexpr unsigned decimation_factor {4};
+
+constexpr float onset_threshold = lin_float(-28_dB);
+constexpr float release_threshold = lin_float(-60_dB);
+float threshold = onset_threshold;
+constexpr float sps = config::sampling_frequency_hz / decimation_factor;
+
+cycfi::q::peak_envelope_follower  env{ 30_ms, sps };
+cycfi::q::one_pole_lowpass        lp{ 1318.510_Hz, sps };
+cycfi::q::one_pole_lowpass        lp2{ 82.40689_Hz, sps };
+
+constexpr float            slope = 1.0f/4;
+constexpr float            makeup_gain = 4;
+cycfi::q::compressor       comp{ -18_dB, slope };
+cycfi::q::clip             clip;
 
 }
 
@@ -57,8 +75,32 @@ void tuner::process(const dsp_input& in, dsp_output& out)
 
         /* Update pitch detector every x samples*/
         if (i % decimation_factor == 0)
-            this->detected_pitch = pitch_avg.process(this->pitch_det(input) ? this->pitch_det.get_frequency() : this->detected_pitch);
+        {
+            auto s = input;
 
+            // Bandpass filter
+            s = lp(s);
+            s -= lp2(s);
+
+            // Envelope
+            auto e = env(std::abs(s));
+            auto e_db = cycfi::q::lin_to_db(e);
+
+            if (e > threshold)
+            {
+               // Compressor + makeup-gain + hard clip
+               auto gain = cycfi::q::lin_float(comp(e_db)) * makeup_gain;
+               s = clip(s * gain);
+               threshold = release_threshold;
+            }
+            else
+            {
+               s = 0.0f;
+               threshold = onset_threshold;
+            }
+
+            this->detected_pitch = pitch_avg.process(this->pitch_det(s) ? this->pitch_det.get_frequency() : this->detected_pitch);
+        }
         /* Do not alter the signal, just pass it through */
         out[i] = input;
     }
