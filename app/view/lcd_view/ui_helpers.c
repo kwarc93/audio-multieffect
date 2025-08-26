@@ -19,11 +19,6 @@ void _ui_basic_set_property(lv_obj_t * target, int id, int val)
     if(id == _UI_BASIC_PROPERTY_HEIGHT) lv_obj_set_height(target, val);
 }
 
-void _ui_dropdown_set_property(lv_obj_t * target, int id, int val)
-{
-    if(id == _UI_DROPDOWN_PROPERTY_SELECTED) lv_dropdown_set_selected(target, val);
-}
-
 void _ui_image_set_property(lv_obj_t * target, int id, uint8_t * val)
 {
     if(id == _UI_IMAGE_PROPERTY_IMAGE) lv_img_set_src(target, val);
@@ -239,13 +234,5 @@ void _ui_checked_set_text_value(lv_obj_t * trg, lv_obj_t * src, const char * txt
 {
     if(lv_obj_has_state(src, LV_STATE_CHECKED)) lv_label_set_text(trg, txt_on);
     else lv_label_set_text(trg, txt_off);
-}
-
-void _ui_spinbox_step(lv_obj_t * target, int val)
-{
-    if(val > 0) lv_spinbox_increment(target);
-    else lv_spinbox_decrement(target);
-
-    lv_event_send(target, LV_EVENT_VALUE_CHANGED, 0);
 }
 
