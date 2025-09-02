@@ -354,6 +354,7 @@ private:
 
 //-----------------------------------------------------------------------------
 
+/* Exponential moving average filter */
 class averaging_filter
 {
 public:
@@ -379,6 +380,25 @@ private:
     float output;
 };
 
+//-----------------------------------------------------------------------------
+
+/* Short 3-point median filter */
+class median_filter
+{
+public:
+    median_filter(float median = 0.0f) : median{median}, x2{median}, x3{median} {};
+
+    float process(float x1)
+    {
+        median = std::max(std::min(x1, x2), std::min(std::max(x1, x2), x3));
+        x3 = x2;
+        x2 = x1;
+        return median;
+    }
+
+private:
+    float median, x2, x3;
+};
 
 //-----------------------------------------------------------------------------
 
@@ -796,6 +816,133 @@ private:
     }
 
     std::vector<float> autocorr;
+};
+
+/* Pitch detector based on McLeod method */
+template<uint16_t block_size, uint16_t window_size>
+class pitch_detector
+{
+public:
+    pitch_detector(uint32_t fs) : input{}, nsdf{}, fs{fs}, pitch{-1}, clarity{0}
+    {
+        arm_fill_f32(0, this->input.data(), this->input.size());
+    }
+
+    ~pitch_detector()
+    {
+
+    }
+
+    bool process(const float *in)
+    {
+        bool pitch_detected = false;
+
+        /* 1. Sliding window of input blocks */
+        const uint32_t move_size = this->input.size() - block_size;
+        arm_copy_f32(this->input.data() + block_size, this->input.data(), move_size);
+        arm_copy_f32(const_cast<float*>(in), this->input.data() + move_size, block_size);
+
+        /* 2. Compute the Normalized Square Difference Function */
+        calculate_nsdf(this->input.data(), window_size);
+
+        /* 3. Find the best peak in NSDF & get its tau (lag) and value */
+        float tau, val;
+        pitch_detected = find_best_peak(&tau, &val, 0.9f);
+        if (pitch_detected)
+        {
+            this->pitch = this->fs / tau;
+            this->clarity = val;
+        }
+
+        return pitch_detected;
+    }
+
+    float get_pitch(void)
+    {
+        return this->pitch;
+    }
+
+    float get_clarity(void)
+    {
+        return this->clarity;
+    }
+private:
+    void calculate_nsdf(const float *x, std::size_t w)
+    {
+        /* Standard way of NSDF calculation */
+
+        for (unsigned tau = 0; tau < w - 1; ++tau)
+        {
+            float num = 0;
+            float den = 0;
+            for (unsigned j = 0; j < (w - tau); ++j)
+            {
+                const auto x_j = x[j];
+                const auto x_j_tau = x[j+tau];
+                num += x_j * x_j_tau;
+                den += x_j * x_j + x_j_tau * x_j_tau;
+            }
+
+            /* FIXME: Its unlikely but 'den' could be 0 */
+            this->nsdf[tau] = 2 * num / den;
+        }
+
+    }
+
+    void calculate_nsdf_fast(const float *x, std::size_t w)
+    {
+        /* Fast way (using FFT) of NSDF calculation */
+    }
+
+    bool find_best_peak(float *tau, float *value, float threshold)
+    {
+        bool peak_found = false;
+
+        *tau = 0;
+        *value = 0;
+
+        const auto w = this->nsdf.size() - 1;
+
+        for (unsigned i = 1; i < w; ++i)
+        {
+            auto y1 = this->nsdf[i - 1];
+            auto y2 = this->nsdf[i];
+            auto y3 = this->nsdf[i + 1];
+
+            if (y2 > threshold && y2 > y1 && y2 > y3)
+            {
+                /* Parabolic interpolation around lag 'i' */
+                auto y1 = this->nsdf[i - 1];
+                auto y2 = this->nsdf[i];
+                auto y3 = this->nsdf[i + 1];
+
+                float den = y1 + y3 - 2 * y2;
+                float delta = y1 - y3;
+                if (den != 0)
+                {
+                    *tau = i + delta / (2 * den);
+                    *value = y2 - delta * delta / (8 * den);
+                }
+                else
+                {
+                    *tau = i;
+                    *value = y2;
+                }
+
+                peak_found = true;
+                break;
+            }
+        }
+
+        return peak_found;
+    }
+
+private:
+    std::array<float, window_size> input;
+    std::array<float, window_size> nsdf;
+    const uint32_t fs;
+    float pitch;
+    float clarity;
 };
 
 }
