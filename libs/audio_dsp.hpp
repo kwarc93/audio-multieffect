@@ -825,7 +825,9 @@ class pitch_detector
 public:
     pitch_detector(uint32_t fs) : input{}, nsdf{}, fs{fs}, pitch{-1}, clarity{0}
     {
+        arm_rfft_fast_init_f32(&this->fft, 2 * window_size);
         arm_fill_f32(0, this->input.data(), this->input.size());
+        arm_fill_f32(0, this->fft_input.data(), this->fft_input.size());
     }
 
     ~pitch_detector()
@@ -843,7 +845,7 @@ public:
         arm_copy_f32(const_cast<float*>(in), this->input.data() + move_size, block_size);
 
         /* 2. Compute the Normalized Square Difference Function */
-        calculate_nsdf(this->input.data(), window_size);
+        calculate_nsdf_fast(this->input.data(), window_size);
 
         /* 3. Find the best peak in NSDF & get its tau (lag) and value */
         float tau, val;
@@ -892,6 +894,49 @@ private:
     void calculate_nsdf_fast(const float *x, std::size_t w)
     {
         /* Fast way (using FFT) of NSDF calculation */
+
+        /* % --- Step 1: Autocorrelation via FFT --- */
+        /* 1.1 Zero pad the window by the number of NSDF values required (w=W/2) */
+        arm_fill_f32(0, this->fft_input.data() + w, w);
+        arm_copy_f32((float*)x, this->fft_input.data(), w);
+
+        /* 1.2 Take a Fast Fourier Transform of this real signal */
+        arm_rfft_fast_f32(&this->fft, this->fft_input.data(), this->fft_output.data(), 0);
+
+        /* 1.3 For each complex coefficient, multiply it by its conjugate (giving the power spectrial density) */
+        arm_cmplx_mag_squared_f32(this->fft_output.data() + 2, this->psd.data() + 1, w - 1);
+        this->psd[0] = this->fft_output[0] * this->fft_output[0]; // DC
+
+        /* 1.4 Take the inverse Fast Fourier Transform */
+        for (unsigned n = 0; n < w; n++) {
+            this->fft_output[(2*n)+0] = this->psd[n]; // real
+            this->fft_output[(2*n)+1] = 0; // imag
+        }
+        arm_rfft_fast_f32(&this->fft, this->fft_output.data(), this->fft_input.data(), 1);
+
+        /* --- Step 2: Precompute cumulative sum of squares --- */
+        arm_fill_f32(0, this->padded_input.data() + w, w);
+        arm_copy_f32((float*)x, this->padded_input.data(), w);
+        for (unsigned i = 0; i < w; ++i)
+        {
+            this->padded_input[i] = this->padded_input[i] * this->padded_input[i];
+        }
+
+        this->cumsum[0] = this->padded_input[0];
+        for (std::size_t i = 1; i < this->cumsum.size(); i++)
+        {
+            this->cumsum[i] = this->cumsum[i-1] + this->padded_input[i];
+        }
+
+        /* --- Step 3: Build NSDF --- */
+        float *r = this->fft_input.data();
+        float *s = this->cumsum.data();
+        for (unsigned tau = 0; tau < w - 1; ++tau)
+        {
+            float mp = s[w - tau] + (s[w] - s[tau]);
+            this->nsdf[tau] = 2 * r[tau] / mp;
+        }
+
     }
 
     bool find_best_peak(float *tau, float *value, float threshold)
@@ -938,7 +983,13 @@ private:
     }
 
 private:
+    arm_rfft_fast_instance_f32 fft;
+    std::array<float, 2 * window_size> fft_input; // Because fft modifies original input
+    std::array<float, 2 * window_size> fft_output;
+    std::array<float, 2 * window_size> cumsum;
+    std::array<float, window_size> psd;
     std::array<float, window_size> input;
+    std::array<float, 2 * window_size> padded_input;
     std::array<float, window_size> nsdf;
     const uint32_t fs;
     float pitch;
