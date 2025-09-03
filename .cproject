@@ -64,8 +64,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32f7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/q/q_lib/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/infra/include}&quot;"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs.1701074922" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs" useByScannerDiscovery="true" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__HEAP_SIZE=0x00020000"/>
@@ -92,8 +90,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32f7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/q/q_lib/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/infra/include}&quot;"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs.653498579" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs" useByScannerDiscovery="true" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__HEAP_SIZE=0x00020000"/>
@@ -114,7 +110,7 @@
 							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.1461772922" name="GNU ARM Cross C++ Compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler">
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.noexceptions.1381242089" name="Do not use exceptions (-fno-exceptions)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.noexceptions" useByScannerDiscovery="true" value="true" valueType="boolean"/>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.nortti.371693340" name="Do not use RTTI (-fno-rtti)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.nortti" useByScannerDiscovery="true" value="true" valueType="boolean"/>
-								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.1904712610" name="Language standard" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std" useByScannerDiscovery="true" value="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.cpp20" valueType="enumerated"/>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.1904712610" name="Language standard" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std" useByScannerDiscovery="true" value="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.cpp17" valueType="enumerated"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths.2081060845" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths" useByScannerDiscovery="true" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
@@ -125,8 +121,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32f7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/q/q_lib/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/infra/include}&quot;"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs.313233473" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs" useByScannerDiscovery="true" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__HEAP_SIZE=0x00020000"/>
@@ -141,7 +135,7 @@
 									<listOptionValue builtIn="false" value="LFS_DEFINES=libs/lfs_conf.h"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.other.1827818371" name="Other compiler flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.other" useByScannerDiscovery="true" value="" valueType="string"/>
-								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.otherwarnings.1721398999" name="Other warning flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.otherwarnings" useByScannerDiscovery="true" value="-Wno-volatile" valueType="string"/>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.otherwarnings.1721398999" name="Other warning flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.otherwarnings" useByScannerDiscovery="true" value="" valueType="string"/>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.722942255" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input"/>
 							</tool>
 							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.linker.648271913" name="GNU ARM Cross C Linker" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.linker">
@@ -228,8 +222,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32f7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/q/q_lib/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/infra/include}&quot;"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input.1040799421" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input"/>
 							</tool>
@@ -244,8 +236,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32f7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/q/q_lib/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/infra/include}&quot;"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.1139684497" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input"/>
 							</tool>
@@ -260,8 +250,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32f7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/q/q_lib/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/infra/include}&quot;"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.1179928803" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input"/>
 							</tool>
@@ -353,8 +341,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32h7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/q/q_lib/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/infra/include}&quot;"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs.2030795692" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs" useByScannerDiscovery="true" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__HEAP_SIZE=0x00020000"/>
@@ -382,8 +368,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32h7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/q/q_lib/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/infra/include}&quot;"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs.1461996431" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs" useByScannerDiscovery="true" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__HEAP_SIZE=0x00020000"/>
@@ -405,7 +389,7 @@
 							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.556892519" name="GNU ARM Cross C++ Compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler">
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.noexceptions.66456320" name="Do not use exceptions (-fno-exceptions)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.noexceptions" useByScannerDiscovery="true" value="true" valueType="boolean"/>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.nortti.1231566623" name="Do not use RTTI (-fno-rtti)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.nortti" useByScannerDiscovery="true" value="true" valueType="boolean"/>
-								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.409379429" name="Language standard" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std" useByScannerDiscovery="true" value="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.cpp20" valueType="enumerated"/>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.409379429" name="Language standard" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std" useByScannerDiscovery="true" value="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.cpp17" valueType="enumerated"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths.596354743" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths" useByScannerDiscovery="true" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
@@ -416,8 +400,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32h7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/q/q_lib/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/infra/include}&quot;"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs.1816851088" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs" useByScannerDiscovery="true" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__HEAP_SIZE=0x00020000"/>
@@ -433,7 +415,7 @@
 									<listOptionValue builtIn="false" value="LFS_DEFINES=libs/lfs_conf.h"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.other.1685908088" name="Other compiler flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.other" useByScannerDiscovery="true" value="" valueType="string"/>
-								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.otherwarnings.844645945" name="Other warning flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.otherwarnings" useByScannerDiscovery="true" value="-Wno-volatile" valueType="string"/>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.otherwarnings.844645945" name="Other warning flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.otherwarnings" useByScannerDiscovery="true" value="" valueType="string"/>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.544594488" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input"/>
 							</tool>
 							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.linker.1350646691" name="GNU ARM Cross C Linker" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.linker">
@@ -520,8 +502,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32h7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/q/q_lib/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/infra/include}&quot;"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input.2113777356" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input"/>
 							</tool>
@@ -536,8 +516,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32h7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/q/q_lib/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/infra/include}&quot;"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.1564072989" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input"/>
 							</tool>
@@ -552,8 +530,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32h7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/q/q_lib/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/infra/include}&quot;"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.26249519" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input"/>
 							</tool>
@@ -645,8 +621,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32h7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/q/q_lib/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/infra/include}&quot;"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs.1309224384" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs" useByScannerDiscovery="true" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__HEAP_SIZE=0x00020000"/>
@@ -673,8 +647,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32h7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/q/q_lib/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/infra/include}&quot;"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs.1200771990" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs" useByScannerDiscovery="true" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__HEAP_SIZE=0x00020000"/>
@@ -695,7 +667,7 @@
 							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.906219215" name="GNU ARM Cross C++ Compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler">
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.noexceptions.1648845416" name="Do not use exceptions (-fno-exceptions)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.noexceptions" useByScannerDiscovery="true" value="true" valueType="boolean"/>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.nortti.1750866151" name="Do not use RTTI (-fno-rtti)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.nortti" useByScannerDiscovery="true" value="true" valueType="boolean"/>
-								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.1574784206" name="Language standard" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std" useByScannerDiscovery="true" value="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.cpp20" valueType="enumerated"/>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.1574784206" name="Language standard" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std" useByScannerDiscovery="true" value="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.cpp17" valueType="enumerated"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths.1870703873" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths" useByScannerDiscovery="true" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
@@ -706,8 +678,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32h7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/q/q_lib/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/infra/include}&quot;"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs.1984204616" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs" useByScannerDiscovery="true" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__HEAP_SIZE=0x00020000"/>
@@ -722,7 +692,7 @@
 									<listOptionValue builtIn="false" value="CFG_FS_CALIB=65"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.other.1176585692" name="Other compiler flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.other" useByScannerDiscovery="true" value="" valueType="string"/>
-								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.otherwarnings.153513911" name="Other warning flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.otherwarnings" useByScannerDiscovery="true" value="-Wno-volatile" valueType="string"/>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.otherwarnings.153513911" name="Other warning flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.otherwarnings" useByScannerDiscovery="true" value="" valueType="string"/>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.786863922" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input"/>
 							</tool>
 							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.linker.150291609" name="GNU ARM Cross C Linker" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.linker">
@@ -809,8 +779,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32h7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/q/q_lib/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/infra/include}&quot;"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input.285044633" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input"/>
 							</tool>
@@ -825,8 +793,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32h7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/q/q_lib/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/infra/include}&quot;"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.1119704518" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input"/>
 							</tool>
@@ -841,8 +807,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32h7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/q/q_lib/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/infra/include}&quot;"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.1151804788" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input"/>
 							</tool>
@@ -934,8 +898,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32h7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/q/q_lib/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/infra/include}&quot;"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs.632100355" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs" useByScannerDiscovery="true" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__HEAP_SIZE=0x00020000"/>
@@ -962,8 +924,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32h7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/q/q_lib/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/infra/include}&quot;"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs.754431284" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs" useByScannerDiscovery="true" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__HEAP_SIZE=0x00020000"/>
@@ -984,7 +944,7 @@
 							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.514332978" name="GNU ARM Cross C++ Compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler">
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.noexceptions.798778298" name="Do not use exceptions (-fno-exceptions)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.noexceptions" useByScannerDiscovery="true" value="true" valueType="boolean"/>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.nortti.1482162590" name="Do not use RTTI (-fno-rtti)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.nortti" useByScannerDiscovery="true" value="true" valueType="boolean"/>
-								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.557336252" name="Language standard" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std" useByScannerDiscovery="true" value="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.cpp20" valueType="enumerated"/>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.557336252" name="Language standard" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std" useByScannerDiscovery="true" value="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.cpp17" valueType="enumerated"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths.928883594" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths" useByScannerDiscovery="true" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
@@ -995,8 +955,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32h7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/q/q_lib/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/infra/include}&quot;"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs.427001138" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs" useByScannerDiscovery="true" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__HEAP_SIZE=0x00020000"/>
@@ -1011,7 +969,7 @@
 									<listOptionValue builtIn="false" value="LFS_DEFINES=libs/lfs_conf.h"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.other.837429924" name="Other compiler flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.other" useByScannerDiscovery="true" value="" valueType="string"/>
-								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.otherwarnings.562466911" name="Other warning flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.otherwarnings" useByScannerDiscovery="true" value="-Wno-volatile" valueType="string"/>
+								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.otherwarnings.562466911" name="Other warning flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.otherwarnings" useByScannerDiscovery="true" value="" valueType="string"/>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.1185568138" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input"/>
 							</tool>
 							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.linker.369164075" name="GNU ARM Cross C Linker" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.linker">
@@ -1098,8 +1056,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32h7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/q/q_lib/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/infra/include}&quot;"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input.644475531" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input"/>
 							</tool>
@@ -1114,8 +1070,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32h7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/q/q_lib/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/infra/include}&quot;"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.975505781" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input"/>
 							</tool>
@@ -1130,8 +1084,6 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32h7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/q/q_lib/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/cycfi/infra/include}&quot;"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.881450446" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input"/>
 							</tool>

@@ -12,8 +12,6 @@
 
 #include <libs/audio_dsp.hpp>
 
-#include <q/pitch/pitch_detector.hpp>
-
 namespace mfx
 {
 
@@ -30,13 +28,9 @@ public:
 
     constexpr static unsigned decim_factor {4};
 private:
-    void process1(const dsp_input &in, dsp_output &out);
-    void process2(const dsp_input &in, dsp_output &out);
-
     libs::adsp::median_filter pitch_median;
     libs::adsp::averaging_filter pitch_avg;
     libs::adsp::pitch_detector<config::dsp_vector_size / decim_factor, 256> pitch_det1;
-    cycfi::q::pitch_detector pitch_det2;
     float detected_pitch;
     unsigned frame_counter;
 

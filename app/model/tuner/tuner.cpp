@@ -9,15 +9,7 @@
 
 #include <algorithm>
 
-#include <q/support/literals.hpp>
-#include <q/fx/envelope.hpp>
-#include <q/fx/lowpass.hpp>
-#include <q/fx/biquad.hpp>
-#include <q/fx/dynamic.hpp>
-#include <q/fx/clip.hpp>
-
 using namespace mfx;
-using namespace cycfi::q::literals;
 
 //-----------------------------------------------------------------------------
 /* helpers */
@@ -25,19 +17,8 @@ using namespace cycfi::q::literals;
 namespace
 {
 
-constexpr float onset_threshold = lin_float(-28_dB);
-constexpr float release_threshold = lin_float(-60_dB);
-float threshold = onset_threshold;
-constexpr float sps = config::sampling_frequency_hz / tuner::decim_factor;
-
-cycfi::q::peak_envelope_follower  env{ 30_ms, sps };
-cycfi::q::one_pole_lowpass        lp{ 1318.510_Hz, sps };
-cycfi::q::one_pole_lowpass        lp2{ 82.40689_Hz, sps };
-
-constexpr float            slope = 1.0f/4;
-constexpr float            makeup_gain = 4;
-cycfi::q::compressor       comp{ -18_dB, slope };
-cycfi::q::clip             clip;
+constexpr float min_freq = 55.0f;   // A1
+constexpr float max_freq = 1760.0f; // A6
 
 std::array<float, config::dsp_vector_size / tuner::decim_factor> decim_buf;
 
@@ -46,74 +27,13 @@ std::array<float, config::dsp_vector_size / tuner::decim_factor> decim_buf;
 //-----------------------------------------------------------------------------
 /* private */
 
-void tuner::process1(const dsp_input &in, dsp_output &out)
-{
-    for (unsigned i = 0; i < in.size(); i++)
-    {
-        float input = in[i];
-
-        /* Do not alter the signal, just pass it through */
-        out[i] = input;
-
-        /* Decimate signal to temporary buffer */
-        if (i % tuner::decim_factor == 0)
-        {
-            decim_buf[i / tuner::decim_factor] = input;
-        }
-    }
-
-    this->detected_pitch = pitch_avg.process(this->pitch_det1.process(decim_buf.data()) ? this->pitch_median.process(this->pitch_det1.get_pitch()) : this->detected_pitch);
-}
-
-void tuner::process2(const dsp_input &in, dsp_output &out)
-{
-    for (unsigned i = 0; i < in.size(); i++)
-    {
-        float input = in[i];
-
-        /* Update pitch detector every x samples*/
-        if (i % tuner::decim_factor == 0)
-        {
-            auto s = input;
-
-            // Bandpass filter
-            s = lp(s);
-            s -= lp2(s);
-
-            // Envelope
-            auto e = env(std::abs(s));
-            auto e_db = cycfi::q::lin_to_db(e);
-
-            if (e > threshold)
-            {
-               // Compressor + makeup-gain + hard clip
-               auto gain = cycfi::q::lin_float(comp(e_db)) * makeup_gain;
-               s = clip(s * gain);
-               threshold = release_threshold;
-            }
-            else
-            {
-               s = 0.0f;
-               threshold = onset_threshold;
-            }
-
-            this->detected_pitch = pitch_avg.process(this->pitch_det2(s) ? this->pitch_det2.get_frequency() : this->detected_pitch);
-        }
-
-        /* Do not alter the signal, just pass it through */
-        out[i] = input;
-    }
-}
-
 //-----------------------------------------------------------------------------
 /* public */
 
 tuner::tuner() : effect { effect_id::tuner },
 pitch_median {},
 pitch_avg { 0.2f, 1.0f / (config::sampling_frequency_hz / config::dsp_vector_size), 0.0f },
-//pitch_avg { tuner::decim_factor * 0.0002f, 1.0f / (config::sampling_frequency_hz / tuner::decim_factor), 0.0f },
 pitch_det1 { config::sampling_frequency_hz / tuner::decim_factor },
-pitch_det2 { /* E2 */ 82.40689_Hz, /* E6 */ 1318.510_Hz, config::sampling_frequency_hz / tuner::decim_factor, -45.0_dB },
 detected_pitch { 0.0f },
 frame_counter { 0 },
 attr {}
@@ -130,15 +50,27 @@ tuner::~tuner()
 
 void tuner::process(const dsp_input& in, dsp_output& out)
 {
-    this->process1(in, out);
-//    this->process2(in, out);
+    for (unsigned i = 0; i < in.size() / decim_factor; i++)
+    {
+        /* Do not alter the signal, just pass it through */
+        const auto idx = i * decim_factor;
+        out[idx + 0] = in[idx + 0];
+        out[idx + 1] = in[idx + 1];
+        out[idx + 2] = in[idx + 2];
+        out[idx + 3] = in[idx + 3];
+
+        /* Decimate signal to temporary buffer */
+        decim_buf[i] = in[idx];
+    }
+
+    this->detected_pitch = pitch_avg.process(this->pitch_det1.process(decim_buf.data()) ? this->pitch_median.process(this->pitch_det1.get_pitch()) : this->detected_pitch);
 
     /* Update output every 10 frames */
     if (++this->frame_counter >= 10)
     {
         this->frame_counter = 0;
 
-        if (std::abs(this->detected_pitch - this->attr.out.pitch) > 0.1f)
+        if (std::abs(this->detected_pitch - this->attr.out.pitch) > 0.05f)
         {
             this->attr.out.pitch = this->detected_pitch;
 

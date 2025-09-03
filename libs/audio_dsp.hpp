@@ -848,7 +848,7 @@ public:
 
         /* 3. Find the best peak in NSDF & get its tau (lag) and value */
         float tau, val;
-        pitch_detected = find_best_peak(&tau, &val, 0.9f);
+        pitch_detected = find_best_peak(&tau, &val, 0.93f);
         if (pitch_detected)
         {
             this->pitch = this->fs / tau;
@@ -976,7 +976,7 @@ private:
             }
         }
 
-        return peak_found;
+        return peak_found && (*value) > 0.99f;
     }
 
 private:
