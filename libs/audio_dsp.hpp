@@ -827,7 +827,6 @@ public:
     {
         arm_rfft_fast_init_f32(&this->fft, 2 * window_size);
         arm_fill_f32(0, this->input.data(), this->input.size());
-        arm_fill_f32(0, this->fft_input.data(), this->fft_input.size());
     }
 
     ~pitch_detector()
@@ -872,8 +871,7 @@ private:
     void calculate_nsdf(const float *x, std::size_t w)
     {
         /* Standard way of NSDF calculation */
-
-        for (unsigned tau = 0; tau < w - 1; ++tau)
+        for (unsigned tau = 0; tau < w; ++tau)
         {
             float num = 0;
             float den = 0;
@@ -888,7 +886,6 @@ private:
             /* FIXME: Its unlikely but 'den' could be 0 */
             this->nsdf[tau] = 2 * num / den;
         }
-
     }
 
     void calculate_nsdf_fast(const float *x, std::size_t w)
@@ -916,7 +913,7 @@ private:
             this->fft_output[(2 * i) + 0] = this->fft_input[i];
             this->fft_output[(2 * i) + 1] = 0;
 
-            /* Cummulative sum of squares */
+            /* Cumulative sum of squares */
             this->padded_input[i] = this->padded_input[i] * this->padded_input[i] + this->padded_input[i - 1];
         }
 
@@ -928,12 +925,15 @@ private:
         /* Step 3: Build NSDF */
         auto &r = this->fft_input;
         auto &s = this->padded_input;
-        for (unsigned tau = 0; tau < w - 1; ++tau)
+
+        /* 3.1 Special case for tau = 0 */
+        unsigned tau = 0;
+        this->nsdf[tau] = 2 * r[tau] / (s[w - 1] + (s[w - 1] - s[tau]));
+        for (tau = 1; tau < w; ++tau)
         {
-            float mp = s[w - 1 - tau] + (s[w - 1] - s[tau]);
+            float mp = s[w - 1 - tau] + (s[w - 1] - s[tau - 1]);
             this->nsdf[tau] = 2 * r[tau] / mp;
         }
-
     }
 
     bool find_best_peak(float *tau, float *value, float threshold)
@@ -987,7 +987,7 @@ private:
     constexpr static uint32_t fft_size {1UL << static_cast<uint32_t>(std::floor(std::log2(2 * window_size - 1)) + 1)};
 
     arm_rfft_fast_instance_f32 fft;
-    std::array<float, fft_size> fft_input; // Because fft modifies original input
+    std::array<float, fft_size> fft_input;
     std::array<float, fft_size> fft_output;
     std::array<float, fft_size> padded_input;
     std::array<float, window_size> input;
