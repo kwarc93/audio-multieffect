@@ -56,6 +56,49 @@ private:
 
 //-----------------------------------------------------------------------------
 
+class envelope_follower
+{
+public:
+    enum class mode {peak, mean_square, root_mean_square};
+
+    envelope_follower(mode mode, float attack_time, float release_time, uint32_t fs) : fs{fs}
+    {
+        this->mode = mode;
+        this->last_envelope = 0;
+        constexpr float tc = std::log(0.368f);
+        this->attack_coeff = std::exp(tc / (attack_time * fs));
+        this->release_coeff = std::exp(tc / (release_time * fs));
+    }
+
+    float process(float in)
+    {
+        in = std::abs(in);
+
+        if (this->mode != mode::peak)
+            in = in * in;
+
+        const float coeff = (in > this->last_envelope) ? this->attack_coeff : this->release_coeff;
+        float envelope = coeff * (this->last_envelope - in) + in;
+
+        envelope = std::clamp(envelope, 0.0f, 1.0f);
+
+        this->last_envelope = envelope;
+
+        if (this->mode == mode::root_mean_square)
+            envelope = std::sqrt(envelope);
+
+        return envelope;
+    }
+private:
+    const uint32_t fs;
+
+    mode mode;
+    float last_envelope;
+    float attack_coeff, release_coeff;
+};
+
+//-----------------------------------------------------------------------------
+
 class oscillator
 {
 public:
@@ -366,9 +409,9 @@ public:
     }
     virtual ~averaging_filter() = default;
 
-    float process(float input)
+    float process(float in)
     {
-        return output = this->alpha2 * output + this->alpha1 * input;
+        return output = this->alpha2 * output + this->alpha1 * in;
     }
 
     void reset(float value)
@@ -422,25 +465,25 @@ public:
         this->c = c;
     }
 
-    float process(float x)
+    float process(float in)
     {
-        float y = 0;
+        float out = 0;
 
         /* Allpass */
-        const float xh = x - this->c * this->h;
-        y = this->c * xh + this->h;
-        this->h = xh;
+        const float inh = in - this->c * this->h;
+        out = this->c * inh + this->h;
+        this->h = inh;
 
         if constexpr (type == basic_iir_type::lowpass)
         {
-            y = 0.5f * (x + y);
+            out = 0.5f * (in + out);
         }
         else if constexpr (type == basic_iir_type::highpass)
         {
-            y = 0.5f * (x - y);
+            out = 0.5f * (in - out);
         }
 
-        return y;
+        return out;
     }
 private:
     float c;
@@ -823,7 +866,7 @@ template<uint16_t block_size, uint16_t window_size>
 class pitch_detector
 {
 public:
-    pitch_detector(uint32_t fs) : input{}, nsdf{}, fs{fs}, pitch{-1}, clarity{0}
+    pitch_detector(float min_freq, float max_freq, uint32_t fs) : input{}, nsdf{}, fs{fs}, pitch{-1}, clarity{0}
     {
         arm_rfft_fast_init_f32(&this->fft, 2 * window_size);
         arm_fill_f32(0, this->input.data(), this->input.size());
@@ -836,8 +879,6 @@ public:
 
     bool process(const float *in)
     {
-        bool pitch_detected = false;
-
         /* 1. Sliding window of input blocks */
         const uint32_t move_size = this->input.size() - block_size;
         arm_copy_f32(this->input.data() + block_size, this->input.data(), move_size);
@@ -848,7 +889,7 @@ public:
 
         /* 3. Find the best peak in NSDF & get its tau (lag) and value */
         float tau, val;
-        pitch_detected = find_best_peak(&tau, &val, 0.93f);
+        bool pitch_detected = find_best_peak(&tau, &val, 0.93f);
         if (pitch_detected)
         {
             this->pitch = this->fs / tau;
@@ -883,7 +924,7 @@ private:
                 den += x_j * x_j + x_j_tau * x_j_tau;
             }
 
-            /* FIXME: Its unlikely but 'den' could be 0 */
+            /* FIXME: Its unlikely but division by 0 can happen */
             this->nsdf[tau] = 2 * num / den;
         }
     }
@@ -913,26 +954,26 @@ private:
             this->fft_output[(2 * i) + 0] = this->fft_input[i];
             this->fft_output[(2 * i) + 1] = 0;
 
-            /* Cumulative sum of squares */
+            /* Cumulative sum of squares (pre-compute for Step 2) */
             this->padded_input[i] = this->padded_input[i] * this->padded_input[i] + this->padded_input[i - 1];
         }
 
         /* 1.4 Take the inverse Fast Fourier Transform */
         arm_rfft_fast_f32(&this->fft, this->fft_output.data(), this->fft_input.data(), 1);
+        auto &xc = this->fft_input;
 
-        /* Step 2: Precompute cumulative sum of squares (already done in above loop) */
+        /* Step 2: Calculate cumulative sum of squares (already done in above loop) */
+        auto &cs = this->padded_input;
 
         /* Step 3: Build NSDF */
-        auto &r = this->fft_input;
-        auto &s = this->padded_input;
 
         /* 3.1 Special case for tau = 0 */
         unsigned tau = 0;
-        this->nsdf[tau] = 2 * r[tau] / (s[w - 1] + (s[w - 1] - s[tau]));
+        this->nsdf[tau] = 2 * xc[tau] / (cs[w - 1] + (cs[w - 1] - cs[tau]));
         for (tau = 1; tau < w; ++tau)
         {
-            float mp = s[w - 1 - tau] + (s[w - 1] - s[tau - 1]);
-            this->nsdf[tau] = 2 * r[tau] / mp;
+            float mp = cs[w - 1 - tau] + (cs[w - 1] - cs[tau - 1]);
+            this->nsdf[tau] = 2 * xc[tau] / mp;
         }
     }
 
@@ -943,6 +984,7 @@ private:
         *tau = 0;
         *value = 0;
 
+        /* TODO: Limit the search within min_freq .. max_freq */
         const auto w = this->nsdf.size() - 1;
 
         for (unsigned i = 1; i < w; ++i)
@@ -954,10 +996,6 @@ private:
             if (y2 > threshold && y2 > y1 && y2 > y3)
             {
                 /* Parabolic interpolation around lag 'i' */
-                auto y1 = this->nsdf[i - 1];
-                auto y2 = this->nsdf[i];
-                auto y3 = this->nsdf[i + 1];
-
                 float den = y1 + y3 - 2 * y2;
                 float delta = y1 - y3;
                 if (den != 0)
@@ -971,6 +1009,7 @@ private:
                     *value = y2;
                 }
 
+                /* TODO: If value for 2*tau is close to tau prefer the longer lag (octave error check) */
                 peak_found = true;
                 break;
             }

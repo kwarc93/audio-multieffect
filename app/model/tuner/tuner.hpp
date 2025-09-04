@@ -28,9 +28,10 @@ public:
 
     constexpr static unsigned decim_factor {4};
 private:
+    libs::adsp::envelope_follower envelope;
     libs::adsp::median_filter pitch_median;
     libs::adsp::averaging_filter pitch_avg;
-    libs::adsp::pitch_detector<config::dsp_vector_size / decim_factor, 256> pitch_det1;
+    libs::adsp::pitch_detector<config::dsp_vector_size / decim_factor, 256> pitch_det;
     float detected_pitch;
     unsigned frame_counter;
 

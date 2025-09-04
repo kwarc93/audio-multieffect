@@ -7,9 +7,20 @@
 
 #include "tuner.hpp"
 
-#include <algorithm>
+#include <limits>
 
 using namespace mfx;
+
+/*
+ * TODO:
+ *
+ * 1. Consider proper signal decimation (with anti-alias FIR LPF)
+ * 2. Use high-pass filter before pitch detector (1st order IIR, 50Hz)
+ * 3. Add envelope follower to trigger the pitch detector above certain level
+ * 4. Limit the frequencies (min - max) in the pitch detector
+ * 5. Use EMA in the log2 domain (on semitones, not on frequency)
+ *
+ */
 
 //-----------------------------------------------------------------------------
 /* helpers */
@@ -19,6 +30,11 @@ namespace
 
 constexpr float min_freq = 55.0f;   // A1
 constexpr float max_freq = 1760.0f; // A6
+
+constexpr float lin2db(float x)
+{
+    return x > 0 ? 20.0f * std::log10(x) : -144.5f;
+}
 
 std::array<float, config::dsp_vector_size / tuner::decim_factor> decim_buf;
 
@@ -31,9 +47,10 @@ std::array<float, config::dsp_vector_size / tuner::decim_factor> decim_buf;
 /* public */
 
 tuner::tuner() : effect { effect_id::tuner },
+envelope { libs::adsp::envelope_follower::mode::root_mean_square, 0.005f, 0.2f, config::sampling_frequency_hz },
 pitch_median {},
 pitch_avg { 0.2f, 1.0f / (config::sampling_frequency_hz / config::dsp_vector_size), 0.0f },
-pitch_det1 { config::sampling_frequency_hz / tuner::decim_factor },
+pitch_det { min_freq, max_freq, config::sampling_frequency_hz / decim_factor },
 detected_pitch { 0.0f },
 frame_counter { 0 },
 attr {}
@@ -63,7 +80,7 @@ void tuner::process(const dsp_input& in, dsp_output& out)
         decim_buf[i] = in[idx];
     }
 
-    this->detected_pitch = pitch_avg.process(this->pitch_det1.process(decim_buf.data()) ? this->pitch_median.process(this->pitch_det1.get_pitch()) : this->detected_pitch);
+    this->detected_pitch = pitch_avg.process(this->pitch_det.process(decim_buf.data()) ? this->pitch_median.process(this->pitch_det.get_pitch()) : this->detected_pitch);
 
     /* Update output every 10 frames */
     if (++this->frame_counter >= 10)
