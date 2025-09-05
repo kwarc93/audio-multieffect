@@ -7,8 +7,6 @@
 
 #include "tuner.hpp"
 
-#include <limits>
-
 using namespace mfx;
 
 //-----------------------------------------------------------------------------
@@ -36,10 +34,10 @@ constexpr float envf_release = 0.2f;    // 200 ms
 tuner::tuner() : effect { effect_id::tuner },
 decimator {},
 hpf {},
-envelope_follower { libs::adsp::envelope_follower::mode::root_mean_square, envf_attack, envf_release, fs },
-pitch_median {},
-pitch_avg { 0.15f, 1.0f / (config::sampling_frequency_hz / config::dsp_vector_size), 0.0f },
-pitch_det { min_freq, max_freq, fs },
+envf { libs::adsp::envelope_follower::mode::root_mean_square, envf_attack, envf_release, fs },
+median {},
+ema { 0.15f, 1.0f / (config::sampling_frequency_hz / config::dsp_vector_size), 0.0f },
+pitch_detector { min_freq, max_freq, fs },
 mute { false },
 envelope { 0.0f },
 detected_pitch { 0.0f },
@@ -73,21 +71,21 @@ void tuner::process(const dsp_input& in, dsp_output& out)
     [this](auto in)
     {
         float out = this->hpf.process(in);
-        this->envelope = this->envelope_follower.process(out);
+        this->envelope = this->envf.process(out);
         return out;
     }
     );
 
     /* 3. Detect pitch only for signals above threshold */
     constexpr float threshold = libs::adsp::db2lin(-60.0f);
-    if (this->envelope > threshold && this->pitch_det.process(this->decim_input.data()))
+    if (this->envelope > threshold && this->pitch_detector.process(this->decim_input.data()))
     {
         /* TODO: Use EMA in the log2 domain (on semitones, not on frequency) */
-        this->detected_pitch = pitch_avg.process(this->pitch_median.process(this->pitch_det.get_pitch()));
+        this->detected_pitch = ema.process(this->median.process(this->pitch_detector.get_pitch()));
     }
     else
     {
-        this->detected_pitch = pitch_avg.process(this->detected_pitch);
+        this->detected_pitch = ema.process(this->detected_pitch);
     }
 
     /* Update output every 10 frames */

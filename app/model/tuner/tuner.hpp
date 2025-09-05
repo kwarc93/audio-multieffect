@@ -30,10 +30,10 @@ public:
 private:
     libs::adsp::decimator<decim_factor, config::dsp_vector_size> decimator;
     libs::adsp::basic_iir<libs::adsp::basic_iir_type::highpass> hpf;
-    libs::adsp::envelope_follower envelope_follower;
-    libs::adsp::median_filter pitch_median;
-    libs::adsp::averaging_filter pitch_avg;
-    libs::adsp::pitch_detector<config::dsp_vector_size / decim_factor, 256> pitch_det;
+    libs::adsp::envelope_follower envf;
+    libs::adsp::median_filter median;
+    libs::adsp::averaging_filter ema;
+    libs::adsp::pitch_detector<config::dsp_vector_size / decim_factor, 256> pitch_detector;
 
     bool mute;
     float envelope;

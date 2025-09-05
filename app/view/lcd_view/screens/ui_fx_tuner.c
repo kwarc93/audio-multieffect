@@ -28,7 +28,7 @@ void ui_fx_tuner_screen_init(void)
     lv_obj_set_x(ui_lbl_tuner_fx_name, 0);
     lv_obj_set_y(ui_lbl_tuner_fx_name, 10);
     lv_obj_set_align(ui_lbl_tuner_fx_name, LV_ALIGN_TOP_MID);
-    lv_label_set_text(ui_lbl_tuner_fx_name, "TUNER");
+    lv_label_set_text(ui_lbl_tuner_fx_name, "CHROMATIC TUNER");
     lv_obj_set_style_text_color(ui_lbl_tuner_fx_name, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_lbl_tuner_fx_name, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_lbl_tuner_fx_name, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
