@@ -7,6 +7,7 @@ A concept of digital multi-effect for guitar running on STM32F746G-DISCO or STM3
 ## Overview
 
 Device captures audio signal from line-in jack (left channel, labeled as MAIN), then processes audio samples according to selected effect and finally outputs processed audio to line-out jack. User controls device by touchscreen. It is possible to add multiple effects to signal chain. Several basic guitar effects are implemented:
+- chromatic tuner
 - tremolo
 - echo/delay
 - chorus
