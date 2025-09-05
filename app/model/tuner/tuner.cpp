@@ -11,17 +11,6 @@
 
 using namespace mfx;
 
-/*
- * TODO:
- *
- * 1. Consider proper signal decimation (with anti-alias FIR LPF)
- * 2. Use high-pass filter before pitch detector (1st order IIR, 50Hz)
- * 3. Add envelope follower to trigger the pitch detector above certain level
- * 4. Limit the frequencies (min - max) in the pitch detector
- * 5. Use EMA in the log2 domain (on semitones, not on frequency)
- *
- */
-
 //-----------------------------------------------------------------------------
 /* helpers */
 
@@ -30,13 +19,6 @@ namespace
 
 constexpr float min_freq = 55.0f;   // A1
 constexpr float max_freq = 1760.0f; // A6
-
-constexpr float lin2db(float x)
-{
-    return x > 0 ? 20.0f * std::log10(x) : -144.5f;
-}
-
-std::array<float, config::dsp_vector_size / tuner::decim_factor> decim_buf;
 
 }
 
@@ -47,10 +29,14 @@ std::array<float, config::dsp_vector_size / tuner::decim_factor> decim_buf;
 /* public */
 
 tuner::tuner() : effect { effect_id::tuner },
-envelope { libs::adsp::envelope_follower::mode::root_mean_square, 0.005f, 0.2f, config::sampling_frequency_hz },
+decimator {},
+hpf {},
+envelope_follower { libs::adsp::envelope_follower::mode::root_mean_square, 0.005f, 0.2f, config::sampling_frequency_hz / decim_factor },
 pitch_median {},
 pitch_avg { 0.2f, 1.0f / (config::sampling_frequency_hz / config::dsp_vector_size), 0.0f },
 pitch_det { min_freq, max_freq, config::sampling_frequency_hz / decim_factor },
+mute { false },
+envelope { 0.0f },
 detected_pitch { 0.0f },
 frame_counter { 0 },
 attr {}
@@ -58,6 +44,10 @@ attr {}
     const auto& def = tuner_attr::default_ctrl;
 
     this->set_a4_tuning(def.a4_tuning);
+
+    /* Calculate HPF coeff */
+    const float fc = 50.0f;
+    this->hpf.calc_coeff(fc, config::sampling_frequency_hz / decim_factor);
 }
 
 tuner::~tuner()
@@ -67,20 +57,34 @@ tuner::~tuner()
 
 void tuner::process(const dsp_input& in, dsp_output& out)
 {
-    for (unsigned i = 0; i < in.size() / decim_factor; i++)
+    /* 1. Pass through the signal to output */
+    if (!this->mute)
+        out = in;
+
+    /* 2. Decimate signal for further processing */
+    this->decimator.process(in.data(), this->decim_input.data());
+
+    /* 3. Apply high-pass filter & detect envelope */
+    std::transform(this->decim_input.begin(), this->decim_input.end(), this->decim_input.begin(),
+    [this](auto in)
     {
-        /* Do not alter the signal, just pass it through */
-        const auto idx = i * decim_factor;
-        out[idx + 0] = in[idx + 0];
-        out[idx + 1] = in[idx + 1];
-        out[idx + 2] = in[idx + 2];
-        out[idx + 3] = in[idx + 3];
-
-        /* Decimate signal to temporary buffer */
-        decim_buf[i] = in[idx];
+        float out = this->hpf.process(in);
+        this->envelope = this->envelope_follower.process(out);
+        return out;
     }
+    );
 
-    this->detected_pitch = pitch_avg.process(this->pitch_det.process(decim_buf.data()) ? this->pitch_median.process(this->pitch_det.get_pitch()) : this->detected_pitch);
+    /* 3. Detect pitch only for signals above threshold */
+    constexpr float threshold = libs::adsp::db2lin(-45.0f);
+    if (this->envelope > threshold && this->pitch_det.process(this->decim_input.data()))
+    {
+        /* TODO: Use EMA in the log2 domain (on semitones, not on frequency) */
+        this->detected_pitch = pitch_avg.process(this->pitch_median.process(this->pitch_det.get_pitch()));
+    }
+    else
+    {
+        this->detected_pitch = pitch_avg.process(this->detected_pitch);
+    }
 
     /* Update output every 10 frames */
     if (++this->frame_counter >= 10)

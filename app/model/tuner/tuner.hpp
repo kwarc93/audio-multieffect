@@ -28,12 +28,18 @@ public:
 
     constexpr static unsigned decim_factor {4};
 private:
-    libs::adsp::envelope_follower envelope;
+    libs::adsp::decimator<decim_factor, config::dsp_vector_size> decimator;
+    libs::adsp::basic_iir<libs::adsp::basic_iir_type::highpass> hpf;
+    libs::adsp::envelope_follower envelope_follower;
     libs::adsp::median_filter pitch_median;
     libs::adsp::averaging_filter pitch_avg;
     libs::adsp::pitch_detector<config::dsp_vector_size / decim_factor, 256> pitch_det;
+
+    bool mute;
+    float envelope;
     float detected_pitch;
     unsigned frame_counter;
+    std::array<float, config::dsp_vector_size / decim_factor> decim_input;
 
     tuner_attr attr {0};
 };

@@ -32,6 +32,18 @@ namespace libs::adsp
         return (T(0) < val) - (val < T(0));
     }
 
+    constexpr float lin2db(float x)
+    {
+        constexpr float eps = 1 / (1 << 24); // -144.5dB for 24-bit signal
+        return 20.0f * std::log10(std::max(x, eps));
+    }
+
+    constexpr float db2lin(float db)
+    {
+        constexpr float eps = 1.0f / (1u << 24); // -144.5dB for 24-bit signal
+        return std::clamp(std::pow(10.0f, db / 20.0f), eps, 1.0f);
+    }
+
 //-----------------------------------------------------------------------------
 
 class random
@@ -866,8 +878,13 @@ template<uint16_t block_size, uint16_t window_size>
 class pitch_detector
 {
 public:
-    pitch_detector(float min_freq, float max_freq, uint32_t fs) : input{}, nsdf{}, fs{fs}, pitch{-1}, clarity{0}
+    pitch_detector(float min_freq, float max_freq, uint32_t fs) : fs{fs}
     {
+        this->pitch = 0;
+        this->clarity = 0;
+        this->min_tau = std::max(1U, static_cast<unsigned>(std::floor(fs / max_freq)));
+        this->max_tau = std::min(window_size - 2U, static_cast<unsigned>(std::ceil(fs / min_freq)));
+
         arm_rfft_fast_init_f32(&this->fft, 2 * window_size);
         arm_fill_f32(0, this->input.data(), this->input.size());
     }
@@ -887,9 +904,9 @@ public:
         /* 2. Compute the Normalized Square Difference Function */
         calculate_nsdf_fast(this->input.data(), window_size);
 
-        /* 3. Find the best peak in NSDF & get its tau (lag) and value */
+        /* 3. Find the best peak in NSDF & get its tau (lag) and value (clarity) */
         float tau, val;
-        bool pitch_detected = find_best_peak(&tau, &val, 0.93f);
+        bool pitch_detected = find_best_peak(tau, val, 0.93f);
         if (pitch_detected)
         {
             this->pitch = this->fs / tau;
@@ -977,17 +994,14 @@ private:
         }
     }
 
-    bool find_best_peak(float *tau, float *value, float threshold)
+    bool find_best_peak(float &tau, float &value, float threshold)
     {
         bool peak_found = false;
 
-        *tau = 0;
-        *value = 0;
+        tau = 0;
+        value = 0;
 
-        /* TODO: Limit the search within min_freq .. max_freq */
-        const auto w = this->nsdf.size() - 1;
-
-        for (unsigned i = 1; i < w; ++i)
+        for (unsigned i = this->min_tau; i <= this->max_tau; ++i)
         {
             auto y1 = this->nsdf[i - 1];
             auto y2 = this->nsdf[i];
@@ -995,27 +1009,28 @@ private:
 
             if (y2 > threshold && y2 > y1 && y2 > y3)
             {
+                /* TODO: If value for 2*tau is close to tau prefer the longer lag (octave error check) */
+
                 /* Parabolic interpolation around lag 'i' */
                 float den = y1 + y3 - 2 * y2;
                 float delta = y1 - y3;
                 if (den != 0)
                 {
-                    *tau = i + delta / (2 * den);
-                    *value = y2 - delta * delta / (8 * den);
+                    tau = i + delta / (2 * den);
+                    value = y2 - delta * delta / (8 * den);
                 }
                 else
                 {
-                    *tau = i;
-                    *value = y2;
+                    tau = i;
+                    value = y2;
                 }
 
-                /* TODO: If value for 2*tau is close to tau prefer the longer lag (octave error check) */
                 peak_found = true;
                 break;
             }
         }
 
-        return peak_found && (*value) > 0.99f;
+        return peak_found;
     }
 
 private:
@@ -1025,15 +1040,17 @@ private:
     /* Ceil FFT size to next power of 2 based on 2x window_size */
     constexpr static uint32_t fft_size {1UL << static_cast<uint32_t>(std::floor(std::log2(2 * window_size - 1)) + 1)};
 
+    const uint32_t fs;
+    float pitch;
+    float clarity;
+    uint32_t min_tau, max_tau;
+
     arm_rfft_fast_instance_f32 fft;
     std::array<float, fft_size> fft_input;
     std::array<float, fft_size> fft_output;
     std::array<float, fft_size> padded_input;
     std::array<float, window_size> input;
     std::array<float, window_size> nsdf;
-    const uint32_t fs;
-    float pitch;
-    float clarity;
 };
 
 }
