@@ -20,11 +20,11 @@ namespace mfx
 class amp_sim : public effect
 {
 public:
-    amp_sim(float input = 0.8f, float drive = 0.8f, float compression = 0.7f, amp_sim_attr::controls::mode_type mode = amp_sim_attr::controls::mode_type::higain);
+    amp_sim();
     virtual ~amp_sim();
 
     void process(const dsp_input &in, dsp_output &out) override;
-    const effect_specific_attributes get_specific_attributes(void) const override;
+    const effect_specific_attr get_specific_attributes(void) const override;
 
     void set_input(float input);
     void set_drive(float drive);

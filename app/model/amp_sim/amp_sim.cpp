@@ -28,15 +28,17 @@ namespace
 /* public */
 
 
-amp_sim::amp_sim(float input, float drive, float compression, amp_sim_attr::controls::mode_type mode) : effect { effect_id::amplifier_sim },
+amp_sim::amp_sim() : effect { effect_id::amplifier_sim },
 attr {}
 {
     this->amp.reset(config::sampling_frequency_hz);
 
-    this->set_mode(mode);
-    this->set_input(input);
-    this->set_drive(drive);
-    this->set_compression(compression);
+    const auto& def = amp_sim_attr::default_ctrl;
+
+    this->set_mode(def.mode);
+    this->set_input(def.input);
+    this->set_drive(def.drive);
+    this->set_compression(def.compression);
 }
 
 amp_sim::~amp_sim()
@@ -54,7 +56,7 @@ void amp_sim::process(const dsp_input& in, dsp_output& out)
     );
 }
 
-const effect_specific_attributes amp_sim::get_specific_attributes(void) const
+const effect_specific_attr amp_sim::get_specific_attributes(void) const
 {
     return this->attr;
 }

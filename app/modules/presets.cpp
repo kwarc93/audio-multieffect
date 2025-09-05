@@ -151,6 +151,21 @@ void to_json(json& j, const phaser_attr::controls& c)
     j = json{ {"rate", c.rate}, {"depth", c.depth}, {"contour", c.contour} };
 }
 
+// amp_sim
+void from_json(const json& j, amp_sim_attr::controls& c)
+{
+    const auto& def = amp_sim_attr::default_ctrl;
+    c.input = j.value("input", def.input);
+    c.drive = j.value("drive", def.drive);
+    c.compression = j.value("compression", def.compression);
+    c.mode = j.value("mode", def.mode);
+}
+
+void to_json(json& j, const amp_sim_attr::controls& c)
+{
+    j = json{ {"input", c.input}, {"drive", c.drive}, {"compression", c.compression}, {"mode", c.mode} };
+}
+
 std::optional<effect_controls> get_controls(effect_id id, const json& ctrl_json)
 {
     switch (id)
@@ -173,6 +188,8 @@ std::optional<effect_controls> get_controls(effect_id id, const json& ctrl_json)
             return ctrl_json.get<mfx::vocoder_attr::controls>();
         case mfx::effect_id::phaser:
             return ctrl_json.get<mfx::phaser_attr::controls>();
+        case mfx::effect_id::amplifier_sim:
+            return ctrl_json.get<mfx::amp_sim_attr::controls>();
         default:
             return std::nullopt;
     }

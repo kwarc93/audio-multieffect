@@ -245,6 +245,14 @@ struct amp_sim_attr
         float compression; // Tube compression, range: [0, 1]
         enum class mode_type {logain, higain} mode; // Amp overall gain: low/high
     } ctrl;
+
+    static constexpr controls default_ctrl
+    {
+        0.8f, // input volume
+        0.8f, // preamp drive
+        0.7f, // compression
+        controls::mode_type::higain // mode
+    };
 };
 
 typedef std::variant
@@ -257,8 +265,8 @@ typedef std::variant
     overdrive_attr,
     cabinet_sim_attr,
     vocoder_attr,
-<<<<<<< Upstream, based on master
-    phaser_attr
+    phaser_attr,
+    amp_sim_attr
 > effect_specific_attr;
 
 typedef std::variant
@@ -271,13 +279,9 @@ typedef std::variant
     overdrive_attr::controls,
     cabinet_sim_attr::controls,
     vocoder_attr::controls,
-    phaser_attr::controls
+    phaser_attr::controls,
+    amp_sim_attr::controls
 > effect_controls;
-=======
-    phaser_attr,
-    amp_sim_attr
-> effect_specific_attributes;
->>>>>>> ab45782 Add guitar amplifier simlator efect (based on W. Pirkle's OneMarkAmp)
 
 }
 

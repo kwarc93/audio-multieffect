@@ -369,9 +369,6 @@ void effect_processor::set_controls(const phaser_attr::controls &ctrl)
     phaser_effect->set_contour(ctrl.contour);
 }
 
-<<<<<<< Upstream, based on master
-void effect_processor::notify_effect_attributes_changed(const effect *e)
-=======
 void effect_processor::set_controls(const amp_sim_attr::controls &ctrl)
 {
     auto amp_sim_effect = static_cast<amp_sim*>(this->find_effect(effect_id::amplifier_sim));
@@ -385,8 +382,7 @@ void effect_processor::set_controls(const amp_sim_attr::controls &ctrl)
     amp_sim_effect->set_compression(ctrl.compression);
 }
 
-void effect_processor::notify_effect_attributes_changed(effect *e)
->>>>>>> ab45782 Add guitar amplifier simlator efect (based on W. Pirkle's OneMarkAmp)
+void effect_processor::notify_effect_attributes_changed(const effect *e)
 {
     this->notify(events::effect_attributes_changed {e->get_basic_attributes(), e->get_specific_attributes()});
 }
