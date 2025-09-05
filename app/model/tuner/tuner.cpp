@@ -17,8 +17,13 @@ using namespace mfx;
 namespace
 {
 
-constexpr float min_freq = 55.0f;   // A1
-constexpr float max_freq = 1760.0f; // A6
+constexpr uint32_t fs = config::sampling_frequency_hz / tuner::decim_factor;
+
+constexpr float min_freq = 55.0f;       // A1
+constexpr float max_freq = 1760.0f;     // A6
+constexpr float hpf_cutoff = 50.0f;     // 50 Hz
+constexpr float envf_attack = 0.02f;    // 20 ms
+constexpr float envf_release = 0.2f;    // 200 ms
 
 }
 
@@ -31,10 +36,10 @@ constexpr float max_freq = 1760.0f; // A6
 tuner::tuner() : effect { effect_id::tuner },
 decimator {},
 hpf {},
-envelope_follower { libs::adsp::envelope_follower::mode::root_mean_square, 0.005f, 0.2f, config::sampling_frequency_hz / decim_factor },
+envelope_follower { libs::adsp::envelope_follower::mode::root_mean_square, envf_attack, envf_release, fs },
 pitch_median {},
-pitch_avg { 0.2f, 1.0f / (config::sampling_frequency_hz / config::dsp_vector_size), 0.0f },
-pitch_det { min_freq, max_freq, config::sampling_frequency_hz / decim_factor },
+pitch_avg { 0.15f, 1.0f / (config::sampling_frequency_hz / config::dsp_vector_size), 0.0f },
+pitch_det { min_freq, max_freq, fs },
 mute { false },
 envelope { 0.0f },
 detected_pitch { 0.0f },
@@ -44,10 +49,7 @@ attr {}
     const auto& def = tuner_attr::default_ctrl;
 
     this->set_a4_tuning(def.a4_tuning);
-
-    /* Calculate HPF coeff */
-    const float fc = 50.0f;
-    this->hpf.calc_coeff(fc, config::sampling_frequency_hz / decim_factor);
+    this->hpf.calc_coeff(hpf_cutoff, fs);
 }
 
 tuner::~tuner()
@@ -57,9 +59,11 @@ tuner::~tuner()
 
 void tuner::process(const dsp_input& in, dsp_output& out)
 {
-    /* 1. Pass through the signal to output */
-    if (!this->mute)
-        out = in;
+    /* 1. Mute or pass through the signal to output */
+    if (this->mute)
+        arm_fill_f32(0, out.data(), out.size());
+    else
+        arm_copy_f32((float*)in.data(), out.data(), out.size());
 
     /* 2. Decimate signal for further processing */
     this->decimator.process(in.data(), this->decim_input.data());
@@ -75,7 +79,7 @@ void tuner::process(const dsp_input& in, dsp_output& out)
     );
 
     /* 3. Detect pitch only for signals above threshold */
-    constexpr float threshold = libs::adsp::db2lin(-45.0f);
+    constexpr float threshold = libs::adsp::db2lin(-60.0f);
     if (this->envelope > threshold && this->pitch_det.process(this->decim_input.data()))
     {
         /* TODO: Use EMA in the log2 domain (on semitones, not on frequency) */
