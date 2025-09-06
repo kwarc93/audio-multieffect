@@ -380,6 +380,7 @@ void effect_processor::set_controls(const amp_sim_attr::controls &ctrl)
     amp_sim_effect->set_input(ctrl.input);
     amp_sim_effect->set_drive(ctrl.drive);
     amp_sim_effect->set_compression(ctrl.compression);
+    amp_sim_effect->set_tone_stack(ctrl.bass, ctrl.mids, ctrl.treb);
 }
 
 void effect_processor::notify_effect_attributes_changed(const effect *e)

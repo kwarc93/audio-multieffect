@@ -22,9 +22,7 @@
 #include <memory>
 #include <algorithm>
 #include <math.h>
-#include "guiconstants.h"
-#include "filters.h"
-#include <time.h>       /* time */
+#include <time.h>
 #include <cstring>
 
 /** @file fxobjects.h
@@ -44,6 +42,31 @@ const float ARC4RANDOMMAX = 4294967295.0;  // (2^32 - 1)
 
 #define NEGATIVE       0
 #define POSITIVE       1
+
+/**
+@kPi
+\ingroup Constants-Enums
+@brief pi to 80 decimal places
+*/
+const float kPi = 3.14159265358979323846264338327950288419716939937510582097494459230781640628620899;
+
+/**
+@kTwoPi
+\ingroup Constants-Enums
+@brief 2pi to 80 decimal places
+*/
+const float kTwoPi = 2.0*3.14159265358979323846264338327950288419716939937510582097494459230781640628620899;
+
+/** @AudioDetectorConstants
+\ingroup Constants-Enums @{*/
+// ---
+const uint32_t ENVELOPE_DETECT_MODE_PEAK = 0;   ///< |x|
+const uint32_t ENVELOPE_DETECT_MODE_MS = 1;     ///< (1/N)|x|^2
+const uint32_t ENVELOPE_DETECT_MODE_RMS = 2;    ///< SQRT((1/N)|x|^2)
+const uint32_t ENVELOPE_DETECT_MODE_NONE = 3;   ///< not used
+
+const float ENVELOPE_DIGITAL_TC = -4.6051701859880913680359829093687;///< ln(1%)
+const float ENVELOPE_ANALOG_TC = -1.0023934309275667804345424248947; ///< ln(36.7%)
 
 // ------------------------------------------------------------------ //
 // --- FUNCTIONS ---------------------------------------------------- //

@@ -29,6 +29,7 @@ public:
     void set_input(float input);
     void set_drive(float drive);
     void set_compression(float compression);
+    void set_tone_stack(float bass, float mids, float treb);
     void set_mode(amp_sim_attr::controls::mode_type mode);
 
 private:

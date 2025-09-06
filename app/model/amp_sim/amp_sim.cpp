@@ -39,6 +39,7 @@ attr {}
     this->set_input(def.input);
     this->set_drive(def.drive);
     this->set_compression(def.compression);
+    this->set_tone_stack(def.bass, def.mids, def.treb);
 }
 
 amp_sim::~amp_sim()
@@ -100,6 +101,26 @@ void amp_sim::set_compression(float compression)
     this->amp.setParameters(this->amp_params);
 }
 
+void amp_sim::set_tone_stack(float bass, float mids, float treb)
+{
+    bass = std::clamp(bass, 0.0f, 1.0f);
+    mids = std::clamp(mids, 0.0f, 1.0f);
+    treb = std::clamp(treb, 0.0f, 1.0f);
+
+    if (this->attr.ctrl.bass == bass && this->attr.ctrl.mids == mids && this->attr.ctrl.treb == treb)
+        return;
+
+    this->attr.ctrl.bass = bass;
+    this->attr.ctrl.mids = mids;
+    this->attr.ctrl.treb = treb;
+
+    this->amp_params.toneStackParameters.LFToneControl_010 = bass * 10;
+    this->amp_params.toneStackParameters.MFToneControl_010 = mids * 10;
+    this->amp_params.toneStackParameters.HFToneControl_010 = treb * 10;
+
+    this->amp.setParameters(this->amp_params);
+}
+
 void amp_sim::set_mode(amp_sim_attr::controls::mode_type mode)
 {
     if (this->attr.ctrl.mode == mode)
@@ -111,19 +132,11 @@ void amp_sim::set_mode(amp_sim_attr::controls::mode_type mode)
 
     if (mode == amp_sim_attr::controls::mode_type::higain)
     {
-        this->amp_params.toneStackParameters.LFToneControl_010 = 5;
-        this->amp_params.toneStackParameters.MFToneControl_010 = 5;
-        this->amp_params.toneStackParameters.HFToneControl_010 = 5;
-
         this->amp_params.masterVolume_010 = 8;
         this->amp_params.ampGainStyle = ampGainStructure::medium;
     }
     else
     {
-        this->amp_params.toneStackParameters.LFToneControl_010 = 5;
-        this->amp_params.toneStackParameters.MFToneControl_010 = 5;
-        this->amp_params.toneStackParameters.HFToneControl_010 = 5;
-
         this->amp_params.masterVolume_010 = 8;
         this->amp_params.ampGainStyle = ampGainStructure::low;
     }

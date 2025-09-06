@@ -114,7 +114,7 @@ class ClassAValve : public IAudioSignalProcessor
 {
 public:
 	ClassAValve(void) {}	/* C-TOR */
-	~ClassAValve(void) {}	/* D-TOR */
+	virtual ~ClassAValve(void) {}	/* D-TOR */
 
 public:
 	/** reset members to initialized state */
@@ -457,7 +457,7 @@ class ClassBValvePair : public IAudioSignalProcessor
 {
 public:
 	ClassBValvePair(void) {}	/* C-TOR */
-	~ClassBValvePair(void) {}	/* D-TOR */
+	virtual ~ClassBValvePair(void) {}	/* D-TOR */
 
 public:
 	/** reset members to initialized state */
@@ -721,7 +721,7 @@ class ComplexLPF : public IAudioSignalProcessor
 {
 public:
 	ComplexLPF(void) {}	/* C-TOR */
-	~ComplexLPF(void) {}	/* D-TOR */
+	virtual ~ComplexLPF(void) {}	/* D-TOR */
 
 public:
 	/** reset members to initialized state */
@@ -878,7 +878,7 @@ class BigMuffToneControl : public IAudioSignalProcessor
 {
 public:
 	BigMuffToneControl(void) {}	/* C-TOR */
-	~BigMuffToneControl(void) {}	/* D-TOR */
+	virtual ~BigMuffToneControl(void) {}	/* D-TOR */
 
 public:
 	/** reset members to initialized state */
@@ -1037,7 +1037,7 @@ class VariBPF : public IAudioSignalProcessor
 {
 public:
 	VariBPF(void) {}	/* C-TOR */
-	~VariBPF(void) {}	/* D-TOR */
+	virtual ~VariBPF(void) {}	/* D-TOR */
 
 public:
 	/** reset members to initialized state */
@@ -1214,7 +1214,7 @@ class ToneStack : public IAudioSignalProcessor
 {
 public:
 	ToneStack(void) {}	/* C-TOR */
-	~ToneStack(void) {}	/* D-TOR */
+	virtual ~ToneStack(void) {}	/* D-TOR */
 
 public:
 	/** reset members to initialized state */
@@ -1434,7 +1434,7 @@ class TurboDistorto : public IAudioSignalProcessor
 {
 public:
 	TurboDistorto(void) {}	/* C-TOR */
-	~TurboDistorto(void) {}	/* D-TOR */
+	virtual ~TurboDistorto(void) {}	/* D-TOR */
 
 public:
 	/** reset members to initialized state */
@@ -1628,7 +1628,7 @@ class OneMarkAmp : public IAudioSignalProcessor
 {
 public:
 	OneMarkAmp(void) {}	/* C-TOR */
-	~OneMarkAmp(void) {}	/* D-TOR */
+	virtual ~OneMarkAmp(void) {}	/* D-TOR */
 
 public:
 	/** reset members to initialized state */
@@ -1695,16 +1695,16 @@ public:
 		hpfParams.algorithm = filterAlgorithm::kHPF2;
 		inputHPF.setParameters(hpfParams);
 
-		outputHPF.reset(sampleRate);
-		hpfParams = outputHPF.getParameters();
-		hpfParams.algorithm = filterAlgorithm::kHPF2;
-		hpfParams.fc = 5.0;
-		outputHPF.setParameters(hpfParams);
-
-		outputLPF.reset(sampleRate);
-		AudioFilterParameters lpfParams = outputLPF.getParameters();
-		lpfParams.algorithm = filterAlgorithm::kLPF2;
-		outputLPF.setParameters(lpfParams);
+//		outputHPF.reset(sampleRate);
+//		hpfParams = outputHPF.getParameters();
+//		hpfParams.algorithm = filterAlgorithm::kHPF2;
+//		hpfParams.fc = 5.0;
+//		outputHPF.setParameters(hpfParams);
+//
+//		outputLPF.reset(sampleRate);
+//		AudioFilterParameters lpfParams = outputLPF.getParameters();
+//		lpfParams.algorithm = filterAlgorithm::kLPF2;
+//		outputLPF.setParameters(lpfParams);
 
 		return true;
 	}
@@ -1831,10 +1831,10 @@ public:
 			true);
 
 		// --- speaker simulator
-		AudioFilterParameters lpfParams = outputLPF.getParameters();
-		lpfParams.fc = parameters.bright ? 3200.0 : 2450.0;
-		lpfParams.Q = parameters.bright ? 0.707 : 1.4;
-		outputLPF.setParameters(lpfParams);
+//		AudioFilterParameters lpfParams = outputLPF.getParameters();
+//		lpfParams.fc = parameters.bright ? 3200.0 : 2450.0;
+//		lpfParams.Q = parameters.bright ? 0.707 : 1.4;
+//		outputLPF.setParameters(lpfParams);
 	}
 
 private:
@@ -1850,9 +1850,9 @@ private:
 	ClassAValve triodes[4];
 	ClassBValvePair outputPentodes;
 	ToneStack toneStack;
-	AudioFilter outputLPF;
 	AudioFilter inputHPF;
-	AudioFilter outputHPF;
+//	AudioFilter outputLPF;
+//	AudioFilter outputHPF;
 };
 
 
@@ -1921,7 +1921,7 @@ class WickerAmp : public IAudioSignalProcessor
 {
 public:
 	WickerAmp(void) {}	/* C-TOR */
-	~WickerAmp(void) {}	/* D-TOR */
+	virtual ~WickerAmp(void) {}	/* D-TOR */
 
 public:
 	/** reset members to initialized state */

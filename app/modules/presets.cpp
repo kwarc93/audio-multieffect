@@ -158,12 +158,15 @@ void from_json(const json& j, amp_sim_attr::controls& c)
     c.input = j.value("input", def.input);
     c.drive = j.value("drive", def.drive);
     c.compression = j.value("compression", def.compression);
+    c.bass = j.value("bass", def.bass);
+    c.mids = j.value("mids", def.mids);
+    c.treb = j.value("treb", def.treb);
     c.mode = j.value("mode", def.mode);
 }
 
 void to_json(json& j, const amp_sim_attr::controls& c)
 {
-    j = json{ {"input", c.input}, {"drive", c.drive}, {"compression", c.compression}, {"mode", c.mode} };
+    j = json{ {"input", c.input}, {"drive", c.drive}, {"compression", c.compression}, {"bass", c.bass}, {"mids", c.mids}, {"treb", c.treb}, {"mode", c.mode} };
 }
 
 std::optional<effect_controls> get_controls(effect_id id, const json& ctrl_json)

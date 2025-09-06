@@ -5,6 +5,76 @@
 
 #include "../ui.h"
 
+static void s_mid_knob_btn_pressed(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if (event_code == LV_EVENT_LONG_PRESSED)
+    {
+        bool show_tone_ctrl = !lv_obj_has_state(lv_event_get_target(e), LV_STATE_CHECKED);
+
+        if (show_tone_ctrl)
+        {
+            lv_obj_add_flag(ui_arc_amp_sim_input, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_arc_amp_sim_drive, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_arc_amp_sim_compr, LV_OBJ_FLAG_HIDDEN);
+
+            lv_obj_clear_flag(ui_arc_amp_sim_bass, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(ui_arc_amp_sim_mids, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(ui_arc_amp_sim_treb, LV_OBJ_FLAG_HIDDEN);
+
+            lv_label_set_text(ui_lbl_amp_sim_input, "BASS");
+            lv_label_set_text(ui_lbl_amp_sim_drive, "MIDS");
+            lv_label_set_text(ui_lbl_amp_sim_compr, "TREB");
+        }
+        else
+        {
+            lv_obj_clear_flag(ui_arc_amp_sim_input, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(ui_arc_amp_sim_drive, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(ui_arc_amp_sim_compr, LV_OBJ_FLAG_HIDDEN);
+
+            lv_obj_add_flag(ui_arc_amp_sim_bass, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_arc_amp_sim_mids, LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(ui_arc_amp_sim_treb, LV_OBJ_FLAG_HIDDEN);
+
+            lv_label_set_text(ui_lbl_amp_sim_input, "INPUT");
+            lv_label_set_text(ui_lbl_amp_sim_drive, "DRIVE");
+            lv_label_set_text(ui_lbl_amp_sim_compr, "COMPR");
+        }
+    }
+}
+
+static lv_obj_t * s_arc_create(lv_obj_t * parent)
+{
+    lv_obj_t * obj = lv_arc_create(parent);
+    lv_obj_set_width(obj, 95);
+    lv_obj_set_height(obj, 97);
+    lv_obj_set_x(obj, 0);
+    lv_obj_set_y(obj, -12);
+    lv_obj_set_align(obj, LV_ALIGN_CENTER);
+    lv_obj_clear_flag(obj, LV_OBJ_FLAG_GESTURE_BUBBLE);      /// Flags
+    lv_arc_set_range(obj, 0, 100);
+    lv_arc_set_value(obj, 50);
+    lv_arc_set_bg_angles(obj, 129, 51);
+    lv_obj_set_style_pad_left(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_color(obj, lv_color_hex(0x4040FF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_opa(obj, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_width(obj, 20, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_set_style_arc_color(obj, lv_color_hex(0x50FF7D), LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_opa(obj, 255, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_width(obj, 2, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_arc_rounded(obj, true, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+
+    lv_obj_set_style_bg_color(obj, lv_color_hex(0x50FF7D), LV_PART_KNOB | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(obj, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
+
+    return obj;
+}
+
 void ui_fx_amp_sim_screen_init(void)
 {
     ui_fx_amp_sim = lv_obj_create(NULL);
@@ -28,7 +98,7 @@ void ui_fx_amp_sim_screen_init(void)
     lv_obj_set_x(ui_lbl_amp_sim_fx_name, 0);
     lv_obj_set_y(ui_lbl_amp_sim_fx_name, 10);
     lv_obj_set_align(ui_lbl_amp_sim_fx_name, LV_ALIGN_TOP_MID);
-    lv_label_set_text(ui_lbl_amp_sim_fx_name, "AMP SIM");
+    lv_label_set_text(ui_lbl_amp_sim_fx_name, "ONE MARK AMP");
     lv_obj_set_style_text_color(ui_lbl_amp_sim_fx_name, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_lbl_amp_sim_fx_name, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_lbl_amp_sim_fx_name, &lv_font_montserrat_20, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -92,31 +162,9 @@ void ui_fx_amp_sim_screen_init(void)
     lv_obj_set_align(ui_img_amp_sim_input, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_img_amp_sim_input, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
 
-    ui_arc_amp_sim_input = lv_arc_create(ui_pnl_amp_sim_input);
-    lv_obj_set_width(ui_arc_amp_sim_input, 95);
-    lv_obj_set_height(ui_arc_amp_sim_input, 97);
-    lv_obj_set_x(ui_arc_amp_sim_input, 0);
-    lv_obj_set_y(ui_arc_amp_sim_input, -12);
-    lv_obj_set_align(ui_arc_amp_sim_input, LV_ALIGN_CENTER);
-    lv_obj_clear_flag(ui_arc_amp_sim_input, LV_OBJ_FLAG_GESTURE_BUBBLE);      /// Flags
-    lv_arc_set_range(ui_arc_amp_sim_input, 0, 100);
-    lv_arc_set_value(ui_arc_amp_sim_input, 50);
-    lv_arc_set_bg_angles(ui_arc_amp_sim_input, 129, 51);
-    lv_obj_set_style_pad_left(ui_arc_amp_sim_input, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_right(ui_arc_amp_sim_input, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_top(ui_arc_amp_sim_input, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_bottom(ui_arc_amp_sim_input, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_arc_color(ui_arc_amp_sim_input, lv_color_hex(0x4040FF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_arc_opa(ui_arc_amp_sim_input, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_arc_width(ui_arc_amp_sim_input, 20, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    lv_obj_set_style_arc_color(ui_arc_amp_sim_input, lv_color_hex(0x50FF7D), LV_PART_INDICATOR | LV_STATE_DEFAULT);
-    lv_obj_set_style_arc_opa(ui_arc_amp_sim_input, 255, LV_PART_INDICATOR | LV_STATE_DEFAULT);
-    lv_obj_set_style_arc_width(ui_arc_amp_sim_input, 2, LV_PART_INDICATOR | LV_STATE_DEFAULT);
-    lv_obj_set_style_arc_rounded(ui_arc_amp_sim_input, true, LV_PART_INDICATOR | LV_STATE_DEFAULT);
-
-    lv_obj_set_style_bg_color(ui_arc_amp_sim_input, lv_color_hex(0x50FF7D), LV_PART_KNOB | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_arc_amp_sim_input, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
+    ui_arc_amp_sim_input = s_arc_create(ui_pnl_amp_sim_input);
+    ui_arc_amp_sim_bass = s_arc_create(ui_pnl_amp_sim_input);
+    lv_obj_add_flag(ui_arc_amp_sim_bass, LV_OBJ_FLAG_HIDDEN);
 
     ui_lbl_amp_sim_input = lv_label_create(ui_pnl_amp_sim_input);
     lv_obj_set_width(ui_lbl_amp_sim_input, LV_SIZE_CONTENT);
@@ -152,31 +200,9 @@ void ui_fx_amp_sim_screen_init(void)
     lv_obj_set_align(ui_img_amp_sim_compr, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_img_amp_sim_compr, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
 
-    ui_arc_amp_sim_compr = lv_arc_create(ui_pnl_amp_sim_compr);
-    lv_obj_set_width(ui_arc_amp_sim_compr, 95);
-    lv_obj_set_height(ui_arc_amp_sim_compr, 97);
-    lv_obj_set_x(ui_arc_amp_sim_compr, 0);
-    lv_obj_set_y(ui_arc_amp_sim_compr, -12);
-    lv_obj_set_align(ui_arc_amp_sim_compr, LV_ALIGN_CENTER);
-    lv_obj_clear_flag(ui_arc_amp_sim_compr, LV_OBJ_FLAG_GESTURE_BUBBLE);      /// Flags
-    lv_arc_set_range(ui_arc_amp_sim_compr, 0, 100);
-    lv_arc_set_value(ui_arc_amp_sim_compr, 50);
-    lv_arc_set_bg_angles(ui_arc_amp_sim_compr, 129, 51);
-    lv_obj_set_style_pad_left(ui_arc_amp_sim_compr, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_right(ui_arc_amp_sim_compr, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_top(ui_arc_amp_sim_compr, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_bottom(ui_arc_amp_sim_compr, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_arc_color(ui_arc_amp_sim_compr, lv_color_hex(0x4040FF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_arc_opa(ui_arc_amp_sim_compr, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_arc_width(ui_arc_amp_sim_compr, 20, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    lv_obj_set_style_arc_color(ui_arc_amp_sim_compr, lv_color_hex(0x50FF7D), LV_PART_INDICATOR | LV_STATE_DEFAULT);
-    lv_obj_set_style_arc_opa(ui_arc_amp_sim_compr, 255, LV_PART_INDICATOR | LV_STATE_DEFAULT);
-    lv_obj_set_style_arc_width(ui_arc_amp_sim_compr, 2, LV_PART_INDICATOR | LV_STATE_DEFAULT);
-    lv_obj_set_style_arc_rounded(ui_arc_amp_sim_compr, true, LV_PART_INDICATOR | LV_STATE_DEFAULT);
-
-    lv_obj_set_style_bg_color(ui_arc_amp_sim_compr, lv_color_hex(0x50FF7D), LV_PART_KNOB | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_arc_amp_sim_compr, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
+    ui_arc_amp_sim_compr = s_arc_create(ui_pnl_amp_sim_compr);
+    ui_arc_amp_sim_treb = s_arc_create(ui_pnl_amp_sim_compr);
+    lv_obj_add_flag(ui_arc_amp_sim_treb, LV_OBJ_FLAG_HIDDEN);
 
     ui_lbl_amp_sim_compr = lv_label_create(ui_pnl_amp_sim_compr);
     lv_obj_set_width(ui_lbl_amp_sim_compr, LV_SIZE_CONTENT);
@@ -211,31 +237,21 @@ void ui_fx_amp_sim_screen_init(void)
     lv_obj_set_align(ui_img_amp_sim_drive, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_img_amp_sim_drive, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
 
-    ui_arc_amp_sim_drive = lv_arc_create(ui_pnl_amp_sim_drive);
-    lv_obj_set_width(ui_arc_amp_sim_drive, 95);
-    lv_obj_set_height(ui_arc_amp_sim_drive, 97);
-    lv_obj_set_x(ui_arc_amp_sim_drive, 0);
-    lv_obj_set_y(ui_arc_amp_sim_drive, -12);
-    lv_obj_set_align(ui_arc_amp_sim_drive, LV_ALIGN_CENTER);
-    lv_obj_clear_flag(ui_arc_amp_sim_drive, LV_OBJ_FLAG_GESTURE_BUBBLE);      /// Flags
-    lv_arc_set_range(ui_arc_amp_sim_drive, 0, 100);
-    lv_arc_set_value(ui_arc_amp_sim_drive, 80);
-    lv_arc_set_bg_angles(ui_arc_amp_sim_drive, 129, 51);
-    lv_obj_set_style_pad_left(ui_arc_amp_sim_drive, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_right(ui_arc_amp_sim_drive, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_top(ui_arc_amp_sim_drive, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_bottom(ui_arc_amp_sim_drive, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_arc_color(ui_arc_amp_sim_drive, lv_color_hex(0x4040FF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_arc_opa(ui_arc_amp_sim_drive, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_arc_width(ui_arc_amp_sim_drive, 20, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_arc_amp_sim_drive = s_arc_create(ui_pnl_amp_sim_drive);
+    ui_arc_amp_sim_mids = s_arc_create(ui_pnl_amp_sim_drive);
+    lv_obj_add_flag(ui_arc_amp_sim_mids, LV_OBJ_FLAG_HIDDEN);
 
-    lv_obj_set_style_arc_color(ui_arc_amp_sim_drive, lv_color_hex(0x50FF7D), LV_PART_INDICATOR | LV_STATE_DEFAULT);
-    lv_obj_set_style_arc_opa(ui_arc_amp_sim_drive, 255, LV_PART_INDICATOR | LV_STATE_DEFAULT);
-    lv_obj_set_style_arc_width(ui_arc_amp_sim_drive, 2, LV_PART_INDICATOR | LV_STATE_DEFAULT);
-    lv_obj_set_style_arc_rounded(ui_arc_amp_sim_drive, true, LV_PART_INDICATOR | LV_STATE_DEFAULT);
-
-    lv_obj_set_style_bg_color(ui_arc_amp_sim_drive, lv_color_hex(0x50FF7D), LV_PART_KNOB | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_arc_amp_sim_drive, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
+    // Make this knob clickable to change set of controls (tone stack <-> volumes/drives)
+    ui_btn_amp_sim_mid_knob = lv_obj_create(ui_pnl_amp_sim_drive);
+    lv_obj_set_align(ui_btn_amp_sim_mid_knob, LV_ALIGN_CENTER);
+    lv_obj_set_size(ui_btn_amp_sim_mid_knob, 50, 50);
+    lv_obj_add_flag(ui_btn_amp_sim_mid_knob, LV_OBJ_FLAG_CHECKABLE);
+    lv_obj_set_y(ui_btn_amp_sim_mid_knob, -12);
+    lv_obj_set_style_border_width(ui_btn_amp_sim_mid_knob, 0, LV_PART_MAIN | LV_STATE_PRESSED);
+    lv_obj_set_style_radius(ui_btn_amp_sim_mid_knob, LV_RADIUS_CIRCLE, 0);
+    lv_obj_set_style_opa(ui_btn_amp_sim_mid_knob, LV_OPA_TRANSP, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_opa(ui_btn_amp_sim_mid_knob, LV_OPA_60, LV_PART_MAIN | LV_STATE_PRESSED);
+    lv_obj_move_foreground(ui_btn_amp_sim_mid_knob);
 
     ui_lbl_amp_sim_drive = lv_label_create(ui_pnl_amp_sim_drive);
     lv_obj_set_width(ui_lbl_amp_sim_drive, 68);
@@ -305,6 +321,10 @@ void ui_fx_amp_sim_screen_init(void)
     lv_obj_add_event_cb(ui_arc_amp_sim_input, ui_event_arc_amp_sim_input, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_arc_amp_sim_drive, ui_event_arc_amp_sim_drive, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_arc_amp_sim_compr, ui_event_arc_amp_sim_compression, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_arc_amp_sim_bass, ui_event_arc_amp_sim_bass, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_arc_amp_sim_mids, ui_event_arc_amp_sim_mids, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_arc_amp_sim_treb, ui_event_arc_amp_sim_treb, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_btn_amp_sim_mid_knob, s_mid_knob_btn_pressed, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_sw_amp_sim_mode, ui_event_sw_amp_sim_mode, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_fx_amp_sim, ui_event_fx_amp_sim, LV_EVENT_ALL, NULL);
 

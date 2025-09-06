@@ -520,6 +520,9 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const amp_sim_attr &spe
     lv_arc_set_value(ui_arc_amp_sim_input, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_amp_sim_input), lv_arc_get_max_value(ui_arc_amp_sim_input), specific.ctrl.input));
     lv_arc_set_value(ui_arc_amp_sim_drive, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_amp_sim_drive), lv_arc_get_max_value(ui_arc_amp_sim_drive), specific.ctrl.drive));
     lv_arc_set_value(ui_arc_amp_sim_compr, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_amp_sim_compr), lv_arc_get_max_value(ui_arc_amp_sim_compr), specific.ctrl.compression));
+    lv_arc_set_value(ui_arc_amp_sim_bass, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_amp_sim_bass), lv_arc_get_max_value(ui_arc_amp_sim_bass), specific.ctrl.bass));
+    lv_arc_set_value(ui_arc_amp_sim_mids, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_amp_sim_mids), lv_arc_get_max_value(ui_arc_amp_sim_mids), specific.ctrl.mids));
+    lv_arc_set_value(ui_arc_amp_sim_treb, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_amp_sim_treb), lv_arc_get_max_value(ui_arc_amp_sim_treb), specific.ctrl.treb));
 
     if (specific.ctrl.mode == amp_sim_attr::controls::mode_type::logain)
     {

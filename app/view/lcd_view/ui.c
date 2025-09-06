@@ -307,16 +307,22 @@ lv_obj_t * ui_pnl_amp_sim_controls;
 lv_obj_t * ui_pnl_amp_sim_input;
 lv_obj_t * ui_img_amp_sim_input;
 void ui_event_arc_amp_sim_input(lv_event_t * e);
+void ui_event_arc_amp_sim_bass(lv_event_t * e);
+lv_obj_t * ui_arc_amp_sim_bass;
 lv_obj_t * ui_arc_amp_sim_input;
 lv_obj_t * ui_lbl_amp_sim_input;
 lv_obj_t * ui_pnl_amp_sim_compr;
 lv_obj_t * ui_img_amp_sim_compr;
 void ui_event_arc_amp_sim_drive(lv_event_t * e);
+void ui_event_arc_amp_sim_mids(lv_event_t * e);
+lv_obj_t * ui_arc_amp_sim_treb;
 lv_obj_t * ui_arc_amp_sim_compr;
 lv_obj_t * ui_lbl_amp_sim_compr;
 lv_obj_t * ui_pnl_amp_sim_drive;
 lv_obj_t * ui_img_amp_sim_drive;
 void ui_event_arc_amp_sim_compression(lv_event_t * e);
+void ui_event_arc_amp_sim_treb(lv_event_t * e);
+lv_obj_t * ui_arc_amp_sim_mids;
 lv_obj_t * ui_arc_amp_sim_drive;
 lv_obj_t * ui_lbl_amp_sim_drive;
 lv_obj_t * ui_pnl_amp_sim_mode;
@@ -324,6 +330,7 @@ void ui_event_sw_amp_sim_mode(lv_event_t * e);
 lv_obj_t * ui_sw_amp_sim_mode;
 lv_obj_t * ui_lbl_amp_sim_mode_logain;
 lv_obj_t * ui_lbl_amp_sim_mode_higain;
+lv_obj_t * ui_btn_amp_sim_mid_knob;
 
 ///////////////////// TEST LVGL SETTINGS ////////////////////
 #if LV_COLOR_DEPTH != 16
@@ -784,7 +791,7 @@ void ui_event_arc_amp_sim_input(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
-    if(event_code == LV_EVENT_CLICKED) {
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
         ui_amp_sim_input_changed(e);
     }
 }
@@ -792,7 +799,7 @@ void ui_event_arc_amp_sim_drive(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
-    if(event_code == LV_EVENT_CLICKED) {
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
         ui_amp_sim_drive_changed(e);
     }
 }
@@ -800,8 +807,32 @@ void ui_event_arc_amp_sim_compression(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
 
-    if(event_code == LV_EVENT_CLICKED) {
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
         ui_amp_sim_compression_changed(e);
+    }
+}
+void ui_event_arc_amp_sim_bass(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_amp_sim_bass_changed(e);
+    }
+}
+void ui_event_arc_amp_sim_mids(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_amp_sim_mids_changed(e);
+    }
+}
+void ui_event_arc_amp_sim_treb(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_amp_sim_treb_changed(e);
     }
 }
 void ui_event_sw_amp_sim_mode(lv_event_t * e)

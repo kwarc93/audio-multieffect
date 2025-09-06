@@ -309,16 +309,22 @@ extern lv_obj_t * ui_pnl_amp_sim_controls;
 extern lv_obj_t * ui_pnl_amp_sim_input;
 extern lv_obj_t * ui_img_amp_sim_input;
 void ui_event_arc_amp_sim_input(lv_event_t * e);
+void ui_event_arc_amp_sim_bass(lv_event_t * e);
+extern lv_obj_t * ui_arc_amp_sim_bass;
 extern lv_obj_t * ui_arc_amp_sim_input;
 extern lv_obj_t * ui_lbl_amp_sim_input;
 extern lv_obj_t * ui_pnl_amp_sim_compr;
 extern lv_obj_t * ui_img_amp_sim_compr;
 void ui_event_arc_amp_sim_drive(lv_event_t * e);
+void ui_event_arc_amp_sim_treb(lv_event_t * e);
+extern lv_obj_t * ui_arc_amp_sim_treb;
 extern lv_obj_t * ui_arc_amp_sim_compr;
 extern lv_obj_t * ui_lbl_amp_sim_compr;
 extern lv_obj_t * ui_pnl_amp_sim_drive;
 extern lv_obj_t * ui_img_amp_sim_drive;
 void ui_event_arc_amp_sim_compression(lv_event_t * e);
+void ui_event_arc_amp_sim_mids(lv_event_t * e);
+extern lv_obj_t * ui_arc_amp_sim_mids;
 extern lv_obj_t * ui_arc_amp_sim_drive;
 extern lv_obj_t * ui_lbl_amp_sim_drive;
 extern lv_obj_t * ui_pnl_amp_sim_mode;
@@ -326,6 +332,7 @@ void ui_event_sw_amp_sim_mode(lv_event_t * e);
 extern lv_obj_t * ui_sw_amp_sim_mode;
 extern lv_obj_t * ui_lbl_amp_sim_mode_logain;
 extern lv_obj_t * ui_lbl_amp_sim_mode_higain;
+extern lv_obj_t * ui_btn_amp_sim_mid_knob;
 
 
 LV_IMG_DECLARE(ui_img_pot_ver_line_png);    // assets/pot_ver_line.png

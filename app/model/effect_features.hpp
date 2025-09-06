@@ -243,6 +243,9 @@ struct amp_sim_attr
         float input; // Input volume, range: [0, 1]
         float drive; // Preamp drive, range: [0, 1]
         float compression; // Tube compression, range: [0, 1]
+        float bass; // Tone stack: bass, range [0, 1]
+        float mids; // Tone stack: mids, range [0, 1]
+        float treb; // Tone stack: treble, range [0, 1]
         enum class mode_type {logain, higain} mode; // Amp overall gain: low/high
     } ctrl;
 
@@ -251,6 +254,9 @@ struct amp_sim_attr
         0.8f, // input volume
         0.8f, // preamp drive
         0.7f, // compression
+        0.5f, // bass
+        0.5f, // mids
+        0.5f, // treble
         controls::mode_type::higain // mode
     };
 };
