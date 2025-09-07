@@ -50,12 +50,12 @@ void ltdc::configure(const cfg &cfg)
      */
     static const rcc::sai_i2s_pll sai_cfg
     {
-        228,
-        8,
+        230,
+        8,  // 47.92 MHz -> USB & RNG
         2,
         5,
         1,
-        8 // 9.5 MHz
+        8 // 9.58 MHz -> LTDC
     };
 
     rcc::set_sai_pll(sai_cfg);

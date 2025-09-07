@@ -15,7 +15,7 @@
 /** @brief   Macro for initializing  @ref struct rcc::periph_bus.
  *  @example RCC_PERIPH_BUS(AHB1, GPIOA)
  */
-#define RCC_PERIPH_BUS(_bus, _periph)  { rcc::bus::_bus, RCC_##_bus##ENR_##_periph##EN }
+#define RCC_PERIPH_BUS(_bus, _periph)  { drivers::rcc::bus::_bus, RCC_##_bus##ENR_##_periph##EN }
 
 namespace drivers
 {
