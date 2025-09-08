@@ -12,6 +12,8 @@
 #include <hal_audio.hpp>
 //#include <hal_usbd.hpp>
 
+#include <cmsis_device.h> // For managing D-Cache & I-Cache
+
 #include "app/config.hpp"
 #include "cmsis_os2.h"
 #include "tusb.h"
@@ -28,6 +30,23 @@ namespace
 
 extern "C"
 {
+//--------------------------------------------------------------------+
+// Driver callbacks
+//--------------------------------------------------------------------+
+bool dwc2_dcache_clean(const void* addr, uint32_t data_size) {
+    SCB_CleanDCache_by_Addr((void*)addr, data_size);
+    return true;
+}
+
+bool dwc2_dcache_invalidate(const void* addr, uint32_t data_size) {
+    SCB_InvalidateDCache_by_Addr((void*)addr, data_size);
+    return true;
+}
+
+bool dwc2_dcache_clean_invalidate(const void* addr, uint32_t data_size) {
+    SCB_CleanInvalidateDCache_by_Addr((void*)addr, data_size);
+    return true;
+}
 //--------------------------------------------------------------------+
 // Device callbacks
 //--------------------------------------------------------------------+
