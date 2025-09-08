@@ -23,7 +23,6 @@
  *
  */
 
-//#include "bsp/board_api.h"
 #include "tusb.h"
 
 /* A combination of interfaces must have a unique product id, since PC will save device driver after the first plug.
@@ -101,7 +100,7 @@ uint8_t const desc_configuration[] =
     TUD_CONFIG_DESCRIPTOR(1, ITF_NUM_TOTAL, 0, CONFIG_TOTAL_LEN, 0x00, 100),
 
     // Interface number, string index, EP Out & EP In address, EP size
-    TUD_AUDIO_MIC_ONE_CH_DESCRIPTOR(/*_itfnum*/ ITF_NUM_AUDIO_CONTROL, /*_stridx*/ 0, /*_nBytesPerSample*/ CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX, /*_nBitsUsedPerSample*/ CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX*8, /*_epin*/ 0x80 | EPNUM_AUDIO, /*_epsize*/ CFG_TUD_AUDIO_EP_SZ_IN)
+    TUD_AUDIO_MIC_ONE_CH_DESCRIPTOR(/*_itfnum*/ ITF_NUM_AUDIO_CONTROL, /*_stridx*/ 0, /*_nBytesPerSample*/ CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX, /*_nBitsUsedPerSample*/ CFG_TUD_AUDIO_FUNC_1_N_BITS_PER_SAMPLE_TX, /*_epin*/ 0x80 | EPNUM_AUDIO, /*_epsize*/ CFG_TUD_AUDIO_EP_SZ_IN)
 };
 
 // Invoked when received GET CONFIGURATION DESCRIPTOR
@@ -131,40 +130,12 @@ char const* string_desc_arr [] =
     (const char[]) { 0x09, 0x04 }, // 0: is supported language is English (0x0409)
     "KWarc",                       // 1: Manufacturer
     "GMFX",                        // 2: Product
-    NULL,                          // 3: Serials will use unique ID if possible
-    "UAC1",                        // 4: Audio Interface
+    "DEADFACE93",                  // 3: Serial number
+    "UAC2",                        // 4: Audio Interface
 
 };
 
 static uint16_t _desc_str[32 + 1];
-
-// Get USB Serial number string from unique ID if available. Return number of character.
-// Input is string descriptor from index 1 (index 0 is type + len)
-static inline size_t get_serial(uint16_t desc_str1[], size_t max_chars) {
-  uint8_t uid[16] TU_ATTR_ALIGNED(4);
-  size_t uid_len;
-
-    // fixed serial string is 01234567889ABCDEF
-    uint32_t* uid32 = (uint32_t*) (uintptr_t) uid;
-    uid32[0] = 0x67452301;
-    uid32[1] = 0xEFCDAB89;
-    uid_len = 8;
-
-  if ( uid_len > max_chars / 2 ) uid_len = max_chars / 2;
-
-  for ( size_t i = 0; i < uid_len; i++ ) {
-    for ( size_t j = 0; j < 2; j++ ) {
-      const char nibble_to_hex[16] = {
-          '0', '1', '2', '3', '4', '5', '6', '7',
-          '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
-      };
-      uint8_t const nibble = (uid[i] >> (j * 4)) & 0xf;
-      desc_str1[i * 2 + (1 - j)] = nibble_to_hex[nibble]; // UTF-16-LE
-    }
-  }
-
-  return 2 * uid_len;
-}
 
 // Invoked when received GET STRING DESCRIPTOR request
 // Application return pointer to descriptor, whose contents must exist long enough for transfer to complete
@@ -176,10 +147,6 @@ uint16_t const *tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
     case STRID_LANGID:
       memcpy(&_desc_str[1], string_desc_arr[0], 2);
       chr_count = 1;
-      break;
-
-    case STRID_SERIAL:
-      chr_count = get_serial(_desc_str + 1, 32);
       break;
 
     default:

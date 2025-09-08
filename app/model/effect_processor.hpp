@@ -181,7 +181,7 @@ class effect_processor_base : public middlewares::active_object<effect_processor
                               public middlewares::subject<effect_processor_events::outgoing>
 {
 public:
-    effect_processor_base() : active_object("effect_processor", osPriorityHigh, 4096) {}
+    effect_processor_base() : active_object("effect_processor", osPriorityRealtime, 4096) {}
 private:
     virtual void dispatch(const event &e) {};
 };
