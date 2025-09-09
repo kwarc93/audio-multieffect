@@ -323,8 +323,9 @@ class usb_audio_source
 public:
     usb_audio_source()
     {
-        // Enable low-level USBFS stuff
+        this->samples.buffer.fill(0);
 
+        // Enable low-level USBFS stuff
         drivers::gpio::configure({ drivers::gpio::port::porta, drivers::gpio::pin::pin10 }, drivers::gpio::mode::af, drivers::gpio::af::af10); // ID
         drivers::gpio::configure({ drivers::gpio::port::porta, drivers::gpio::pin::pin11 }, drivers::gpio::mode::af, drivers::gpio::af::af10); // D-
         drivers::gpio::configure({ drivers::gpio::port::porta, drivers::gpio::pin::pin12 }, drivers::gpio::mode::af, drivers::gpio::af::af10); // D+

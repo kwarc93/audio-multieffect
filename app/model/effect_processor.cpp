@@ -187,17 +187,11 @@ void effect_processor::event_handler(const events::process_audio &e)
 {
     const uint32_t cycles_start = hal::system::clock::cycles();
 
-    effect::dsp_input *current_input {&this->dsp_main_input};
-    effect::dsp_output *current_output {&this->dsp_output};
+    std::reference_wrapper<decltype(this->dsp_output)> current_output = this->dsp_output;
+    std::reference_wrapper<decltype(this->dsp_main_input)> current_input = this->dsp_main_input;
 
     /* Pass to USB */
     auto& usb = get_usb_audio();
-    //const auto start_index = this->audio_output.sample_index == 0 ? config::dsp_vector_size : 0; // previous half
-    for (unsigned i = 0; i < current_output->size(); i++)
-    {
-        const auto index = this->audio_output.sample_index + 2 * i;
-        usb.samples.buffer[i] = this->audio_output.buffer[index];
-    }
     usb.write();
 
     /* Process effects */
@@ -206,29 +200,26 @@ void effect_processor::event_handler(const events::process_audio &e)
         if (!effect->is_bypassed())
         {
             effect->set_aux_input(this->dsp_aux_input);
-            effect->process(*current_input, *current_output);
+            effect->process(current_input, current_output);
 
-            /* Swap current buffers pointers after each effect process so that old output is new input */
-            effect::dsp_input *tmp = current_input;
-            current_input = current_output;
-            current_output = tmp;
+            /* Swap current buffers so that old output is new input */
+            std::swap(current_input, current_output);
         }
     }
 
     /* Set correct output buffer after all processing */
     current_output = current_input;
 
-    /* Transform normalized DSP samples to RAW buffer (24bit onto 32bit MSB) */
-    //auto& usb = get_usb_audio();
-    for (unsigned i = 0; i < current_output->size(); i++)
+    for (unsigned i = 0; i < current_output.get().size(); i++)
     {
+        /* Transform normalized DSP samples to RAW buffer (24bit onto 32bit MSB) */
         decltype(this->audio_output.buffer)::value_type sample;
 
         constexpr decltype(sample) min = -(1 << (this->audio_input.bps - 1));
         constexpr decltype(sample) max = -min - 1;
         constexpr decltype(sample) scale = -min;
 
-        sample = current_output->at(i) * scale;
+        sample = current_output.get().at(i) * scale;
         sample = std::clamp(sample, min, max) << 8;
 
         /* Duplicate left channel to right channel */
@@ -236,11 +227,9 @@ void effect_processor::event_handler(const events::process_audio &e)
         this->audio_output.buffer[index] = sample;
         this->audio_output.buffer[index + 1] = sample;
 
-        /* Pass to USB */
-        //usb.samples.buffer[i] = sample;
+        /* Fill USB audio buffer */
+        usb.samples.buffer[i] = sample;
     }
-
-    //usb.write();
 
 #ifdef CORE_CM7
     /* If D-Cache is enabled, it must be cleaned/invalidated for buffers used by DMA.
@@ -467,17 +456,14 @@ void effect_processor::audio_capture_cb(const hal::audio_devices::codec::input_s
 #endif /* CORE_CM7 */
 
     /* Set current read index for input buffer (double buffering) */
-    if (input == &this->audio_input.buffer[0])
-        this->audio_input.sample_index = 0;
-    else
-        this->audio_input.sample_index = this->audio_input.buffer.size() / 2;
+    this->audio_input.sample_index = input - this->audio_input.buffer.begin();
 
     /* Transform RAW samples (24bit extended onto 32bit MSB) to normalized DSP buffer */
     for (unsigned i = this->audio_input.sample_index, j = 0; i < this->audio_input.sample_index + this->audio_input.buffer.size() / 2; i+=2, j++)
     {
         constexpr float scale = 1.0f / (1 << (this->audio_input.bps - 1));
-        this->dsp_main_input[j] = (this->audio_input.buffer[i] >> 8) * scale; // Left
-        this->dsp_aux_input[j] = (this->audio_input.buffer[i + 1] >> 8) * scale; // Right
+        this->dsp_main_input[j] = (this->audio_input.buffer[i] >> 8) * scale;       // Left
+        this->dsp_aux_input[j] = (this->audio_input.buffer[i + 1] >> 8) * scale;    // Right
     }
 
     /* Send event to process data */
@@ -490,10 +476,7 @@ void effect_processor::audio_play_cb(uint16_t sample_index)
     /* WARNING: This method could have been called from interrupt */
 
     /* Set current write index for output buffer (double buffering) */
-    if (sample_index == this->audio_output.buffer.size())
-        this->audio_output.sample_index = this->audio_output.buffer.size() / 2;
-    else
-        this->audio_output.sample_index = 0;
+    this->audio_output.sample_index = sample_index - this->audio_output.buffer.size() / 2;
 }
 
 uint8_t effect_processor::get_processing_load(void)
