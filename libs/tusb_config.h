@@ -54,23 +54,19 @@ extern "C" {
 #endif
 
 #ifndef CFG_TUSB_OS
-#define CFG_TUSB_OS                 OPT_OS_NONE
-#endif
-
-#ifndef CFG_TUSB_DEBUG
-#define CFG_TUSB_DEBUG              1 // error
+#define CFG_TUSB_OS         OPT_OS_NONE
 #endif
 
 // Enable Device stack
-#define CFG_TUD_ENABLED       1
+#define CFG_TUD_ENABLED     1
 
 // Default is max speed that hardware controller could support with on-chip PHY
-#define CFG_TUD_MAX_SPEED     BOARD_TUD_MAX_SPEED
+#define CFG_TUD_MAX_SPEED   BOARD_TUD_MAX_SPEED
 
-// CFG_TUSB_DEBUG is defined by compiler in DEBUG build
-// #define CFG_TUSB_DEBUG           0
+// Enable debugging level (0/1/2/3 <-> none/err/warn/info)
+#define CFG_TUSB_DEBUG      0
 
-// Enable DMA for device controller
+// Enable DMA for device controller (STM32 USB HS only)
 #define CFG_TUD_DWC2_DMA_ENABLE         1
 #define CFG_TUD_MEM_DCACHE_ENABLE       1
 #define CFG_TUSB_MEM_DCACHE_LINE_SIZE   32

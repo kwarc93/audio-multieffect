@@ -190,6 +190,16 @@ void effect_processor::event_handler(const events::process_audio &e)
     effect::dsp_input *current_input {&this->dsp_main_input};
     effect::dsp_output *current_output {&this->dsp_output};
 
+    /* Pass to USB */
+    auto& usb = get_usb_audio();
+    //const auto start_index = this->audio_output.sample_index == 0 ? config::dsp_vector_size : 0; // previous half
+    for (unsigned i = 0; i < current_output->size(); i++)
+    {
+        const auto index = this->audio_output.sample_index + 2 * i;
+        usb.samples.buffer[i] = this->audio_output.buffer[index];
+    }
+    usb.write();
+
     /* Process effects */
     for (auto &&effect : this->effects)
     {
@@ -209,7 +219,7 @@ void effect_processor::event_handler(const events::process_audio &e)
     current_output = current_input;
 
     /* Transform normalized DSP samples to RAW buffer (24bit onto 32bit MSB) */
-    auto& usb = get_usb_audio();
+    //auto& usb = get_usb_audio();
     for (unsigned i = 0; i < current_output->size(); i++)
     {
         decltype(this->audio_output.buffer)::value_type sample;
@@ -227,10 +237,10 @@ void effect_processor::event_handler(const events::process_audio &e)
         this->audio_output.buffer[index + 1] = sample;
 
         /* Pass to USB */
-        usb.samples.buffer[i] = sample;
+        //usb.samples.buffer[i] = sample;
     }
 
-    usb.write();
+    //usb.write();
 
 #ifdef CORE_CM7
     /* If D-Cache is enabled, it must be cleaned/invalidated for buffers used by DMA.

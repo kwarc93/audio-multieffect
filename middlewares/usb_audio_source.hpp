@@ -20,7 +20,6 @@
 
 namespace
 {
-    inline bool ready;
     inline uint8_t clkValid;
     inline uint32_t sampFreq;
     inline bool mute[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX + 1];       // +1 for master channel 0
@@ -53,12 +52,10 @@ bool dwc2_dcache_clean_invalidate(const void* addr, uint32_t data_size) {
 
 // Invoked when device is mounted
 void tud_mount_cb(void) {
-    ready = true;
 }
 
 // Invoked when device is unmounted
 void tud_umount_cb(void) {
-    ready = false;
 }
 
 // Invoked when usb bus is suspended
@@ -66,12 +63,11 @@ void tud_umount_cb(void) {
 // Within 7ms, device must draw an average of current less than 2.5 mA from bus
 void tud_suspend_cb(bool remote_wakeup_en) {
   (void) remote_wakeup_en;
-  ready = false;
 }
 
 // Invoked when usb bus is resumed
 void tud_resume_cb(void) {
-  ready = tud_mounted();
+//  ready = tud_mounted();
 }
 
 //--------------------------------------------------------------------+
@@ -338,11 +334,8 @@ public:
         NVIC_SetPriority(OTG_FS_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 5+1, 0 ));
 
 #if OTG_FS_VBUS_SENSE
-        /* Configure VBUS Pin */
-        GPIO_InitStruct.Pin = GPIO_PIN_9;
-        GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-        GPIO_InitStruct.Pull = GPIO_NOPULL;
-        HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+        // Configure VBUS Pin (or leave at its default state after reset)
+        drivers::gpio::configure({ drivers::gpio::port::porta, drivers::gpio::pin::pin9 }, drivers::gpio::mode::input); // VBUS
 
         // Enable VBUS sense (B device) via pin PA9
         USB_OTG_FS->GCCFG |= USB_OTG_GCCFG_VBDEN;
@@ -364,7 +357,6 @@ public:
         // Init values
         sampFreq = CFG_TUD_AUDIO_FUNC_1_SAMPLE_RATE;
         clkValid = 1;
-        ready = false;
 
         sampleFreqRng.wNumSubRanges = 1;
         sampleFreqRng.subrange[0].bMin = CFG_TUD_AUDIO_FUNC_1_SAMPLE_RATE;
@@ -374,18 +366,17 @@ public:
         osThreadAttr_t attr {};
         attr.name = "tusb_thread";
         attr.stack_size = 4096;
-        attr.priority = osPriorityHigh;
+        attr.priority = osPriorityRealtime1;
         osThreadNew([](void *arg){ while(1) { tud_task(); }; }, this, &attr);
     }
 
     ~usb_audio_source()
     {
-        ready = false;
     }
 
     bool write()
     {
-        if (!ready) return false;
+        if (!tud_audio_mounted()) return false;
 
         uint16_t bytes_to_write = samples.buffer.size() * sizeof(int32_t);
         uint16_t bytes_written = tud_audio_write((uint8_t *)samples.buffer.data(), bytes_to_write);
