@@ -34,14 +34,14 @@ extern "C" {
 // Board Specific Configuration
 //--------------------------------------------------------------------+
 
-// RHPort number used for device can be defined by board.mk, default to port 0
-#ifndef BOARD_TUD_RHPORT
-#define BOARD_TUD_RHPORT      0
-#endif
-
 // RHPort max operational speed can defined by board.mk
 #ifndef BOARD_TUD_MAX_SPEED
-#define BOARD_TUD_MAX_SPEED   OPT_MODE_DEFAULT_SPEED
+#define BOARD_TUD_MAX_SPEED   OPT_MODE_FULL_SPEED
+#endif
+
+// RHPort number used for device can be defined by board.mk, default to port 0
+#ifndef BOARD_TUD_RHPORT
+#define BOARD_TUD_RHPORT      (BOARD_TUD_MAX_SPEED == OPT_MODE_HIGH_SPEED)
 #endif
 
 //--------------------------------------------------------------------
@@ -84,6 +84,14 @@ extern "C" {
 
 #ifndef CFG_TUSB_MEM_ALIGN
 #define CFG_TUSB_MEM_ALIGN          __attribute__ ((aligned(4)))
+#endif
+
+#if CFG_TUD_MEM_DCACHE_ENABLE
+#include <stdint.h>
+#include <stdbool.h>
+bool dwc2_dcache_clean(const void* addr, uint32_t data_size);
+bool dwc2_dcache_invalidate(const void* addr, uint32_t data_size);
+bool dwc2_dcache_clean_invalidate(const void* addr, uint32_t data_size);
 #endif
 
 //--------------------------------------------------------------------

@@ -58,6 +58,11 @@ extern "C" void OTG_FS_IRQHandler(void)
     tusb_int_handler(0, true);
 }
 
+extern "C"  void OTG_HS_IRQHandler(void)
+{
+    tusb_int_handler(1, true);
+}
+
 extern "C" void USART1_IRQHandler(void)
 {
     drivers::usart::instance[static_cast<uint8_t>(drivers::usart::id::usart1)]->irq_handler();
