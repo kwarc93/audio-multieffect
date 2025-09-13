@@ -137,7 +137,7 @@ bool dwc2_dcache_clean_invalidate(const void* addr, uint32_t data_size);
 #define CFG_TUD_AUDIO_ENABLE_EP_IN                                   1
 
 #define CFG_TUD_AUDIO_FUNC_1_EP_IN_SZ_MAX        TUD_AUDIO_EP_SIZE(CFG_TUD_AUDIO_FUNC_1_MAX_SAMPLE_RATE, CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX, CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX)
-#define CFG_TUD_AUDIO_FUNC_1_EP_IN_SW_BUF_SZ     (TUD_OPT_HIGH_SPEED ? 16 : 2) * CFG_TUD_AUDIO_FUNC_1_EP_IN_SZ_MAX // Example read FIFO every 1ms, so it should be 8 times larger for HS device
+#define CFG_TUD_AUDIO_FUNC_1_EP_IN_SW_BUF_SZ     (TUD_OPT_HIGH_SPEED ? 48 : 6) * CFG_TUD_AUDIO_FUNC_1_EP_IN_SZ_MAX // Example read FIFO every 1ms, so it should be 8 times larger for HS device
 
 // EP and buffer size - for isochronous EP´s, the buffer and EP size are equal (different sizes would not make sense)
 #define CFG_TUD_AUDIO_ENABLE_EP_OUT                                  1
