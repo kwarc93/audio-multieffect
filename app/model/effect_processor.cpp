@@ -219,7 +219,7 @@ void effect_processor::event_handler(const events::process_audio &e)
         /* Duplicate left channel to right channel & mix with received USB audio */
         const auto index = this->audio_output.sample_index + 2 * i;
         this->audio_output.buffer[index] = sample + usb.audio_from_host.buffer[2 * i];
-        this->audio_output.buffer[index + 1] = sample + usb.audio_from_host.buffer[2 * i + 1];;
+        this->audio_output.buffer[index + 1] = sample + usb.audio_from_host.buffer[2 * i + 1];
 
         /* Fill USB audio buffer */
         usb.audio_to_host.buffer[i] = sample;
