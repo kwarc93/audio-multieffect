@@ -74,12 +74,11 @@ uint8_t const * tud_descriptor_device_cb(void)
 // Configuration Descriptor
 //--------------------------------------------------------------------+
 
-#define CONFIG_TOTAL_LEN        (TUD_CONFIG_DESC_LEN + TUD_AUDIO_SPEAKER_STEREO_FB_DESC_LEN)
+#define CONFIG_TOTAL_LEN        (TUD_CONFIG_DESC_LEN + TUD_AUDIO_HEADSET_STEREO_DESC_LEN)
 
 #define EPNUM_AUDIO_IN    0x01
 #define EPNUM_AUDIO_OUT   0x01
 #define EPNUM_AUDIO_FB    0x01
-#define EPNUM_AUDIO_INT   0x02
 
 uint8_t const desc_configuration[] =
 {
@@ -87,7 +86,9 @@ uint8_t const desc_configuration[] =
     TUD_CONFIG_DESCRIPTOR(1, ITF_NUM_TOTAL, 0, CONFIG_TOTAL_LEN, 0x00, 100),
 
     // Interface number, string index, EP Out & EP In address, EP size
-    TUD_AUDIO_SPEAKER_STEREO_FB_DESCRIPTOR(0, 4, CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_RX, CFG_TUD_AUDIO_FUNC_1_RESOLUTION_RX, EPNUM_AUDIO_OUT, CFG_TUD_AUDIO_FUNC_1_EP_OUT_SZ_MAX, EPNUM_AUDIO_FB | 0x80, 4),
+    TUD_AUDIO_HEADSET_STEREO_DESCRIPTOR(2, EPNUM_AUDIO_OUT, EPNUM_AUDIO_IN | 0x80, EPNUM_AUDIO_FB | 0x80, 4)
+
+    //TUD_AUDIO_SPEAKER_STEREO_FB_DESCRIPTOR(0, 4, CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_RX, CFG_TUD_AUDIO_FUNC_1_RESOLUTION_RX, EPNUM_AUDIO_OUT, CFG_TUD_AUDIO_FUNC_1_EP_OUT_SZ_MAX, EPNUM_AUDIO_FB | 0x80, 4),
 };
 
 // Invoked when received GET CONFIGURATION DESCRIPTOR
@@ -115,9 +116,10 @@ char const *string_desc_arr[] =
 {
   (const char[]) { 0x09, 0x04 },  // 0: is supported language is English (0x0409)
   "TinyUSB",                      // 1: Manufacturer
-  "TinyUSB Speaker",              // 2: Product
+  "TinyUSB headset",              // 2: Product
   "DEADFACE93",                   // 3: Serials will use unique ID if possible
-  "UAC2 Speaker",                 // 4: Audio Interface
+  "TinyUSB Speakers",             // 4: Audio Interface
+  "TinyUSB Microphone",           // 5: Audio Interface
 };
 
 static uint16_t _desc_str[32 + 1];
