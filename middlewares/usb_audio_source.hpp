@@ -22,7 +22,7 @@ namespace
 {
 
 // List of supported sample rates
-const uint32_t sample_rates[] = {44100, 48000};
+const uint32_t sample_rates[] = {48000, 44100};
 
 uint32_t current_sample_rate = 48000;
 
@@ -389,7 +389,7 @@ public:
     {
         if (!tud_audio_mounted()) return false;
 
-        size_t bytes_to_read = audio_from_host.buffer.size() * sizeof(int32_t);
+        uint16_t bytes_to_read = audio_from_host.buffer.size() * sizeof(int32_t);
         uint16_t bytes_read = tud_audio_read((uint8_t *)audio_from_host.buffer.data(), bytes_to_read);
         if (bytes_read != bytes_to_read)
         {

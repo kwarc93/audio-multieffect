@@ -190,7 +190,7 @@ void effect_processor::event_handler(const events::process_audio &e)
     /* Handle USB */
     auto& usb = get_usb_audio();
     usb.read();
-    //usb.write();
+    usb.write();
 
     /* Process effects */
     for (auto &&effect : this->effects)
