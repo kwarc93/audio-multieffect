@@ -69,13 +69,6 @@ void effect_processor::event_handler(const events::initialize &e)
     this->dsp_main_input.resize(config::dsp_vector_size);
     this->dsp_aux_input.resize(config::dsp_vector_size);
     this->dsp_output.resize(config::dsp_vector_size);
-
-    /* Initialize USB audio source */
-    auto& usb = get_usb_audio();
-    for (unsigned i = 0; i < usb.samples.buffer.size(); i++)
-    {
-        usb.samples.buffer[i] = 0;
-    }
 }
 
 void effect_processor::event_handler(const events::shutdown &e)
@@ -190,9 +183,10 @@ void effect_processor::event_handler(const events::process_audio &e)
     std::reference_wrapper<decltype(this->dsp_output)> current_output = this->dsp_output;
     std::reference_wrapper<decltype(this->dsp_main_input)> current_input = this->dsp_main_input;
 
-    /* Pass to USB */
+    /* Handle USB */
     auto& usb = get_usb_audio();
     usb.write();
+    usb.read();
 
     /* Process effects */
     for (auto &&effect : this->effects)
@@ -222,13 +216,13 @@ void effect_processor::event_handler(const events::process_audio &e)
         sample = current_output.get().at(i) * scale;
         sample = std::clamp(sample, min, max) << 8;
 
-        /* Duplicate left channel to right channel */
+        /* Duplicate left channel to right channel & mix with received USB audio */
         const auto index = this->audio_output.sample_index + 2 * i;
-        this->audio_output.buffer[index] = sample;
-        this->audio_output.buffer[index + 1] = sample;
+        this->audio_output.buffer[index] = sample + usb.audio_from_host.buffer[2 * i];
+        this->audio_output.buffer[index + 1] = sample + usb.audio_from_host.buffer[2 * i + 1];;
 
         /* Fill USB audio buffer */
-        usb.samples.buffer[i] = sample;
+        usb.audio_to_host.buffer[i] = sample;
     }
 
 #ifdef CORE_CM7

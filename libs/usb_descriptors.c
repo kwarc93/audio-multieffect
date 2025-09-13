@@ -24,6 +24,7 @@
  */
 
 #include "tusb.h"
+#include "usb_descriptors.h"
 
 /* A combination of interfaces must have a unique product id, since PC will save device driver after the first plug.
  * Same VID/PID with different interface e.g MSC (first), then CDC (later) will possibly cause system error on PC.
@@ -72,27 +73,13 @@ uint8_t const * tud_descriptor_device_cb(void)
 //--------------------------------------------------------------------+
 // Configuration Descriptor
 //--------------------------------------------------------------------+
-enum
-{
-  ITF_NUM_AUDIO_CONTROL = 0,
-  ITF_NUM_AUDIO_STREAMING,
-  ITF_NUM_TOTAL
-};
 
-#define CONFIG_TOTAL_LEN        (TUD_CONFIG_DESC_LEN + CFG_TUD_AUDIO * TUD_AUDIO_MIC_ONE_CH_DESC_LEN)
+#define CONFIG_TOTAL_LEN        (TUD_CONFIG_DESC_LEN + CFG_TUD_AUDIO * TUD_AUDIO_HEADSET_STEREO_DESC_LEN)
 
-#if CFG_TUSB_MCU == OPT_MCU_LPC175X_6X || CFG_TUSB_MCU == OPT_MCU_LPC177X_8X || CFG_TUSB_MCU == OPT_MCU_LPC40XX
-  // LPC 17xx and 40xx endpoint type (bulk/interrupt/iso) are fixed by its number
-  // 0 control, 1 In, 2 Bulk, 3 Iso, 4 In etc ...
-  #define EPNUM_AUDIO   0x03
-
-#elif TU_CHECK_MCU(OPT_MCU_NRF5X)
-  // nRF5x ISO can only be endpoint 8
-  #define EPNUM_AUDIO   0x08
-
-#else
-  #define EPNUM_AUDIO   0x01
-#endif
+#define EPNUM_AUDIO_IN    0x01
+#define EPNUM_AUDIO_OUT   0x01
+#define EPNUM_AUDIO_FB    0x01
+#define EPNUM_AUDIO_INT   0x02
 
 uint8_t const desc_configuration[] =
 {
@@ -100,8 +87,17 @@ uint8_t const desc_configuration[] =
     TUD_CONFIG_DESCRIPTOR(1, ITF_NUM_TOTAL, 0, CONFIG_TOTAL_LEN, 0x00, 100),
 
     // Interface number, string index, EP Out & EP In address, EP size
-    TUD_AUDIO_MIC_ONE_CH_DESCRIPTOR(/*_itfnum*/ ITF_NUM_AUDIO_CONTROL, /*_stridx*/ 0, /*_nBytesPerSample*/ CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX, /*_nBitsUsedPerSample*/ CFG_TUD_AUDIO_FUNC_1_N_BITS_PER_SAMPLE_TX, /*_epin*/ 0x80 | EPNUM_AUDIO, /*_epsize*/ CFG_TUD_AUDIO_EP_SZ_IN)
+    TUD_AUDIO_HEADSET_STEREO_DESCRIPTOR(2, EPNUM_AUDIO_OUT, EPNUM_AUDIO_IN | 0x80, EPNUM_AUDIO_INT | 0x80, EPNUM_AUDIO_FB | 0x80, 4)
 };
+
+//uint8_t const desc_configuration[] =
+//{
+//    // Config number, interface count, string index, total length, attribute, power in mA
+//    TUD_CONFIG_DESCRIPTOR(1, ITF_NUM_TOTAL, 0, CONFIG_TOTAL_LEN, 0x00, 100),
+//
+//    // Interface number, string index, EP Out & EP In address, EP size
+//    TUD_AUDIO_HEADSET_STEREO_DESCRIPTOR(2, EPNUM_AUDIO_OUT, EPNUM_AUDIO_IN | 0x80, EPNUM_AUDIO_FB | 0x80, 4)
+//};
 
 // Invoked when received GET CONFIGURATION DESCRIPTOR
 // Application return pointer to descriptor
@@ -125,14 +121,23 @@ enum {
 };
 
 // array of pointer to string descriptors
-char const* string_desc_arr [] =
+//char const* string_desc_arr [] =
+//{
+//    (const char[]) { 0x09, 0x04 }, // 0: is supported language is English (0x0409)
+//    "KWarc",                       // 1: Manufacturer
+//    "GMFX",                        // 2: Product
+//    "DEADFACE93",                  // 3: Serial number
+//    "UAC2",                        // 4: Audio Interface
+//
+//};
+char const *string_desc_arr[] =
 {
-    (const char[]) { 0x09, 0x04 }, // 0: is supported language is English (0x0409)
-    "KWarc",                       // 1: Manufacturer
-    "GMFX",                        // 2: Product
-    "DEADFACE93",                  // 3: Serial number
-    "UAC2",                        // 4: Audio Interface
-
+  (const char[]) { 0x09, 0x04 },  // 0: is supported language is English (0x0409)
+  "TinyUSB",                      // 1: Manufacturer
+  "TinyUSB headset",              // 2: Product
+  "DEADFACE93",                   // 3: Serials will use unique ID if possible
+  "TinyUSB Speakers",             // 4: Audio Interface
+  "TinyUSB Microphone",           // 5: Audio Interface
 };
 
 static uint16_t _desc_str[32 + 1];
