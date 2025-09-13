@@ -78,7 +78,7 @@ uint8_t const * tud_descriptor_device_cb(void)
 
 #define EPNUM_AUDIO_IN    0x01
 #define EPNUM_AUDIO_OUT   0x01
-#define EPNUM_AUDIO_FB    0x01
+#define EPNUM_AUDIO_FB    0x02
 
 uint8_t const desc_configuration[] =
 {
@@ -113,11 +113,11 @@ enum {
 char const *string_desc_arr[] =
 {
   (const char[]) { 0x09, 0x04 },  // 0: is supported language is English (0x0409)
-  "TinyUSB",                      // 1: Manufacturer
-  "TinyUSB headset",              // 2: Product
-  "DEADFACE93",                   // 3: Serials will use unique ID if possible
-  "TinyUSB Speakers",             // 4: Audio Interface
-  "TinyUSB Microphone",           // 5: Audio Interface
+  "KWarc",                        // 1: Manufacturer
+  "GMFX",                         // 2: Product
+  "DEADFACE93",                   // 3: Serial number
+  "GMFX Headphones",              // 4: Audio Interface
+  "GMFX Microphone",              // 5: Audio Interface
 };
 
 static uint16_t _desc_str[32 + 1];
