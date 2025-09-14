@@ -408,7 +408,7 @@ public:
         osThreadAttr_t attr {};
         attr.name = "tusb_thread";
         attr.stack_size = 4096;
-        attr.priority = osPriorityRealtime;
+        attr.priority = osPriorityRealtime1;
         osThreadNew([](void *arg){ while(1) { tud_task(); }; }, this, &attr);
     }
 
@@ -432,7 +432,7 @@ public:
         uint16_t bytes_to_read = audio_from_host.buffer.size() * sizeof(int32_t);
         uint16_t bytes_read = tud_audio_read((uint8_t *)audio_from_host.buffer.data(), bytes_to_read);
         /* If not enough data, fill remaining buffer with zeroes */
-        std::memset(audio_from_host.buffer.data() + bytes_read, 0, bytes_to_read - bytes_read);
+        if (bytes_read < bytes_to_read) std::memset(((uint8_t*)audio_from_host.buffer.data()) + bytes_read, 0, bytes_to_read - bytes_read);
         return bytes_to_read == bytes_read;
     }
 
