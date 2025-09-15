@@ -48,6 +48,8 @@ struct configuration
     uint8_t output_vol;
     bool output_muted;
     bool mic_routed_to_aux;
+    bool usb_audio_if_enabled;
+    bool usb_direct_mon_enabled;
 };
 
 struct start_audio
@@ -108,6 +110,16 @@ struct set_mute
     bool value;
 };
 
+struct enable_usb_audio_if
+{
+    bool value;
+};
+
+struct enable_usb_direct_mon
+{
+    bool value;
+};
+
 struct set_effect_controls
 {
     effect_controls ctrl;
@@ -161,6 +173,8 @@ using incoming = std::variant
     set_output_volume,
     route_mic_to_aux,
     set_mute,
+    enable_usb_audio_if,
+    enable_usb_direct_mon,
     set_effect_controls,
     get_effect_attributes,
     enumerate_effects_attributes
@@ -209,6 +223,8 @@ private:
     void event_handler(const effect_processor_events::set_output_volume &e);
     void event_handler(const effect_processor_events::route_mic_to_aux &e);
     void event_handler(const effect_processor_events::set_mute &e);
+    void event_handler(const effect_processor_events::enable_usb_audio_if &e);
+    void event_handler(const effect_processor_events::enable_usb_direct_mon &e);
     void event_handler(const effect_processor_events::process_audio &e);
     void event_handler(const effect_processor_events::get_dsp_load &e);
     void event_handler(const effect_processor_events::set_effect_controls &e);
@@ -248,6 +264,7 @@ private:
     effect::dsp_output dsp_output;
 
     uint32_t processing_time_us;
+    bool usb_direct_mon;
 };
 
 }

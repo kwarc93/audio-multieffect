@@ -292,6 +292,22 @@ void ui_settings_route_mic_to_aux(lv_event_t * e)
     view->notify(evt);
 }
 
+void ui_settings_usb_if_toggle(lv_event_t * e)
+{
+    const bool usb_if_enabled = lv_obj_has_state(ui_sw_sett_usb_if_toggle, LV_STATE_CHECKED);
+    usb_if_enabled ? lv_obj_clear_state(ui_sw_sett_usb_direct_mon, LV_STATE_DISABLED) :
+                     lv_obj_add_state(ui_sw_sett_usb_direct_mon, LV_STATE_DISABLED);
+
+    const events::usb_audio_if_changed evt {usb_if_enabled};
+    view->notify(evt);
+}
+
+void ui_settings_usb_direct_mon(lv_event_t * e)
+{
+    const events::usb_direct_mon_changed evt {lv_obj_has_state(ui_sw_sett_usb_direct_mon, LV_STATE_CHECKED)};
+    view->notify(evt);
+}
+
 void ui_settings_add_effect(uint32_t id)
 {
     const events::add_effect_request evt {static_cast<mfx::effect_id>(id)};

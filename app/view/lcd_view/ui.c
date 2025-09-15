@@ -9,22 +9,16 @@
 ///////////////////// VARIABLES ////////////////////
 
 // SCREEN: ui_splash
-void ui_splash_screen_init(void);
-void ui_splash_fadein_anim(lv_obj_t * target, int delay);
 void ui_event_splash(lv_event_t * e);
 lv_obj_t * ui_splash;
 lv_obj_t * ui_logo_gmfx;
 
 // SCREEN: ui_blank
-void ui_blank_screen_init(void);
-void ui_event_blank(lv_event_t * e);
 lv_obj_t * ui_blank;
 lv_obj_t * ui_lbl_blank;
 lv_obj_t * ui_lbl_blank_arrow;
 
 // SCREEN: ui_settings
-void ui_settings_screen_init(void);
-void ui_event_settings(lv_event_t * e);
 lv_obj_t * ui_settings;
 lv_obj_t * ui_settings_parent_screen;
 lv_obj_t * ui_menu_sett;
@@ -42,19 +36,13 @@ lv_obj_t * ui_sld_sett_out_vol;
 lv_obj_t * ui_sw_sett_dark_mode;
 lv_obj_t * ui_sw_sett_mute_audio;
 lv_obj_t * ui_sw_sett_route_mic_to_aux;
+lv_obj_t * ui_sw_sett_usb_if_toggle;
+lv_obj_t * ui_sw_sett_usb_direct_mon;
 lv_obj_t * ui_lbl_sett_cpu_load;
 const char * const* ui_fx_names;
 size_t ui_fx_names_size;
-void ui_event_sld_display_brightness(lv_event_t * e);
-void ui_event_sld_in_vol(lv_event_t * e);
-void ui_event_sld_out_vol(lv_event_t * e);
-void ui_event_sw_dark_mode(lv_event_t * e);
-void ui_event_sw_mute_audio(lv_event_t * e);
-void ui_event_sw_route_mic_to_aux(lv_event_t * e);
 
 // SCREEN: ui_fx_tuner
-void ui_fx_tuner_screen_init(void);
-void ui_event_fx_tuner(lv_event_t * e);
 lv_obj_t * ui_fx_tuner;
 lv_obj_t * ui_pnl_tuner_content;
 lv_obj_t * ui_lbl_tuner_fx_name;
@@ -65,268 +53,205 @@ lv_obj_t * ui_lbl_tuner_pitch;
 lv_obj_t * ui_lbl_tuner_note;
 lv_obj_t * ui_lbl_tuner_cents;
 lv_obj_t * ui_spinbox_tuner_a4;
-void ui_event_btn_tuner_bypass(lv_event_t * e);
 lv_obj_t * ui_btn_tuner_bypass;
 lv_obj_t * ui_lbl_btn_tuner_bypass;
 
 // SCREEN: ui_fx_tremolo
-void ui_fx_tremolo_screen_init(void);
-void ui_event_fx_tremolo(lv_event_t * e);
 lv_obj_t * ui_fx_tremolo;
 lv_obj_t * ui_pnl_trem_content;
 lv_obj_t * ui_lbl_trem_fx_name;
-void ui_event_btn_trem_bypass(lv_event_t * e);
 lv_obj_t * ui_btn_trem_bypass;
 lv_obj_t * ui_lbl_btn_trem_bypass;
 lv_obj_t * ui_pnl_trem_controls;
 lv_obj_t * ui_pnl_trem_rate;
 lv_obj_t * ui_img_trem_rate;
-void ui_event_arc_trem_rate(lv_event_t * e);
 lv_obj_t * ui_arc_trem_rate;
 lv_obj_t * ui_lbl_trem_rate;
 lv_obj_t * ui_pnl_trem_depth;
 lv_obj_t * ui_img_trem_depth;
-void ui_event_arc_trem_depth(lv_event_t * e);
 lv_obj_t * ui_arc_trem_depth;
 lv_obj_t * ui_lbl_trem_depth;
 lv_obj_t * ui_pnl_trem_shape;
 lv_obj_t * ui_lbl_trem_shape;
-void ui_event_sw_tremolo_shape(lv_event_t * e);
 lv_obj_t * ui_sw_trem_shape;
 lv_obj_t * ui_lbl_trem_square;
 lv_obj_t * ui_lbl_trem_sine;
 
 // SCREEN: ui_fx_echo
-void ui_fx_echo_screen_init(void);
-void ui_event_fx_echo(lv_event_t * e);
 lv_obj_t * ui_fx_echo;
 lv_obj_t * ui_pnl_echo_content;
 lv_obj_t * ui_lbl_echo_fx_name;
-void ui_event_btn_echo_bypass(lv_event_t * e);
 lv_obj_t * ui_btn_echo_bypass;
 lv_obj_t * ui_lbl_btn_echo_bypass;
 lv_obj_t * ui_pnl_echo_controls;
 lv_obj_t * ui_pnl_echo_blur;
 lv_obj_t * ui_img_echo_blur;
-void ui_event_arc_echo_blur(lv_event_t * e);
 lv_obj_t * ui_arc_echo_blur;
 lv_obj_t * ui_lbl_echo_blur;
 lv_obj_t * ui_pnl_echo_feedb;
 lv_obj_t * ui_img_echo_feedb;
-void ui_event_arc_echo_feedb(lv_event_t * e);
 lv_obj_t * ui_arc_echo_feedb;
 lv_obj_t * ui_lbl_echo_feedb;
 lv_obj_t * ui_pnl_echo_time;
 lv_obj_t * ui_img_echo_time;
-void ui_event_arc_echo_time(lv_event_t * e);
 lv_obj_t * ui_arc_echo_time;
 lv_obj_t * ui_lbl_echo_time;
 lv_obj_t * ui_pnl_echo_mode;
-void ui_event_sw_echo_mode(lv_event_t * e);
 lv_obj_t * ui_sw_echo_mode;
 lv_obj_t * ui_lbl_echo_mode_echo;
 lv_obj_t * ui_lbl_echo_mode_delay;
 
 // SCREEN: ui_fx_chorus
-void ui_fx_chorus_screen_init(void);
-void ui_event_fx_chorus(lv_event_t * e);
 lv_obj_t * ui_fx_chorus;
 lv_obj_t * ui_pnl_chorus_content;
 lv_obj_t * ui_lbl_chorus_fx_name;
-void ui_event_btn_chorus_bypass(lv_event_t * e);
 lv_obj_t * ui_btn_chorus_bypass;
 lv_obj_t * ui_lbl_btn_chorus_bypass;
 lv_obj_t * ui_pnl_chorus_controls;
 lv_obj_t * ui_pnl_chorus_mix;
 lv_obj_t * ui_img_chorus_mix;
-void ui_event_arc_chorus_mix(lv_event_t * e);
 lv_obj_t * ui_arc_chorus_mix;
 lv_obj_t * ui_lbl_chorus_mix;
 lv_obj_t * ui_pnl_chorus_rate;
 lv_obj_t * ui_img_chorus_rate;
-void ui_event_arc_chorus_rate(lv_event_t * e);
 lv_obj_t * ui_arc_chorus_rate;
 lv_obj_t * ui_lbl_chorus_rate;
 lv_obj_t * ui_pnl_chorus_depth;
 lv_obj_t * ui_img_chorus_depth;
-void ui_event_arc_chorus_depth(lv_event_t * e);
 lv_obj_t * ui_arc_chorus_depth;
 lv_obj_t * ui_lbl_chorus_depth;
 lv_obj_t * ui_pnl_chorus_mode;
-void ui_event_sw_chorus_mode(lv_event_t * e);
 lv_obj_t * ui_sw_chorus_mode;
 lv_obj_t * ui_lbl_chorus_mode_white;
 lv_obj_t * ui_lbl_chorus_mode_deep;
 
 // SCREEN: ui_fx_reverb
-void ui_fx_reverb_screen_init(void);
-void ui_event_fx_reverb(lv_event_t * e);
 lv_obj_t * ui_fx_reverb;
 lv_obj_t * ui_pnl_reverb_content;
 lv_obj_t * ui_lbl_reverb_fx_name;
-void ui_event_btn_reverb_bypass(lv_event_t * e);
 lv_obj_t * ui_btn_reverb_bypass;
 lv_obj_t * ui_lbl_btn_reverb_bypass;
 lv_obj_t * ui_pnl_reverb_controls;
 lv_obj_t * ui_pnl_reverb_bw;
 lv_obj_t * ui_img_reverb_bw;
-void ui_event_arc_reverb_bw(lv_event_t * e);
 lv_obj_t * ui_arc_reverb_bw;
 lv_obj_t * ui_lbl_reverb_bw;
 lv_obj_t * ui_pnl_reverb_damp;
 lv_obj_t * ui_img_reverb_damp;
-void ui_event_arc_reverb_damp(lv_event_t * e);
 lv_obj_t * ui_arc_reverb_damp;
 lv_obj_t * ui_lbl_reverb_damp;
 lv_obj_t * ui_pnl_reverb_decay;
 lv_obj_t * ui_img_reverb_decay;
-void ui_event_arc_reverb_decay(lv_event_t * e);
 lv_obj_t * ui_arc_reverb_decay;
 lv_obj_t * ui_lbl_reverb_decay;
 lv_obj_t * ui_pnl_reverb_mode;
-void ui_event_sw_reverb_mode(lv_event_t * e);
 lv_obj_t * ui_sw_reverb_mode;
 lv_obj_t * ui_lbl_reverb_mode_plate;
 lv_obj_t * ui_lbl_reverb_mode_mod;
 
 // SCREEN: ui_fx_overdrive
-void ui_fx_overdrive_screen_init(void);
-void ui_event_fx_overdrive(lv_event_t * e);
 lv_obj_t * ui_fx_overdrive;
 lv_obj_t * ui_pnl_od_content;
 lv_obj_t * ui_lbl_od_fx_name;
-void ui_event_btn_overdrive_bypass(lv_event_t * e);
 lv_obj_t * ui_btn_od_bypass;
 lv_obj_t * ui_lbl_btn_od_bypass;
 lv_obj_t * ui_pnl_od_controls;
 lv_obj_t * ui_pnl_od_mix;
 lv_obj_t * ui_img_od_mix;
-void ui_event_arc_overdrive_mix(lv_event_t * e);
 lv_obj_t * ui_arc_od_mix;
 lv_obj_t * ui_lbl_od_mix;
 lv_obj_t * ui_pnl_od_tone;
 lv_obj_t * ui_img_od_tone;
-void ui_event_arc_overdrive_gain(lv_event_t * e);
 lv_obj_t * ui_arc_od_tone;
 lv_obj_t * ui_lbl_od_tone;
 lv_obj_t * ui_pnl_od_gain;
 lv_obj_t * ui_img_od_gain;
-void ui_event_arc_overdrive_tone(lv_event_t * e);
 lv_obj_t * ui_arc_od_gain;
 lv_obj_t * ui_lbl_od_gain;
 lv_obj_t * ui_pnl_od_mode;
-void ui_event_sw_overdrive_mode(lv_event_t * e);
 lv_obj_t * ui_sw_od_mode;
 lv_obj_t * ui_lbl_od_mode_soft;
 lv_obj_t * ui_lbl_od_mode_hard;
 
 // SCREEN: ui_fx_cabinet_sim
-void ui_fx_cabinet_sim_screen_init(void);
-void ui_event_fx_cabinet_sim(lv_event_t * e);
 lv_obj_t * ui_fx_cabinet_sim;
 lv_obj_t * ui_pnl_cab_sim_content;
 lv_obj_t * ui_lbl_cab_sim_fx_name;
-void ui_event_btn_cab_sim_bypass(lv_event_t * e);
 lv_obj_t * ui_btn_cab_sim_bypass;
 lv_obj_t * ui_lbl_btn_cab_sim_bypass;
 lv_obj_t * ui_pnl_cab_sim_controls;
-void ui_event_roller_cab_sim_ir(lv_event_t * e);
 lv_obj_t * ui_roller_cab_sim_ir;
 lv_obj_t * ui_lbl_cab_sim_ir;
 
 // SCREEN: ui_fx_vocoder
-void ui_fx_vocoder_screen_init(void);
-void ui_event_fx_vocoder(lv_event_t * e);
 lv_obj_t * ui_fx_vocoder;
 lv_obj_t * ui_pnl_voc_content;
 lv_obj_t * ui_lbl_voc_fx_name;
-void ui_event_btn_vocoder_bypass(lv_event_t * e);
 lv_obj_t * ui_btn_voc_bypass;
 lv_obj_t * ui_lbl_btn_voc_bypass;
 lv_obj_t * ui_pnl_voc_controls;
 lv_obj_t * ui_pnl_voc_clarity;
 lv_obj_t * ui_img_voc_clarity;
-void ui_event_arc_vocoder_clarity(lv_event_t * e);
 lv_obj_t * ui_arc_voc_clarity;
 lv_obj_t * ui_lbl_voc_clarity;
 lv_obj_t * ui_pnl_voc_tone;
 lv_obj_t * ui_img_voc_tone;
-void ui_event_arc_vocoder_tone(lv_event_t * e);
 lv_obj_t * ui_arc_voc_tone;
 lv_obj_t * ui_lbl_voc_tone;
 lv_obj_t * ui_pnl_voc_bands;
-void ui_event_roller_vocoder_bands(lv_event_t * e);
 lv_obj_t * ui_roller_voc_bands;
 lv_obj_t * ui_lbl_voc_bands;
 lv_obj_t * ui_pnl_voc_mode;
-void ui_event_sw_vocoder_mode(lv_event_t * e);
 lv_obj_t * ui_sw_voc_mode;
 lv_obj_t * ui_lbl_voc_mode_vin;
 lv_obj_t * ui_lbl_voc_mode_mod;
-void ui_event_btn_vocoder_hold(lv_event_t * e);
 lv_obj_t * ui_btn_voc_hold;
 lv_obj_t * ui_lbl_btn_voc_hold;
 
 // SCREEN: ui_fx_phaser
-void ui_fx_phaser_screen_init(void);
-void ui_event_fx_phaser(lv_event_t * e);
 lv_obj_t * ui_fx_phaser;
 lv_obj_t * ui_pnl_pha_content;
 lv_obj_t * ui_lbl_pha_fx_name;
-void ui_event_btn_pha_bypass(lv_event_t * e);
 lv_obj_t * ui_btn_pha_bypass;
 lv_obj_t * ui_lbl_btn_pha_bypass;
 lv_obj_t * ui_pnl_pha_controls;
 lv_obj_t * ui_pnl_pha_rate;
 lv_obj_t * ui_img_pha_rate;
-void ui_event_arc_pha_rate(lv_event_t * e);
 lv_obj_t * ui_arc_pha_rate;
 lv_obj_t * ui_lbl_pha_rate;
 lv_obj_t * ui_pnl_pha_depth;
 lv_obj_t * ui_img_pha_depth;
-void ui_event_arc_pha_depth(lv_event_t * e);
 lv_obj_t * ui_arc_pha_depth;
 lv_obj_t * ui_lbl_pha_depth;
 lv_obj_t * ui_pnl_pha_contour;
 lv_obj_t * ui_lbl_pha_contour;
-void ui_event_sw_pha_contour(lv_event_t * e);
 lv_obj_t * ui_sw_pha_contour;
 lv_obj_t * ui_lbl_pha_contour_on;
 lv_obj_t * ui_lbl_pha_contour_off;
 
 // SCREEN: ui_fx_amp_sim
-void ui_fx_amp_sim_screen_init(void);
-void ui_event_fx_amp_sim(lv_event_t * e);
 lv_obj_t * ui_fx_amp_sim;
 lv_obj_t * ui_pnl_amp_sim_content;
 lv_obj_t * ui_lbl_amp_sim_fx_name;
-void ui_event_btn_amp_sim_bypass(lv_event_t * e);
 lv_obj_t * ui_btn_amp_sim_bypass;
 lv_obj_t * ui_lbl_btn_amp_sim_bypass;
 lv_obj_t * ui_pnl_amp_sim_controls;
 lv_obj_t * ui_pnl_amp_sim_input;
 lv_obj_t * ui_img_amp_sim_input;
-void ui_event_arc_amp_sim_input(lv_event_t * e);
-void ui_event_arc_amp_sim_bass(lv_event_t * e);
 lv_obj_t * ui_arc_amp_sim_bass;
 lv_obj_t * ui_arc_amp_sim_input;
 lv_obj_t * ui_lbl_amp_sim_input;
 lv_obj_t * ui_pnl_amp_sim_compr;
 lv_obj_t * ui_img_amp_sim_compr;
-void ui_event_arc_amp_sim_drive(lv_event_t * e);
-void ui_event_arc_amp_sim_mids(lv_event_t * e);
 lv_obj_t * ui_arc_amp_sim_treb;
 lv_obj_t * ui_arc_amp_sim_compr;
 lv_obj_t * ui_lbl_amp_sim_compr;
 lv_obj_t * ui_pnl_amp_sim_drive;
 lv_obj_t * ui_img_amp_sim_drive;
-void ui_event_arc_amp_sim_compression(lv_event_t * e);
-void ui_event_arc_amp_sim_treb(lv_event_t * e);
 lv_obj_t * ui_arc_amp_sim_mids;
 lv_obj_t * ui_arc_amp_sim_drive;
 lv_obj_t * ui_lbl_amp_sim_drive;
 lv_obj_t * ui_pnl_amp_sim_mode;
-void ui_event_sw_amp_sim_mode(lv_event_t * e);
 lv_obj_t * ui_sw_amp_sim_mode;
 lv_obj_t * ui_lbl_amp_sim_mode_logain;
 lv_obj_t * ui_lbl_amp_sim_mode_higain;
@@ -427,6 +352,20 @@ void ui_event_sw_route_mic_to_aux(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
     if(event_code == LV_EVENT_VALUE_CHANGED) {
         ui_settings_route_mic_to_aux(e);
+    }
+}
+void ui_event_sw_usb_if_toggle(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_settings_usb_if_toggle(e);
+    }
+}
+void ui_event_sw_usb_direct_mon(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_settings_usb_direct_mon(e);
     }
 }
 void ui_event_fx_tuner(lv_event_t * e)

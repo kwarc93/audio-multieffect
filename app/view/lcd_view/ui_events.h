@@ -21,6 +21,8 @@ void ui_settings_in_vol_changed(lv_event_t * e);
 void ui_settings_out_vol_changed(lv_event_t * e);
 void ui_settings_mute_audio(lv_event_t * e);
 void ui_settings_route_mic_to_aux(lv_event_t * e);
+void ui_settings_usb_if_toggle(lv_event_t * e);
+void ui_settings_usb_direct_mon(lv_event_t * e);
 void ui_settings_add_effect(uint32_t new_effect_id);
 void ui_settings_remove_effect(uint32_t effect_id);
 void ui_settings_move_effect(uint32_t effect_id, int32_t dir);

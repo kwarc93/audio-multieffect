@@ -49,6 +49,8 @@ struct configuration
     uint8_t output_vol;
     bool output_muted;
     bool mic_routed_to_aux;
+    bool usb_audio_if_enabled;
+    bool usb_direct_mon_enabled;
 };
 
 struct factory_reset
@@ -143,6 +145,16 @@ struct route_mic_to_aux_changed
     bool value;
 };
 
+struct usb_audio_if_changed
+{
+    bool value;
+};
+
+struct usb_direct_mon_changed
+{
+    bool value;
+};
+
 struct effect_bypass_changed
 {
     effect_id id;
@@ -207,6 +219,8 @@ using outgoing = std::variant
     output_volume_changed,
     mute_changed,
     route_mic_to_aux_changed,
+    usb_audio_if_changed,
+    usb_direct_mon_changed,
     effect_bypass_changed,
     effect_controls_changed,
     add_effect_request,

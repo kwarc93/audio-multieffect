@@ -107,6 +107,8 @@ private:
     void view_event_handler(const lcd_view_events::output_volume_changed &e);
     void view_event_handler(const lcd_view_events::route_mic_to_aux_changed &e);
     void view_event_handler(const lcd_view_events::mute_changed &e);
+    void view_event_handler(const lcd_view_events::usb_audio_if_changed &e);
+    void view_event_handler(const lcd_view_events::usb_direct_mon_changed &e);
     void view_event_handler(const lcd_view_events::effect_bypass_changed &e);
     void view_event_handler(const lcd_view_events::effect_controls_changed &e);
     void view_event_handler(const lcd_view_events::add_effect_request &e);

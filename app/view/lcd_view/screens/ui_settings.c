@@ -632,6 +632,12 @@ void ui_settings_screen_init(void)
     ui_sld_sett_out_vol = lv_obj_get_child(cont, -1);
     cont = menu_create_switch(section, NULL, "Mute output", false, ui_event_sw_mute_audio);
     ui_sw_sett_mute_audio = lv_obj_get_child(cont, -1);
+    lv_menu_separator_create(sub_audio_page);
+    section = lv_menu_section_create(sub_audio_page);
+    cont = menu_create_switch(section, NULL, "Enable USB interface", false, ui_event_sw_usb_if_toggle);
+    ui_sw_sett_usb_if_toggle = lv_obj_get_child(cont, -1);
+    cont = menu_create_switch(section, NULL, "Enable direct monitoring", false, ui_event_sw_usb_direct_mon);
+    ui_sw_sett_usb_direct_mon = lv_obj_get_child(cont, -1);
 
     lv_obj_t * sub_effects_page = lv_menu_page_create(menu, "Effects");
     lv_obj_set_style_pad_hor(sub_effects_page, menu_pad_hor, 0);

@@ -331,6 +331,21 @@ class usb_audio
 public:
     usb_audio()
     {
+        this->usb_thread = nullptr;
+
+        for (uint8_t i = 0; i <= CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX; i++)
+        {
+            mute[i] = 0;
+            volume[i] = VOLUME_CTRL_0_DB;
+        }
+    }
+
+    ~usb_audio()
+    {
+    }
+
+    void enable(void)
+    {
         this->audio_from_host.buffer.fill(0);
         this->audio_to_host.buffer.fill(0);
 
@@ -349,14 +364,22 @@ public:
         tusb_init(BOARD_TUD_RHPORT, &dev_init);
 
         osThreadAttr_t attr {};
-        attr.name = "tusb_thread";
+        attr.name = "usb_thread";
         attr.stack_size = 4096;
         attr.priority = osPriorityRealtime1;
-        osThreadNew([](void *arg){ while(1) { tud_task(); }; }, this, &attr);
+        this->usb_thread = osThreadNew([](void *arg){ while(1) { tud_task(); }; }, this, &attr);
     }
 
-    ~usb_audio()
+    void disable(void)
     {
+        tud_deinit(BOARD_TUD_RHPORT);
+        osThreadTerminate(this->usb_thread);
+        this->audio_from_host.buffer.fill(0);
+    }
+
+    bool is_enabled(void) const
+    {
+        return tusb_inited();
     }
 
     bool write()
@@ -381,6 +404,9 @@ public:
 
     hal::interface::audio_buffer<int32_t, mfx::config::dsp_vector_size, 1, 24> audio_to_host;
     hal::interface::audio_buffer<int32_t, mfx::config::dsp_vector_size, 2, 24> audio_from_host;
+
+private:
+    osThreadId_t usb_thread;
 };
 
 }

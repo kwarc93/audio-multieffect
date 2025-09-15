@@ -98,17 +98,25 @@ public:
     bool get_mic_routed_to_aux(void) { return this->settings[k_mic_routed_to_aux].get<bool>(); };
     void set_mic_routed_to_aux(bool value) { set(k_mic_routed_to_aux, value); }
 
+    bool get_usb_audio_if_enabled(void) { return this->settings[k_usb_audio_if_enabled].get<bool>(); };
+    void set_usb_audio_if_enabled(bool value) { set(k_usb_audio_if_enabled, value); }
+
+    bool get_usb_direct_mon_enabled(void) { return this->settings[k_usb_direct_mon_enabled].get<bool>(); };
+    void set_usb_direct_mon_enabled(bool value) { set(k_usb_direct_mon_enabled, value); }
+
 private:
     void set_defaults(void)
     {
-        this->settings[k_boot_counter] = 0;            // Boot counter
-        this->settings[k_dark_mode] = true;            // GUI theme, values: true/false
-        this->settings[k_displ_brightness] = 100;      // Display brightness, values: 0 - 100%
-        this->settings[k_main_input_volume] = 11;      // MAIN input volume, values: 0 - 31 (-16.5dB to 30dB)
-        this->settings[k_aux_input_volume] = 11;       // AUX input volume, values: 0 - 31 (-16.5dB to 30dB)
-        this->settings[k_output_volume] = 57;          // Output volume, values: 0 - 63 (-57dB to 6dB)
-        this->settings[k_output_muted] = false;        // Output muted, values: true/false
-        this->settings[k_mic_routed_to_aux] = true;    // Route microphone signal to AUX, values: true/false
+        this->settings[k_boot_counter] = 0;                // Boot counter
+        this->settings[k_dark_mode] = true;                // GUI theme, values: true/false
+        this->settings[k_displ_brightness] = 100;          // Display brightness, values: 0 - 100%
+        this->settings[k_main_input_volume] = 11;          // MAIN input volume, values: 0 - 31 (-16.5dB to 30dB)
+        this->settings[k_aux_input_volume] = 11;           // AUX input volume, values: 0 - 31 (-16.5dB to 30dB)
+        this->settings[k_output_volume] = 57;              // Output volume, values: 0 - 63 (-57dB to 6dB)
+        this->settings[k_output_muted] = false;            // Output muted, values: true/false
+        this->settings[k_mic_routed_to_aux] = true;        // Route microphone signal to AUX, values: true/false
+        this->settings[k_usb_audio_if_enabled] = false;    // USB audio interface enabled, values: true/false
+        this->settings[k_usb_direct_mon_enabled] = false;  // USB direct monitoring enabled, values: true/false
     }
 
     template<typename T>
@@ -133,6 +141,8 @@ private:
     static constexpr const char *k_output_volume = "output_volume";
     static constexpr const char *k_output_muted = "output_muted";
     static constexpr const char *k_mic_routed_to_aux = "mic_routed_to_aux";
+    static constexpr const char *k_usb_audio_if_enabled = "usb_audio_if_enabled";
+    static constexpr const char *k_usb_direct_mon_enabled = "usb_direct_mon_enabled";
 };
 
 #endif /* SETTINGS_HPP_ */

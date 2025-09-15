@@ -54,6 +54,8 @@ extern lv_obj_t * ui_sld_sett_out_vol;
 extern lv_obj_t * ui_sw_sett_dark_mode;
 extern lv_obj_t * ui_sw_sett_mute_audio;
 extern lv_obj_t * ui_sw_sett_route_mic_to_aux;
+extern lv_obj_t * ui_sw_sett_usb_if_toggle;
+extern lv_obj_t * ui_sw_sett_usb_direct_mon;
 extern lv_obj_t * ui_lbl_sett_cpu_load;
 extern const char * const *ui_fx_names;
 extern size_t ui_fx_names_size;
@@ -63,6 +65,8 @@ void ui_event_sld_out_vol(lv_event_t * e);
 void ui_event_sw_dark_mode(lv_event_t * e);
 void ui_event_sw_mute_audio(lv_event_t * e);
 void ui_event_sw_route_mic_to_aux(lv_event_t * e);
+void ui_event_sw_usb_if_toggle(lv_event_t * e);
+void ui_event_sw_usb_direct_mon(lv_event_t * e);
 // SCREEN: ui_fx_tuner
 void ui_fx_tuner_screen_init(void);
 void ui_event_fx_tuner(lv_event_t * e);

@@ -85,14 +85,14 @@ void effect_processor::event_handler(const events::configuration &e)
     this->audio.set_output_volume(e.output_vol);
     this->audio.route_onboard_mic_to_aux(e.mic_routed_to_aux);
     this->audio.mute(e.output_muted);
+
+    auto& usb = get_usb_audio();
+    if (e.usb_audio_if_enabled) usb.enable();
+    this->usb_direct_mon = e.usb_direct_mon_enabled;
 }
 
 void effect_processor::event_handler(const events::start_audio &e)
 {
-    auto& usb = get_usb_audio();
-    usb.audio_to_host.buffer.fill(0);
-    usb.audio_from_host.buffer.fill(0);
-
     /* Start audio capture */
     this->audio.capture(this->audio_input.buffer.data(), this->audio_input.buffer.size(),
     [this](auto && ...params)
@@ -180,19 +180,34 @@ void effect_processor::event_handler(const events::set_mute &e)
     this->audio.mute(e.value);
 }
 
+void effect_processor::event_handler(const events::enable_usb_audio_if &e)
+{
+    auto& usb = get_usb_audio();
+    e.value ? usb.enable() : usb.disable();
+}
+
+void effect_processor::event_handler(const events::enable_usb_direct_mon &e)
+{
+    this->usb_direct_mon = e.value;
+}
+
 void effect_processor::event_handler(const events::process_audio &e)
 {
     const uint32_t cycles_start = hal::system::clock::cycles();
 
-    std::reference_wrapper<decltype(this->dsp_output)> current_output = this->dsp_output;
-    std::reference_wrapper<decltype(this->dsp_main_input)> current_input = this->dsp_main_input;
-
-    /* Handle USB */
+    /* Handle USB audio */
     auto& usb = get_usb_audio();
-    usb.read();
-    usb.write();
+    const bool usb_enabled = usb.is_enabled();
+    const bool mute_sample = !usb_enabled || this->usb_direct_mon;
+    if (usb_enabled)
+    {
+        usb.read();
+        usb.write();
+    }
 
     /* Process effects */
+    std::reference_wrapper<decltype(this->dsp_output)> current_output = this->dsp_output;
+    std::reference_wrapper<decltype(this->dsp_main_input)> current_input = this->dsp_main_input;
     for (auto &&effect : this->effects)
     {
         if (!effect->is_bypassed())
@@ -208,6 +223,7 @@ void effect_processor::event_handler(const events::process_audio &e)
     /* Set correct output buffer after all processing */
     current_output = current_input;
 
+    const auto out_buf_idx = this->audio_output.sample_index;
     for (unsigned i = 0; i < current_output.get().size(); i++)
     {
         /* Transform normalized DSP samples to RAW buffer (24bit onto 32bit MSB) */
@@ -217,13 +233,14 @@ void effect_processor::event_handler(const events::process_audio &e)
         constexpr decltype(sample) max = -min - 1;
         constexpr decltype(sample) scale = -min;
 
-        sample = current_output.get().at(i) * scale;
+        sample = current_output.get()[i] * scale;
         sample = std::clamp(sample, min, max) << 8;
 
         /* Duplicate left channel to right channel & mix with received USB audio */
-        const auto index = this->audio_output.sample_index + 2 * i;
-        this->audio_output.buffer[index] = sample + usb.audio_from_host.buffer[2 * i];
-        this->audio_output.buffer[index + 1] = sample + usb.audio_from_host.buffer[2 * i + 1];
+        const auto j = 2 * i;
+        const auto out = sample * mute_sample;
+        this->audio_output.buffer[out_buf_idx + j] = out + usb.audio_from_host.buffer[j];
+        this->audio_output.buffer[out_buf_idx + j + 1] = out + usb.audio_from_host.buffer[j + 1];
 
         /* Fill USB audio buffer */
         usb.audio_to_host.buffer[i] = sample;
@@ -490,6 +507,7 @@ effect_processor::effect_processor() :
 audio{middlewares::i2c_managers::main::get_instance()}
 {
     this->processing_time_us = 0;
+    this->usb_direct_mon = false;
 
     this->send({events::initialize {}});
 }

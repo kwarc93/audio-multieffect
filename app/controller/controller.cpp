@@ -73,6 +73,8 @@ void controller::event_handler(const controller_events::initialize &e)
                           this->settings->get_output_volume(),
                           this->settings->get_output_muted(),
                           this->settings->get_mic_routed_to_aux(),
+                          this->settings->get_usb_audio_if_enabled(),
+                          this->settings->get_usb_direct_mon_enabled(),
                       }});
 
     this->view->send({lcd_view_events::configuration
@@ -84,6 +86,8 @@ void controller::event_handler(const controller_events::initialize &e)
                          this->settings->get_output_volume(),
                          this->settings->get_output_muted(),
                          this->settings->get_mic_routed_to_aux(),
+                         this->settings->get_usb_audio_if_enabled(),
+                         this->settings->get_usb_direct_mon_enabled(),
                      }});
 
     this->settings->set_boot_counter(this->settings->get_boot_counter() + 1);
@@ -331,6 +335,20 @@ void controller::view_event_handler(const lcd_view_events::mute_changed &e)
     this->model->send({effect_processor_events::set_mute {e.value}});
 
     this->settings->set_output_muted(e.value);
+}
+
+void controller::view_event_handler(const lcd_view_events::usb_audio_if_changed &e)
+{
+    this->model->send({effect_processor_events::enable_usb_audio_if {e.value}});
+
+    this->settings->set_usb_audio_if_enabled(e.value);
+}
+
+void controller::view_event_handler(const lcd_view_events::usb_direct_mon_changed &e)
+{
+    this->model->send({effect_processor_events::enable_usb_direct_mon {e.value}});
+
+    this->settings->set_usb_direct_mon_enabled(e.value);
 }
 
 void controller::view_event_handler(const lcd_view_events::effect_bypass_changed &e)

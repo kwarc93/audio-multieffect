@@ -86,6 +86,21 @@ void lcd_view::event_handler(const lcd_view_events::configuration &e)
         e.mic_routed_to_aux ? lv_obj_add_state(ui_sw_sett_route_mic_to_aux, LV_STATE_CHECKED) :
                               lv_obj_clear_state(ui_sw_sett_route_mic_to_aux, LV_STATE_CHECKED);
     }
+
+    if (ui_sw_sett_usb_if_toggle)
+    {
+        e.usb_audio_if_enabled ? lv_obj_add_state(ui_sw_sett_usb_if_toggle, LV_STATE_CHECKED) :
+                                 lv_obj_clear_state(ui_sw_sett_usb_if_toggle, LV_STATE_CHECKED);
+    }
+
+    if (ui_sw_sett_usb_direct_mon)
+    {
+        e.usb_direct_mon_enabled ? lv_obj_add_state(ui_sw_sett_usb_direct_mon, LV_STATE_CHECKED) :
+                                   lv_obj_clear_state(ui_sw_sett_usb_direct_mon, LV_STATE_CHECKED);
+
+        e.usb_audio_if_enabled ? lv_obj_clear_state(ui_sw_sett_usb_direct_mon, LV_STATE_DISABLED) :
+                                 lv_obj_add_state(ui_sw_sett_usb_direct_mon, LV_STATE_DISABLED);
+    }
 }
 
 void lcd_view::event_handler(const events::initialize &e)
