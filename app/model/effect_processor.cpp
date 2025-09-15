@@ -18,7 +18,7 @@
 #include <hal_system.hpp>
 
 #include <middlewares/i2c_manager.hpp>
-#include <middlewares/usb_audio_source.hpp>
+#include <middlewares/usb_audio.hpp>
 
 #include <cmsis_device.h> // For managing D-Cache & I-Cache
 
@@ -41,9 +41,9 @@ namespace events = effect_processor_events;
 
 namespace
 {
-    middlewares::usb_audio_source & get_usb_audio(void)
+    middlewares::usb_audio & get_usb_audio(void)
     {
-        static middlewares::usb_audio_source usb_audio;
+        static middlewares::usb_audio usb_audio;
         return usb_audio;
     }
 

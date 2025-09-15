@@ -27,12 +27,10 @@ void usb::init(usb_type type)
 
         NVIC_SetPriority(OTG_FS_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 6, 0 ));
 
-        /* Disable VBUS sense (B device) via pin PA9 */
-        USB_OTG_FS->GCCFG &= ~USB_OTG_GCCFG_VBDEN;
-
-        /* B-peripheral session valid override enable */
-        USB_OTG_FS->GOTGCTL |= USB_OTG_GOTGCTL_BVALOEN;
-        USB_OTG_FS->GOTGCTL |= USB_OTG_GOTGCTL_BVALOVAL;
+        /* Enable the USB voltage detector & VBUS sense (B device) via pin PA9*/
+        gpio::configure({ gpio::port::porta, gpio::pin::pin9 }, gpio::mode::input);
+        PWR->CR3 |= PWR_CR3_USB33DEN;
+        USB_OTG_FS->GCCFG |= USB_OTG_GCCFG_VBDEN;
     }
     else /* USB HS */
     {

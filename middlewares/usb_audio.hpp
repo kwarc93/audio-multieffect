@@ -1,12 +1,12 @@
 /*
- * usb_audio_source.hpp
+ * usb_audio.hpp
  *
  *  Created on: 8 wrz 2025
  *      Author: kwarc
  */
 
-#ifndef USB_AUDIO_SOURCE_HPP_
-#define USB_AUDIO_SOURCE_HPP_
+#ifndef USB_AUDIO_HPP_
+#define USB_AUDIO_HPP_
 
 #include <hal_interface.hpp>
 #include <hal_audio.hpp>
@@ -326,10 +326,10 @@ void tud_audio_feedback_params_cb(uint8_t func_id, uint8_t alt_itf, audio_feedba
 namespace middlewares
 {
 
-class usb_audio_source
+class usb_audio
 {
 public:
-    usb_audio_source()
+    usb_audio()
     {
         this->audio_from_host.buffer.fill(0);
         this->audio_to_host.buffer.fill(0);
@@ -355,7 +355,7 @@ public:
         osThreadNew([](void *arg){ while(1) { tud_task(); }; }, this, &attr);
     }
 
-    ~usb_audio_source()
+    ~usb_audio()
     {
     }
 
@@ -386,4 +386,4 @@ public:
 }
 
 
-#endif /* USB_AUDIO_SOURCE_HPP_ */
+#endif /* USB_AUDIO_HPP_ */
