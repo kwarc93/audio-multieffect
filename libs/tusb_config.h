@@ -69,8 +69,8 @@ extern "C" {
 #define CFG_TUSB_DEBUG      0
 
 // Enable DMA for device controller (STM32 USB HS only)
-#define CFG_TUD_DWC2_DMA_ENABLE         1
-#define CFG_TUD_MEM_DCACHE_ENABLE       1
+#define CFG_TUD_DWC2_DMA_ENABLE         0
+#define CFG_TUD_MEM_DCACHE_ENABLE       0
 #define CFG_TUSB_MEM_DCACHE_LINE_SIZE   32
 
 /* USB DMA on some MCUs can only access a specific SRAM region with restriction on alignment.

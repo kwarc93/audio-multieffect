@@ -55,7 +55,7 @@ void ltdc::configure(const cfg &cfg)
         2,
         5,
         1,
-        8 // 9.58 MHz -> LTDC
+        8  // 9.58 MHz -> LTDC
     };
 
     rcc::set_sai_pll(sai_cfg);

@@ -50,11 +50,11 @@ void ltdc::configure(const cfg &cfg)
      */
     static const rcc::pll_cfg pll3_cfg
     {
-        5,
-        57,
+        25,
+        336,
         128,
-        128,
-        30 // 9.5 MHz
+        7,   // 48 MHz -> USB
+        35   // 9.6 MHz -> LTDC
     };
 
     rcc::set_3rd_pll(pll3_cfg);

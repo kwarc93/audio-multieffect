@@ -236,7 +236,7 @@ void rcc::set_sai_pll(const sai_i2s_pll &pll)
     RCC->DCKCFGR1 |= (pll.div_q - 1) << RCC_DCKCFGR1_PLLSAIDIVQ_Pos
                   |  (pll.div_r == 16 ? 0b11 : pll.div_r >> 2) << RCC_DCKCFGR1_PLLSAIDIVR_Pos;
 
-    /* Set USB & RNG clock source as PLLSAIQ */
+    /* Set USB & RNG clock source as PLLSAI-P */
     RCC->DCKCFGR2 |= RCC_DCKCFGR2_CK48MSEL;
 
     /* Configure the SAI PLL */

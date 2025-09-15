@@ -10,7 +10,7 @@
 
 #include <hal_interface.hpp>
 #include <hal_audio.hpp>
-//#include <hal_usbd.hpp>
+#include <hal_usb.hpp>
 
 #include <cmsis_device.h> // For managing D-Cache & I-Cache
 
@@ -334,66 +334,13 @@ public:
         this->audio_from_host.buffer.fill(0);
         this->audio_to_host.buffer.fill(0);
 
-#if BOARD_TUD_RHPORT == 0 // USB FS
-        // Enable low-level USB FS stuff
-        drivers::gpio::configure({ drivers::gpio::port::porta, drivers::gpio::pin::pin10 }, drivers::gpio::mode::af, drivers::gpio::af::af10); // ID
-        drivers::gpio::configure({ drivers::gpio::port::porta, drivers::gpio::pin::pin11 }, drivers::gpio::mode::af, drivers::gpio::af::af10); // D-
-        drivers::gpio::configure({ drivers::gpio::port::porta, drivers::gpio::pin::pin12 }, drivers::gpio::mode::af, drivers::gpio::af::af10); // D+
+#if BOARD_TUD_RHPORT == 0
+        hal::usbd::init_fs();
+#else
+        hal::usbd::init_hs();
+#endif
 
-        drivers::rcc::enable_periph_clock(RCC_PERIPH_BUS(AHB2, OTGFS), true);
-
-        NVIC_SetPriority(OTG_FS_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 5+1, 0 ));
-
-        // Disable VBUS sense (B device) via pin PA9
-        USB_OTG_FS->GCCFG &= ~USB_OTG_GCCFG_VBDEN;
-
-        // B-peripheral session valid override enable
-        USB_OTG_FS->GOTGCTL |= USB_OTG_GOTGCTL_BVALOEN;
-        USB_OTG_FS->GOTGCTL |= USB_OTG_GOTGCTL_BVALOVAL;
-#else // USB HS
-        // Enable low-level USB HS stuff
-        // MCU with external ULPI PHY
-
-        /* ULPI CLK */
-        drivers::gpio::configure({ drivers::gpio::port::porta, drivers::gpio::pin::pin5 }, drivers::gpio::mode::af, drivers::gpio::af::af10);
-
-        /* ULPI D0 */
-        drivers::gpio::configure({ drivers::gpio::port::porta, drivers::gpio::pin::pin3 }, drivers::gpio::mode::af, drivers::gpio::af::af10);
-
-        /* ULPI D1 D2 D3 D4 D5 D6 D7 */
-        drivers::gpio::configure({ drivers::gpio::port::portb, drivers::gpio::pin::pin0 }, drivers::gpio::mode::af, drivers::gpio::af::af10);
-        drivers::gpio::configure({ drivers::gpio::port::portb, drivers::gpio::pin::pin1 }, drivers::gpio::mode::af, drivers::gpio::af::af10);
-        drivers::gpio::configure({ drivers::gpio::port::portb, drivers::gpio::pin::pin10 }, drivers::gpio::mode::af, drivers::gpio::af::af10);
-        drivers::gpio::configure({ drivers::gpio::port::portb, drivers::gpio::pin::pin11 }, drivers::gpio::mode::af, drivers::gpio::af::af10);
-        drivers::gpio::configure({ drivers::gpio::port::portb, drivers::gpio::pin::pin12 }, drivers::gpio::mode::af, drivers::gpio::af::af10);
-        drivers::gpio::configure({ drivers::gpio::port::portb, drivers::gpio::pin::pin13 }, drivers::gpio::mode::af, drivers::gpio::af::af10);
-        drivers::gpio::configure({ drivers::gpio::port::portb, drivers::gpio::pin::pin5 }, drivers::gpio::mode::af, drivers::gpio::af::af10);
-
-        /* ULPI STP */
-        drivers::gpio::configure({ drivers::gpio::port::portc, drivers::gpio::pin::pin0 }, drivers::gpio::mode::af, drivers::gpio::af::af10);
-        drivers::gpio::configure({ drivers::gpio::port::portc, drivers::gpio::pin::pin2 }, drivers::gpio::mode::af, drivers::gpio::af::af10);
-
-        /* NXT */
-        drivers::gpio::configure({ drivers::gpio::port::porth, drivers::gpio::pin::pin4 }, drivers::gpio::mode::af, drivers::gpio::af::af10);
-
-        /* ULPI DIR */
-        drivers::gpio::configure({ drivers::gpio::port::porti, drivers::gpio::pin::pin11 }, drivers::gpio::mode::af, drivers::gpio::af::af10);
-
-        NVIC_SetPriority(OTG_HS_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 5+1, 0 ));
-
-        // Enable USB HS & ULPI Clocks
-        drivers::rcc::enable_periph_clock(RCC_PERIPH_BUS(AHB1, OTGHS), true);
-        drivers::rcc::enable_periph_clock(RCC_PERIPH_BUS(AHB1, OTGHSULPI), true);
-
-        // Disable VBUS sense (B device) via pin PA9
-        USB_OTG_HS->GCCFG &= ~USB_OTG_GCCFG_VBDEN;
-
-        // B-peripheral session valid override enable
-        USB_OTG_HS->GOTGCTL |= USB_OTG_GOTGCTL_BVALOEN;
-        USB_OTG_HS->GOTGCTL |= USB_OTG_GOTGCTL_BVALOVAL;
-#endif // BOARD_TUD_RHPORT
-
-        // init device stack on configured roothub port
+        /* Init device stack on configured roothub port */
         tusb_rhport_init_t dev_init =
         {
             .role = TUSB_ROLE_DEVICE,

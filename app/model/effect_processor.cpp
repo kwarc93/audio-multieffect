@@ -69,10 +69,6 @@ void effect_processor::event_handler(const events::initialize &e)
     this->dsp_main_input.resize(config::dsp_vector_size);
     this->dsp_aux_input.resize(config::dsp_vector_size);
     this->dsp_output.resize(config::dsp_vector_size);
-
-    auto& usb = get_usb_audio();
-    usb.audio_to_host.buffer.fill(0);
-    usb.audio_from_host.buffer.fill(0);
 }
 
 void effect_processor::event_handler(const events::shutdown &e)
@@ -93,6 +89,10 @@ void effect_processor::event_handler(const events::configuration &e)
 
 void effect_processor::event_handler(const events::start_audio &e)
 {
+    auto& usb = get_usb_audio();
+    usb.audio_to_host.buffer.fill(0);
+    usb.audio_from_host.buffer.fill(0);
+
     /* Start audio capture */
     this->audio.capture(this->audio_input.buffer.data(), this->audio_input.buffer.size(),
     [this](auto && ...params)

@@ -336,6 +336,9 @@ void rcc::set_3rd_pll(const pll_cfg &pll)
     MODIFY_REG(RCC->PLL3DIVR, RCC_PLL3DIVR_Q3, (pll.q-1) << RCC_PLL3DIVR_Q3_Pos);
     MODIFY_REG(RCC->PLL3DIVR, RCC_PLL3DIVR_R3, (pll.r-1) << RCC_PLL3DIVR_R3_Pos);
 
+    /* Set USB2 FS clock source as PLL3-Q */
+    MODIFY_REG(RCC->D2CCIP2R, RCC_D2CCIP2R_USBSEL, 2 << RCC_D2CCIP2R_USBSEL_Pos);
+
     /* Enable the PLL */
     RCC->CR |= RCC_CR_PLL3ON;
 
