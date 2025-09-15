@@ -259,18 +259,12 @@ bool tud_audio_get_req_entity_cb(uint8_t rhport, tusb_control_request_t const *p
     audio_control_request_t const *request = (audio_control_request_t const*) p_request;
 
     if (request->bEntityID == UAC2_ENTITY_CLOCK)
-    {
         return tud_audio_clock_get_request(rhport, request);
-    }
-    else if (request->bEntityID == UAC2_ENTITY_HPH_FEATURE_UNIT)
-    {
+    if (request->bEntityID == UAC2_ENTITY_HPH_FEATURE_UNIT)
         return tud_audio_feature_unit_get_request(rhport, request);
-    }
-    else
-    {
-        TU_LOG1("Get request not handled, entity = %d, selector = %d, request = %d\r\n",
-                request->bEntityID, request->bControlSelector, request->bRequest);
-    }
+
+    TU_LOG1("Get request not handled, entity = %d, selector = %d, request = %d\r\n",
+            request->bEntityID, request->bControlSelector, request->bRequest);
 
     return false;
 }
@@ -400,9 +394,11 @@ public:
 #endif // BOARD_TUD_RHPORT
 
         // init device stack on configured roothub port
-        tusb_rhport_init_t dev_init = {
+        tusb_rhport_init_t dev_init =
+        {
             .role = TUSB_ROLE_DEVICE,
-            .speed = TUSB_SPEED_AUTO};
+            .speed = TUSB_SPEED_AUTO
+        };
         tusb_init(BOARD_TUD_RHPORT, &dev_init);
 
         osThreadAttr_t attr {};
