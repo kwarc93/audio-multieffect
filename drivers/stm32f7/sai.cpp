@@ -133,11 +133,11 @@ hw {saix.at(static_cast<std::underlying_type_t<id>>(hw_id))}, block_a {block::id
     RCC->DCKCFGR1 |= RCC_DCKCFGR1_SAI2SEL_0;
     static const rcc::sai_i2s_pll i2s_pll_cfg
     {
-        177,
+        344,
         2,
-        3,
+        7,
         2,
-        2, // 49.1(6)MHz, close to: 192kHz x 256 = 49.152MHz
+        1, // 49.142857MHz, close to: 192kHz x 256 = 49.152MHz
     };
 
     rcc::set_i2s_pll(i2s_pll_cfg);

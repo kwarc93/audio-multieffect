@@ -68,8 +68,8 @@ namespace hal::system
         drivers::rcc::main_pll pll
         {
             RCC_PLLCFGR_PLLSRC_HSE,
-            15,
-            240,
+            25,
+            400,
             2,
             10
         };

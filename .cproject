@@ -77,7 +77,7 @@
 									<listOptionValue builtIn="false" value="GIT_REVISION='&quot;$(GIT_REVISION)&quot;'"/>
 									<listOptionValue builtIn="false" value="STM32F7"/>
 									<listOptionValue builtIn="false" value="CORE_CM7"/>
-									<listOptionValue builtIn="false" value="CFG_FS_CALIB=14"/>
+									<listOptionValue builtIn="false" value="CFG_FS_CALIB=-9"/>
 									<listOptionValue builtIn="false" value="LFS_DEFINES=libs/lfs_conf.h"/>
 									<listOptionValue builtIn="false" value="CFG_TUSB_MCU=OPT_MCU_STM32F7"/>
 									<listOptionValue builtIn="false" value="CFG_TUSB_OS=OPT_OS_FREERTOS"/>
@@ -107,7 +107,7 @@
 									<listOptionValue builtIn="false" value="GIT_REVISION='&quot;$(GIT_REVISION)&quot;'"/>
 									<listOptionValue builtIn="false" value="STM32F7"/>
 									<listOptionValue builtIn="false" value="CORE_CM7"/>
-									<listOptionValue builtIn="false" value="CFG_FS_CALIB=14"/>
+									<listOptionValue builtIn="false" value="CFG_FS_CALIB=-9"/>
 									<listOptionValue builtIn="false" value="LFS_DEFINES=libs/lfs_conf.h"/>
 									<listOptionValue builtIn="false" value="CFG_TUSB_MCU=OPT_MCU_STM32F7"/>
 									<listOptionValue builtIn="false" value="CFG_TUSB_OS=OPT_OS_FREERTOS"/>
@@ -142,7 +142,7 @@
 									<listOptionValue builtIn="false" value="GIT_REVISION='&quot;$(GIT_REVISION)&quot;'"/>
 									<listOptionValue builtIn="false" value="STM32F7"/>
 									<listOptionValue builtIn="false" value="CORE_CM7"/>
-									<listOptionValue builtIn="false" value="CFG_FS_CALIB=14"/>
+									<listOptionValue builtIn="false" value="CFG_FS_CALIB=-9"/>
 									<listOptionValue builtIn="false" value="LFS_DEFINES=libs/lfs_conf.h"/>
 									<listOptionValue builtIn="false" value="CFG_TUSB_MCU=OPT_MCU_STM32F7"/>
 									<listOptionValue builtIn="false" value="CFG_TUSB_OS=OPT_OS_FREERTOS"/>
