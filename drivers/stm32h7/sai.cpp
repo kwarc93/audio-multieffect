@@ -160,11 +160,12 @@ hw {saix.at(static_cast<std::underlying_type_t<id>>(hw_id))}, block_a {block::id
 
     static const rcc::pll_cfg pll2_cfg
     {
-        6,
-        189,
-        16, // 49.21875MHz, close to: 192kHz x 256 = 49.152MHz
-        128,
-        128,
+        21,
+        289,
+        0,
+        7, // 49.14966MHz, close to: 192kHz x 256 = 49.152MHz
+        7,
+        7,
     };
 
     rcc::set_2nd_pll(pll2_cfg);

@@ -52,7 +52,8 @@ void ltdc::configure(const cfg &cfg)
     {
         25,
         336,
-        128,
+        0,
+        7,
         7,   // 48 MHz -> USB
         35   // 9.6 MHz -> LTDC
     };

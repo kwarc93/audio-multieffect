@@ -17,7 +17,7 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="${cross_rm} -rf" description="" id="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.823342004.1398752689" name="STM32F746G-DISCO" optionalBuildProperties="org.eclipse.cdt.docker.launcher.containerbuild.property.selectedvolumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.volumes=" parent="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug" preannouncebuildStep="" prebuildStep="">
+				<configuration artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="${cross_rm} -rf" description="" id="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.823342004.1398752689" name="STM32F746G-DISCO" optionalBuildProperties="org.eclipse.cdt.docker.launcher.containerbuild.property.volumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.selectedvolumes=" parent="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug" preannouncebuildStep="" prebuildStep="">
 					<folderInfo id="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.823342004.1398752689." name="/" resourcePath="">
 						<toolChain id="ilg.gnuarmeclipse.managedbuild.cross.toolchain.elf.debug.351562890" name="ARM Cross GCC" superClass="ilg.gnuarmeclipse.managedbuild.cross.toolchain.elf.debug">
 							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.addtools.createflash.1491226254" name="Create flash image" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.addtools.createflash" useByScannerDiscovery="false" value="true" valueType="boolean"/>
@@ -374,10 +374,10 @@
 									<listOptionValue builtIn="false" value="ARM_MATH_CM4"/>
 									<listOptionValue builtIn="false" value="CORE_CM4"/>
 									<listOptionValue builtIn="false" value="DUAL_CORE_APP"/>
-									<listOptionValue builtIn="false" value="CFG_FS_CALIB=65"/>
 									<listOptionValue builtIn="false" value="LFS_DEFINES=libs/lfs_conf.h"/>
 									<listOptionValue builtIn="false" value="CFG_TUSB_MCU=OPT_MCU_STM32H7"/>
 									<listOptionValue builtIn="false" value="CFG_TUSB_OS=OPT_OS_FREERTOS"/>
+									<listOptionValue builtIn="false" value="CFG_FS_CALIB=-2"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input.764753092" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input"/>
 							</tool>
@@ -405,10 +405,10 @@
 									<listOptionValue builtIn="false" value="ARM_MATH_CM4"/>
 									<listOptionValue builtIn="false" value="CORE_CM4"/>
 									<listOptionValue builtIn="false" value="DUAL_CORE_APP"/>
-									<listOptionValue builtIn="false" value="CFG_FS_CALIB=65"/>
 									<listOptionValue builtIn="false" value="LFS_DEFINES=libs/lfs_conf.h"/>
 									<listOptionValue builtIn="false" value="CFG_TUSB_MCU=OPT_MCU_STM32H7"/>
 									<listOptionValue builtIn="false" value="CFG_TUSB_OS=OPT_OS_FREERTOS"/>
+									<listOptionValue builtIn="false" value="CFG_FS_CALIB=-2"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.other.67040588" name="Other compiler flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.other" useByScannerDiscovery="true" value="" valueType="string"/>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.otherwarnings.1318011359" name="Other warning flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.otherwarnings" useByScannerDiscovery="true" value="" valueType="string"/>
@@ -441,10 +441,10 @@
 									<listOptionValue builtIn="false" value="ARM_MATH_CM4"/>
 									<listOptionValue builtIn="false" value="CORE_CM4"/>
 									<listOptionValue builtIn="false" value="DUAL_CORE_APP"/>
-									<listOptionValue builtIn="false" value="CFG_FS_CALIB=65"/>
 									<listOptionValue builtIn="false" value="LFS_DEFINES=libs/lfs_conf.h"/>
 									<listOptionValue builtIn="false" value="CFG_TUSB_MCU=OPT_MCU_STM32H7"/>
 									<listOptionValue builtIn="false" value="CFG_TUSB_OS=OPT_OS_FREERTOS"/>
+									<listOptionValue builtIn="false" value="CFG_FS_CALIB=-2"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.other.1685908088" name="Other compiler flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.other" useByScannerDiscovery="true" value="" valueType="string"/>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.otherwarnings.844645945" name="Other warning flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.otherwarnings" useByScannerDiscovery="true" value="" valueType="string"/>
@@ -673,9 +673,9 @@
 									<listOptionValue builtIn="false" value="CORE_CM7"/>
 									<listOptionValue builtIn="false" value="STM32H7"/>
 									<listOptionValue builtIn="false" value="DUAL_CORE_APP"/>
-									<listOptionValue builtIn="false" value="CFG_FS_CALIB=65"/>
 									<listOptionValue builtIn="false" value="CFG_TUSB_MCU=OPT_MCU_STM32H7"/>
 									<listOptionValue builtIn="false" value="CFG_TUSB_OS=OPT_OS_FREERTOS"/>
+									<listOptionValue builtIn="false" value="CFG_FS_CALIB=-2"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input.2132108509" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input"/>
 							</tool>
@@ -703,9 +703,9 @@
 									<listOptionValue builtIn="false" value="CORE_CM7"/>
 									<listOptionValue builtIn="false" value="STM32H7"/>
 									<listOptionValue builtIn="false" value="DUAL_CORE_APP"/>
-									<listOptionValue builtIn="false" value="CFG_FS_CALIB=65"/>
 									<listOptionValue builtIn="false" value="CFG_TUSB_MCU=OPT_MCU_STM32H7"/>
 									<listOptionValue builtIn="false" value="CFG_TUSB_OS=OPT_OS_FREERTOS"/>
+									<listOptionValue builtIn="false" value="CFG_FS_CALIB=-2"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.other.1945813803" name="Other compiler flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.other" useByScannerDiscovery="true" value="" valueType="string"/>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.otherwarnings.422822335" name="Other warning flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.otherwarnings" useByScannerDiscovery="true" value="" valueType="string"/>
@@ -738,9 +738,9 @@
 									<listOptionValue builtIn="false" value="CORE_CM7"/>
 									<listOptionValue builtIn="false" value="STM32H7"/>
 									<listOptionValue builtIn="false" value="DUAL_CORE_APP"/>
-									<listOptionValue builtIn="false" value="CFG_FS_CALIB=65"/>
 									<listOptionValue builtIn="false" value="CFG_TUSB_MCU=OPT_MCU_STM32H7"/>
 									<listOptionValue builtIn="false" value="CFG_TUSB_OS=OPT_OS_FREERTOS"/>
+									<listOptionValue builtIn="false" value="CFG_FS_CALIB=-2"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.other.1176585692" name="Other compiler flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.other" useByScannerDiscovery="true" value="" valueType="string"/>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.otherwarnings.153513911" name="Other warning flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.otherwarnings" useByScannerDiscovery="true" value="" valueType="string"/>
@@ -968,10 +968,10 @@
 									<listOptionValue builtIn="false" value="STM32H745xx"/>
 									<listOptionValue builtIn="false" value="CORE_CM7"/>
 									<listOptionValue builtIn="false" value="STM32H7"/>
-									<listOptionValue builtIn="false" value="CFG_FS_CALIB=65"/>
 									<listOptionValue builtIn="false" value="LFS_DEFINES=libs/lfs_conf.h"/>
 									<listOptionValue builtIn="false" value="CFG_TUSB_MCU=OPT_MCU_STM32H7"/>
 									<listOptionValue builtIn="false" value="CFG_TUSB_OS=OPT_OS_FREERTOS"/>
+									<listOptionValue builtIn="false" value="CFG_FS_CALIB=-2"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input.1075649410" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input"/>
 							</tool>
@@ -998,10 +998,10 @@
 									<listOptionValue builtIn="false" value="STM32H745xx"/>
 									<listOptionValue builtIn="false" value="CORE_CM7"/>
 									<listOptionValue builtIn="false" value="STM32H7"/>
-									<listOptionValue builtIn="false" value="CFG_FS_CALIB=65"/>
 									<listOptionValue builtIn="false" value="LFS_DEFINES=libs/lfs_conf.h"/>
 									<listOptionValue builtIn="false" value="CFG_TUSB_MCU=OPT_MCU_STM32H7"/>
 									<listOptionValue builtIn="false" value="CFG_TUSB_OS=OPT_OS_FREERTOS"/>
+									<listOptionValue builtIn="false" value="CFG_FS_CALIB=-2"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.other.1745009458" name="Other compiler flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.other" useByScannerDiscovery="true" value="" valueType="string"/>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.otherwarnings.668224627" name="Other warning flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.otherwarnings" useByScannerDiscovery="true" value="" valueType="string"/>
@@ -1033,10 +1033,10 @@
 									<listOptionValue builtIn="false" value="STM32H745xx"/>
 									<listOptionValue builtIn="false" value="CORE_CM7"/>
 									<listOptionValue builtIn="false" value="STM32H7"/>
-									<listOptionValue builtIn="false" value="CFG_FS_CALIB=65"/>
 									<listOptionValue builtIn="false" value="LFS_DEFINES=libs/lfs_conf.h"/>
 									<listOptionValue builtIn="false" value="CFG_TUSB_MCU=OPT_MCU_STM32H7"/>
 									<listOptionValue builtIn="false" value="CFG_TUSB_OS=OPT_OS_FREERTOS"/>
+									<listOptionValue builtIn="false" value="CFG_FS_CALIB=-2"/>
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.other.837429924" name="Other compiler flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.other" useByScannerDiscovery="true" value="" valueType="string"/>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.otherwarnings.562466911" name="Other warning flags" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.otherwarnings" useByScannerDiscovery="true" value="" valueType="string"/>

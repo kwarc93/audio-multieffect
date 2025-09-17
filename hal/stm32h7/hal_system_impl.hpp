@@ -82,11 +82,12 @@ namespace hal::system
 
         const drivers::rcc::pll_cfg pll
         {
-            5,
-            160,
+            13,
+            416,
+            0,
             2,
-            4,
-            2
+            16,
+            16
         };
 
         const drivers::rcc::bus_presc presc

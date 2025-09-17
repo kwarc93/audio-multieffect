@@ -63,6 +63,7 @@ public:
     {
         uint32_t m;         /**< M divider, allowed range: 0 - 63 */
         uint32_t n;         /**< N multiplier, allowed range: 4 - 512 */
+        uint32_t fracn;     /**< Fractional part of N multiplier, allowed range: 0 - 8191 */
         uint32_t p;         /**< P divider, allowed (even!) values: 2 - 128 */
         uint32_t q;         /**< Q divider, allowed range: 1 - 128 */
         uint32_t r;         /**< R divider, allowed range: 1 - 128 */

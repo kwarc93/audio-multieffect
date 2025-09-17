@@ -267,14 +267,15 @@ void rcc::set_main_pll(uint32_t src, const pll_cfg &pll, const bus_presc &presc)
     MODIFY_REG(RCC->D2CFGR, RCC_D2CFGR_D2PPRE2, presc.apb2);
     MODIFY_REG(RCC->D3CFGR, RCC_D3CFGR_D3PPRE, presc.apb4);
 
-    /* Configure the main PLL */
+    /* Configure the main PLL (input range: 1 - 2 MHz) */
     RCC->CR &= ~RCC_CR_PLL1ON;
-    RCC->PLLCFGR |= 0b10 << RCC_PLLCFGR_PLL1RGE_Pos; // Input range: 4 - 8 MHz
+    MODIFY_REG(RCC->PLLCFGR, RCC_PLLCFGR_PLL1RGE, 0b00 << RCC_PLLCFGR_PLL1RGE_Pos);
     MODIFY_REG(RCC->PLLCKSELR, RCC_PLLCKSELR_DIVM1, pll.m << RCC_PLLCKSELR_DIVM1_Pos);
     MODIFY_REG(RCC->PLL1DIVR, RCC_PLL1DIVR_N1, (pll.n-1) << RCC_PLL1DIVR_N1_Pos);
     MODIFY_REG(RCC->PLL1DIVR, RCC_PLL1DIVR_P1, (pll.p-1) << RCC_PLL1DIVR_P1_Pos);
     MODIFY_REG(RCC->PLL1DIVR, RCC_PLL1DIVR_Q1, (pll.q-1) << RCC_PLL1DIVR_Q1_Pos);
     MODIFY_REG(RCC->PLL1DIVR, RCC_PLL1DIVR_R1, (pll.r-1) << RCC_PLL1DIVR_R1_Pos);
+    MODIFY_REG(RCC->PLL1FRACR, RCC_PLL1FRACR_FRACN1, pll.fracn << RCC_PLL1FRACR_FRACN1_Pos);
 
     /* Enable the main PLL */
     RCC->CR |= RCC_CR_PLL1ON;
@@ -306,12 +307,14 @@ void rcc::set_2nd_pll(const pll_cfg &pll)
     /* Disable the PLL */
     RCC->CR &= ~RCC_CR_PLL2ON;
 
-    RCC->PLLCFGR |= 0b10 << RCC_PLLCFGR_PLL2RGE_Pos; // Input range: 4 - 8 MHz
+    /* Configure the 2nd PLL (input range: 1 - 2 MHz) */
+    MODIFY_REG(RCC->PLLCFGR, RCC_PLLCFGR_PLL2RGE, 0b00 << RCC_PLLCFGR_PLL2RGE_Pos);
     MODIFY_REG(RCC->PLLCKSELR, RCC_PLLCKSELR_DIVM2, pll.m << RCC_PLLCKSELR_DIVM2_Pos);
     MODIFY_REG(RCC->PLL2DIVR, RCC_PLL2DIVR_N2, (pll.n-1) << RCC_PLL2DIVR_N2_Pos);
     MODIFY_REG(RCC->PLL2DIVR, RCC_PLL2DIVR_P2, (pll.p-1) << RCC_PLL2DIVR_P2_Pos);
     MODIFY_REG(RCC->PLL2DIVR, RCC_PLL2DIVR_Q2, (pll.q-1) << RCC_PLL2DIVR_Q2_Pos);
     MODIFY_REG(RCC->PLL2DIVR, RCC_PLL2DIVR_R2, (pll.r-1) << RCC_PLL2DIVR_R2_Pos);
+    MODIFY_REG(RCC->PLL2FRACR, RCC_PLL2FRACR_FRACN2, pll.fracn << RCC_PLL2FRACR_FRACN2_Pos);
 
     /* Enable the PLL */
     RCC->CR |= RCC_CR_PLL2ON;
@@ -329,12 +332,14 @@ void rcc::set_3rd_pll(const pll_cfg &pll)
     /* Disable the PLL */
     RCC->CR &= ~RCC_CR_PLL3ON;
 
-    RCC->PLLCFGR |= 0b10 << RCC_PLLCFGR_PLL3RGE_Pos; // Input range: 4 - 8 MHz
+    /* Configure the 3rd PLL (input range: 1 - 2 MHz) */
+    MODIFY_REG(RCC->PLLCFGR, RCC_PLLCFGR_PLL3RGE, 0b00 << RCC_PLLCFGR_PLL3RGE_Pos);
     MODIFY_REG(RCC->PLLCKSELR, RCC_PLLCKSELR_DIVM3, pll.m << RCC_PLLCKSELR_DIVM3_Pos);
     MODIFY_REG(RCC->PLL3DIVR, RCC_PLL3DIVR_N3, (pll.n-1) << RCC_PLL3DIVR_N3_Pos);
     MODIFY_REG(RCC->PLL3DIVR, RCC_PLL3DIVR_P3, (pll.p-1) << RCC_PLL3DIVR_P3_Pos);
     MODIFY_REG(RCC->PLL3DIVR, RCC_PLL3DIVR_Q3, (pll.q-1) << RCC_PLL3DIVR_Q3_Pos);
     MODIFY_REG(RCC->PLL3DIVR, RCC_PLL3DIVR_R3, (pll.r-1) << RCC_PLL3DIVR_R3_Pos);
+    MODIFY_REG(RCC->PLL3FRACR, RCC_PLL3FRACR_FRACN3, pll.fracn << RCC_PLL3FRACR_FRACN3_Pos);
 
     /* Set USB2 FS clock source as PLL3-Q */
     MODIFY_REG(RCC->D2CCIP2R, RCC_D2CCIP2R_USBSEL, 2 << RCC_D2CCIP2R_USBSEL_Pos);

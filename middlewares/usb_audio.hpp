@@ -318,7 +318,7 @@ void tud_audio_feedback_params_cb(uint8_t func_id, uint8_t alt_itf, audio_feedba
 
     // Set feedback method to fifo counting
     feedback_param->method = AUDIO_FEEDBACK_METHOD_FIFO_COUNT;
-    feedback_param->sample_freq = mfx::config::sampling_frequency_hz;
+    feedback_param->sample_freq = current_sample_rate;
 }
 
 }
