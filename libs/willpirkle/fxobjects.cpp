@@ -66,7 +66,22 @@ available on two of the forms: direct and transposed canonical\n
 */
 float Biquad::processAudioSample(float xn)
 {
-	if (parameters.biquadCalcType == biquadAlgorithm::kDirect)
+    if (parameters.biquadCalcType == biquadAlgorithm::kTransposeCanonical)
+    {
+        // --- 1)  form output y(n) = a0*x(n) + stateArray[x_z1]
+        float yn = coeffArray[a0] * xn + stateArray[x_z1];
+
+        // --- 2) underflow check
+        checkFloatUnderflow(yn);
+
+        // --- shuffle/update
+        stateArray[x_z1] = coeffArray[a1]*xn - coeffArray[b1]*yn + stateArray[x_z2];
+        stateArray[x_z2] = coeffArray[a2]*xn - coeffArray[b2]*yn;
+
+        // --- return value
+        return yn;
+    }
+    else if (parameters.biquadCalcType == biquadAlgorithm::kDirect)
 	{
 		// --- 1)  form output y(n) = a0*x(n) + a1*x(n-1) + a2*x(n-2) - b1*y(n-1) - b2*y(n-2)
 		float yn = coeffArray[a0] * xn +
@@ -127,21 +142,6 @@ float Biquad::processAudioSample(float xn)
 
 		stateArray[x_z1] = stateArray[x_z2] + coeffArray[a1] * wn;
 		stateArray[x_z2] = coeffArray[a2] * wn;
-
-		// --- return value
-		return yn;
-	}
-	else if (parameters.biquadCalcType == biquadAlgorithm::kTransposeCanonical)
-	{
-		// --- 1)  form output y(n) = a0*x(n) + stateArray[x_z1]
-		float yn = coeffArray[a0] * xn + stateArray[x_z1];
-
-		// --- 2) underflow check
-		checkFloatUnderflow(yn);
-
-		// --- shuffle/update
-		stateArray[x_z1] = coeffArray[a1]*xn - coeffArray[b1]*yn + stateArray[x_z2];
-		stateArray[x_z2] = coeffArray[a2]*xn - coeffArray[b2]*yn;
 
 		// --- return value
 		return yn;

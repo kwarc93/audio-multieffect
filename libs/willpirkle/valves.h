@@ -124,15 +124,13 @@ public:
 		sampleRate = _sampleRate;
 
 		// --- integrators
-		lossyIntegrator[0].reset(_sampleRate);
-		lossyIntegrator[1].reset(_sampleRate);
+		lossyIntegrator.reset(_sampleRate);
 
-		ZVAFilterParameters params = lossyIntegrator[0].getParameters();
+		ZVAFilterParameters params = lossyIntegrator.getParameters();
 		params.filterAlgorithm = vaFilterAlgorithm::kSVF_LP;
 		params.Q = 0.707; // 5 Hz
 		params.fc = 5.0;	// 5 Hz
-		lossyIntegrator[0].setParameters(params);
-		lossyIntegrator[1].setParameters(params);
+		lossyIntegrator.setParameters(params);
 
 		// --- other filters
 		//
@@ -176,21 +174,21 @@ public:
 		xn = doValveGridConduction(xn, parameters.gridConductionThreshold);
 		
 		// --- (2) detect the DC offset that the clipping may have caused
-		float dcOffset = lossyIntegrator[0].processAudioSample(xn);
+		float dcOffset = lossyIntegrator.processAudioSample(xn);
 
-		// --- process only negative DC bias shifts
-		dcOffset = fmin(dcOffset, 0.0);
-		
 		// --- save this - user may indicate it in a meter if they want
 		//     Note that this is a bipolar value, but we only do DC shift for 
 		//     *negative* values so meters should be aware
-		parameters.dcOffsetDetected = fabs(dcOffset*parameters.dcShiftCoefficient);
+		parameters.dcOffsetDetected = dcOffset;
+
+		// --- process only negative DC bias shifts
+		dcOffset = fmin(dcOffset, 0.0);
 
 		// --- (3) do the main emulation
 		yn = doValveEmulation(xn, 
 								parameters.waveshaperSaturation, 
 								parameters.gridConductionThreshold,
-								parameters.dcOffsetDetected,
+								dcOffset*parameters.dcShiftCoefficient,
 								parameters.clipPointPositive, 
 								parameters.clipPointNegative);
 		
@@ -253,10 +251,9 @@ public:
 			upperBandwidthFilter.setParameters(filterParams);
 		}
 
-		ZVAFilterParameters paramsLI = lossyIntegrator[0].getParameters();
+		ZVAFilterParameters paramsLI = lossyIntegrator.getParameters();
 		paramsLI.fc = params.integratorFc;
-		lossyIntegrator[0].setParameters(paramsLI);
-		lossyIntegrator[1].setParameters(paramsLI);
+		lossyIntegrator.setParameters(paramsLI);
 
 		// --- save
 		parameters = params;
@@ -346,7 +343,7 @@ private:
 		return yn;
 	}
 
-	ZVAFilter lossyIntegrator[2];
+	ZVAFilter lossyIntegrator;
 	AudioFilter lowShelvingFilter;
 	AudioFilter dcBlockingFilter;
 	AudioFilter upperBandwidthFilter;
@@ -1579,7 +1576,7 @@ struct OneMarkAmpParameters
 		masterVolume_010 = params.masterVolume_010;
 		tubeCompression_010 = params.tubeCompression_010;
 
-		bright = params.bright;
+		singleTriodePreamp = params.singleTriodePreamp;
 		ampGainStyle = params.ampGainStyle;
 
 		for (unsigned i = 0; i < PREAMP_TRIODES; i++)
@@ -1603,7 +1600,7 @@ struct OneMarkAmpParameters
 	float dcShift[PREAMP_TRIODES] = { 0.0, 0.0, 0.0, 0.0 };
 
 	// --- switches
-	bool bright = false;
+	bool singleTriodePreamp = false;
 	ampGainStructure ampGainStyle = ampGainStructure::medium;
 };
 
@@ -1641,7 +1638,7 @@ public:
 		ClassAValveParameters triodeParams = triodes[T1].getParameters();
 		triodeParams.lowFrequencyShelf_Hz = 10.0;
 		triodeParams.lowFrequencyShelfGain_dB = -10.0;
-		triodeParams.integratorFc = 1.0;
+		triodeParams.integratorFc = 5.0;
 		triodeParams.millerHF_Hz = 20000.0;
 		triodeParams.dcBlockingLF_Hz = 8.0;
 		triodeParams.outputGain = pow(10.0, -3.0 / 20.0);
@@ -1652,7 +1649,7 @@ public:
 		triodeParams = triodes[T2].getParameters();
 		triodeParams.lowFrequencyShelf_Hz = 10.0;
 		triodeParams.lowFrequencyShelfGain_dB = -10.0;
-		triodeParams.integratorFc = 1.0;
+		triodeParams.integratorFc = 5.0;
 		triodeParams.millerHF_Hz = 9000.0;
 		triodeParams.dcBlockingLF_Hz = 32.0;
 		triodeParams.outputGain = pow(10.0, +5.0 / 20.0);
@@ -1663,7 +1660,7 @@ public:
 		triodeParams = triodes[T3].getParameters();
 		triodeParams.lowFrequencyShelf_Hz = 10.0;
 		triodeParams.lowFrequencyShelfGain_dB = -10.0;
-		triodeParams.integratorFc = 1.0;
+		triodeParams.integratorFc = 5.0;
 		triodeParams.millerHF_Hz = 7000.0;
 		triodeParams.dcBlockingLF_Hz = 40.0;
 		triodeParams.outputGain = pow(10.0, +6.0 / 20.0);
@@ -1674,7 +1671,7 @@ public:
 		triodeParams = triodes[T4].getParameters();
 		triodeParams.lowFrequencyShelf_Hz = 10.0;
 		triodeParams.lowFrequencyShelfGain_dB = -10.0;
-		triodeParams.integratorFc = 1.0;
+		triodeParams.integratorFc = 5.0;
 		triodeParams.millerHF_Hz = 6400.0;
 		triodeParams.dcBlockingLF_Hz = 43.0;
 		triodeParams.outputGain = pow(10.0, -20.0 / 20.0);
@@ -1695,17 +1692,6 @@ public:
 		hpfParams.algorithm = filterAlgorithm::kHPF2;
 		inputHPF.setParameters(hpfParams);
 
-//		outputHPF.reset(sampleRate);
-//		hpfParams = outputHPF.getParameters();
-//		hpfParams.algorithm = filterAlgorithm::kHPF2;
-//		hpfParams.fc = 5.0;
-//		outputHPF.setParameters(hpfParams);
-//
-//		outputLPF.reset(sampleRate);
-//		AudioFilterParameters lpfParams = outputLPF.getParameters();
-//		lpfParams.algorithm = filterAlgorithm::kLPF2;
-//		outputLPF.setParameters(lpfParams);
-
 		return true;
 	}
 
@@ -1714,48 +1700,35 @@ public:
 	// --- do the valve emulation
 	virtual float processAudioSample(float xn)
 	{
-		// --- first triode
-		//float t1OutSDS = triodes[0].processAudioSample(0.0);
-		//return t1OutSDS;
-
 		// --- remove DC, remove bass 
 		float hpfOut = inputHPF.processAudioSample(xn);
 
 		// --- "volume 1" control
-		float t1In = hpfOut * inputGain;
+		float preIn = hpfOut * inputGain;
 
 		// --- first triode
-		float t1Out = triodes[0].processAudioSample(t1In);
+		float preOut = triodes[0].processAudioSample(preIn);
 		
 		// --- add pre-drive
-		t1Out *= driveGain;
+		preOut *= driveGain;
 
-		// --- cascade of triodes
+		// --- cascade of preamp triodes
 		//     NOTE: leaving this verbose so you can experiment, use less or more triodes...
-		float t2Out = triodes[1].processAudioSample(t1Out);
-		float t3Out = triodes[2].processAudioSample(t2Out);
-		float t4Out = triodes[3].processAudioSample(t3Out);
+		if (!parameters.singleTriodePreamp)
+        {
+            preOut = triodes[1].processAudioSample(preOut);
+            preOut = triodes[2].processAudioSample(preOut);
+            preOut = triodes[3].processAudioSample(preOut);
+        }
 
 		// --- tone stack (note: relocating makes a big difference)
-		float toneStackOut = toneStack.processAudioSample(t4Out);
+		float toneStackOut = toneStack.processAudioSample(preOut);
 
 		// --- class B drive gain
 		toneStackOut *= tubeComress;
 		
 		// --- class B model
 		float classBOut = outputPentodes.processAudioSample(toneStackOut);
-
-		// --- speaker sim
-		//float dcBlock = outputHPF.processAudioSample(toneStackOut);
-		//float outputLPFout = outputLPF.processAudioSample(dcBlock);
-
-		// --- for metering the DC Shifts only - can ignore if you want
-		//for(int i=0; i< PREAMP_TRIODES; i++)
-			//parameters.dcShift[i] = triodes[i].getParameters().dcOffsetDetected;
-
-		// --- the FIRST meter is binary
-		//if (parameters.dcShift[0] > 0.125)
-			//parameters.dcShift[0] = 1.0;
 
 		return classBOut * outputGain;
 	}
@@ -1782,7 +1755,7 @@ public:
 		if (parameters.ampGainStyle == ampGainStructure::medium)
 			saturation = 2.0;
 		else if (parameters.ampGainStyle == ampGainStructure::high)
-			saturation = 5.0;
+			saturation = parameters.singleTriodePreamp ? 5.0 : 3.0;
 
 		// --- update
 		for (unsigned i = 0; i < PREAMP_TRIODES; i++)
@@ -1829,12 +1802,6 @@ public:
 			-6.0, +24.0,
 			parameters.tubeCompression_010,
 			true);
-
-		// --- speaker simulator
-//		AudioFilterParameters lpfParams = outputLPF.getParameters();
-//		lpfParams.fc = parameters.bright ? 3200.0 : 2450.0;
-//		lpfParams.Q = parameters.bright ? 0.707 : 1.4;
-//		outputLPF.setParameters(lpfParams);
 	}
 
 private:
@@ -1851,8 +1818,6 @@ private:
 	ClassBValvePair outputPentodes;
 	ToneStack toneStack;
 	AudioFilter inputHPF;
-//	AudioFilter outputLPF;
-//	AudioFilter outputHPF;
 };
 
 

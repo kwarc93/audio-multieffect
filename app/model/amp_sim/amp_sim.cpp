@@ -11,6 +11,8 @@
 #include <cmath>
 #include <algorithm>
 
+#include <hal/hal_system.hpp>
+
 using namespace mfx;
 
 //-----------------------------------------------------------------------------
@@ -32,6 +34,9 @@ amp_sim::amp_sim() : effect { effect_id::amplifier_sim },
 attr {}
 {
     this->amp.reset(config::sampling_frequency_hz);
+
+    /* For performance reasons, use one triode preamp (instead of four) on slower systems */
+    this->amp_params.singleTriodePreamp = (hal::system::system_clock <= 200000000);
 
     const auto& def = amp_sim_attr::default_ctrl;
 
@@ -133,7 +138,7 @@ void amp_sim::set_mode(amp_sim_attr::controls::mode_type mode)
     if (mode == amp_sim_attr::controls::mode_type::higain)
     {
         this->amp_params.masterVolume_010 = 8;
-        this->amp_params.ampGainStyle = ampGainStructure::medium;
+        this->amp_params.ampGainStyle = ampGainStructure::high;
     }
     else
     {
