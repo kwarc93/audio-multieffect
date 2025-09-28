@@ -128,8 +128,8 @@ public:
 
 		ZVAFilterParameters params = lossyIntegrator.getParameters();
 		params.filterAlgorithm = vaFilterAlgorithm::kSVF_LP;
-		params.Q = 0.707; // 5 Hz
-		params.fc = 5.0;	// 5 Hz
+		params.Q = 0.707;
+		params.fc = 3.14; // 1 - 10 Hz
 		lossyIntegrator.setParameters(params);
 
 		// --- other filters
@@ -255,6 +255,9 @@ public:
 		paramsLI.fc = params.integratorFc;
 		lossyIntegrator.setParameters(paramsLI);
 
+		// --- precompute for speed
+		tanhk = tanh(params.waveshaperSaturation);
+
 		// --- save
 		parameters = params;
 	}
@@ -265,6 +268,7 @@ private:
 
 	// --- local variables used by this object
 	float sampleRate = 0.0;	///< sample rate
+	float tanhk = tanh(parameters.waveshaperSaturation);
 
 	// --- emulate grid conduction, found using SPICE simulations with 12AX7
 	inline float doValveGridConduction(float xn, float gridConductionThreshold)
@@ -278,7 +282,9 @@ private:
 			return compressionFactor*xn;
 		}
 		else
+		{
 			return xn;
+		}
 	}
 
 	// --- main triode emulation - plenty of room here for experimentation
@@ -299,20 +305,23 @@ private:
 		if (xn > gridConductionThreshold) // +1.5 is where grid conduction starts
 		{
 			if (xn > clipPointPos)
+			{
 				yn = clipPointPos;
+			}
 			else
 			{
 				// --- scaling to get into the first quadrant for Arraya @ (0,0)
 				xn -= gridConductionThreshold;
 
 				// --- note that the signal should be clipped/compressed prior to calling this
+				const auto shifted = clipPointPos - gridConductionThreshold;
 				if (clipPointPos > 1.0)
-					xn /= (clipPointPos - gridConductionThreshold);
+					xn /= shifted;
 
 				yn = xn*(3.0 / 2.0)*(1.0 - (xn*xn) / 3.0);
 
 				// --- scale by clip point positive
-				yn *= (clipPointPos - gridConductionThreshold);
+				yn *= shifted;
 
 				// --- undo scaling
 				yn += gridConductionThreshold;
@@ -323,21 +332,25 @@ private:
 			// --- fundamentally linear region of 3/2 power law
 			yn = xn;
 		}
-		else // botom portion is tanh( ) waveshaper - EXPERIMENT!!
+		else // botom portion is tanh() waveshaper - EXPERIMENT!!
 		{
 			if (xn < clipPointNeg)
+			{
 				yn = clipPointNeg;
+			}
 			else
 			{
+			    const auto clipPointNegAbs = fabs(clipPointNeg);
+
 				// --- clip normalize
 				if (clipPointNeg < -1.0)
-					xn /= fabs(clipPointNeg);
+					xn /= clipPointNegAbs;
 
 				// --- the waveshaper
-				yn = tanh(k*xn) / tanh(k);
+				yn = tanh(k*xn) / tanhk;
 
 				// --- undo clip normalize
-				yn *= fabs(clipPointNeg);
+				yn *= clipPointNegAbs;
 			}
 		}
 		return yn;
@@ -469,7 +482,7 @@ public:
 
 		ZVAFilterParameters params = lossyIntegrator[0].getParameters();
 		params.filterAlgorithm = vaFilterAlgorithm::kLPF1;
-		params.fc = 5.0; // 1 - 10 Hz
+		params.fc = 3.14; // 1 - 10 Hz
 		lossyIntegrator[0].setParameters(params);
 		lossyIntegrator[1].setParameters(params);
 
@@ -596,6 +609,9 @@ public:
 			upperBandwidthFilter.setParameters(filterParams);
 		}
 
+		// --- precompute for speed
+		atang = atan(params.waveshaperSaturation);
+
 		// --- save
 		parameters = params;
 	}
@@ -606,6 +622,7 @@ private:
 
 	// --- local variables used by this object
 	float sampleRate = 0.0;	///< sample rate
+    float atang = atan(parameters.waveshaperSaturation);
 
 	// --- emulate grid conduction, found using SPICE simulations with 12AX7
 	inline float doValveGridConduction(float xn)
@@ -623,7 +640,7 @@ private:
 	}
 
 	// --- Poletti waveshaper (see patent for documentation)
-	float doPolettiWaveShaper(float xn, float g, float Ln, float Lp)
+	inline float doPolettiWaveShaper(float xn, float g, float Ln, float Lp)
 	{
 		float yn = 0.0;
 		if (xn <= 0)
@@ -634,11 +651,11 @@ private:
 	}
 
 	// --- Pirkle waveshaper (see book addendum)
-	float doPirkleWaveShaper(float xn, float g, float fixedDCoffset, float variableDCOffset)
+	inline float doPirkleWaveShaper(float xn, float g, float fixedDCoffset, float variableDCOffset)
 	{
 		xn += fixedDCoffset;
 		xn += variableDCOffset;
-		float yn = 1.5*atan(g*xn) / atan(g);
+		float yn = 1.5*atan(g*xn) / atang;
 		return yn;
 	}
 
@@ -1638,7 +1655,7 @@ public:
 		ClassAValveParameters triodeParams = triodes[T1].getParameters();
 		triodeParams.lowFrequencyShelf_Hz = 10.0;
 		triodeParams.lowFrequencyShelfGain_dB = -10.0;
-		triodeParams.integratorFc = 5.0;
+		triodeParams.integratorFc = 1.03;
 		triodeParams.millerHF_Hz = 20000.0;
 		triodeParams.dcBlockingLF_Hz = 8.0;
 		triodeParams.outputGain = pow(10.0, -3.0 / 20.0);
@@ -1649,7 +1666,7 @@ public:
 		triodeParams = triodes[T2].getParameters();
 		triodeParams.lowFrequencyShelf_Hz = 10.0;
 		triodeParams.lowFrequencyShelfGain_dB = -10.0;
-		triodeParams.integratorFc = 5.0;
+		triodeParams.integratorFc = 2.82;
 		triodeParams.millerHF_Hz = 9000.0;
 		triodeParams.dcBlockingLF_Hz = 32.0;
 		triodeParams.outputGain = pow(10.0, +5.0 / 20.0);
@@ -1660,7 +1677,7 @@ public:
 		triodeParams = triodes[T3].getParameters();
 		triodeParams.lowFrequencyShelf_Hz = 10.0;
 		triodeParams.lowFrequencyShelfGain_dB = -10.0;
-		triodeParams.integratorFc = 5.0;
+		triodeParams.integratorFc = 3.14;
 		triodeParams.millerHF_Hz = 7000.0;
 		triodeParams.dcBlockingLF_Hz = 40.0;
 		triodeParams.outputGain = pow(10.0, +6.0 / 20.0);
@@ -1671,7 +1688,7 @@ public:
 		triodeParams = triodes[T4].getParameters();
 		triodeParams.lowFrequencyShelf_Hz = 10.0;
 		triodeParams.lowFrequencyShelfGain_dB = -10.0;
-		triodeParams.integratorFc = 5.0;
+		triodeParams.integratorFc = 4.04;
 		triodeParams.millerHF_Hz = 6400.0;
 		triodeParams.dcBlockingLF_Hz = 43.0;
 		triodeParams.outputGain = pow(10.0, -20.0 / 20.0);
@@ -1771,7 +1788,7 @@ public:
 		else
 		{
 			inputGain = calcMappedVariableOnRange(0.0, 10.0,
-				-60.0, +20.0,
+				-20.0, +20.0,
 				parameters.volume1_010,
 				true);
 		}
