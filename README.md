@@ -6,22 +6,22 @@ A concept of digital multi-effect for guitar running on STM32F746G-DISCO or STM3
 
 ## Overview
 
-Device captures audio signal from line-in jack (left channel, labeled as MAIN), then processes audio samples according to selected effect and finally outputs processed audio to line-out jack. User controls device by touchscreen. It is possible to add multiple effects to signal chain. Several basic guitar effects are implemented:
+Device captures audio signal from line-in jack (blue), then processes audio samples according to selected effect and finally outputs processed audio to line-out/headphone jack (green). User controls device by touchscreen. It is possible to add multiple effects to signal chain. Several basic guitar effects are implemented:
 - chromatic tuner
 - tremolo
 - echo/delay
 - chorus
 - reverb
 - overdrive
-- speaker cabinet emulator
+- tube amplifier simulator
+- speaker cabinet simulator
 - vocoder
 - phaser
 
 Effects order (in signal chain) can be changed through settings menu and each effect can be enabled/disabled separately. Changing between effects is done by left/right *swipe* gesture. Settings screen can be accessed by *swipe down* gesture.
-
-The vocoder effect needs an additional signal input as modulator, which can be:
-- right channel of the line-in, labeled as AUX (default)
-- signal form the onboard digital microphone
+The guitar signal (MAIN) is captured as left channel from input jack. The right channel input (AUX) can be used for other purposes. For example, the vocoder effect needs an additional input signal as a modulator, which can be:
+- signal form the onboard digital microphone (default)
+- right channel of the line-in, labeled as AUX
 
 
 This signal can be selected from the audio settings screen.
@@ -29,6 +29,8 @@ This signal can be selected from the audio settings screen.
 Audio quality is set to 24bit 48kHz. Audio latency is determined by the size of audio buffer, which by default is 128 samples that gives around 6ms in-out delay.
 
 Device stores its settings in a filesystem so they are persistent after power-off. User can also create, save & load their effect presets.
+
+Device can work as USB audio interface (can be enabled in settings). When connected to host (Linux/Windows) through *USBFS* connector, the device shows up in system as a sound card with stereo output (headphones) and mono input (line-in). The downside of enabling USB is increased DSP load which may limit the maximum number of effects in chain. The overall USB audio latency may be too high to play comfortably. In that case user can enable *direct monitoring* which feeds signal directly to output (as in normal usecase).
 
 ## Demo
 https://soundcloud.com/kwarc-1/sets/gmfx  
@@ -72,5 +74,6 @@ Here is a brief description of how to add new effect to the system:
 
 After completing these steps it should be possible to compile the project. However this instruction is not very detailed so there may be compilation errors if something is missing. If so, follow the compiler error messages.
 
-## What is not supported
-- changing the LCD brightness
+## Known issues and limitations
+- changing the LCD brightness does not work (hardware does not support it)
+- USB audio interface on MacOS was not tested (may not work)
