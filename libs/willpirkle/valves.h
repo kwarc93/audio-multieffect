@@ -74,7 +74,7 @@ struct ClassAValveParameters
 	float millerHF_Hz = 10000.0;
 	
 	// --- can adjust this too
-	float integratorFc = 5.0;
+	float integratorFc = 3.14; // 1 - 10 Hz
 
 	// --- clip and threshold points
 	float clipPointPositive = 4.0;		// --- SPICE data
@@ -129,7 +129,7 @@ public:
 		ZVAFilterParameters params = lossyIntegrator.getParameters();
 		params.filterAlgorithm = vaFilterAlgorithm::kSVF_LP;
 		params.Q = 0.707;
-		params.fc = 3.14; // 1 - 10 Hz
+		params.fc = parameters.integratorFc;
 		lossyIntegrator.setParameters(params);
 
 		// --- other filters
