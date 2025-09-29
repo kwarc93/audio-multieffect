@@ -256,7 +256,7 @@ public:
 		lossyIntegrator.setParameters(paramsLI);
 
 		// --- precompute for speed
-		tanhk = tanh(params.waveshaperSaturation);
+		tanhk = 1.0 / tanh(params.waveshaperSaturation);
 
 		// --- save
 		parameters = params;
@@ -268,7 +268,7 @@ private:
 
 	// --- local variables used by this object
 	float sampleRate = 0.0;	///< sample rate
-	float tanhk = tanh(parameters.waveshaperSaturation);
+	float tanhk = 1.0 / tanh(parameters.waveshaperSaturation);
 
 	// --- emulate grid conduction, found using SPICE simulations with 12AX7
 	inline float doValveGridConduction(float xn, float gridConductionThreshold)
@@ -347,7 +347,7 @@ private:
 					xn /= clipPointNegAbs;
 
 				// --- the waveshaper
-				yn = tanh(k*xn) / tanhk;
+				yn = tanh(k*xn) * tanhk;
 
 				// --- undo clip normalize
 				yn *= clipPointNegAbs;
@@ -610,7 +610,7 @@ public:
 		}
 
 		// --- precompute for speed
-		atang = atan(params.waveshaperSaturation);
+		atang = 1.0 / atan(params.waveshaperSaturation);
 
 		// --- save
 		parameters = params;
@@ -622,7 +622,7 @@ private:
 
 	// --- local variables used by this object
 	float sampleRate = 0.0;	///< sample rate
-    float atang = atan(parameters.waveshaperSaturation);
+    float atang = 1.0 / atan(parameters.waveshaperSaturation);
 
 	// --- emulate grid conduction, found using SPICE simulations with 12AX7
 	inline float doValveGridConduction(float xn)
@@ -655,7 +655,7 @@ private:
 	{
 		xn += fixedDCoffset;
 		xn += variableDCOffset;
-		float yn = 1.5*atan(g*xn) / atang;
+		float yn = 1.5*atan(g*xn) * atang;
 		return yn;
 	}
 
@@ -1559,7 +1559,7 @@ private:
 };
 
 const unsigned int PREAMP_TRIODES = 4;
-enum class ampGainStructure { low, medium, high };
+enum class ampGainStructure { low, high };
 
 /**
 \struct OneMarkAmpParameters
@@ -1618,7 +1618,7 @@ struct OneMarkAmpParameters
 
 	// --- switches
 	bool singleTriodePreamp = false;
-	ampGainStructure ampGainStyle = ampGainStructure::medium;
+	ampGainStructure ampGainStyle = ampGainStructure::low;
 };
 
 /**
@@ -1732,11 +1732,11 @@ public:
 		// --- cascade of preamp triodes
 		//     NOTE: leaving this verbose so you can experiment, use less or more triodes...
 		if (!parameters.singleTriodePreamp)
-        {
-            preOut = triodes[1].processAudioSample(preOut);
-            preOut = triodes[2].processAudioSample(preOut);
-            preOut = triodes[3].processAudioSample(preOut);
-        }
+		{
+			preOut = triodes[1].processAudioSample(preOut);
+			preOut = triodes[2].processAudioSample(preOut);
+			preOut = triodes[3].processAudioSample(preOut);
+		}
 
 		// --- tone stack (note: relocating makes a big difference)
 		float toneStackOut = toneStack.processAudioSample(preOut);
@@ -1769,10 +1769,8 @@ public:
 
 		// --- simulate different gain structures with waveshaper saturation
 		float saturation = 1.0;
-		if (parameters.ampGainStyle == ampGainStructure::medium)
-			saturation = 2.0;
-		else if (parameters.ampGainStyle == ampGainStructure::high)
-			saturation = parameters.singleTriodePreamp ? 5.0 : 3.0;
+		if (parameters.ampGainStyle == ampGainStructure::high)
+			saturation = parameters.singleTriodePreamp ? 4.4 : 2.3;
 
 		// --- update
 		for (unsigned i = 0; i < PREAMP_TRIODES; i++)
@@ -1784,7 +1782,9 @@ public:
 
 		// --- input gain
 		if (parameters.volume1_010 == 0.0)
+		{
 			inputGain = 0.0;
+		}
 		else
 		{
 			inputGain = calcMappedVariableOnRange(0.0, 10.0,
