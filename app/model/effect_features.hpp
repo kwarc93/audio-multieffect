@@ -64,12 +64,14 @@ struct tuner_attr
 {
     struct controls
     {
+        bool mute; // Mute tuning mode: true - enabled, false - disabled
         unsigned a4_tuning; // Reference frequency for A4 in Hz, range: [410, 480]
         //enum class input_source {jack, mic} input; // Input source
     } ctrl;
 
     static constexpr controls default_ctrl
     {
+        false, // mute
         440 // a4_tuning
     };
 

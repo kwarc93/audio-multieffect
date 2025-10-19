@@ -55,6 +55,8 @@ lv_obj_t * ui_lbl_tuner_cents;
 lv_obj_t * ui_spinbox_tuner_a4;
 lv_obj_t * ui_btn_tuner_bypass;
 lv_obj_t * ui_lbl_btn_tuner_bypass;
+lv_obj_t * ui_btn_tuner_mute;
+lv_obj_t * ui_lbl_btn_tuner_mute;
 
 // SCREEN: ui_fx_tremolo
 lv_obj_t * ui_fx_tremolo;
@@ -378,6 +380,14 @@ void ui_event_btn_tuner_bypass(lv_event_t * e)
 
     if(event_code == LV_EVENT_CLICKED) {
         ui_tuner_bypass(e);
+    }
+}
+void ui_event_btn_tuner_mute(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_CLICKED) {
+        ui_tuner_mute(e);
     }
 }
 void ui_event_fx_tremolo(lv_event_t * e)

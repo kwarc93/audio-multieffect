@@ -25,6 +25,7 @@ public:
     const effect_specific_attr get_specific_attributes(void) const override;
 
     void set_a4_tuning(unsigned frequency);
+    void set_mute_mode(bool enabled);
 
     constexpr static unsigned decim_factor {4};
 private:
@@ -35,7 +36,6 @@ private:
     libs::adsp::averaging_filter ema;
     libs::adsp::pitch_detector<config::dsp_vector_size / decim_factor, 256> pitch_detector;
 
-    bool mute;
     float envelope;
     float detected_pitch;
     unsigned frame_counter;

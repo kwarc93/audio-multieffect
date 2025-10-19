@@ -27,6 +27,19 @@ void notify_effect_bypass_changed(lv_obj_t *obj, mfx::effect_id effect)
     view->notify(evt);
 }
 
+void notify_tuner_controls_changed(void)
+{
+    lv_obj_t *mute_btn = ui_btn_tuner_mute;
+
+    const mfx::tuner_attr::controls ctrl
+    {
+        lv_obj_has_state(mute_btn, LV_STATE_CHECKED),
+        mfx::tuner_attr::default_ctrl.a4_tuning // Changing tuning frequency is not supported yet
+    };
+
+    view->notify(events::effect_controls_changed {ctrl});
+}
+
 void notify_tremolo_controls_changed(void)
 {
     lv_obj_t *rate_knob = ui_arc_trem_rate;
@@ -354,6 +367,11 @@ void ui_settings_remove_preset(const char * name)
 void ui_tuner_bypass(lv_event_t * e)
 {
     notify_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::tuner);
+}
+
+void ui_tuner_mute(lv_event_t * e)
+{
+    notify_tuner_controls_changed();
 }
 
 void ui_tremolo_bypass(lv_event_t * e)

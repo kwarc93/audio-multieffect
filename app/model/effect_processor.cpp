@@ -291,6 +291,7 @@ void effect_processor::set_controls(const tuner_attr::controls &ctrl)
     if (tuner_effect == nullptr)
         return;
 
+    tuner_effect->set_mute_mode(ctrl.mute);
     tuner_effect->set_a4_tuning(ctrl.a4_tuning);
 }
 

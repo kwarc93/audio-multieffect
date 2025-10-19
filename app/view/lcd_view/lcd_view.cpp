@@ -290,6 +290,11 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const tuner_attr &speci
     else
         lv_obj_add_state(ui_btn_tuner_bypass, LV_STATE_CHECKED);
 
+    if (specific.ctrl.mute)
+        lv_obj_add_state(ui_btn_tuner_mute, LV_STATE_CHECKED);
+    else
+        lv_obj_clear_state(ui_btn_tuner_mute, LV_STATE_CHECKED);
+
     lv_label_set_text_fmt(ui_lbl_tuner_pitch, "%.1fHz", specific.out.pitch);
     lv_label_set_text_fmt(ui_lbl_tuner_cents, specific.out.cents == 0 ? "%dc" : "%+dc", specific.out.cents);
     lv_obj_set_x(ui_bar_tuner_cents_indicator, 195 + specific.out.cents * 2);

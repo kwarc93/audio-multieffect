@@ -34,15 +34,15 @@ public:
 
     constexpr size_t max_size() const
     {
-        return this->maximum_size;
+        return N;
     }
 
     bool push(const T &element)
     {
-        if (this->size() == this->maximum_size)
+        if (this->size() == N)
             return false;
 
-        this->elements[this->write_idx % this->maximum_size] = element;
+        this->elements[this->write_idx % N] = element;
         this->write_idx++;
         return true;
     }
@@ -52,7 +52,7 @@ public:
         if (this->empty())
             return false;
 
-        element = this->elements[this->read_idx % this->maximum_size];
+        element = this->elements[this->read_idx % N];
         this->read_idx++;
         return true;
     }
@@ -61,7 +61,6 @@ private:
     /* When read_idx == write_idx queue is empty, so storage should be +1 size */
     size_t read_idx, write_idx;
     std::array<T, N + 1> elements;
-    static constexpr size_t maximum_size = N - 1;
 };
 
 }

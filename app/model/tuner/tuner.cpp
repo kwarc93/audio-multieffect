@@ -38,7 +38,6 @@ envf { libs::adsp::envelope_follower::mode::root_mean_square, envf_attack, envf_
 median {},
 ema { 0.15f, 1.0f / (config::sampling_frequency_hz / config::dsp_vector_size), 0.0f },
 pitch_detector { min_freq, max_freq, fs },
-mute { false },
 envelope { 0.0f },
 detected_pitch { 0.0f },
 frame_counter { 0 },
@@ -46,6 +45,7 @@ attr {}
 {
     const auto& def = tuner_attr::default_ctrl;
 
+    this->set_mute_mode(def.mute);
     this->set_a4_tuning(def.a4_tuning);
     this->hpf.calc_coeff(hpf_cutoff, fs);
 }
@@ -58,7 +58,7 @@ tuner::~tuner()
 void tuner::process(const dsp_input& in, dsp_output& out)
 {
     /* 1. Mute or pass through the signal to output */
-    if (this->mute)
+    if (this->attr.ctrl.mute)
         arm_fill_f32(0, out.data(), out.size());
     else
         arm_copy_f32((float*)in.data(), out.data(), out.size());
@@ -133,5 +133,10 @@ void tuner::set_a4_tuning(unsigned frequency)
         return;
 
     this->attr.ctrl.a4_tuning = frequency;
+}
+
+void tuner::set_mute_mode(bool enabled)
+{
+    this->attr.ctrl.mute = enabled;
 }
 

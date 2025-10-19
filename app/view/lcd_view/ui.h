@@ -83,6 +83,9 @@ extern lv_obj_t * ui_spinbox_tuner_a4;
 void ui_event_btn_tuner_bypass(lv_event_t * e);
 extern lv_obj_t * ui_btn_tuner_bypass;
 extern lv_obj_t * ui_lbl_btn_tuner_bypass;
+void ui_event_btn_tuner_mute(lv_event_t * e);
+extern lv_obj_t * ui_btn_tuner_mute;
+extern lv_obj_t * ui_lbl_btn_tuner_mute;
 // SCREEN: ui_fx_tremolo
 void ui_fx_tremolo_screen_init(void);
 void ui_event_fx_tremolo(lv_event_t * e);

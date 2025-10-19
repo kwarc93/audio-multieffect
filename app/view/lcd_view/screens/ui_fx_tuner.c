@@ -160,8 +160,31 @@ void ui_fx_tuner_screen_init(void)
     lv_obj_set_style_text_align(ui_lbl_tuner_a4_tuning, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_lbl_tuner_a4_tuning, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+    ui_btn_tuner_mute = lv_imgbtn_create(ui_fx_tuner);
+    lv_imgbtn_set_src(ui_btn_tuner_mute, LV_IMGBTN_STATE_RELEASED, NULL, &ui_img_btn_1_inact_png, NULL);
+    lv_imgbtn_set_src(ui_btn_tuner_mute, LV_IMGBTN_STATE_PRESSED, NULL, &ui_img_btn_1_act_png, NULL);
+    lv_imgbtn_set_src(ui_btn_tuner_mute, LV_IMGBTN_STATE_DISABLED, NULL, &ui_img_btn_1_inact_png, NULL);
+    lv_imgbtn_set_src(ui_btn_tuner_mute, LV_IMGBTN_STATE_CHECKED_PRESSED, NULL, &ui_img_btn_1_act_png, NULL);
+    lv_imgbtn_set_src(ui_btn_tuner_mute, LV_IMGBTN_STATE_CHECKED_RELEASED, NULL, &ui_img_btn_1_act_png, NULL);
+    lv_imgbtn_set_src(ui_btn_tuner_mute, LV_IMGBTN_STATE_CHECKED_DISABLED, NULL, &ui_img_btn_1_inact_png, NULL);
+    lv_obj_set_height(ui_btn_tuner_mute, 70);
+    lv_obj_set_width(ui_btn_tuner_mute, LV_SIZE_CONTENT);  /// 1
+    lv_obj_set_x(ui_btn_tuner_mute, 395 );
+    lv_obj_set_y(ui_btn_tuner_mute, 0 );
+    lv_obj_set_align(ui_btn_tuner_mute, LV_ALIGN_BOTTOM_LEFT );
+    lv_obj_add_flag(ui_btn_tuner_mute, LV_OBJ_FLAG_CHECKABLE );   /// Flags
+
+    ui_lbl_btn_tuner_mute = lv_label_create(ui_btn_tuner_mute);
+    lv_obj_set_width(ui_lbl_btn_tuner_mute, LV_SIZE_CONTENT);  /// 1
+    lv_obj_set_height(ui_lbl_btn_tuner_mute, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_align(ui_lbl_btn_tuner_mute, LV_ALIGN_CENTER );
+    lv_label_set_text(ui_lbl_btn_tuner_mute, "MUT");
+    lv_obj_set_style_text_color(ui_lbl_btn_tuner_mute, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT );
+    lv_obj_set_style_text_opa(ui_lbl_btn_tuner_mute, 255, LV_PART_MAIN| LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_lbl_btn_tuner_mute, &ui_font_14_bold, LV_PART_MAIN| LV_STATE_DEFAULT);
 
     lv_obj_add_event_cb(ui_btn_tuner_bypass, ui_event_btn_tuner_bypass, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_btn_tuner_mute, ui_event_btn_tuner_mute, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_fx_tuner, ui_event_fx_tuner, LV_EVENT_ALL, NULL);
 
 }
