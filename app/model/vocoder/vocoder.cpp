@@ -234,8 +234,8 @@ public:
         /* Squared envelope */
         arm_cmplx_mag_squared_f32(cenv_in + 2, cenv_out + 1, this->window_size / 2 - 1);
         arm_cmplx_mag_squared_f32(menv_in + 2, menv_out + 1, this->window_size / 2 - 1);
-        cenv_out[0] = cenv_in[1] * cenv_in[1]; // DC
-        menv_out[0] = menv_in[1] * menv_in[1]; // DC
+        cenv_out[0] = cenv_in[0] * cenv_in[0]; // DC
+        menv_out[0] = menv_in[0] * menv_in[0]; // DC
         std::swap(cenv_in, cenv_out);
         std::swap(menv_in, menv_out);
 
@@ -722,13 +722,11 @@ void vocoder::set_mode(vocoder_attr::controls::mode_type mode)
 
     if (mode == vocoder_attr::controls::mode_type::vintage)
     {
-        //this->attr.bands_list.resize(1);
         this->attr.bands_list.at(0) = this->vintage->bands;
         this->attr.bands_list.at(1) = 0;
     }
     else
     {
-        //this->attr.bands_list.resize(this->modern->bands_variants);
         for (unsigned i = 0; i < this->modern->bands_variants; i++)
             this->attr.bands_list.at(i) = (1U << (3U + i));
         this->attr.bands_list.at(this->modern->bands_variants) = 0;
@@ -742,7 +740,7 @@ void vocoder::set_mode(vocoder_attr::controls::mode_type mode)
 void vocoder::set_clarity(float clarity)
 {
     clarity = utils::lin_to_inv_log(clarity);
-    clarity = std::clamp(clarity, 0.0f, 0.9999f);
+    clarity = std::clamp(clarity, 0.0f, 1.0f);
 
     if (this->attr.ctrl.clarity == clarity)
         return;
