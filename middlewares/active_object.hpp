@@ -22,10 +22,10 @@ class active_object
 public:
     struct event
     {
-        T data;
-        uint32_t flags;
+        event(const T &data, uint32_t flags = 0) : flags {flags}, data {data} {}
         enum flags { immutable = 1 << 0, periodic = 1 << 1 };
-        event(const T &data, uint32_t flags = 0) : data {data}, flags {flags} {}
+        uint32_t flags;
+        T data;
     };
 
     active_object(const std::string_view &name, osPriority_t priority, size_t stack_size, uint32_t queue_size = 32)
@@ -159,17 +159,17 @@ private:
             {
                 this_->dispatch(*evt);
 
-                if (!((*evt).flags & event::immutable))
+                if (!(evt->flags & event::immutable))
                     delete evt;
             }
         }
     }
 
 
-    osMessageQueueId_t queue;
-    osMessageQueueAttr_t queue_attr = { 0 };
-    osThreadId_t thread;
-    osThreadAttr_t thread_attr = { 0 };
+    osMessageQueueId_t queue {};
+    osMessageQueueAttr_t queue_attr {};
+    osThreadId_t thread {};
+    osThreadAttr_t thread_attr {};
 };
 
 }
