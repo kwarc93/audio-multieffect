@@ -87,7 +87,8 @@ void effect_processor::event_handler(const events::configuration &e)
     this->audio.mute(e.output_muted);
 
     auto& usb = get_usb_audio();
-    if (e.usb_audio_if_enabled) usb.enable();
+    if (e.usb_audio_if_enabled)
+        usb.enable();
     this->usb_direct_mon = e.usb_direct_mon_enabled;
 }
 
@@ -148,7 +149,6 @@ void effect_processor::event_handler(const events::bypass_effect &e)
 
     if (effect)
         effect->bypass(e.bypassed);
-
 }
 
 void effect_processor::event_handler(const events::set_input_volume &e)
@@ -182,7 +182,7 @@ void effect_processor::event_handler(const events::set_mute &e)
 
 void effect_processor::event_handler(const events::enable_usb_audio_if &e)
 {
-    auto& usb = get_usb_audio();
+    auto &usb = get_usb_audio();
     e.value ? usb.enable() : usb.disable();
 }
 
@@ -196,14 +196,11 @@ void effect_processor::event_handler(const events::process_audio &e)
     const uint32_t cycles_start = hal::system::clock::cycles();
 
     /* Handle USB audio */
-    auto& usb = get_usb_audio();
+    auto &usb = get_usb_audio();
     const bool usb_enabled = usb.is_enabled();
     const bool mute_sample = !usb_enabled || this->usb_direct_mon;
     if (usb_enabled)
-    {
-        usb.read();
-        usb.write();
-    }
+        usb.process();
 
     /* Process effects */
     std::reference_wrapper<decltype(this->dsp_output)> current_output = this->dsp_output;
@@ -270,9 +267,7 @@ void effect_processor::event_handler(const events::get_effect_attributes &e)
 {
     auto effect = this->find_effect(e.id);
     if (effect)
-    {
         this->notify_effect_attributes_changed(effect);
-    }
 }
 
 void effect_processor::event_handler(const effect_processor_events::enumerate_effects_attributes &e)
@@ -386,11 +381,9 @@ void effect_processor::set_controls(const vocoder_attr::controls &ctrl)
     vocoder_effect->set_clarity(ctrl.clarity);
     vocoder_effect->set_bands(ctrl.bands);
 
+    /* Notify about change in internal structure of effect */
     if (current_mode != ctrl.mode)
-    {
-        /* Notify about change in internal structure of effect */
         this->notify_effect_attributes_changed(vocoder_effect);
-    }
 }
 
 void effect_processor::set_controls(const phaser_attr::controls &ctrl)

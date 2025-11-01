@@ -34,26 +34,28 @@ const uint32_t current_sample_rate = 48000;
  * - 1000 ms : device mounted
  * - 2500 ms : device is suspended
  */
-enum {
-  BLINK_STREAMING = 25,
-  BLINK_NOT_MOUNTED = 250,
-  BLINK_MOUNTED = 1000,
-  BLINK_SUSPENDED = 2500,
+enum
+{
+    BLINK_STREAMING = 25,
+    BLINK_NOT_MOUNTED = 250,
+    BLINK_MOUNTED = 1000,
+    BLINK_SUSPENDED = 2500,
 };
 
-enum {
-  VOLUME_CTRL_0_DB = 0,
-  VOLUME_CTRL_10_DB = 2560,
-  VOLUME_CTRL_20_DB = 5120,
-  VOLUME_CTRL_30_DB = 7680,
-  VOLUME_CTRL_40_DB = 10240,
-  VOLUME_CTRL_50_DB = 12800,
-  VOLUME_CTRL_60_DB = 15360,
-  VOLUME_CTRL_70_DB = 17920,
-  VOLUME_CTRL_80_DB = 20480,
-  VOLUME_CTRL_90_DB = 23040,
-  VOLUME_CTRL_100_DB = 25600,
-  VOLUME_CTRL_SILENCE = 0x8000,
+enum
+{
+    VOLUME_CTRL_0_DB = 0,
+    VOLUME_CTRL_10_DB = 2560,
+    VOLUME_CTRL_20_DB = 5120,
+    VOLUME_CTRL_30_DB = 7680,
+    VOLUME_CTRL_40_DB = 10240,
+    VOLUME_CTRL_50_DB = 12800,
+    VOLUME_CTRL_60_DB = 15360,
+    VOLUME_CTRL_70_DB = 17920,
+    VOLUME_CTRL_80_DB = 20480,
+    VOLUME_CTRL_90_DB = 23040,
+    VOLUME_CTRL_100_DB = 25600,
+    VOLUME_CTRL_SILENCE = 0x8000,
 };
 
 uint32_t blink_interval_ms = BLINK_NOT_MOUNTED;
@@ -155,7 +157,7 @@ static bool tud_audio_clock_get_request(uint8_t rhport, audio_control_request_t 
     }
     else if (request->bControlSelector == AUDIO_CS_CTRL_CLK_VALID && request->bRequest == AUDIO_CS_REQ_CUR)
     {
-        audio_control_cur_1_t cur_valid = { .bCur = 1 };
+        audio_control_cur_1_t cur_valid = { 1 };
         TU_LOG1("Clock get is valid %u\r\n", cur_valid.bCur);
         return tud_audio_buffer_and_schedule_control_xfer(rhport, (tusb_control_request_t const*) request, &cur_valid, sizeof(cur_valid));
     }
@@ -187,7 +189,7 @@ static bool tud_audio_feature_unit_get_request(uint8_t rhport, audio_control_req
 
     if (request->bControlSelector == AUDIO_FU_CTRL_MUTE && request->bRequest == AUDIO_CS_REQ_CUR)
     {
-        audio_control_cur_1_t mute1 = { .bCur = mute[request->bChannelNumber] };
+        audio_control_cur_1_t mute1 = { mute[request->bChannelNumber] };
         TU_LOG1("Get channel %u mute %d\r\n", request->bChannelNumber, mute1.bCur);
         return tud_audio_buffer_and_schedule_control_xfer(rhport, (tusb_control_request_t const*) request, &mute1, sizeof(mute1));
     }
@@ -203,7 +205,7 @@ static bool tud_audio_feature_unit_get_request(uint8_t rhport, audio_control_req
         }
         else if (request->bRequest == AUDIO_CS_REQ_CUR)
         {
-            audio_control_cur_2_t cur_vol = { .bCur = tu_htole16(volume[request->bChannelNumber]) };
+            audio_control_cur_2_t cur_vol = { tu_htole16(volume[request->bChannelNumber]) };
             TU_LOG1("Get channel %u volume %d dB\r\n", request->bChannelNumber, cur_vol.bCur / 256);
 
             return tud_audio_buffer_and_schedule_control_xfer(rhport, (tusb_control_request_t const*) request, &cur_vol, sizeof(cur_vol));
@@ -342,6 +344,7 @@ public:
 
     ~usb_audio()
     {
+        disable();
     }
 
     void enable(void)
@@ -382,24 +385,20 @@ public:
         return tusb_inited();
     }
 
-    bool write()
+    void process()
     {
-        if (!tud_audio_mounted()) return false;
+        if (!tud_audio_mounted())
+            return;
 
-        uint16_t bytes_to_write = audio_to_host.buffer.size() * sizeof(int32_t);
-        uint16_t bytes_written = tud_audio_write((uint8_t *)audio_to_host.buffer.data(), bytes_to_write);
-        return bytes_written == bytes_to_write;
-    }
-
-    bool read()
-    {
-        if (!tud_audio_mounted()) return false;
-
-        uint16_t bytes_to_read = audio_from_host.buffer.size() * sizeof(int32_t);
-        uint16_t bytes_read = tud_audio_read((uint8_t *)audio_from_host.buffer.data(), bytes_to_read);
+        const uint16_t bytes_to_read = audio_from_host.buffer.size() * sizeof(int32_t);
+        const uint16_t bytes_read = tud_audio_read((uint8_t *)audio_from_host.buffer.data(), bytes_to_read);
         /* If not enough data, fill remaining buffer with zeroes */
-        if (bytes_read < bytes_to_read) std::memset(((uint8_t*)audio_from_host.buffer.data()) + bytes_read, 0, bytes_to_read - bytes_read);
-        return bytes_to_read == bytes_read;
+        if (bytes_read < bytes_to_read)
+            std::memset(((uint8_t*)audio_from_host.buffer.data()) + bytes_read, 0, bytes_to_read - bytes_read);
+
+        const uint16_t bytes_to_write = audio_to_host.buffer.size() * sizeof(int32_t);
+        const uint16_t bytes_written = tud_audio_write((uint8_t *)audio_to_host.buffer.data(), bytes_to_write);
+        (void) bytes_written;
     }
 
     hal::interface::audio_buffer<int32_t, mfx::config::dsp_vector_size, 1, 24> audio_to_host;
