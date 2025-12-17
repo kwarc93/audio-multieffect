@@ -9,6 +9,7 @@
 #include <cstdio>
 #include <cerrno>
 #include <cassert>
+#include <sys/stat.h>
 
 #include <cmsis/stm32f7xx.h>
 #include <hal_system.hpp>
@@ -110,4 +111,63 @@ extern "C" int _read (int fd, char *buf, int cnt)
     return stdio.read(reinterpret_cast<std::byte*>(buf), cnt);
 }
 #endif /* HAL_SYSTEM_RTOS_ENABLED */
+
+//-----------------------------------------------------------------------------
+/* Additional syscall stubs required by newlib */
+
+extern "C"
+{
+
+void _exit(int status)
+{
+    while (1) { }
+}
+
+int _close(int file)
+{
+    return -1;
+}
+
+int _fstat(int file, struct stat *st)
+{
+    st->st_mode = S_IFCHR;
+    return 0;
+}
+
+int _isatty(int file)
+{
+    return 1;
+}
+
+int _lseek(int file, int ptr, int dir)
+{
+    return 0;
+}
+
+void *_sbrk(int incr)
+{
+    extern char end; /* Defined by the linker as 'end' */
+    static char *heap_end = nullptr;
+    char *prev_heap_end;
+
+    if (heap_end == nullptr)
+        heap_end = &end;
+
+    prev_heap_end = heap_end;
+    heap_end += incr;
+
+    return (void *)prev_heap_end;
+}
+
+int _kill(int pid, int sig)
+{
+    return -1;
+}
+
+int _getpid(void)
+{
+    return 1;
+}
+
+} // extern "C"
 

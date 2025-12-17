@@ -14,12 +14,10 @@ namespace hal::usbd /* USB Device */
 {
     inline void init_fs(void)
     {
-        drivers::usb::init(drivers::usb::usb_type::fs);
     }
 
     inline void init_hs(void)
     {
-        drivers::usb::init(drivers::usb::usb_type::hs);
     }
 }
 

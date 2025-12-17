@@ -32,6 +32,8 @@
 #include "app/model/vocoder/vocoder.hpp"
 #include "app/model/phaser/phaser.hpp"
 #include "app/model/amp_sim/amp_sim.hpp"
+#include "app/model/compressor/compressor.hpp"
+#include "app/model/arpeggiator/arpeggiator.hpp"
 
 using namespace mfx;
 namespace events = effect_processor_events;
@@ -85,10 +87,6 @@ void effect_processor::event_handler(const events::configuration &e)
     this->audio.set_output_volume(e.output_vol);
     this->audio.route_onboard_mic_to_aux(e.mic_routed_to_aux);
     this->audio.mute(e.output_muted);
-
-    auto& usb = get_usb_audio();
-    if (e.usb_audio_if_enabled)
-        usb.enable();
     this->usb_direct_mon = e.usb_direct_mon_enabled;
 }
 
@@ -182,8 +180,6 @@ void effect_processor::event_handler(const events::set_mute &e)
 
 void effect_processor::event_handler(const events::enable_usb_audio_if &e)
 {
-    auto &usb = get_usb_audio();
-    e.value ? usb.enable() : usb.disable();
 }
 
 void effect_processor::event_handler(const events::enable_usb_direct_mon &e)
@@ -195,12 +191,8 @@ void effect_processor::event_handler(const events::process_audio &e)
 {
     const uint32_t cycles_start = hal::system::clock::cycles();
 
-    /* Handle USB audio */
-    auto &usb = get_usb_audio();
-    const bool usb_enabled = usb.is_enabled();
+    const bool usb_enabled = false;
     const bool mute_sample = !usb_enabled || this->usb_direct_mon;
-    if (usb_enabled)
-        usb.process();
 
     /* Process effects */
     std::reference_wrapper<decltype(this->dsp_output)> current_output = this->dsp_output;
@@ -233,14 +225,10 @@ void effect_processor::event_handler(const events::process_audio &e)
         sample = current_output.get()[i] * scale;
         sample = std::clamp(sample, min, max) << 8;
 
-        /* Duplicate left channel to right channel & mix with received USB audio */
         const auto j = 2 * i;
         const auto out = sample * mute_sample;
-        this->audio_output.buffer[out_buf_idx + j] = out + usb.audio_from_host.buffer[j];
-        this->audio_output.buffer[out_buf_idx + j + 1] = out + usb.audio_from_host.buffer[j + 1];
-
-        /* Fill USB audio buffer */
-        usb.audio_to_host.buffer[i] = sample;
+        this->audio_output.buffer[out_buf_idx + j] = out;
+        this->audio_output.buffer[out_buf_idx + j + 1] = out;
     }
 
 #ifdef CORE_CM7
@@ -412,6 +400,34 @@ void effect_processor::set_controls(const amp_sim_attr::controls &ctrl)
     amp_sim_effect->set_tone_stack(ctrl.bass, ctrl.mids, ctrl.treb);
 }
 
+void effect_processor::set_controls(const compressor_attr::controls &ctrl)
+{
+    auto compressor_effect = static_cast<compressor*>(this->find_effect(effect_id::compressor));
+
+    if (compressor_effect == nullptr)
+        return;
+
+    compressor_effect->set_threshold(ctrl.threshold);
+    compressor_effect->set_ratio(ctrl.ratio);
+    compressor_effect->set_attack(ctrl.attack);
+    compressor_effect->set_release(ctrl.release);
+    compressor_effect->set_makeup_gain(ctrl.makeup_gain);
+    compressor_effect->set_knee(ctrl.knee);
+}
+
+void effect_processor::set_controls(const arpeggiator_attr::controls &ctrl)
+{
+    auto arpeggiator_effect = static_cast<arpeggiator*>(this->find_effect(effect_id::arpeggiator));
+
+    if (arpeggiator_effect == nullptr)
+        return;
+
+    arpeggiator_effect->set_rate(ctrl.rate);
+    arpeggiator_effect->set_pattern(ctrl.pattern);
+    arpeggiator_effect->set_mix(ctrl.mix);
+    arpeggiator_effect->set_steps(ctrl.steps);
+}
+
 void effect_processor::notify_effect_attributes_changed(const effect *e)
 {
     this->notify(events::effect_attributes_changed {e->get_basic_attributes(), e->get_specific_attributes()});
@@ -430,7 +446,9 @@ std::unique_ptr<effect> effect_processor::create_new(effect_id id)
         { effect_id::cabinet_sim,   []() { return std::make_unique<cabinet_sim>(); } },
         { effect_id::vocoder,       []() { return std::make_unique<vocoder>(); } },
         { effect_id::phaser,        []() { return std::make_unique<phaser>(); } },
-        { effect_id::amplifier_sim, []() { return std::make_unique<amp_sim>(); } }
+        { effect_id::amplifier_sim, []() { return std::make_unique<amp_sim>(); } },
+        { effect_id::compressor,    []() { return std::make_unique<compressor>(); } },
+        { effect_id::arpeggiator,   []() { return std::make_unique<arpeggiator>(); } }
     };
 
     std::unique_ptr<effect> e = effect_factory.at(id)();

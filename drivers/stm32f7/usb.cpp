@@ -27,12 +27,12 @@ void usb::init(usb_type type)
 
         NVIC_SetPriority(OTG_FS_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 6, 0 ));
 
-        /* Disable VBUS sense (B device) via pin PA9 */
-        USB_OTG_FS->GCCFG &= ~USB_OTG_GCCFG_VBDEN;
+        /* Enable VBUS sense (B device) via pin PA9 - this allows proper detection of USB connection */
+        USB_OTG_FS->GCCFG |= USB_OTG_GCCFG_VBDEN;
 
-        /* B-peripheral session valid override enable */
-        USB_OTG_FS->GOTGCTL |= USB_OTG_GOTGCTL_BVALOEN;
-        USB_OTG_FS->GOTGCTL |= USB_OTG_GOTGCTL_BVALOVAL;
+        /* Disable B-peripheral session valid override - let hardware detect VBUS properly */
+        USB_OTG_FS->GOTGCTL &= ~USB_OTG_GOTGCTL_BVALOEN;
+        USB_OTG_FS->GOTGCTL &= ~USB_OTG_GOTGCTL_BVALOVAL;
     }
     else /* USB HS */
     {
@@ -73,4 +73,54 @@ void usb::init(usb_type type)
         USB_OTG_HS->GOTGCTL |= USB_OTG_GOTGCTL_BVALOVAL;
     }
 }
+
+//-----------------------------------------------------------------------------
+/* TinyUSB DWC2 driver support functions */
+
+extern "C"
+{
+
+// Check if USB core is high speed
+bool dwc2_core_is_highspeed(void)
+{
+    return false; // STM32F746 only has Full Speed USB
+}
+
+// Initialize DWC2 core
+void dwc2_core_init(void)
+{
+    // Core initialization is handled by usb::init()
+}
+
+// Read packet from RX FIFO
+void dfifo_read_packet(uint8_t *buffer, uint16_t len)
+{
+    volatile uint32_t *fifo = (volatile uint32_t *)USB_OTG_FS_PERIPH_BASE + USB_OTG_FIFO_BASE / sizeof(uint32_t);
+    
+    for (uint16_t i = 0; i < (len + 3) / 4; i++)
+    {
+        uint32_t data = *fifo;
+        buffer[i * 4] = data & 0xFF;
+        if (i * 4 + 1 < len) buffer[i * 4 + 1] = (data >> 8) & 0xFF;
+        if (i * 4 + 2 < len) buffer[i * 4 + 2] = (data >> 16) & 0xFF;
+        if (i * 4 + 3 < len) buffer[i * 4 + 3] = (data >> 24) & 0xFF;
+    }
+}
+
+// Write packet to TX FIFO
+void dfifo_write_packet(uint8_t fifo_num, const uint8_t *buffer, uint16_t len)
+{
+    volatile uint32_t *fifo = (volatile uint32_t *)(USB_OTG_FS_PERIPH_BASE + USB_OTG_FIFO_BASE + fifo_num * USB_OTG_FIFO_SIZE);
+    
+    for (uint16_t i = 0; i < (len + 3) / 4; i++)
+    {
+        uint32_t data = buffer[i * 4];
+        if (i * 4 + 1 < len) data |= ((uint32_t)buffer[i * 4 + 1]) << 8;
+        if (i * 4 + 2 < len) data |= ((uint32_t)buffer[i * 4 + 2]) << 16;
+        if (i * 4 + 3 < len) data |= ((uint32_t)buffer[i * 4 + 3]) << 24;
+        *fifo = data;
+    }
+}
+
+} // extern "C"
 

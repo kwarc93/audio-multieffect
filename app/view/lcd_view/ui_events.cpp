@@ -223,6 +223,45 @@ void notify_amp_sim_controls_changed(void)
     view->notify(events::effect_controls_changed {ctrl});
 }
 
+void notify_compressor_controls_changed(void)
+{
+    lv_obj_t *threshold_knob = ui_arc_comp_threshold;
+    lv_obj_t *ratio_knob = ui_arc_comp_ratio;
+    lv_obj_t *attack_knob = ui_arc_comp_attack;
+    lv_obj_t *release_knob = ui_arc_comp_release;
+    lv_obj_t *makeup_knob = ui_arc_comp_makeup;
+    lv_obj_t *knee_knob = ui_arc_comp_knee;
+
+    const mfx::compressor_attr::controls ctrl
+    {
+        -60.0f + (static_cast<float>(lv_arc_get_value(threshold_knob)) * 0.6f), // Map 0-100 to -60-0
+        1.0f + (static_cast<float>(lv_arc_get_value(ratio_knob)) * 0.19f), // Map 0-100 to 1-20
+        0.1f + (static_cast<float>(lv_arc_get_value(attack_knob)) * 0.999f), // Map 0-100 to 0.1-100
+        10.0f + (static_cast<float>(lv_arc_get_value(release_knob)) * 9.9f), // Map 0-100 to 10-1000
+        static_cast<float>(lv_arc_get_value(makeup_knob)) * 0.3f, // Map 0-100 to 0-30
+        static_cast<float>(lv_arc_get_value(knee_knob)) * 0.12f // Map 0-100 to 0-12
+    };
+
+    view->notify(events::effect_controls_changed {ctrl});
+}
+
+void notify_arpeggiator_controls_changed(void)
+{
+    lv_obj_t *rate_knob = ui_arc_arp_rate;
+    lv_obj_t *pattern_roller = ui_dd_arp_pattern;
+    lv_obj_t *mix_knob = ui_arc_arp_mix;
+
+    const mfx::arpeggiator_attr::controls ctrl
+    {
+        60.0f + (static_cast<float>(lv_arc_get_value(rate_knob)) * 1.8f), // Map 0-100 to 60-240 BPM
+        static_cast<mfx::arpeggiator_attr::controls::pattern_type>(lv_roller_get_selected(pattern_roller)),
+        static_cast<float>(lv_arc_get_value(mix_knob)) * 0.01f,
+        mfx::arpeggiator_attr::default_ctrl.steps // Steps not adjustable in UI yet
+    };
+
+    view->notify(events::effect_controls_changed {ctrl});
+}
+
 }
 
 //-----------------------------------------------------------------------------
@@ -593,11 +632,66 @@ void ui_amp_sim_treb_changed(lv_event_t * e)
 {
     notify_amp_sim_controls_changed();
 }
-
 void ui_amp_sim_mode_changed(lv_event_t * e)
 {
     notify_amp_sim_controls_changed();
 }
+
+void ui_compressor_bypass(lv_event_t * e)
+{
+    notify_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::compressor);
+}
+
+void ui_compressor_threshold_changed(lv_event_t * e)
+{
+    notify_compressor_controls_changed();
+}
+
+void ui_compressor_ratio_changed(lv_event_t * e)
+{
+    notify_compressor_controls_changed();
+}
+
+void ui_compressor_attack_changed(lv_event_t * e)
+{
+    notify_compressor_controls_changed();
+}
+
+void ui_compressor_release_changed(lv_event_t * e)
+{
+    notify_compressor_controls_changed();
+}
+
+void ui_compressor_makeup_changed(lv_event_t * e)
+{
+    notify_compressor_controls_changed();
+}
+
+void ui_compressor_knee_changed(lv_event_t * e)
+{
+    notify_compressor_controls_changed();
+}
+
+void ui_arpeggiator_bypass(lv_event_t * e)
+{
+    notify_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::arpeggiator);
+}
+
+void ui_arpeggiator_rate_changed(lv_event_t * e)
+{
+    notify_arpeggiator_controls_changed();
+}
+
+void ui_arpeggiator_pattern_changed(lv_event_t * e)
+{
+    notify_arpeggiator_controls_changed();
+}
+
+void ui_arpeggiator_mix_changed(lv_event_t * e)
+{
+    notify_arpeggiator_controls_changed();
+}
+
 
 
 

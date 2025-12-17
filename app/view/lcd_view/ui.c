@@ -259,6 +259,57 @@ lv_obj_t * ui_lbl_amp_sim_mode_logain;
 lv_obj_t * ui_lbl_amp_sim_mode_higain;
 lv_obj_t * ui_btn_amp_sim_mid_knob;
 
+// SCREEN: ui_fx_arpeggiator
+lv_obj_t * ui_fx_arpeggiator;
+lv_obj_t * ui_pnl_arp_content;
+lv_obj_t * ui_lbl_arp_fx_name;
+lv_obj_t * ui_btn_arp_bypass;
+lv_obj_t * ui_lbl_btn_arp_bypass;
+lv_obj_t * ui_pnl_arp_controls;
+lv_obj_t * ui_pnl_arp_rate;
+lv_obj_t * ui_img_arp_rate;
+lv_obj_t * ui_arc_arp_rate;
+lv_obj_t * ui_lbl_arp_rate;
+lv_obj_t * ui_pnl_arp_pattern;
+lv_obj_t * ui_dd_arp_pattern;
+lv_obj_t * ui_lbl_arp_pattern;
+lv_obj_t * ui_pnl_arp_mix;
+lv_obj_t * ui_img_arp_mix;
+lv_obj_t * ui_arc_arp_mix;
+lv_obj_t * ui_lbl_arp_mix;
+
+// SCREEN: ui_fx_compressor
+lv_obj_t * ui_fx_compressor;
+lv_obj_t * ui_pnl_comp_content;
+lv_obj_t * ui_lbl_comp_fx_name;
+lv_obj_t * ui_btn_comp_bypass;
+lv_obj_t * ui_lbl_btn_comp_bypass;
+lv_obj_t * ui_pnl_comp_controls;
+lv_obj_t * ui_pnl_comp_threshold;
+lv_obj_t * ui_img_comp_threshold;
+lv_obj_t * ui_arc_comp_threshold;
+lv_obj_t * ui_lbl_comp_threshold;
+lv_obj_t * ui_pnl_comp_ratio;
+lv_obj_t * ui_img_comp_ratio;
+lv_obj_t * ui_arc_comp_ratio;
+lv_obj_t * ui_lbl_comp_ratio;
+lv_obj_t * ui_pnl_comp_attack;
+lv_obj_t * ui_img_comp_attack;
+lv_obj_t * ui_arc_comp_attack;
+lv_obj_t * ui_lbl_comp_attack;
+lv_obj_t * ui_pnl_comp_release;
+lv_obj_t * ui_img_comp_release;
+lv_obj_t * ui_arc_comp_release;
+lv_obj_t * ui_lbl_comp_release;
+lv_obj_t * ui_pnl_comp_makeup;
+lv_obj_t * ui_img_comp_makeup;
+lv_obj_t * ui_arc_comp_makeup;
+lv_obj_t * ui_lbl_comp_makeup;
+lv_obj_t * ui_pnl_comp_knee;
+lv_obj_t * ui_img_comp_knee;
+lv_obj_t * ui_arc_comp_knee;
+lv_obj_t * ui_lbl_comp_knee;
+
 ///////////////////// TEST LVGL SETTINGS ////////////////////
 #if LV_COLOR_DEPTH != 16
     #error "LV_COLOR_DEPTH should be 16bit to match SquareLine Studio's settings"
@@ -792,6 +843,102 @@ void ui_event_sw_amp_sim_mode(lv_event_t * e)
         ui_amp_sim_mode_changed(e);
         _ui_state_modify(ui_lbl_amp_sim_mode_logain, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
         _ui_state_modify(ui_lbl_amp_sim_mode_higain, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
+    }
+}
+void ui_event_fx_arpeggiator(lv_event_t * e)
+{
+    ui_screen_gesture_handler(e);
+}
+void ui_event_btn_arp_bypass(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_CLICKED) {
+        ui_arpeggiator_bypass(e);
+    }
+}
+void ui_event_arc_arp_rate(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_arpeggiator_rate_changed(e);
+    }
+}
+void ui_event_dd_arp_pattern(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_arpeggiator_pattern_changed(e);
+    }
+}
+void ui_event_arc_arp_mix(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_arpeggiator_mix_changed(e);
+    }
+}
+void ui_event_fx_compressor(lv_event_t * e)
+{
+    ui_screen_gesture_handler(e);
+}
+void ui_event_btn_comp_bypass(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_CLICKED) {
+        ui_compressor_bypass(e);
+    }
+}
+void ui_event_arc_comp_threshold(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_compressor_threshold_changed(e);
+    }
+}
+void ui_event_arc_comp_ratio(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_compressor_ratio_changed(e);
+    }
+}
+void ui_event_arc_comp_attack(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_compressor_attack_changed(e);
+    }
+}
+void ui_event_arc_comp_release(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_compressor_release_changed(e);
+    }
+}
+void ui_event_arc_comp_makeup(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_compressor_makeup_changed(e);
+    }
+}
+void ui_event_arc_comp_knee(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_compressor_knee_changed(e);
     }
 }
 

@@ -13,8 +13,6 @@
 #include <drivers/stm32f7/sai.hpp>
 #include <drivers/stm32f7/exti.hpp>
 
-extern "C" void tusb_int_handler(uint8_t rhport, bool in_isr);
-
 //-----------------------------------------------------------------------------
 /* Core interrupt handlers */
 
@@ -55,12 +53,10 @@ extern "C" void UsageFault_Handler(void)
 
 extern "C" void OTG_FS_IRQHandler(void)
 {
-    tusb_int_handler(0, true);
 }
 
 extern "C"  void OTG_HS_IRQHandler(void)
 {
-    tusb_int_handler(1, true);
 }
 
 extern "C" void USART1_IRQHandler(void)

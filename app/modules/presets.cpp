@@ -10,11 +10,21 @@
 #include "nlohmann/json.hpp"
 
 #include "presets.hpp"
+#include "app/model/effect_features.hpp"
 
 //-----------------------------------------------------------------------------
 /* helpers */
 
 using json = nlohmann::json;
+
+// JSON enum serialization macros
+NLOHMANN_JSON_SERIALIZE_ENUM(mfx::arpeggiator_attr::controls::pattern_type, {
+    {mfx::arpeggiator_attr::controls::pattern_type::up, "up"},
+    {mfx::arpeggiator_attr::controls::pattern_type::down, "down"},
+    {mfx::arpeggiator_attr::controls::pattern_type::updown, "updown"},
+    {mfx::arpeggiator_attr::controls::pattern_type::random, "random"},
+    {mfx::arpeggiator_attr::controls::pattern_type::octave, "octave"}
+})
 
 // JSON serializers/deserializers for effects
 namespace mfx
@@ -169,6 +179,38 @@ void to_json(json& j, const amp_sim_attr::controls& c)
     j = json{ {"input", c.input}, {"drive", c.drive}, {"compression", c.compression}, {"bass", c.bass}, {"mids", c.mids}, {"treb", c.treb}, {"mode", c.mode} };
 }
 
+// compressor
+void from_json(const json& j, compressor_attr::controls& c)
+{
+    const auto& def = compressor_attr::default_ctrl;
+    c.threshold = j.value("threshold", def.threshold);
+    c.ratio = j.value("ratio", def.ratio);
+    c.attack = j.value("attack", def.attack);
+    c.release = j.value("release", def.release);
+    c.makeup_gain = j.value("makeup_gain", def.makeup_gain);
+    c.knee = j.value("knee", def.knee);
+}
+
+void to_json(json& j, const compressor_attr::controls& c)
+{
+    j = json{ {"threshold", c.threshold}, {"ratio", c.ratio}, {"attack", c.attack}, {"release", c.release}, {"makeup_gain", c.makeup_gain}, {"knee", c.knee} };
+}
+
+// arpeggiator
+void from_json(const json& j, arpeggiator_attr::controls& c)
+{
+    const auto& def = arpeggiator_attr::default_ctrl;
+    c.rate = j.value("rate", def.rate);
+    c.pattern = j.value("pattern", def.pattern);
+    c.mix = j.value("mix", def.mix);
+    c.steps = j.value("steps", def.steps);
+}
+
+void to_json(json& j, const arpeggiator_attr::controls& c)
+{
+    j = json{ {"rate", c.rate}, {"pattern", c.pattern}, {"mix", c.mix}, {"steps", c.steps} };
+}
+
 std::optional<effect_controls> get_controls(effect_id id, const json& ctrl_json)
 {
     switch (id)
@@ -193,6 +235,10 @@ std::optional<effect_controls> get_controls(effect_id id, const json& ctrl_json)
             return ctrl_json.get<mfx::phaser_attr::controls>();
         case mfx::effect_id::amplifier_sim:
             return ctrl_json.get<mfx::amp_sim_attr::controls>();
+        case mfx::effect_id::compressor:
+            return ctrl_json.get<mfx::compressor_attr::controls>();
+        case mfx::effect_id::arpeggiator:
+            return ctrl_json.get<mfx::arpeggiator_attr::controls>();
         default:
             return std::nullopt;
     }

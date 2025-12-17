@@ -10,6 +10,7 @@
 
 #include <cstdio>
 #include <cassert>
+#include <algorithm>
 
 #include "libs/littlefs/lfs.h"
 

@@ -349,6 +349,10 @@ public:
 
     void enable(void)
     {
+        /* Don't re-enable if already enabled */
+        if (this->usb_thread != nullptr)
+            return;
+
         this->audio_from_host.buffer.fill(0);
         this->audio_to_host.buffer.fill(0);
 
@@ -369,14 +373,18 @@ public:
         osThreadAttr_t attr {};
         attr.name = "usb_thread";
         attr.stack_size = 4096;
-        attr.priority = osPriorityRealtime1;
-        this->usb_thread = osThreadNew([](void *arg){ while(1) { tud_task(); }; }, this, &attr);
+        attr.priority = osPriorityAboveNormal;  // Lower priority to avoid starving other tasks
+        this->usb_thread = osThreadNew([](void *arg){ while(1) { tud_task(); osDelay(1); }; }, this, &attr);
     }
 
     void disable(void)
     {
+        if (this->usb_thread == nullptr)
+            return;
+
         tud_deinit(BOARD_TUD_RHPORT);
         osThreadTerminate(this->usb_thread);
+        this->usb_thread = nullptr;
         this->audio_from_host.buffer.fill(0);
     }
 

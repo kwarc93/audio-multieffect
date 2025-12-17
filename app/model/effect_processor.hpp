@@ -241,6 +241,8 @@ private:
     void set_controls(const vocoder_attr::controls &ctrl);
     void set_controls(const phaser_attr::controls &ctrl);
     void set_controls(const amp_sim_attr::controls &ctrl);
+    void set_controls(const compressor_attr::controls &ctrl);
+    void set_controls(const arpeggiator_attr::controls &ctrl);
 
     void notify_effect_attributes_changed(const effect *eff);
 

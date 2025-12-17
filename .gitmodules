@@ -13,6 +13,6 @@
 [submodule "libs/cycfi/infra"]
 	path = libs/cycfi/infra
 	url = https://github.com/cycfi/infra.git
-[submodule "libs/tinyusb"]
-	path = libs/tinyusb
-	url = https://github.com/hathach/tinyusb.git
+[submodule "libs/CMSIS-DSP"]
+	path = libs/CMSIS-DSP
+	url = https://github.com/ARM-software/CMSIS-DSP.git

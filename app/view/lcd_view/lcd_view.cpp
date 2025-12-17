@@ -558,6 +558,41 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const amp_sim_attr &spe
     }
 }
 
+void lcd_view::set_effect_attr(const effect_attr &basic, const compressor_attr &specific)
+{
+    if (this->current_effect != effect_id::compressor)
+        return;
+
+    if (basic.bypassed)
+        lv_obj_clear_state(ui_btn_comp_bypass, LV_STATE_CHECKED);
+    else
+        lv_obj_add_state(ui_btn_comp_bypass, LV_STATE_CHECKED);
+
+    lv_arc_set_value(ui_arc_comp_threshold, utils::map_range<float>(-60, 0, lv_arc_get_min_value(ui_arc_comp_threshold), lv_arc_get_max_value(ui_arc_comp_threshold), specific.ctrl.threshold));
+    lv_arc_set_value(ui_arc_comp_ratio, utils::map_range<float>(1, 20, lv_arc_get_min_value(ui_arc_comp_ratio), lv_arc_get_max_value(ui_arc_comp_ratio), specific.ctrl.ratio));
+    lv_arc_set_value(ui_arc_comp_attack, utils::map_range<float>(0.1f, 100, lv_arc_get_min_value(ui_arc_comp_attack), lv_arc_get_max_value(ui_arc_comp_attack), specific.ctrl.attack));
+    lv_arc_set_value(ui_arc_comp_release, utils::map_range<float>(10, 1000, lv_arc_get_min_value(ui_arc_comp_release), lv_arc_get_max_value(ui_arc_comp_release), specific.ctrl.release));
+    lv_arc_set_value(ui_arc_comp_makeup, utils::map_range<float>(0, 30, lv_arc_get_min_value(ui_arc_comp_makeup), lv_arc_get_max_value(ui_arc_comp_makeup), specific.ctrl.makeup_gain));
+    lv_arc_set_value(ui_arc_comp_knee, utils::map_range<float>(0, 12, lv_arc_get_min_value(ui_arc_comp_knee), lv_arc_get_max_value(ui_arc_comp_knee), specific.ctrl.knee));
+}
+
+void lcd_view::set_effect_attr(const effect_attr &basic, const arpeggiator_attr &specific)
+{
+    if (this->current_effect != effect_id::arpeggiator)
+        return;
+
+    if (basic.bypassed)
+        lv_obj_clear_state(ui_btn_arp_bypass, LV_STATE_CHECKED);
+    else
+        lv_obj_add_state(ui_btn_arp_bypass, LV_STATE_CHECKED);
+
+    lv_arc_set_value(ui_arc_arp_rate, utils::map_range<float>(60, 240, lv_arc_get_min_value(ui_arc_arp_rate), lv_arc_get_max_value(ui_arc_arp_rate), specific.ctrl.rate));
+    lv_arc_set_value(ui_arc_arp_mix, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_arp_mix), lv_arc_get_max_value(ui_arc_arp_mix), specific.ctrl.mix));
+    
+    // Set roller pattern selection
+    lv_roller_set_selected(ui_dd_arp_pattern, static_cast<uint16_t>(specific.ctrl.pattern), LV_ANIM_OFF);
+}
+
 void lcd_view::change_effect_screen(effect_id id, int dir)
 {
     lv_obj_t *new_screen = nullptr;
@@ -603,6 +638,14 @@ void lcd_view::change_effect_screen(effect_id id, int dir)
     case effect_id::amplifier_sim:
         ui_fx_amp_sim_screen_init();
         new_screen = ui_fx_amp_sim;
+        break;
+    case effect_id::compressor:
+        ui_fx_compressor_screen_init();
+        new_screen = ui_fx_compressor;
+        break;
+    case effect_id::arpeggiator:
+        ui_fx_arpeggiator_screen_init();
+        new_screen = ui_fx_arpeggiator;
         break;
     default:
         return;

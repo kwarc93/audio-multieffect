@@ -28,6 +28,8 @@ enum class effect_id : uint8_t
     vocoder,
     phaser,
     amplifier_sim,
+    compressor,
+    arpeggiator,
 
     _count // Indicates total number of effects
 };
@@ -43,7 +45,9 @@ constexpr inline std::array<const char*, static_cast<uint8_t>(effect_id::_count)
     "Cabinet simulator",
     "Vocoder",
     "Phaser",
-    "Amplifier simulator"
+    "Amplifier simulator",
+    "Compressor",
+    "Arpeggiator"
 }};
 
 //-----------------------------------------------------------------------------
@@ -263,6 +267,53 @@ struct amp_sim_attr
     };
 };
 
+struct compressor_attr
+{
+    struct controls
+    {
+        float threshold; // Threshold in dB, range: [-60, 0]
+        float ratio; // Compression ratio, range: [1, 20]
+        float attack; // Attack time in ms, range: [0.1, 100]
+        float release; // Release time in ms, range: [10, 1000]
+        float makeup_gain; // Makeup gain in dB, range: [0, 30]
+        float knee; // Knee width in dB, range: [0, 12]
+    } ctrl;
+
+    static constexpr controls default_ctrl
+    {
+        -20.0f, // threshold
+        4.0f, // ratio
+        10.0f, // attack
+        100.0f, // release
+        6.0f, // makeup_gain
+        6.0f // knee
+    };
+
+    struct outputs
+    {
+        float gain_reduction; // Current gain reduction in dB
+    } out;
+};
+
+struct arpeggiator_attr
+{
+    struct controls
+    {
+        float rate; // Arpeggiator rate in BPM, range: [60, 240]
+        enum class pattern_type {up, down, updown, random, octave} pattern; // Arpeggiator pattern
+        float mix; // Wet/dry mix, range: [0, 1.0]
+        uint8_t steps; // Number of steps in pattern, range: [4, 16]
+    } ctrl;
+
+    static constexpr controls default_ctrl
+    {
+        120.0f, // rate
+        controls::pattern_type::up, // pattern
+        0.5f, // mix
+        8 // steps
+    };
+};
+
 typedef std::variant
 <
     tuner_attr,
@@ -274,7 +325,9 @@ typedef std::variant
     cabinet_sim_attr,
     vocoder_attr,
     phaser_attr,
-    amp_sim_attr
+    amp_sim_attr,
+    compressor_attr,
+    arpeggiator_attr
 > effect_specific_attr;
 
 typedef std::variant
@@ -288,7 +341,9 @@ typedef std::variant
     cabinet_sim_attr::controls,
     vocoder_attr::controls,
     phaser_attr::controls,
-    amp_sim_attr::controls
+    amp_sim_attr::controls,
+    compressor_attr::controls,
+    arpeggiator_attr::controls
 > effect_controls;
 
 }
