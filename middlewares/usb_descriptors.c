@@ -74,7 +74,7 @@ uint8_t const * tud_descriptor_device_cb(void)
 // Configuration Descriptor
 //-----------------------------------------------------------------------------
 
-#define CONFIG_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_AUDIO_GMFX_INTERFACE_DESC_LEN)
+#define CONFIG_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_AUDIO20_GMFX_INTERFACE_DESC_LEN)
 
 #define EPNUM_AUDIO_IN    0x01
 #define EPNUM_AUDIO_OUT   0x01
@@ -86,7 +86,7 @@ uint8_t const desc_configuration[] =
     TUD_CONFIG_DESCRIPTOR(1, ITF_NUM_TOTAL, 0, CONFIG_TOTAL_LEN, 0x00, 250),
 
     // Interface number, string index, EP Out & EP In address, Feedback EP % FB EP size
-    TUD_AUDIO_GMFX_INTERFACE_DESCRIPTOR(2, EPNUM_AUDIO_OUT, EPNUM_AUDIO_IN | 0x80, EPNUM_AUDIO_FB | 0x80, 4)
+    TUD_AUDIO20_GMFX_INTERFACE_DESCRIPTOR(2, EPNUM_AUDIO_OUT, EPNUM_AUDIO_IN | 0x80, EPNUM_AUDIO_FB | 0x80, 4)
 };
 
 // Invoked when received GET CONFIGURATION DESCRIPTOR
