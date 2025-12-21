@@ -52,40 +52,21 @@ enum tusb_volume_ctrl
 
 struct tusb_context
 {
-    static constexpr uint32_t current_sample_rate {static_cast<uint32_t>(std::round(mfx::config::sampling_frequency_hz / 1000.0f) * 1000)};
-    static constexpr std::array<uint32_t, 1> sample_rates {current_sample_rate};
     uint32_t usb_status;
     std::array<int8_t, CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX + 1> mute;    // +1 for master channel 0
     std::array<int16_t, CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX + 1> volume; // +1 for master channel 0
+
+    static constexpr uint32_t current_sample_rate {static_cast<uint32_t>(std::round(mfx::config::sampling_frequency_hz / 1000.0f) * 1000)};
+    static constexpr std::array<uint32_t, 1> sample_rates {current_sample_rate};
 };
 
 tusb_context tusb;
 
 }
 
-//-----------------------------------------------------------------------------
-// TUSB Driver callbacks
-
 extern "C"
 {
 
-bool dwc2_dcache_clean(const void *addr, uint32_t data_size)
-{
-    SCB_CleanDCache_by_Addr((void*) addr, data_size);
-    return true;
-}
-
-bool dwc2_dcache_invalidate(const void *addr, uint32_t data_size)
-{
-    SCB_InvalidateDCache_by_Addr((void*) addr, data_size);
-    return true;
-}
-
-bool dwc2_dcache_clean_invalidate(const void *addr, uint32_t data_size)
-{
-    SCB_CleanInvalidateDCache_by_Addr((void*) addr, data_size);
-    return true;
-}
 //-----------------------------------------------------------------------------
 // TUSB Device callbacks
 

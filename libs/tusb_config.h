@@ -88,14 +88,6 @@ extern "C" {
 #define CFG_TUSB_MEM_ALIGN          __attribute__ ((aligned(4)))
 #endif
 
-#if CFG_TUD_MEM_DCACHE_ENABLE
-#include <stdint.h>
-#include <stdbool.h>
-bool dwc2_dcache_clean(const void* addr, uint32_t data_size);
-bool dwc2_dcache_invalidate(const void* addr, uint32_t data_size);
-bool dwc2_dcache_clean_invalidate(const void* addr, uint32_t data_size);
-#endif
-
 //-----------------------------------------------------------------------------
 // DEVICE CONFIGURATION
 //-----------------------------------------------------------------------------
