@@ -30,7 +30,7 @@
 extern "C" {
 #endif
 
-#include "middlewares/usb_descriptors.h"
+#include "middlewares/usb/usb_descriptors.h"
 
 //-----------------------------------------------------------------------------
 // Board Specific Configuration

@@ -1,15 +1,16 @@
 /*
- * usb_audio.hpp
+ * usb_audio.cpp
  *
- *  Created on: 8 wrz 2025
+ *  Created on: 21 gru 2025
  *      Author: kwarc
  */
 
-#ifndef USB_AUDIO_HPP_
-#define USB_AUDIO_HPP_
+#include "usb_audio.hpp"
 
-#include <hal_interface.hpp>
-#include <hal_audio.hpp>
+#include <cmath>
+#include <array>
+#include <cstring>
+
 #include <hal_usb.hpp>
 
 #include <cmsis_device.h> // For managing D-Cache & I-Cache
@@ -17,11 +18,15 @@
 #include "app/config.hpp"
 #include "cmsis_os2.h"
 #include "tusb.h"
+#include "usb_descriptors.h"
 
 namespace
 {
 
-enum
+//-----------------------------------------------------------------------------
+// TUSB types & definitions
+
+enum tusb_status
 {
     USB_STREAMING,
     USB_NOT_MOUNTED,
@@ -29,7 +34,7 @@ enum
     USB_SUSPENDED,
 };
 
-enum
+enum tusb_volume_ctrl
 {
     VOLUME_CTRL_0_DB = 0,
     VOLUME_CTRL_10_DB = 2560,
@@ -45,21 +50,25 @@ enum
     VOLUME_CTRL_SILENCE = 0x8000,
 };
 
-#define N_SAMPLE_RATES TU_ARRAY_SIZE(sample_rates)
+struct tusb_context
+{
+    static constexpr uint32_t current_sample_rate {static_cast<uint32_t>(std::round(mfx::config::sampling_frequency_hz / 1000.0f) * 1000)};
+    static constexpr std::array<uint32_t, 1> sample_rates {current_sample_rate};
+    uint32_t usb_status;
+    std::array<int8_t, CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX + 1> mute;    // +1 for master channel 0
+    std::array<int16_t, CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX + 1> volume; // +1 for master channel 0
+};
 
-const uint32_t sample_rates[] = {48000};
-const uint32_t current_sample_rate = 48000;
-uint32_t usb_status = USB_NOT_MOUNTED;
-int8_t mute[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX + 1];   // +1 for master channel 0
-int16_t volume[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX + 1];// +1 for master channel 0
+tusb_context tusb;
 
 }
 
+//-----------------------------------------------------------------------------
+// TUSB Driver callbacks
+
 extern "C"
 {
-//-----------------------------------------------------------------------------
-// Driver callbacks
-//-----------------------------------------------------------------------------
+
 bool dwc2_dcache_clean(const void *addr, uint32_t data_size)
 {
     SCB_CleanDCache_by_Addr((void*) addr, data_size);
@@ -78,39 +87,32 @@ bool dwc2_dcache_clean_invalidate(const void *addr, uint32_t data_size)
     return true;
 }
 //-----------------------------------------------------------------------------
-// Device callbacks
-//-----------------------------------------------------------------------------
+// TUSB Device callbacks
 
-// Invoked when device is mounted
 void tud_mount_cb(void)
 {
-    usb_status = USB_MOUNTED;
+    tusb.usb_status = USB_MOUNTED;
 }
 
-// Invoked when device is unmounted
 void tud_umount_cb(void)
 {
-    usb_status = USB_NOT_MOUNTED;
+    tusb.usb_status = USB_NOT_MOUNTED;
 }
 
-// Invoked when usb bus is suspended
-// remote_wakeup_en : if host allow us  to perform remote wakeup
-// Within 7ms, device must draw an average of current less than 2.5 mA from bus
 void tud_suspend_cb(bool remote_wakeup_en)
 {
     (void) remote_wakeup_en;
-    usb_status = USB_SUSPENDED;
+    tusb.usb_status = USB_SUSPENDED;
 }
 
-// Invoked when usb bus is resumed
 void tud_resume_cb(void)
 {
-    usb_status = tud_mounted() ? USB_MOUNTED : USB_NOT_MOUNTED;
+    tusb.usb_status = tud_mounted() ? USB_MOUNTED : USB_NOT_MOUNTED;
 }
 
 //-----------------------------------------------------------------------------
-// Application Callback API Implementations
-//-----------------------------------------------------------------------------
+// TUSB Application Callbacks
+
 
 // Helper for clock get requests
 static bool tud_audio_clock_get_request(uint8_t rhport, audio20_control_request_t const *request)
@@ -123,18 +125,18 @@ static bool tud_audio_clock_get_request(uint8_t rhport, audio20_control_request_
         {
             TU_LOG1("Clock get current freq %lu\r\n", current_sample_rate);
 
-            audio20_control_cur_4_t curf = { (int32_t) tu_htole32(current_sample_rate) };
+            audio20_control_cur_4_t curf = { (int32_t) tu_htole32(tusb.current_sample_rate) };
             return tud_audio_buffer_and_schedule_control_xfer(rhport, (tusb_control_request_t const*) request, &curf, sizeof(curf));
         }
         else if (request->bRequest == AUDIO20_CS_REQ_RANGE)
         {
-            audio20_control_range_4_n_t(N_SAMPLE_RATES) rangef = { tu_htole16(N_SAMPLE_RATES),{} };
+            audio20_control_range_4_n_t(tusb.sample_rates.size()) rangef = { tu_htole16(tusb.sample_rates.size()),{} };
             TU_LOG1("Clock get %d freq ranges\r\n", N_SAMPLE_RATES);
 
-            for (uint8_t i = 0; i < N_SAMPLE_RATES; i++)
+            for (uint8_t i = 0; i < tusb.sample_rates.size(); i++)
             {
-                rangef.subrange[i].bMin = (int32_t) sample_rates[i];
-                rangef.subrange[i].bMax = (int32_t) sample_rates[i];
+                rangef.subrange[i].bMin = (int32_t) tusb.sample_rates[i];
+                rangef.subrange[i].bMax = (int32_t) tusb.sample_rates[i];
                 rangef.subrange[i].bRes = 0;
 
                 TU_LOG1("Range %d (%d, %d, %d)\r\n", i, (int) rangef.subrange[i].bMin, (int) rangef.subrange[i].bMax, (int) rangef.subrange[i].bRes);
@@ -177,7 +179,7 @@ static bool tud_audio_feature_unit_get_request(uint8_t rhport, audio20_control_r
 
     if (request->bControlSelector == AUDIO20_FU_CTRL_MUTE && request->bRequest == AUDIO20_CS_REQ_CUR)
     {
-        audio20_control_cur_1_t mute1 = { mute[request->bChannelNumber] };
+        audio20_control_cur_1_t mute1 = { tusb.mute[request->bChannelNumber] };
         TU_LOG1("Get channel %u mute %d\r\n", request->bChannelNumber, mute1.bCur);
         return tud_audio_buffer_and_schedule_control_xfer(rhport, (tusb_control_request_t const*) request, &mute1, sizeof(mute1));
     }
@@ -193,7 +195,7 @@ static bool tud_audio_feature_unit_get_request(uint8_t rhport, audio20_control_r
         }
         else if (request->bRequest == AUDIO20_CS_REQ_CUR)
         {
-            audio20_control_cur_2_t cur_vol = { tu_htole16(volume[request->bChannelNumber]) };
+            audio20_control_cur_2_t cur_vol = { tu_htole16(tusb.volume[request->bChannelNumber]) };
             TU_LOG1("Get channel %u volume %d dB\r\n", request->bChannelNumber, cur_vol.bCur / 256);
 
             return tud_audio_buffer_and_schedule_control_xfer(rhport, (tusb_control_request_t const*) request, &cur_vol, sizeof(cur_vol));
@@ -218,7 +220,7 @@ static bool tud_audio_feature_unit_set_request(uint8_t rhport, audio20_control_r
     {
         TU_VERIFY(request->wLength == sizeof(audio20_control_cur_1_t));
 
-        mute[request->bChannelNumber] = ((audio20_control_cur_1_t const*)buf)->bCur;
+        tusb.mute[request->bChannelNumber] = ((audio20_control_cur_1_t const*)buf)->bCur;
 
         TU_LOG1("Set channel %d Mute: %d\r\n", request->bChannelNumber, mute[request->bChannelNumber]);
 
@@ -228,7 +230,7 @@ static bool tud_audio_feature_unit_set_request(uint8_t rhport, audio20_control_r
     {
         TU_VERIFY(request->wLength == sizeof(audio20_control_cur_2_t));
 
-        volume[request->bChannelNumber] = ((audio20_control_cur_2_t const*) buf)->bCur;
+        tusb.volume[request->bChannelNumber] = ((audio20_control_cur_2_t const*) buf)->bCur;
 
         TU_LOG1("Set channel %d volume: %d dB\r\n", request->bChannelNumber, volume[request->bChannelNumber] / 256);
 
@@ -283,7 +285,7 @@ bool tud_audio_set_itf_close_ep_cb(uint8_t rhport, tusb_control_request_t const 
     uint8_t const alt = tu_u16_low(tu_le16toh(p_request->wValue));
 
     if (ITF_NUM_AUDIO20_STREAMING_HPH == itf && alt == 0)
-        usb_status = USB_MOUNTED;
+        tusb.usb_status = USB_MOUNTED;
 
     return true;
 }
@@ -296,7 +298,7 @@ bool tud_audio_set_itf_cb(uint8_t rhport, tusb_control_request_t const *p_reques
 
     TU_LOG2("Set interface %d alt %d\r\n", itf, alt);
     if (ITF_NUM_AUDIO20_STREAMING_HPH == itf && alt != 0)
-        usb_status = USB_STREAMING;
+        tusb.usb_status = USB_STREAMING;
 
     return true;
 }
@@ -308,95 +310,88 @@ void tud_audio_feedback_params_cb(uint8_t func_id, uint8_t alt_itf, audio_feedba
 
     // Set feedback method to fifo counting
     feedback_param->method = AUDIO_FEEDBACK_METHOD_FIFO_COUNT;
-    feedback_param->sample_freq = current_sample_rate;
+    feedback_param->sample_freq = tusb.current_sample_rate;
 }
 
-}
+} // extern "C"
+
 
 namespace middlewares
 {
 
-class usb_audio
+usb_audio::usb_audio()
 {
-public:
-    usb_audio()
-    {
-        this->usb_thread = nullptr;
+    this->usb_thread = nullptr;
 
-        for (uint8_t i = 0; i <= CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX; i++)
-        {
-            mute[i] = 0;
-            volume[i] = VOLUME_CTRL_0_DB;
-        }
-    }
-
-    ~usb_audio()
-    {
-        disable();
-    }
-
-    void enable(void)
-    {
-        this->audio_from_host.buffer.fill(0);
-        this->audio_to_host.buffer.fill(0);
-
-#if BOARD_TUD_RHPORT == 0
-        hal::usbd::init_fs();
-#else
-        hal::usbd::init_hs();
-#endif
-
-        /* Init device stack on configured roothub port */
-        tusb_rhport_init_t dev_init =
-        {
-            .role = TUSB_ROLE_DEVICE,
-            .speed = TUSB_SPEED_AUTO
-        };
-        tusb_init(BOARD_TUD_RHPORT, &dev_init);
-
-        osThreadAttr_t attr {};
-        attr.name = "usb_thread";
-        attr.stack_size = 4096;
-        attr.priority = osPriorityRealtime1;
-        this->usb_thread = osThreadNew([](void *arg){ while(1) { tud_task(); }; }, this, &attr);
-    }
-
-    void disable(void)
-    {
-        tud_deinit(BOARD_TUD_RHPORT);
-        osThreadTerminate(this->usb_thread);
-        this->audio_from_host.buffer.fill(0);
-    }
-
-    bool is_enabled(void) const
-    {
-        return tusb_inited();
-    }
-
-    void process()
-    {
-        if (!tud_audio_mounted())
-            return;
-
-        const uint16_t bytes_to_read = audio_from_host.buffer.size() * sizeof(int32_t);
-        const uint16_t bytes_read = tud_audio_read(audio_from_host.buffer.data(), bytes_to_read);
-        /* If not enough data, fill remaining buffer with zeroes */
-        if (bytes_read < bytes_to_read)
-            std::memset(reinterpret_cast<uint8_t*>(audio_from_host.buffer.data()) + bytes_read, 0, bytes_to_read - bytes_read);
-
-        const uint16_t bytes_to_write = audio_to_host.buffer.size() * sizeof(int32_t);
-        const uint16_t bytes_written = tud_audio_write(audio_to_host.buffer.data(), bytes_to_write);
-        (void) bytes_written;
-    }
-
-    hal::interface::audio_buffer<int32_t, mfx::config::dsp_vector_size, 1, 24> audio_to_host;
-    hal::interface::audio_buffer<int32_t, mfx::config::dsp_vector_size, 2, 24> audio_from_host;
-
-private:
-    osThreadId_t usb_thread;
-};
-
+    tusb.usb_status = USB_NOT_MOUNTED;
+    tusb.mute.fill(0);
+    tusb.volume.fill(VOLUME_CTRL_0_DB);
 }
 
+usb_audio::~usb_audio()
+{
+    disable();
+}
 
-#endif /* USB_AUDIO_HPP_ */
+void usb_audio::enable(void)
+{
+    if (tusb_inited())
+        return;
+
+    this->audio_from_host.buffer.fill(0);
+    this->audio_to_host.buffer.fill(0);
+
+#if BOARD_TUD_RHPORT == 0
+    hal::usbd::init_fs();
+#else
+    hal::usbd::init_hs();
+#endif
+
+    /* Init device stack on configured roothub port */
+    tusb_rhport_init_t dev_init =
+    {
+        .role = TUSB_ROLE_DEVICE,
+        .speed = TUSB_SPEED_AUTO
+    };
+    tusb_init(BOARD_TUD_RHPORT, &dev_init);
+
+    osThreadAttr_t attr {};
+    attr.name = "usb_thread";
+    attr.stack_size = 4096;
+    attr.priority = osPriorityRealtime1;
+    this->usb_thread = osThreadNew([](void *arg){ while(1) { tud_task(); }; }, this, &attr);
+}
+
+void usb_audio::disable(void)
+{
+    if (!tusb_inited())
+        return;
+
+    tud_deinit(BOARD_TUD_RHPORT);
+    if (this->usb_thread)
+        osThreadTerminate(this->usb_thread);
+    this->audio_from_host.buffer.fill(0);
+}
+
+bool usb_audio::is_enabled(void) const
+{
+    return tusb_inited();
+}
+
+void usb_audio::process()
+{
+    if (!tud_audio_mounted())
+        return;
+
+    const uint16_t bytes_to_read = audio_from_host.buffer.size() * sizeof(int32_t);
+    const uint16_t bytes_read = tud_audio_read(audio_from_host.buffer.data(), bytes_to_read);
+    /* If not enough data, fill remaining buffer with zeroes */
+    if (bytes_read < bytes_to_read)
+        std::memset(reinterpret_cast<uint8_t*>(audio_from_host.buffer.data()) + bytes_read, 0, bytes_to_read - bytes_read);
+
+    const uint16_t bytes_to_write = audio_to_host.buffer.size() * sizeof(int32_t);
+    const uint16_t bytes_written = tud_audio_write(audio_to_host.buffer.data(), bytes_to_write);
+    (void) bytes_written;
+}
+
+} // namespace middlewares

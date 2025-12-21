@@ -18,7 +18,7 @@
 #include <hal_system.hpp>
 
 #include <middlewares/i2c_manager.hpp>
-#include <middlewares/usb_audio.hpp>
+#include <middlewares/usb/usb_audio.hpp>
 
 #include <cmsis_device.h> // For managing D-Cache & I-Cache
 

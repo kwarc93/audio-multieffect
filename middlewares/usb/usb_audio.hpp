@@ -1,0 +1,38 @@
+/*
+ * usb_audio.hpp
+ *
+ *  Created on: 8 wrz 2025
+ *      Author: kwarc
+ */
+
+#ifndef USB_AUDIO_HPP_
+#define USB_AUDIO_HPP_
+
+#include <hal_interface.hpp>
+#include "app/config.hpp"
+#include "cmsis_os2.h"
+
+namespace middlewares
+{
+
+class usb_audio
+{
+public:
+    usb_audio();
+    ~usb_audio();
+
+    void enable(void);
+    void disable(void);
+    bool is_enabled(void) const;
+    void process();
+
+    hal::interface::audio_buffer<int32_t, mfx::config::dsp_vector_size, 1, 24> audio_to_host;
+    hal::interface::audio_buffer<int32_t, mfx::config::dsp_vector_size, 2, 24> audio_from_host;
+
+private:
+    osThreadId_t usb_thread;
+};
+
+} // namespace middlewares
+
+#endif /* USB_AUDIO_HPP_ */
