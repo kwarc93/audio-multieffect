@@ -14,7 +14,7 @@
 
 #include <hal_lcd.hpp>
 
-#include <middlewares/active_object.hpp>
+#include <middlewares/actor.hpp>
 #include <middlewares/observer.hpp>
 
 #include "app/model/effect_features.hpp"
@@ -246,7 +246,7 @@ using incoming = std::variant
 
 }
 
-class lcd_view : public middlewares::active_object<lcd_view_events::incoming>,
+class lcd_view : public middlewares::actor<lcd_view_events::incoming>,
                  public middlewares::subject<lcd_view_events::outgoing>
 {
 public:

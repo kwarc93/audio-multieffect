@@ -460,7 +460,7 @@ controller::controller(std::unique_ptr<effect_processor_base> model,
                        std::unique_ptr<lcd_view> view,
                        std::unique_ptr<settings_manager> settings,
                        std::unique_ptr<presets_manager> presets) :
-active_object("controller", osPriorityNormal, 4096),
+actor("controller", osPriorityNormal, 4096),
 error_code{0},
 model {std::move(model)},
 view {std::move(view)},

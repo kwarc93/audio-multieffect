@@ -15,7 +15,7 @@
 #include <hal_led.hpp>
 #include <hal_button.hpp>
 
-#include <middlewares/active_object.hpp>
+#include <middlewares/actor.hpp>
 #include <middlewares/observer.hpp>
 
 #include "app/view/lcd_view/lcd_view.hpp"
@@ -68,7 +68,7 @@ using incoming = std::variant
 
 }
 
-class controller : public middlewares::active_object<controller_events::incoming>,
+class controller : public middlewares::actor<controller_events::incoming>,
                    public middlewares::observer<effect_processor_events::outgoing>,
                    public middlewares::observer<lcd_view_events::outgoing>
 {

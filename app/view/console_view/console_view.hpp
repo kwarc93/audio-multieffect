@@ -12,7 +12,7 @@
 #include <cstdint>
 #include <variant>
 
-#include <middlewares/active_object.hpp>
+#include <middlewares/actor.hpp>
 #include <middlewares/observer.hpp>
 
 #include <libs/fast_queue.hpp>
@@ -35,7 +35,7 @@ using outgoing = std::variant<std::monostate>;
 
 }
 
-class console_view : public middlewares::active_object<console_view_events::incoming>,
+class console_view : public middlewares::actor<console_view_events::incoming>,
                      public middlewares::subject<console_view_events::outgoing>
 {
 public:

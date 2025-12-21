@@ -1,12 +1,12 @@
 /*
- * active_object.hpp
+ * actor.hpp
  *
  *  Created on: 2 sty 2023
  *      Author: kwarc
  */
 
-#ifndef ACTIVE_OBJECT_HPP_
-#define ACTIVE_OBJECT_HPP_
+#ifndef ACTOR_HPP_
+#define ACTOR_HPP_
 
 #include "cmsis_os2.h"
 
@@ -17,7 +17,7 @@ namespace middlewares
 {
 
 template<typename T>
-class active_object
+class actor
 {
 public:
     struct event
@@ -28,7 +28,7 @@ public:
         T data;
     };
 
-    active_object(const std::string_view &name, osPriority_t priority, size_t stack_size, uint32_t queue_size = 32)
+    actor(const std::string_view &name, osPriority_t priority, size_t stack_size, uint32_t queue_size = 32)
     {
         /* Create queue of events */
         this->queue_attr.name = name.data();
@@ -41,11 +41,11 @@ public:
         this->thread_attr.priority = priority;
         this->thread_attr.stack_size = stack_size;
 
-        this->thread = osThreadNew(active_object::thread_loop, this, &this->thread_attr);
+        this->thread = osThreadNew(actor::thread_loop, this, &this->thread_attr);
         assert(this->thread != nullptr);
     }
 
-    virtual ~active_object()
+    virtual ~actor()
     {
         osStatus_t status;
 
@@ -86,8 +86,8 @@ public:
         {
             event evt;
             osTimerId_t timer;
-            active_object* target;
-            timer_context(const T &data, uint32_t flags, active_object *target, osTimerId_t timer) :
+            actor* target;
+            timer_context(const T &data, uint32_t flags, actor *target, osTimerId_t timer) :
             evt{data, flags}, timer{timer}, target{target} {}
         };
 
@@ -148,7 +148,7 @@ private:
 
     static void thread_loop(void *arg)
     {
-        active_object *this_ = static_cast<active_object*>(arg);
+        actor *this_ = static_cast<actor*>(arg);
 
         while (true)
         {
@@ -174,4 +174,4 @@ private:
 
 }
 
-#endif /* ACTIVE_OBJECT_HPP_ */
+#endif /* ACTOR_HPP_ */

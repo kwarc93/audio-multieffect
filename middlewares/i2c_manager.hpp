@@ -17,7 +17,7 @@
 
 #include "cmsis_os2.h"
 
-#include "active_object.hpp"
+#include "actor.hpp"
 
 namespace middlewares
 {
@@ -41,10 +41,10 @@ struct i2c_manager_event
     using holder = std::variant<schedule_transfer_evt_t, perform_transfer_evt_t>;
 };
 
-class i2c_manager : private i2c_manager_event, private active_object<i2c_manager_event::holder>, public hal::interface::i2c_proxy
+class i2c_manager : private i2c_manager_event, private actor<i2c_manager_event::holder>, public hal::interface::i2c_proxy
 {
 public:
-    i2c_manager(hal::interface::i2c &drv) : active_object("i2c_manager", osPriorityHigh, 1024), i2c_proxy(drv)
+    i2c_manager(hal::interface::i2c &drv) : actor("i2c_manager", osPriorityHigh, 1024), i2c_proxy(drv)
     {
 
     }

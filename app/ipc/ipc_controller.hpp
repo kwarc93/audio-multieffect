@@ -12,7 +12,7 @@
 #include <memory>
 #include <cassert>
 
-#include <middlewares/active_object.hpp>
+#include <middlewares/actor.hpp>
 #include <middlewares/observer.hpp>
 
 #include "app/model/effect_processor.hpp"
@@ -37,12 +37,12 @@ using incoming = std::variant
 
 }
 
-class ipc_controller : public middlewares::active_object<ipc_controller_events::incoming>,
+class ipc_controller : public middlewares::actor<ipc_controller_events::incoming>,
                        public middlewares::observer<effect_processor_events::outgoing>
 {
 public:
      ipc_controller(std::unique_ptr<effect_processor_base> model) :
-     active_object("ipc_ctrl", osPriorityNormal, 2048),
+     actor("ipc_ctrl", osPriorityNormal, 2048),
      model {std::move(model)}
      {
          const bool initialized = hal::ipc::init_cm7_to_cm4(

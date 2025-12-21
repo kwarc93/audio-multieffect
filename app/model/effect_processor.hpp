@@ -13,7 +13,7 @@
 #include <memory>
 #include <array>
 
-#include <middlewares/active_object.hpp>
+#include <middlewares/actor.hpp>
 #include <middlewares/observer.hpp>
 
 #include <hal_audio.hpp>
@@ -191,11 +191,11 @@ using outgoing = std::variant
 
 }
 
-class effect_processor_base : public middlewares::active_object<effect_processor_events::incoming>,
+class effect_processor_base : public middlewares::actor<effect_processor_events::incoming>,
                               public middlewares::subject<effect_processor_events::outgoing>
 {
 public:
-    effect_processor_base() : active_object("effect_processor", osPriorityRealtime, 4096) {}
+    effect_processor_base() : actor("effect_processor", osPriorityRealtime, 4096) {}
 private:
     virtual void dispatch(const event &e) {};
 };

@@ -55,7 +55,7 @@ void console_view::event_handler(const events::char_queue_not_empty &e)
 //-----------------------------------------------------------------------------
 /* public */
 
-console_view::console_view() : active_object("console_view", osPriorityNormal, 1024), stdio_serial { hal::usart::stdio::get_instance() }
+console_view::console_view() : actor("console_view", osPriorityNormal, 1024), stdio_serial { hal::usart::stdio::get_instance() }
 {
     /* Start listening for character */
     this->stdio_serial.listen(true);

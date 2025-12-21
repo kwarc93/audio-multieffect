@@ -36,7 +36,7 @@ static void init_thread(void *arg)
     /* Create preset manager */
     auto presets = std::make_unique<presets_manager>(std::make_unique<presets_storage_file>("presets"));
 
-    /* Create active objects */
+    /* Create actors */
     auto view = std::make_unique<mfx::lcd_view>();
     auto model = std::make_unique<mfx::ipc_effect_processor>();
     auto ctrl = std::make_unique<mfx::controller>(std::move(model), std::move(view), std::move(settings), std::move(presets));
@@ -48,7 +48,7 @@ static void init_thread(void *arg)
 #include "app/ipc/ipc_controller.hpp"
 static void init_thread(void *arg)
 {
-    /* Create active objects */
+    /* Create actors */
     auto model = std::make_unique<mfx::effect_processor>();
     auto ctrl = std::make_unique<mfx::ipc_controller>(std::move(model));
 
@@ -67,7 +67,7 @@ static void init_thread(void *arg)
     /* Create preset manager */
     auto presets = std::make_unique<presets_manager>(std::make_unique<presets_storage_file>("presets"));
 
-    /* Create active objects */
+    /* Create actors */
     auto view = std::make_unique<mfx::lcd_view>();
     auto model = std::make_unique<mfx::effect_processor>();
     auto ctrl = std::make_unique<mfx::controller>(std::move(model), std::move(view), std::move(settings), std::move(presets));
