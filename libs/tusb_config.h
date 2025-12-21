@@ -103,9 +103,6 @@ extern "C" {
 
 #define CFG_TUD_AUDIO_FUNC_1_DESC_LEN                                TUD_AUDIO_GMFX_INTERFACE_DESC_LEN
 
-// Enable if Full-Speed on OSX, also set feedback EP size to 3
-#define CFG_TUD_AUDIO_ENABLE_FEEDBACK_FORMAT_CORRECTION              0
-
 // Audio format type I specifications
 #define CFG_TUD_AUDIO_FUNC_1_MAX_SAMPLE_RATE                         48000
 
@@ -118,29 +115,20 @@ extern "C" {
 #define CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_RX                   4
 #define CFG_TUD_AUDIO_FUNC_1_RESOLUTION_RX                           24
 
-// EP and buffer size - for isochronous EP´s, the buffer and EP size are equal (different sizes would not make sense)
+// Enable input endpoint
 #define CFG_TUD_AUDIO_ENABLE_EP_IN                                   1
 
 #define CFG_TUD_AUDIO_FUNC_1_EP_IN_SZ_MAX        TUD_AUDIO_EP_SIZE(TUD_OPT_HIGH_SPEED, CFG_TUD_AUDIO_FUNC_1_MAX_SAMPLE_RATE, CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX, CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX)
-#define CFG_TUD_AUDIO_FUNC_1_EP_IN_SW_BUF_SZ     (TUD_OPT_HIGH_SPEED ? 48 : 6) * CFG_TUD_AUDIO_FUNC_1_EP_IN_SZ_MAX // It should be 8 times larger for HS device?
+#define CFG_TUD_AUDIO_FUNC_1_EP_IN_SW_BUF_SZ     (TUD_OPT_HIGH_SPEED ? 48 : 6) * CFG_TUD_AUDIO_FUNC_1_EP_IN_SZ_MAX // It should be 8 times larger for HS device
 
-// EP and buffer size - for isochronous EP´s, the buffer and EP size are equal (different sizes would not make sense)
+// Enable output endpoint
 #define CFG_TUD_AUDIO_ENABLE_EP_OUT                                  1
 
 #define CFG_TUD_AUDIO_FUNC_1_EP_OUT_SZ_MAX        TUD_AUDIO_EP_SIZE(TUD_OPT_HIGH_SPEED, CFG_TUD_AUDIO_FUNC_1_MAX_SAMPLE_RATE, CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_RX, CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX)
-#define CFG_TUD_AUDIO_FUNC_1_EP_OUT_SW_BUF_SZ     (TUD_OPT_HIGH_SPEED ? 48 : 6) * CFG_TUD_AUDIO_FUNC_1_EP_OUT_SZ_MAX // It should be 8 times larger for HS device?
+#define CFG_TUD_AUDIO_FUNC_1_EP_OUT_SW_BUF_SZ     (TUD_OPT_HIGH_SPEED ? 48 : 6) * CFG_TUD_AUDIO_FUNC_1_EP_OUT_SZ_MAX // It should be 8 times larger for HS device
 
-// Enable feedback EP
+// Enable feedback endpoint
 #define CFG_TUD_AUDIO_ENABLE_FEEDBACK_EP                             1
-
-// Number of Standard AS Interface Descriptors (4.9.1) defined per audio function
-// This is required to be able to remember the current alternate settings of these interfaces
-// We restrict us here to have a constant number for all audio functions
-// (which means this has to be the maximum number of AS interfaces an audio function has and a second audio function with less AS interfaces just wastes a few bytes)
-#define CFG_TUD_AUDIO_FUNC_1_N_AS_INT                                1
-
-// Size of control request buffer
-#define CFG_TUD_AUDIO_FUNC_1_CTRL_BUF_SZ                             64
 
 #ifdef __cplusplus
 }
