@@ -59,28 +59,28 @@ public:
     }
 
     template <typename E = event>
-    void send(E &&e, uint32_t timeout = osWaitForever)
+    void send(E &&evt, uint32_t timeout = osWaitForever)
     {
-        const event *evt = nullptr;
+        const event *e = nullptr;
 
-        if (e.flags & event::immutable)
+        if (evt.flags & event::immutable)
         {
             /* rvalue must not be passed with immutable, it would cause dangling pointer */
             assert(!std::is_rvalue_reference<E&&>::value);
-            evt = &e;
+            e = &evt;
         }
         else
         {
-            evt = new event(std::forward<E>(e));
+            e = new event(std::forward<E>(evt));
         }
 
-        assert(evt != nullptr);
+        assert(e != nullptr);
 
-        osStatus_t status = osMessageQueuePut(this->queue, &evt, 0, timeout);
+        osStatus_t status = osMessageQueuePut(this->queue, &e, 0, timeout);
         assert(status == osOK);
     }
 
-    osTimerId_t schedule(const event &e, uint32_t time, bool periodic)
+    osTimerId_t schedule(const event &evt, uint32_t time, bool periodic)
     {
         struct timer_context
         {
@@ -91,45 +91,33 @@ public:
             evt{data, flags}, timer{timer}, target{target} {}
         };
 
-        auto *timer_arg = new timer_context(e.data, (periodic ? event::immutable | event::periodic : 0), this, nullptr);
-        assert(timer_arg != nullptr);
+        auto *timer_ctx = new timer_context(evt.data, (periodic ? event::immutable | event::periodic : 0), this, nullptr);
+        assert(timer_ctx != nullptr);
 
         auto timer_cb = [](void *arg)
-                          {
-                              timer_context *ctx = static_cast<timer_context*>(arg);
-                              ctx->target->send(ctx->evt);
-                              if (!(ctx->evt.flags & event::periodic))
-                              {
-                                  /* Delete one-shot timer and its argument */
-                                  osStatus_t status = osTimerDelete(ctx->timer);
-                                  assert(status == osOK);
-                                  delete ctx;
-                              }
-                          };
+        {
+            timer_context *ctx = static_cast<timer_context*>(arg);
 
-        auto timer = osTimerNew(timer_cb, periodic ? osTimerPeriodic : osTimerOnce, timer_arg, NULL);
+            ctx->target->send(ctx->evt);
+
+            if (ctx->evt.flags & event::periodic)
+                return;
+
+            /* Delete one-shot timer and its argument */
+            osStatus_t status = osTimerDelete(ctx->timer);
+            assert(status == osOK);
+            delete ctx;
+        };
+
+        auto timer = osTimerNew(timer_cb, periodic ? osTimerPeriodic : osTimerOnce, timer_ctx, nullptr);
         assert(timer != nullptr);
 
-        timer_arg->timer = timer;
+        timer_ctx->timer = timer;
 
         osStatus_t status = osTimerStart(timer, time);
         assert(status == osOK);
 
         return timer;
-    }
-
-    void cancel(osTimerId_t timer)
-    {
-        osStatus_t status = osTimerStop(timer);
-        assert(status == osOK);
-
-        while (osTimerIsRunning(timer))
-            osThreadYield();
-
-        delete osTimerGetArgument(timer);
-
-        status = osTimerDelete(timer);
-        assert(status == osOK);
     }
 
 protected:
@@ -144,7 +132,7 @@ protected:
     }
 
 private:
-    virtual void dispatch(const event &e) = 0;
+    virtual void dispatch(const event &evt) = 0;
 
     static void thread_loop(void *arg)
     {
