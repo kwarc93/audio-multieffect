@@ -14,7 +14,8 @@
 #include <hal_system.hpp>
 #include <hal_usart.hpp>
 
-#include "cmsis_os2.h"
+#include "FreeRTOS.h"
+#include "semphr.h"
 
 uint32_t SystemCoreClock = 16000000;
 
@@ -44,23 +45,16 @@ extern "C" void system_init(void)
 /* syscalls */
 
 #ifdef HAL_SYSTEM_RTOS_ENABLED
-static osMutexId_t stdio_mutex_id = NULL;
-static const osMutexAttr_t stdio_mutex_attr =
-{
-    "stdio_mutex",                            // human readable mutex name
-    osMutexRecursive | osMutexPrioInherit,    // attr_bits
-    NULL,                                     // memory for control block
-    0U                                        // size for control block
-};
+static SemaphoreHandle_t stdio_mutex_id = NULL;
 
 extern "C" ssize_t _write_r(struct _reent *ptr, int fd, const void *buf, size_t cnt)
 {
     /* If doesnt exist, create mutex for stdio USART */
-    stdio_mutex_id = (stdio_mutex_id == NULL) ? osMutexNew(&stdio_mutex_attr) : stdio_mutex_id;
+    stdio_mutex_id = (stdio_mutex_id == NULL) ? xSemaphoreCreateRecursiveMutex() : stdio_mutex_id;
     assert(stdio_mutex_id != NULL);
 
     size_t ret = 0;
-    if (osMutexAcquire(stdio_mutex_id, osWaitForever) == osOK)
+    if (xSemaphoreTake(stdio_mutex_id, portMAX_DELAY) == pdTRUE)
     {
         auto &stdio = hal::usart::stdio::get_instance();
         ret = stdio.write(reinterpret_cast<const std::byte*>(buf), cnt);
@@ -71,18 +65,18 @@ extern "C" ssize_t _write_r(struct _reent *ptr, int fd, const void *buf, size_t 
         ptr->_errno = EBUSY;
     }
 
-    osMutexRelease(stdio_mutex_id);
+    xSemaphoreGive(stdio_mutex_id);
     return ret;
 }
 
 extern "C" ssize_t _read_r(struct _reent *ptr, int fd, void *buf, size_t cnt)
 {
     /* If doesnt exist, create mutex for stdio USART */
-    stdio_mutex_id = (stdio_mutex_id == NULL) ? osMutexNew(&stdio_mutex_attr) : stdio_mutex_id;
+    stdio_mutex_id = (stdio_mutex_id == NULL) ? xSemaphoreCreateRecursiveMutex() : stdio_mutex_id;
     assert(stdio_mutex_id != NULL);
 
     size_t ret = 0;
-    if (osMutexAcquire(stdio_mutex_id, osWaitForever) == osOK)
+    if (xSemaphoreTake(stdio_mutex_id, portMAX_DELAY) == pdTRUE)
     {
         auto &stdio = hal::usart::stdio::get_instance();
         ret = stdio.read(reinterpret_cast<std::byte*>(buf), cnt);
@@ -93,7 +87,7 @@ extern "C" ssize_t _read_r(struct _reent *ptr, int fd, void *buf, size_t cnt)
         ptr->_errno = EBUSY;
     }
 
-    osMutexRelease(stdio_mutex_id);
+    xSemaphoreGive(stdio_mutex_id);
     return ret;
 }
 

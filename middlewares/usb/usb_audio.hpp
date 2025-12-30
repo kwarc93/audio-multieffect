@@ -10,7 +10,9 @@
 
 #include <hal_interface.hpp>
 #include "app/config.hpp"
-#include "cmsis_os2.h"
+
+#include "FreeRTOS.h"
+#include "task.h"
 
 namespace middlewares
 {
@@ -30,7 +32,7 @@ public:
     hal::interface::audio_buffer<int32_t, mfx::config::dsp_vector_size, 2, 24> audio_from_host;
 
 private:
-    osThreadId_t usb_thread;
+    TaskHandle_t usb_task;
 };
 
 } // namespace middlewares

@@ -29,7 +29,6 @@ lv_indev_drv_t lvgl_indev_drv;
 lv_disp_draw_buf_t lvgl_draw_buf;
 
 hal::displays::main::pixel_t *lvgl_ready_fb = NULL;
-constexpr uint32_t lvgl_wait_flag = 1 << 0;
 
 }
 
@@ -120,7 +119,7 @@ void lcd_view::event_handler(const events::initialize &e)
             {
                 display.set_frame_buffer(lvgl_ready_fb);
                 lv_disp_flush_ready(&lvgl_disp_drv);
-                this->set(lvgl_wait_flag);
+                this->signal();
                 lvgl_ready_fb = NULL;
             }
         });
@@ -137,7 +136,7 @@ void lcd_view::event_handler(const events::initialize &e)
         display.set_draw_callback([this]()
         {
             lv_disp_flush_ready(&lvgl_disp_drv);
-            this->set(lvgl_wait_flag);
+            this->signal();
         });
     }
 
@@ -150,7 +149,7 @@ void lcd_view::event_handler(const events::initialize &e)
     lvgl_disp_drv.wait_cb = [](lv_disp_drv_t * drv)
     {
         lcd_view *this_ = static_cast<lcd_view*>(drv->user_data);
-        this_->wait(lvgl_wait_flag, osWaitForever);
+        this_->wait();
     };
     lvgl_disp_drv.flush_cb = [](lv_disp_drv_t * drv, const lv_area_t * area, lv_color_t * color_p)
     {
@@ -625,7 +624,7 @@ void lcd_view::change_effect_screen(effect_id id, int dir)
 //-----------------------------------------------------------------------------
 /* public */
 
-lcd_view::lcd_view() : actor("lcd_view", osPriorityAboveNormal, 4096),
+lcd_view::lcd_view() : actor("lcd_view", configTASK_PRIO_ABOVE_NORMAL, 4096),
 display {middlewares::i2c_managers::main::get_instance()}
 {
     this->current_effect = effect_id::_count;

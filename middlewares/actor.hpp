@@ -8,7 +8,10 @@
 #ifndef ACTOR_HPP_
 #define ACTOR_HPP_
 
-#include "cmsis_os2.h"
+#include "FreeRTOS.h"
+#include "task.h"
+#include "queue.h"
+#include "timers.h"
 
 #include <string>
 #include <cassert>
@@ -28,38 +31,28 @@ public:
         T data;
     };
 
-    actor(const std::string_view &name, osPriority_t priority, size_t stack_size, uint32_t queue_size = 32)
+    actor(const std::string_view &name, uint32_t priority, size_t stack_size, uint32_t queue_size = 32)
     {
         /* Create queue of events */
-        this->queue_attr.name = name.data();
-
-        this->queue = osMessageQueueNew(queue_size, sizeof(event*), &this->queue_attr);
+        this->queue = xQueueCreate(queue_size, sizeof(event*));
         assert(this->queue != nullptr);
 
         /* Create worker thread */
-        this->thread_attr.name = name.data();
-        this->thread_attr.priority = priority;
-        this->thread_attr.stack_size = stack_size;
-
-        this->thread = osThreadNew(actor::thread_loop, this, &this->thread_attr);
-        assert(this->thread != nullptr);
+        auto result = xTaskCreate(actor::thread_loop, name.data(), stack_size / sizeof(StackType_t), this, priority, &this->task);
+        assert(result == pdPASS);
     }
 
     virtual ~actor()
     {
-        osStatus_t status;
-
-        status = osMessageQueueDelete(this->queue);
-        assert(status == osOK);
+        vQueueDelete(this->queue);
         this->queue = nullptr;
 
-        status = osThreadTerminate(this->thread);
-        assert(status == osOK);
-        this->thread = nullptr;
+        vTaskDelete(this->task);
+        this->task = nullptr;
     }
 
     template <typename E = event>
-    void send(E &&evt, uint32_t timeout = osWaitForever)
+    void send(E &&evt, uint32_t timeout = portMAX_DELAY)
     {
         const event *e = nullptr;
 
@@ -76,27 +69,38 @@ public:
 
         assert(e != nullptr);
 
-        osStatus_t status = osMessageQueuePut(this->queue, &e, 0, timeout);
-        assert(status == osOK);
+        auto status = pdFALSE;
+
+        if (xPortIsInsideInterrupt())
+        {
+            BaseType_t yield = pdFALSE;
+            status = xQueueSendToBackFromISR(this->queue, &e, &yield);
+            portYIELD_FROM_ISR(yield);
+        }
+        else
+        {
+            status = xQueueSendToBack(this->queue, &e, pdMS_TO_TICKS(timeout));
+        }
+
+        assert(status == pdTRUE);
     }
 
-    osTimerId_t schedule(const event &evt, uint32_t time, bool periodic)
+    void schedule(const event &evt, uint32_t time, bool periodic)
     {
         struct timer_context
         {
             event evt;
-            osTimerId_t timer;
             actor* target;
-            timer_context(const T &data, uint32_t flags, actor *target, osTimerId_t timer) :
-            evt{data, flags}, timer{timer}, target{target} {}
+            timer_context(const T &data, uint32_t flags, actor *target) :
+            evt{data, flags}, target{target} {}
         };
 
-        auto *timer_ctx = new timer_context(evt.data, (periodic ? event::immutable | event::periodic : 0), this, nullptr);
+        auto *timer_ctx = new timer_context(evt.data, (periodic ? event::immutable | event::periodic : 0), this);
         assert(timer_ctx != nullptr);
 
-        auto timer_cb = [](void *arg)
+        auto timer_cb = [](TimerHandle_t timer)
         {
-            timer_context *ctx = static_cast<timer_context*>(arg);
+            auto *ctx = static_cast<timer_context*>(pvTimerGetTimerID(timer));
 
             ctx->target->send(ctx->evt);
 
@@ -104,31 +108,41 @@ public:
                 return;
 
             /* Delete one-shot timer and its argument */
-            osStatus_t status = osTimerDelete(ctx->timer);
-            assert(status == osOK);
+            auto result = xTimerDelete(timer, 0);
+            assert(result == pdPASS);
             delete ctx;
         };
 
-        auto timer = osTimerNew(timer_cb, periodic ? osTimerPeriodic : osTimerOnce, timer_ctx, nullptr);
+        auto timer = xTimerCreate(nullptr, pdMS_TO_TICKS(time), periodic, this, timer_cb);
         assert(timer != nullptr);
 
-        timer_ctx->timer = timer;
-
-        osStatus_t status = osTimerStart(timer, time);
-        assert(status == osOK);
-
-        return timer;
+        auto result = xTimerStart(timer, 0);
+        assert(result == pdPASS);
     }
 
 protected:
-    bool wait(uint32_t flag, uint32_t timeout = osWaitForever)
+    bool wait(uint32_t timeout = portMAX_DELAY)
     {
-        return osThreadFlagsWait(flag, osFlagsWaitAny, osWaitForever) == flag;
+        if (xPortIsInsideInterrupt())
+            return false;
+
+        return ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(timeout)) > 0;
     }
 
-    void set(uint32_t flag, osThreadId_t thread_id = nullptr)
+    void signal(TaskHandle_t task_handle = nullptr)
     {
-        osThreadFlagsSet(thread_id ? thread_id : this->thread, flag);
+        task_handle = task_handle ? task_handle : this->task;
+
+        if (xPortIsInsideInterrupt())
+        {
+            BaseType_t yield = pdFALSE;
+            vTaskNotifyGiveFromISR(task_handle, &yield);
+            portYIELD_FROM_ISR(yield);
+        }
+        else
+        {
+            xTaskNotifyGive(task_handle);
+        }
     }
 
 private:
@@ -141,9 +155,8 @@ private:
         while (true)
         {
             event *evt = nullptr;
-            uint8_t evt_prio = 0;
 
-            if (osMessageQueueGet(this_->queue, &evt, &evt_prio, osWaitForever) == osOK)
+            if (xQueueReceive(this_->queue, &evt, portMAX_DELAY) == pdTRUE)
             {
                 this_->dispatch(*evt);
 
@@ -153,11 +166,8 @@ private:
         }
     }
 
-
-    osMessageQueueId_t queue {};
-    osMessageQueueAttr_t queue_attr {};
-    osThreadId_t thread {};
-    osThreadAttr_t thread_attr {};
+    QueueHandle_t queue {};
+    TaskHandle_t task {};
 };
 
 }

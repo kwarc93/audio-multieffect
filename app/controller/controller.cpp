@@ -158,7 +158,7 @@ void controller::event_handler(const events::button_state_changed &e)
         this->view->send({lcd_view_events::shutdown {}});
         this->model->send({effect_processor_events::shutdown {}});
 
-        osDelay(100);
+        vTaskDelay(100);
         hal::system::stop();
         hal::system::reset();
     }
@@ -192,7 +192,7 @@ void controller::view_event_handler(const lcd_view_events::factory_reset &e)
     this->view->send({lcd_view_events::shutdown {}});
     this->model->send({effect_processor_events::shutdown {}});
 
-    osDelay(100);
+    vTaskDelay(100);
     hal::system::reset();
 }
 
@@ -460,7 +460,7 @@ controller::controller(std::unique_ptr<effect_processor_base> model,
                        std::unique_ptr<lcd_view> view,
                        std::unique_ptr<settings_manager> settings,
                        std::unique_ptr<presets_manager> presets) :
-actor("controller", osPriorityNormal, 4096),
+actor("controller", configTASK_PRIO_NORMAL, 4096),
 error_code{0},
 model {std::move(model)},
 view {std::move(view)},

@@ -47,11 +47,11 @@
 extern uint32_t SystemCoreClock;
 
 #define configUSE_PREEMPTION                    1
-#define configUSE_PORT_OPTIMISED_TASK_SELECTION 0
+#define configUSE_PORT_OPTIMISED_TASK_SELECTION 1
 #define configUSE_TICKLESS_IDLE                 0
 #define configCPU_CLOCK_HZ                      (SystemCoreClock)
 #define configTICK_RATE_HZ                      1000
-#define configMAX_PRIORITIES                    56
+#define configMAX_PRIORITIES                    16
 #define configMINIMAL_STACK_SIZE                128
 #define configMAX_TASK_NAME_LEN                 16
 #define configUSE_16_BIT_TICKS                  0
@@ -70,10 +70,10 @@ extern uint32_t SystemCoreClock;
 #define configUSE_MINI_LIST_ITEM                1
 #define configSTACK_DEPTH_TYPE                  uint16_t
 #define configMESSAGE_BUFFER_LENGTH_TYPE        size_t
-#define configHEAP_CLEAR_MEMORY_ON_FREE         1
+#define configHEAP_CLEAR_MEMORY_ON_FREE         0
 
 /* Memory allocation related definitions. */
-#define configSUPPORT_STATIC_ALLOCATION         1
+#define configSUPPORT_STATIC_ALLOCATION         0
 #define configSUPPORT_DYNAMIC_ALLOCATION        1
 #define configTOTAL_HEAP_SIZE                   (32 * 1024)
 
@@ -164,12 +164,22 @@ See http://www.FreeRTOS.org/RTOS-Cortex-M3-M4.html. */
 standard names. */
 #define vPortSVCHandler SVC_Handler
 #define xPortPendSVHandler PendSV_Handler
-//#define xPortSysTickHandler SysTick_Handler
+#define xPortSysTickHandler SysTick_Handler
 
 #ifdef DUAL_CORE_APP
 void ipc_notify_core( void * xUpdatedMessageBuffer );
 #define sbSEND_COMPLETED( pxStreamBuffer ) ipc_notify_core( pxStreamBuffer )
 #endif /* DUAL_CORE_APP */
+
+/* Predefined task priorities */
+#define configTASK_PRIO_IDLE                    0    // Idle / background only
+#define configTASK_PRIO_BACKGROUND              1    // Logging, diagnostics
+#define configTASK_PRIO_LOW                     2    // Non-time-critical work
+#define configTASK_PRIO_NORMAL                  3    // Main application logic
+#define configTASK_PRIO_ABOVE_NORMAL            4    // Responsive tasks
+#define configTASK_PRIO_HIGH                    5    // Time-sensitive
+#define configTASK_PRIO_REALTIME                6    // Hard real-time
+#define configTASK_PRIO_CRITICAL                7    // Must run ASAP
 
 /* A header file that defines trace macro can be included here. */
 

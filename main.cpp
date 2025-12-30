@@ -11,8 +11,6 @@
 
 #include <hal_system.hpp>
 
-#include "cmsis_os2.h"
-
 #include "app/view/lcd_view/lcd_view.hpp"
 #include "app/model/effect_processor.hpp"
 #include "app/controller/controller.hpp"
@@ -72,7 +70,7 @@ static void init_thread(void *arg)
     auto model = std::make_unique<mfx::effect_processor>();
     auto ctrl = std::make_unique<mfx::controller>(std::move(model), std::move(view), std::move(settings), std::move(presets));
 
-    osThreadSuspend(osThreadGetId());
+    vTaskSuspend(xTaskGetCurrentTaskHandle());
 }
 #endif /* DUAL_CORE_APP */
 
@@ -83,18 +81,67 @@ int main(int argc, const char* argv[])
     printf("System started\r\n");
     printf("Software version: " GIT_REVISION "\r\n");
 
-    osKernelInitialize();
-    osThreadAttr_t attr {};
-    attr.name = "init_thread";
-    attr.stack_size = 2048;
-    osThreadNew(init_thread, NULL, &attr);
-    if (osKernelGetState() == osKernelReady)
-        osKernelStart();
+    auto result = xTaskCreate(init_thread, "init_thread", 2048 / sizeof(StackType_t), nullptr, configTASK_PRIO_BACKGROUND, nullptr);
+    assert(result == pdPASS);
+
+    vTaskStartScheduler();
 
     assert(!"OS kernel start error");
 
     while (1);
 
     return 0;
+}
+
+extern "C"
+{
+/* Callback function prototypes */
+extern void vApplicationIdleHook (void);
+extern void vApplicationMallocFailedHook (void);
+extern void vApplicationDaemonTaskStartupHook (void);
+
+/**
+  Dummy implementation of the callback function vApplicationIdleHook().
+*/
+#if (configUSE_IDLE_HOOK == 1)
+__WEAK void vApplicationIdleHook (void){ __WFI(); }
+#endif
+
+/**
+  Dummy implementation of the callback function vApplicationTickHook().
+*/
+#if (configUSE_TICK_HOOK == 1)
+ __WEAK void vApplicationTickHook (void){}
+#endif
+
+/**
+  Dummy implementation of the callback function vApplicationMallocFailedHook().
+*/
+#if (configUSE_MALLOC_FAILED_HOOK == 1)
+__WEAK void vApplicationMallocFailedHook (void) {
+  /* Assert when malloc failed hook is enabled but no application defined function exists */
+  configASSERT(0);
+}
+#endif
+
+/**
+  Dummy implementation of the callback function vApplicationDaemonTaskStartupHook().
+*/
+#if (configUSE_DAEMON_TASK_STARTUP_HOOK == 1)
+__WEAK void vApplicationDaemonTaskStartupHook (void){}
+#endif
+
+/**
+  Dummy implementation of the callback function vApplicationStackOverflowHook().
+*/
+#if (configCHECK_FOR_STACK_OVERFLOW > 0)
+__WEAK void vApplicationStackOverflowHook (TaskHandle_t xTask, char *pcTaskName) {
+  (void)xTask;
+  (void)pcTaskName;
+
+  /* Assert when stack overflow is enabled but no application defined function exists */
+  configASSERT(0);
+}
+#endif
 }
 

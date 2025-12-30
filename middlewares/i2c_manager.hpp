@@ -15,8 +15,6 @@
 #include <hal_interface.hpp>
 #include <hal_i2c.hpp>
 
-#include "cmsis_os2.h"
-
 #include "actor.hpp"
 
 namespace middlewares
@@ -35,7 +33,7 @@ struct i2c_manager_event
     struct perform_transfer_evt_t
     {
         hal::interface::i2c_proxy::transfer_desc &descriptor;
-        osThreadId_t caller_thread_id;
+        TaskHandle_t caller_task_id;
     };
 
     using holder = std::variant<schedule_transfer_evt_t, perform_transfer_evt_t>;
@@ -44,7 +42,7 @@ struct i2c_manager_event
 class i2c_manager : private i2c_manager_event, private actor<i2c_manager_event::holder>, public hal::interface::i2c_proxy
 {
 public:
-    i2c_manager(hal::interface::i2c &drv) : actor("i2c_manager", osPriorityHigh, 1024), i2c_proxy(drv)
+    i2c_manager(hal::interface::i2c &drv) : actor("i2c_manager", configTASK_PRIO_HIGH, 1024), i2c_proxy(drv)
     {
 
     }
@@ -56,7 +54,7 @@ public:
 
     void transfer(transfer_desc &descriptor) override
     {
-        const event e {perform_transfer_evt_t {descriptor, osThreadGetId()}, event::immutable};
+        const event e {perform_transfer_evt_t {descriptor, xTaskGetCurrentTaskHandle()}, event::immutable};
 
         auto bytes_to_write = descriptor.tx_size;
         auto bytes_to_read = descriptor.rx_size;
@@ -65,7 +63,7 @@ public:
 
         this->send(e);
 
-        bool transfer_done = this->wait(transfer_done_flag, osWaitForever);
+        bool transfer_done = this->wait();
         bool transfer_error = !transfer_done || (bytes_to_write != descriptor.tx_size) || (bytes_to_read != descriptor.rx_size);
 
         descriptor.stat = transfer_error ? transfer_desc::status::error : transfer_desc::status::ok;
@@ -87,8 +85,6 @@ public:
         this->send(std::move(e));
     }
 private:
-
-    static constexpr uint32_t transfer_done_flag = 1 << 0;
 
     void dispatch(const event &e) override
     {
@@ -130,7 +126,7 @@ private:
         this->driver.set_no_stop(false);
         e.descriptor.rx_size = this->driver.read(const_cast<std::byte*>(e.descriptor.rx_data), e.descriptor.rx_size);
 
-        this->set(transfer_done_flag, e.caller_thread_id);
+        this->signal(e.caller_task_id);
     }
 };
 

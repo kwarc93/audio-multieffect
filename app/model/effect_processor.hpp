@@ -195,7 +195,7 @@ class effect_processor_base : public middlewares::actor<effect_processor_events:
                               public middlewares::subject<effect_processor_events::outgoing>
 {
 public:
-    effect_processor_base() : actor("effect_processor", osPriorityRealtime, 4096) {}
+    effect_processor_base() : actor("effect_processor", configTASK_PRIO_REALTIME, 4096) {}
 private:
     virtual void dispatch(const event &e) {};
 };

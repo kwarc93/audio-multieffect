@@ -42,7 +42,7 @@ class ipc_controller : public middlewares::actor<ipc_controller_events::incoming
 {
 public:
      ipc_controller(std::unique_ptr<effect_processor_base> model) :
-     actor("ipc_ctrl", osPriorityNormal, 2048),
+     actor("ipc_ctrl", configTASK_PRIO_NORMAL, 2048),
      model {std::move(model)}
      {
          const bool initialized = hal::ipc::init_cm7_to_cm4(

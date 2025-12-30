@@ -16,7 +16,6 @@
 #include <cmsis_device.h> // For managing D-Cache & I-Cache
 
 #include "app/config.hpp"
-#include "cmsis_os2.h"
 #include "tusb.h"
 #include "usb_descriptors.h"
 
@@ -302,7 +301,7 @@ namespace middlewares
 
 usb_audio::usb_audio()
 {
-    this->usb_thread = nullptr;
+    this->usb_task = nullptr;
 
     tusb.usb_status = USB_NOT_MOUNTED;
     tusb.mute.fill(0);
@@ -336,11 +335,8 @@ void usb_audio::enable(void)
     };
     tusb_init(BOARD_TUD_RHPORT, &dev_init);
 
-    osThreadAttr_t attr {};
-    attr.name = "usb_thread";
-    attr.stack_size = 4096;
-    attr.priority = osPriorityRealtime1;
-    this->usb_thread = osThreadNew([](void *arg){ while(1) { tud_task(); }; }, this, &attr);
+    auto result = xTaskCreate([](void *arg){ while(1) { tud_task(); }; }, "usb_thread", 4096 / sizeof(StackType_t), this, configTASK_PRIO_CRITICAL, &this->usb_task);
+    assert(result == pdPASS);
 }
 
 void usb_audio::disable(void)
@@ -349,8 +345,8 @@ void usb_audio::disable(void)
         return;
 
     tud_deinit(BOARD_TUD_RHPORT);
-    if (this->usb_thread)
-        osThreadTerminate(this->usb_thread);
+    if (this->usb_task)
+        vTaskDelete(this->usb_task);
     this->audio_from_host.buffer.fill(0);
 }
 
