@@ -70,7 +70,6 @@ namespace hal::system
 
         drivers::core::enable_cycles_counter();
 
-        const uint8_t hsem_id = 0;
         drivers::hsem::init();
 #ifdef CORE_CM7
         /* Wait until Cortex-M4 boots and enters in stop mode */
@@ -129,6 +128,7 @@ namespace hal::system
         hal::ipc::init();
 
         /* Take, then release HSEM 0 in order to notify the Cortex-M4 */
+        const uint8_t hsem_id = 0;
         drivers::hsem::take(hsem_id, 0);
         drivers::hsem::release(hsem_id, 0);
 
@@ -143,7 +143,8 @@ namespace hal::system
         MODIFY_REG(ART->CTR, ART_CTR_PCACHEADDR, ((FLASH_BANK2_BASE >> 12U) & 0x000FFF00UL));
         SET_BIT(ART->CTR, ART_CTR_EN);
 
-        /* Activate HSEM notification */
+        /* Activate HSEM 0 notification */
+        const uint8_t hsem_id = 0;
         drivers::hsem::enable_notification(hsem_id);
 
         drivers::core::enter_stop_mode();
