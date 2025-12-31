@@ -198,7 +198,7 @@ void effect_processor::event_handler(const events::process_audio &e)
     /* Handle USB audio */
     auto &usb = get_usb_audio();
     const bool usb_enabled = usb.is_enabled();
-    const bool mute_sample = !usb_enabled || this->usb_direct_mon;
+    const bool unmute_sample = !usb_enabled || this->usb_direct_mon;
     if (usb_enabled)
         usb.process();
 
@@ -235,7 +235,7 @@ void effect_processor::event_handler(const events::process_audio &e)
 
         /* Duplicate left channel to right channel & mix with received USB audio */
         const auto j = 2 * i;
-        const auto out = sample * mute_sample;
+        const auto out = sample * unmute_sample;
         this->audio_output.buffer[out_buf_idx + j] = out + usb.audio_from_host.buffer[j];
         this->audio_output.buffer[out_buf_idx + j + 1] = out + usb.audio_from_host.buffer[j + 1];
 
