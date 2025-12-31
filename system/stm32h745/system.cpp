@@ -14,7 +14,9 @@
 #include <hal_system.hpp>
 #include <hal_usart.hpp>
 
-#include "cmsis_os2.h"
+#include "FreeRTOS.h"
+#include "semphr.h"
+#include "task.h"
 
 uint32_t SystemCoreClock = 64000000;
 
@@ -79,6 +81,20 @@ extern "C" void ipc_notify_core(void * xUpdatedMessageBuffer)
 //-----------------------------------------------------------------------------
 /* syscalls */
 
+#ifdef HAL_SYSTEM_RTOS_ENABLED
+/* Override default lock/unlock functions to let the heap be thread-safe */
+void __malloc_lock(struct _reent *r)
+{
+    configASSERT(!xPortIsInsideInterrupt());
+    vTaskSuspendAll();
+}
+
+void __malloc_unlock(struct _reent *r)
+{
+    xTaskResumeAll();
+}
+#endif /* HAL_SYSTEM_RTOS_ENABLED */
+
 // TODO: Resolve problem with stdio USART in DUAL_CORE_APP:
 //    a) Use HSEM to synchronize access to stdio USART
 // -> b) Limit access to USART to only one core (CM4)
@@ -86,23 +102,16 @@ extern "C" void ipc_notify_core(void * xUpdatedMessageBuffer)
 
 #if !(defined(DUAL_CORE_APP) && defined(CORE_CM7))
 #ifdef HAL_SYSTEM_RTOS_ENABLED
-static osMutexId_t stdio_mutex_id = NULL;
-static const osMutexAttr_t stdio_mutex_attr =
-{
-    "stdio_mutex",                            // human readable mutex name
-    osMutexRecursive | osMutexPrioInherit,    // attr_bits
-    NULL,                                     // memory for control block
-    0U                                        // size for control block
-};
+static SemaphoreHandle_t stdio_mutex_id = NULL;
 
 extern "C" ssize_t _write_r(struct _reent *ptr, int fd, const void *buf, size_t cnt)
 {
     /* If doesnt exist, create mutex for stdio USART */
-    stdio_mutex_id = (stdio_mutex_id == NULL) ? osMutexNew(&stdio_mutex_attr) : stdio_mutex_id;
+    stdio_mutex_id = (stdio_mutex_id == NULL) ? xSemaphoreCreateRecursiveMutex() : stdio_mutex_id;
     assert(stdio_mutex_id != NULL);
 
     size_t ret = 0;
-    if (osMutexAcquire(stdio_mutex_id, osWaitForever) == osOK)
+    if (xSemaphoreTake(stdio_mutex_id, portMAX_DELAY) == pdTRUE)
     {
         auto &stdio = hal::usart::stdio::get_instance();
         ret = stdio.write(reinterpret_cast<const std::byte*>(buf), cnt);
@@ -113,18 +122,18 @@ extern "C" ssize_t _write_r(struct _reent *ptr, int fd, const void *buf, size_t 
         ptr->_errno = EBUSY;
     }
 
-    osMutexRelease(stdio_mutex_id);
+    xSemaphoreGive(stdio_mutex_id);
     return ret;
 }
 
 extern "C" ssize_t _read_r(struct _reent *ptr, int fd, void *buf, size_t cnt)
 {
     /* If doesnt exist, create mutex for stdio USART */
-    stdio_mutex_id = (stdio_mutex_id == NULL) ? osMutexNew(&stdio_mutex_attr) : stdio_mutex_id;
+    stdio_mutex_id = (stdio_mutex_id == NULL) ? xSemaphoreCreateRecursiveMutex() : stdio_mutex_id;
     assert(stdio_mutex_id != NULL);
 
     size_t ret = 0;
-    if (osMutexAcquire(stdio_mutex_id, osWaitForever) == osOK)
+    if (xSemaphoreTake(stdio_mutex_id, portMAX_DELAY) == pdTRUE)
     {
         auto &stdio = hal::usart::stdio::get_instance();
         ret = stdio.read(reinterpret_cast<std::byte*>(buf), cnt);
@@ -135,7 +144,7 @@ extern "C" ssize_t _read_r(struct _reent *ptr, int fd, void *buf, size_t cnt)
         ptr->_errno = EBUSY;
     }
 
-    osMutexRelease(stdio_mutex_id);
+    xSemaphoreGive(stdio_mutex_id);
     return ret;
 }
 
@@ -153,4 +162,16 @@ extern "C" int _read (int fd, char *buf, int cnt)
 }
 #endif /* HAL_SYSTEM_RTOS_ENABLED */
 #endif /* !(defined(DUAL_CORE_APP) && defined(CORE_CM7)) */
+
+//-----------------------------------------------------------------------------
+/* FreeRTOS hooks */
+
+#ifdef HAL_SYSTEM_RTOS_ENABLED
+extern "C"
+{
+void vApplicationIdleHook (void){ __WFI(); }
+void vApplicationMallocFailedHook (void) { configASSERT(0); }
+void vApplicationStackOverflowHook (TaskHandle_t xTask, char *pcTaskName) { configASSERT(0); }
+}
+#endif /* HAL_SYSTEM_RTOS_ENABLED */
 

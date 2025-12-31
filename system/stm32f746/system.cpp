@@ -7,6 +7,7 @@
 
 
 #include <cstdio>
+#include <cstdlib>
 #include <cerrno>
 #include <cassert>
 
@@ -16,6 +17,7 @@
 
 #include "FreeRTOS.h"
 #include "semphr.h"
+#include "task.h"
 
 uint32_t SystemCoreClock = 16000000;
 
@@ -45,6 +47,18 @@ extern "C" void system_init(void)
 /* syscalls */
 
 #ifdef HAL_SYSTEM_RTOS_ENABLED
+/* Override default lock/unlock functions to let the heap be thread-safe */
+void __malloc_lock(struct _reent *r)
+{
+    configASSERT(!xPortIsInsideInterrupt());
+    vTaskSuspendAll();
+}
+
+void __malloc_unlock(struct _reent *r)
+{
+    xTaskResumeAll();
+}
+
 static SemaphoreHandle_t stdio_mutex_id = NULL;
 
 extern "C" ssize_t _write_r(struct _reent *ptr, int fd, const void *buf, size_t cnt)
@@ -102,6 +116,18 @@ extern "C" int _read (int fd, char *buf, int cnt)
 {
     auto &stdio = hal::usart::stdio::get_instance();
     return stdio.read(reinterpret_cast<std::byte*>(buf), cnt);
+}
+#endif /* HAL_SYSTEM_RTOS_ENABLED */
+
+//-----------------------------------------------------------------------------
+/* FreeRTOS hooks */
+
+#ifdef HAL_SYSTEM_RTOS_ENABLED
+extern "C"
+{
+void vApplicationIdleHook (void){ __WFI(); }
+void vApplicationMallocFailedHook (void) { configASSERT(0); }
+void vApplicationStackOverflowHook (TaskHandle_t xTask, char *pcTaskName) { configASSERT(0); }
 }
 #endif /* HAL_SYSTEM_RTOS_ENABLED */
 

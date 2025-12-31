@@ -16,3 +16,6 @@
 [submodule "libs/tinyusb"]
 	path = libs/tinyusb
 	url = https://github.com/hathach/tinyusb.git
+[submodule "libs/FreeRTOS"]
+	path = libs/FreeRTOS
+	url = https://github.com/FreeRTOS/FreeRTOS-Kernel.git

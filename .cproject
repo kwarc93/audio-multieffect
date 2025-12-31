@@ -17,7 +17,7 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="${cross_rm} -rf" description="" id="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.823342004.1398752689" name="STM32F746G-DISCO" optionalBuildProperties="org.eclipse.cdt.docker.launcher.containerbuild.property.volumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.selectedvolumes=" parent="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug" preannouncebuildStep="" prebuildStep="">
+				<configuration artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.debug" cleanCommand="${cross_rm} -rf" description="" id="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.823342004.1398752689" name="STM32F746G-DISCO" optionalBuildProperties="org.eclipse.cdt.docker.launcher.containerbuild.property.selectedvolumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.volumes=" parent="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug" preannouncebuildStep="" prebuildStep="">
 					<folderInfo id="ilg.gnuarmeclipse.managedbuild.cross.config.elf.debug.823342004.1398752689." name="/" resourcePath="">
 						<toolChain id="ilg.gnuarmeclipse.managedbuild.cross.toolchain.elf.debug.351562890" name="ARM Cross GCC" superClass="ilg.gnuarmeclipse.managedbuild.cross.toolchain.elf.debug">
 							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.addtools.createflash.1491226254" name="Create flash image" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.addtools.createflash" useByScannerDiscovery="false" value="true" valueType="boolean"/>
@@ -57,11 +57,9 @@
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.usepreprocessor.1476249984" name="Use preprocessor" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.usepreprocessor" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths.1064541886" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths" useByScannerDiscovery="true" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/portable/GCC/ARM_CM7/r0p1}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis/rtos2}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32f7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
@@ -87,11 +85,9 @@
 							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.494287248" name="GNU ARM Cross C Compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler">
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths.2033119670" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths" useByScannerDiscovery="true" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/portable/GCC/ARM_CM7/r0p1}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis/rtos2}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32f7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
@@ -122,11 +118,9 @@
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.1904712610" name="Language standard" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std" useByScannerDiscovery="true" value="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.cpp17" valueType="enumerated"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths.2081060845" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths" useByScannerDiscovery="true" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/portable/GCC/ARM_CM7/r0p1}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis/rtos2}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32f7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
@@ -227,11 +221,9 @@
 							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.1470931023" name="GNU ARM Cross Assembler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.1705667395">
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths.1783007221" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/portable/GCC/ARM_CM7/r0p1}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis/rtos2}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32f7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
@@ -243,11 +235,9 @@
 							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.539709446" name="GNU ARM Cross C Compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.494287248">
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths.1454324685" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/portable/GCC/ARM_CM7/r0p1}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis/rtos2}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32f7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
@@ -259,11 +249,9 @@
 							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.2050387062" name="GNU ARM Cross C++ Compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.1461772922">
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths.642021678" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/portable/GCC/ARM_CM7/r0p1}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis/rtos2}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32f7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
@@ -287,7 +275,7 @@
 						<entry excluding="ipc|tests" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="app"/>
 						<entry excluding="stm32h7" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="drivers"/>
 						<entry excluding="stm32h7" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="hal"/>
-						<entry excluding="tinyusb/tools|tinyusb/test|tinyusb/lib|tinyusb/hw|tinyusb/examples|tinyusb/docs|cycfi/q/test|cycfi/q/q_io|cycfi/q/example|q/example|q/q_io|q/test|lvgl/demos|lvgl/tests|lvgl/scripts|lvgl/examples|lvgl/env_support|lvgl/docs|littlefs/runners|littlefs/scripts|nlohmann_json/tools|littlefs/benches|nlohmann_json/cmake|littlefs/tests|littlefs/bd|nlohmann_json/include|nlohmann_json/tests|nlohmann_json/docs" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="libs"/>
+						<entry excluding="FreeRTOS/portable/GCC/ARM_CM4F|FreeRTOS/portable/GCC/TriCore_1782|FreeRTOS/portable/GCC/STR75x|FreeRTOS/portable/GCC/RX700v3_DPFPU|FreeRTOS/portable/GCC/RX600v2|FreeRTOS/portable/GCC/RX600|FreeRTOS/portable/GCC/RX200|FreeRTOS/portable/GCC/RX100|FreeRTOS/portable/GCC/RL78|FreeRTOS/portable/GCC/RISC-V|FreeRTOS/portable/GCC/PPC440_Xilinx|FreeRTOS/portable/GCC/PPC405_Xilinx|FreeRTOS/portable/GCC/NiosII|FreeRTOS/portable/GCC/MSP430F449|FreeRTOS/portable/GCC/MicroBlazeV9|FreeRTOS/portable/GCC/MicroBlazeV8|FreeRTOS/portable/GCC/MicroBlaze|FreeRTOS/portable/GCC/MCF5235|FreeRTOS/portable/GCC/IA32_flat|FreeRTOS/portable/GCC/HCS12|FreeRTOS/portable/GCC/H8S2329|FreeRTOS/portable/GCC/CORTUS_APS3|FreeRTOS/portable/GCC/ColdFire_V2|FreeRTOS/portable/GCC/AVR32_UC3|FreeRTOS/portable/GCC/AVR_Mega0|FreeRTOS/portable/GCC/AVR_AVRDx|FreeRTOS/portable/GCC/ATMega323|FreeRTOS/portable/GCC/ARM7_LPC23xx|FreeRTOS/portable/GCC/ARM7_LPC2000|FreeRTOS/portable/GCC/ARM7_AT91SAM7S|FreeRTOS/portable/GCC/ARM7_AT91FR40008|FreeRTOS/portable/GCC/ARM_CRx_No_GIC|FreeRTOS/portable/GCC/ARM_CRx_MPU|FreeRTOS/portable/GCC/ARM_CR5|FreeRTOS/portable/GCC/ARM_CM85_NTZ|FreeRTOS/portable/GCC/ARM_CM85|FreeRTOS/portable/GCC/ARM_CM55_NTZ|FreeRTOS/portable/GCC/ARM_CM55|FreeRTOS/portable/GCC/ARM_CM4_MPU|FreeRTOS/portable/GCC/ARM_CM35P_NTZ|FreeRTOS/portable/GCC/ARM_CM35P|FreeRTOS/portable/GCC/ARM_CM33_NTZ|FreeRTOS/portable/GCC/ARM_CM33|FreeRTOS/portable/GCC/ARM_CM3_MPU|FreeRTOS/portable/GCC/ARM_CM3|FreeRTOS/portable/GCC/ARM_CM23_NTZ|FreeRTOS/portable/GCC/ARM_CM23|FreeRTOS/portable/GCC/ARM_CM0|FreeRTOS/portable/GCC/ARM_CA9|FreeRTOS/portable/GCC/ARM_CA53_64_BIT_SRE|FreeRTOS/portable/GCC/ARM_CA53_64_BIT|FreeRTOS/portable/GCC/ARM_AARCH64_SRE|FreeRTOS/portable/GCC/ARM_AARCH64|FreeRTOS/portable/MemMang/heap_5.c|FreeRTOS/portable/MemMang/heap_4.c|FreeRTOS/portable/MemMang/heap_2.c|FreeRTOS/portable/MemMang/heap_1.c|FreeRTOS/portable/WizC|FreeRTOS/portable/ThirdParty|FreeRTOS/portable/template|FreeRTOS/portable/Tasking|FreeRTOS/portable/Softune|FreeRTOS/portable/SDCC|FreeRTOS/portable/RVDS|FreeRTOS/portable/Rowley|FreeRTOS/portable/Renesas|FreeRTOS/portable/Paradigm|FreeRTOS/portable/oWatcom|FreeRTOS/portable/MSVC-MingW|FreeRTOS/portable/MPLAB|FreeRTOS/portable/MikroC|FreeRTOS/portable/Keil|FreeRTOS/portable/IAR|FreeRTOS/portable/CodeWarrior|FreeRTOS/portable/CCS|FreeRTOS/portable/CCRH|FreeRTOS/portable/BCC|FreeRTOS/portable/ARMv8M|FreeRTOS/portable/ARMClang|FreeRTOS/examples|tinyusb/tools|tinyusb/test|tinyusb/lib|tinyusb/hw|tinyusb/examples|tinyusb/docs|cycfi/q/test|cycfi/q/q_io|cycfi/q/example|q/example|q/q_io|q/test|lvgl/demos|lvgl/tests|lvgl/scripts|lvgl/examples|lvgl/env_support|lvgl/docs|littlefs/runners|littlefs/scripts|nlohmann_json/tools|littlefs/benches|nlohmann_json/cmake|littlefs/tests|littlefs/bd|nlohmann_json/include|nlohmann_json/tests|nlohmann_json/docs" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="libs"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="middlewares"/>
 						<entry excluding="FreeRTOS/Source/portable/MemMang/heap_2.c|FreeRTOS/Source/portable/MemMang/heap_1.c|FreeRTOS/Source/portable/GCC/ARM_CM4F|FreeRTOS/Source/portable/MemMang/heap_5.c|FreeRTOS/Source/portable/MemMang/heap_4.c|FreeRTOS/Source/portable/MemMang/heap_3.c" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="rtos"/>
 						<entry excluding="stm32h745" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="system"/>
@@ -353,16 +341,14 @@
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.usepreprocessor.1820949943" name="Use preprocessor" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.usepreprocessor" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths.7744664" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths" useByScannerDiscovery="true" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis/rtos2}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32h7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/tinyusb/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/portable/GCC/ARM_CM4F}&quot;"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs.2030795692" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs" useByScannerDiscovery="true" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__HEAP_SIZE=0x00020000"/>
@@ -384,16 +370,14 @@
 							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.1552199738" name="GNU ARM Cross C Compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler">
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths.1970808426" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths" useByScannerDiscovery="true" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis/rtos2}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32h7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/tinyusb/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/portable/GCC/ARM_CM4F}&quot;"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs.1461996431" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs" useByScannerDiscovery="true" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__HEAP_SIZE=0x00020000"/>
@@ -420,16 +404,14 @@
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.409379429" name="Language standard" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std" useByScannerDiscovery="true" value="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.cpp17" valueType="enumerated"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths.596354743" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths" useByScannerDiscovery="true" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis/rtos2}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32h7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/tinyusb/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/portable/GCC/ARM_CM4F}&quot;"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs.1816851088" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs" useByScannerDiscovery="true" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__HEAP_SIZE=0x00020000"/>
@@ -526,48 +508,42 @@
 							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.1479121667" name="GNU ARM Cross Assembler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.1059816528">
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths.935919279" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis/rtos2}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32h7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/tinyusb/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/portable/GCC/ARM_CM4F}&quot;"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input.2113777356" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input"/>
 							</tool>
 							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.1878308316" name="GNU ARM Cross C Compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.1552199738">
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths.1030466701" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis/rtos2}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32h7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/tinyusb/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/portable/GCC/ARM_CM4F}&quot;"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.1564072989" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input"/>
 							</tool>
 							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.874461385" name="GNU ARM Cross C++ Compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.556892519">
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths.1253981291" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis/rtos2}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32h7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/tinyusb/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/portable/GCC/ARM_CM4F}&quot;"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.26249519" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input"/>
 							</tool>
@@ -586,7 +562,7 @@
 						<entry excluding="model|tests" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="app"/>
 						<entry excluding="stm32f7" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="drivers"/>
 						<entry excluding="stm32f7" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="hal"/>
-						<entry excluding="tinyusb/tools|tinyusb/test|tinyusb/lib|tinyusb/hw|tinyusb/examples|tinyusb/docs|cycfi/q/test|cycfi/q/q_io|cycfi/q/example|q/example|q/q_io|q/test|lvgl/demos|lvgl/tests|lvgl/scripts|lvgl/examples|lvgl/env_support|lvgl/docs|littlefs/runners|littlefs/scripts|nlohmann_json/tools|littlefs/benches|nlohmann_json/cmake|littlefs/tests|littlefs/bd|nlohmann_json/include|nlohmann_json/tests|nlohmann_json/docs" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="libs"/>
+						<entry excluding="FreeRTOS/portable/GCC/ARM_CM7|FreeRTOS/portable/GCC/TriCore_1782|FreeRTOS/portable/GCC/STR75x|FreeRTOS/portable/GCC/RX700v3_DPFPU|FreeRTOS/portable/GCC/RX600v2|FreeRTOS/portable/GCC/RX600|FreeRTOS/portable/GCC/RX200|FreeRTOS/portable/GCC/RX100|FreeRTOS/portable/GCC/RL78|FreeRTOS/portable/GCC/RISC-V|FreeRTOS/portable/GCC/PPC440_Xilinx|FreeRTOS/portable/GCC/PPC405_Xilinx|FreeRTOS/portable/GCC/NiosII|FreeRTOS/portable/GCC/MSP430F449|FreeRTOS/portable/GCC/MicroBlazeV9|FreeRTOS/portable/GCC/MicroBlazeV8|FreeRTOS/portable/GCC/MicroBlaze|FreeRTOS/portable/GCC/MCF5235|FreeRTOS/portable/GCC/IA32_flat|FreeRTOS/portable/GCC/HCS12|FreeRTOS/portable/GCC/H8S2329|FreeRTOS/portable/GCC/CORTUS_APS3|FreeRTOS/portable/GCC/ColdFire_V2|FreeRTOS/portable/GCC/AVR32_UC3|FreeRTOS/portable/GCC/AVR_Mega0|FreeRTOS/portable/GCC/AVR_AVRDx|FreeRTOS/portable/GCC/ATMega323|FreeRTOS/portable/GCC/ARM7_LPC23xx|FreeRTOS/portable/GCC/ARM7_LPC2000|FreeRTOS/portable/GCC/ARM7_AT91SAM7S|FreeRTOS/portable/GCC/ARM7_AT91FR40008|FreeRTOS/portable/GCC/ARM_CRx_No_GIC|FreeRTOS/portable/GCC/ARM_CRx_MPU|FreeRTOS/portable/GCC/ARM_CR5|FreeRTOS/portable/GCC/ARM_CM85_NTZ|FreeRTOS/portable/GCC/ARM_CM85|FreeRTOS/portable/GCC/ARM_CM55_NTZ|FreeRTOS/portable/GCC/ARM_CM55|FreeRTOS/portable/GCC/ARM_CM4_MPU|FreeRTOS/portable/GCC/ARM_CM35P_NTZ|FreeRTOS/portable/GCC/ARM_CM35P|FreeRTOS/portable/GCC/ARM_CM33_NTZ|FreeRTOS/portable/GCC/ARM_CM33|FreeRTOS/portable/GCC/ARM_CM3_MPU|FreeRTOS/portable/GCC/ARM_CM3|FreeRTOS/portable/GCC/ARM_CM23_NTZ|FreeRTOS/portable/GCC/ARM_CM23|FreeRTOS/portable/GCC/ARM_CM0|FreeRTOS/portable/GCC/ARM_CA9|FreeRTOS/portable/GCC/ARM_CA53_64_BIT_SRE|FreeRTOS/portable/GCC/ARM_CA53_64_BIT|FreeRTOS/portable/GCC/ARM_AARCH64_SRE|FreeRTOS/portable/GCC/ARM_AARCH64|FreeRTOS/portable/MemMang/heap_5.c|FreeRTOS/portable/MemMang/heap_4.c|FreeRTOS/portable/MemMang/heap_2.c|FreeRTOS/portable/MemMang/heap_1.c|FreeRTOS/portable/WizC|FreeRTOS/portable/ThirdParty|FreeRTOS/portable/template|FreeRTOS/portable/Tasking|FreeRTOS/portable/Softune|FreeRTOS/portable/SDCC|FreeRTOS/portable/RVDS|FreeRTOS/portable/Rowley|FreeRTOS/portable/Renesas|FreeRTOS/portable/Paradigm|FreeRTOS/portable/oWatcom|FreeRTOS/portable/MSVC-MingW|FreeRTOS/portable/MPLAB|FreeRTOS/portable/MikroC|FreeRTOS/portable/Keil|FreeRTOS/portable/IAR|FreeRTOS/portable/CodeWarrior|FreeRTOS/portable/CCS|FreeRTOS/portable/CCRH|FreeRTOS/portable/BCC|FreeRTOS/portable/ARMv8M|FreeRTOS/portable/ARMClang|FreeRTOS/examples|tinyusb/tools|tinyusb/test|tinyusb/lib|tinyusb/hw|tinyusb/examples|tinyusb/docs|cycfi/q/test|cycfi/q/q_io|cycfi/q/example|q/example|q/q_io|q/test|lvgl/demos|lvgl/tests|lvgl/scripts|lvgl/examples|lvgl/env_support|lvgl/docs|littlefs/runners|littlefs/scripts|nlohmann_json/tools|littlefs/benches|nlohmann_json/cmake|littlefs/tests|littlefs/bd|nlohmann_json/include|nlohmann_json/tests|nlohmann_json/docs" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="libs"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="middlewares"/>
 						<entry excluding="FreeRTOS/Source/portable/MemMang/heap_2.c|FreeRTOS/Source/portable/MemMang/heap_1.c|FreeRTOS/Source/portable/MemMang/heap_5.c|FreeRTOS/Source/portable/MemMang/heap_4.c|FreeRTOS/Source/portable/GCC/ARM_CM7|FreeRTOS/Source/portable/MemMang/heap_3.c" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="rtos"/>
 						<entry excluding="stm32f746" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="system"/>
@@ -652,16 +628,14 @@
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.usepreprocessor.1566880904" name="Use preprocessor" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.usepreprocessor" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths.854615997" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths" useByScannerDiscovery="true" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis/rtos2}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32h7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/tinyusb/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/portable/GCC/ARM_CM4F}&quot;"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs.1309224384" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs" useByScannerDiscovery="true" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__HEAP_SIZE=0x00020000"/>
@@ -682,16 +656,14 @@
 							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.548393227" name="GNU ARM Cross C Compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler">
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths.351741019" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths" useByScannerDiscovery="true" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis/rtos2}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32h7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/tinyusb/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/portable/GCC/ARM_CM4F}&quot;"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs.1200771990" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs" useByScannerDiscovery="true" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__HEAP_SIZE=0x00020000"/>
@@ -717,16 +689,14 @@
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.1574784206" name="Language standard" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std" useByScannerDiscovery="true" value="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.cpp17" valueType="enumerated"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths.1870703873" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths" useByScannerDiscovery="true" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis/rtos2}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32h7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/tinyusb/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/portable/GCC/ARM_CM4F}&quot;"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs.1984204616" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs" useByScannerDiscovery="true" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__HEAP_SIZE=0x00020000"/>
@@ -822,48 +792,42 @@
 							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.543937287" name="GNU ARM Cross Assembler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.1881375566">
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths.318246217" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis/rtos2}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32h7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/tinyusb/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/portable/GCC/ARM_CM4F}&quot;"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input.285044633" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input"/>
 							</tool>
 							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.215843710" name="GNU ARM Cross C Compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.548393227">
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths.195795307" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis/rtos2}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32h7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/tinyusb/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/portable/GCC/ARM_CM4F}&quot;"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.1119704518" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input"/>
 							</tool>
 							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.2126859057" name="GNU ARM Cross C++ Compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.906219215">
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths.652181953" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis/rtos2}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32h7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/tinyusb/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/portable/GCC/ARM_CM4F}&quot;"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.1151804788" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input"/>
 							</tool>
@@ -882,7 +846,7 @@
 						<entry excluding="view|controller|tests" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="app"/>
 						<entry excluding="stm32f7" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="drivers"/>
 						<entry excluding="stm32f7" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="hal"/>
-						<entry excluding="tinyusb/tools|tinyusb/test|tinyusb/lib|tinyusb/hw|tinyusb/examples|tinyusb/docs|cycfi/q/test|cycfi/q/q_io|cycfi/q/example|q/example|q/q_io|q/test|nlohmann_json|lvgl|littlefs|lvgl/tests|lvgl/scripts|lvgl/examples|lvgl/env_support|lvgl/docs|littlefs/runners|littlefs/scripts|nlohmann_json/tools|littlefs/benches|nlohmann_json/cmake|littlefs/tests|littlefs/bd|nlohmann_json/include|nlohmann_json/tests|nlohmann_json/docs" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="libs"/>
+						<entry excluding="FreeRTOS/portable/GCC/ARM_CM7|FreeRTOS/portable/GCC/TriCore_1782|FreeRTOS/portable/GCC/STR75x|FreeRTOS/portable/GCC/RX700v3_DPFPU|FreeRTOS/portable/GCC/RX600v2|FreeRTOS/portable/GCC/RX600|FreeRTOS/portable/GCC/RX200|FreeRTOS/portable/GCC/RX100|FreeRTOS/portable/GCC/RL78|FreeRTOS/portable/GCC/RISC-V|FreeRTOS/portable/GCC/PPC440_Xilinx|FreeRTOS/portable/GCC/PPC405_Xilinx|FreeRTOS/portable/GCC/NiosII|FreeRTOS/portable/GCC/MSP430F449|FreeRTOS/portable/GCC/MicroBlazeV9|FreeRTOS/portable/GCC/MicroBlazeV8|FreeRTOS/portable/GCC/MicroBlaze|FreeRTOS/portable/GCC/MCF5235|FreeRTOS/portable/GCC/IA32_flat|FreeRTOS/portable/GCC/HCS12|FreeRTOS/portable/GCC/H8S2329|FreeRTOS/portable/GCC/CORTUS_APS3|FreeRTOS/portable/GCC/ColdFire_V2|FreeRTOS/portable/GCC/AVR32_UC3|FreeRTOS/portable/GCC/AVR_Mega0|FreeRTOS/portable/GCC/AVR_AVRDx|FreeRTOS/portable/GCC/ATMega323|FreeRTOS/portable/GCC/ARM7_LPC23xx|FreeRTOS/portable/GCC/ARM7_LPC2000|FreeRTOS/portable/GCC/ARM7_AT91SAM7S|FreeRTOS/portable/GCC/ARM7_AT91FR40008|FreeRTOS/portable/GCC/ARM_CRx_No_GIC|FreeRTOS/portable/GCC/ARM_CRx_MPU|FreeRTOS/portable/GCC/ARM_CR5|FreeRTOS/portable/GCC/ARM_CM85_NTZ|FreeRTOS/portable/GCC/ARM_CM85|FreeRTOS/portable/GCC/ARM_CM55_NTZ|FreeRTOS/portable/GCC/ARM_CM55|FreeRTOS/portable/GCC/ARM_CM4_MPU|FreeRTOS/portable/GCC/ARM_CM35P_NTZ|FreeRTOS/portable/GCC/ARM_CM35P|FreeRTOS/portable/GCC/ARM_CM33_NTZ|FreeRTOS/portable/GCC/ARM_CM33|FreeRTOS/portable/GCC/ARM_CM3_MPU|FreeRTOS/portable/GCC/ARM_CM3|FreeRTOS/portable/GCC/ARM_CM23_NTZ|FreeRTOS/portable/GCC/ARM_CM23|FreeRTOS/portable/GCC/ARM_CM0|FreeRTOS/portable/GCC/ARM_CA9|FreeRTOS/portable/GCC/ARM_CA53_64_BIT_SRE|FreeRTOS/portable/GCC/ARM_CA53_64_BIT|FreeRTOS/portable/GCC/ARM_AARCH64_SRE|FreeRTOS/portable/GCC/ARM_AARCH64|FreeRTOS/portable/MemMang/heap_5.c|FreeRTOS/portable/MemMang/heap_4.c|FreeRTOS/portable/MemMang/heap_2.c|FreeRTOS/portable/MemMang/heap_1.c|FreeRTOS/portable/WizC|FreeRTOS/portable/ThirdParty|FreeRTOS/portable/template|FreeRTOS/portable/Tasking|FreeRTOS/portable/Softune|FreeRTOS/portable/SDCC|FreeRTOS/portable/RVDS|FreeRTOS/portable/Rowley|FreeRTOS/portable/Renesas|FreeRTOS/portable/Paradigm|FreeRTOS/portable/oWatcom|FreeRTOS/portable/MSVC-MingW|FreeRTOS/portable/MPLAB|FreeRTOS/portable/MikroC|FreeRTOS/portable/Keil|FreeRTOS/portable/IAR|FreeRTOS/portable/CodeWarrior|FreeRTOS/portable/CCS|FreeRTOS/portable/CCRH|FreeRTOS/portable/BCC|FreeRTOS/portable/ARMv8M|FreeRTOS/portable/ARMClang|FreeRTOS/examples|tinyusb/tools|tinyusb/test|tinyusb/lib|tinyusb/hw|tinyusb/examples|tinyusb/docs|cycfi/q/test|cycfi/q/q_io|cycfi/q/example|q/example|q/q_io|q/test|nlohmann_json|lvgl|littlefs|lvgl/tests|lvgl/scripts|lvgl/examples|lvgl/env_support|lvgl/docs|littlefs/runners|littlefs/scripts|nlohmann_json/tools|littlefs/benches|nlohmann_json/cmake|littlefs/tests|littlefs/bd|nlohmann_json/include|nlohmann_json/tests|nlohmann_json/docs" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="libs"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="middlewares"/>
 						<entry excluding="FreeRTOS/Source/portable/MemMang/heap_2.c|FreeRTOS/Source/portable/MemMang/heap_1.c|FreeRTOS/Source/portable/MemMang/heap_5.c|FreeRTOS/Source/portable/MemMang/heap_4.c|FreeRTOS/Source/portable/GCC/ARM_CM7|FreeRTOS/Source/portable/MemMang/heap_3.c" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="rtos"/>
 						<entry excluding="stm32f746" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="system"/>
@@ -948,16 +912,14 @@
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.usepreprocessor.1732280153" name="Use preprocessor" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.usepreprocessor" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths.439417325" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths" useByScannerDiscovery="true" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis/rtos2}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32h7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/tinyusb/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/portable/GCC/ARM_CM4F}&quot;"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs.632100355" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.defs" useByScannerDiscovery="true" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__HEAP_SIZE=0x00020000"/>
@@ -978,16 +940,14 @@
 							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.971081091" name="GNU ARM Cross C Compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler">
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths.1867170303" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths" useByScannerDiscovery="true" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis/rtos2}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32h7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/tinyusb/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/portable/GCC/ARM_CM4F}&quot;"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs.754431284" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.defs" useByScannerDiscovery="true" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__HEAP_SIZE=0x00020000"/>
@@ -1013,16 +973,14 @@
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.557336252" name="Language standard" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std" useByScannerDiscovery="true" value="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.std.cpp17" valueType="enumerated"/>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths.928883594" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths" useByScannerDiscovery="true" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis/rtos2}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32h7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/tinyusb/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/portable/GCC/ARM_CM4F}&quot;"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs.427001138" name="Defined symbols (-D)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.defs" useByScannerDiscovery="true" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__HEAP_SIZE=0x00020000"/>
@@ -1118,48 +1076,42 @@
 							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.1472698751" name="GNU ARM Cross Assembler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.595420842">
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths.329666107" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis/rtos2}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32h7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/tinyusb/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/portable/GCC/ARM_CM4F}&quot;"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input.644475531" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input"/>
 							</tool>
 							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.635808232" name="GNU ARM Cross C Compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.971081091">
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths.296630377" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis/rtos2}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32h7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/tinyusb/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/portable/GCC/ARM_CM4F}&quot;"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input.975505781" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.c.compiler.input"/>
 							</tool>
 							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.135439152" name="GNU ARM Cross C++ Compiler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.514332978">
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths.2140050801" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.compiler.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/include}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/rtos/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis}&quot;"/>
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/cmsis/rtos2}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/nlohmann_json/single_include}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal/stm32h7}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/hal}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/tinyusb/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/audio-multieffect/libs/FreeRTOS/portable/GCC/ARM_CM4F}&quot;"/>
 								</option>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input.881450446" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.cpp.compiler.input"/>
 							</tool>
@@ -1178,7 +1130,7 @@
 						<entry excluding="ipc|tests" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="app"/>
 						<entry excluding="stm32f7" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="drivers"/>
 						<entry excluding="stm32f7" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="hal"/>
-						<entry excluding="tinyusb/tools|tinyusb/test|tinyusb/lib|tinyusb/hw|tinyusb/examples|tinyusb/docs|cycfi/q/test|cycfi/q/q_io|cycfi/q/example|q/example|q/q_io|q/test|lvgl/demos|lvgl/tests|lvgl/scripts|lvgl/examples|lvgl/env_support|lvgl/docs|littlefs/runners|littlefs/scripts|nlohmann_json/tools|littlefs/benches|nlohmann_json/cmake|littlefs/tests|littlefs/bd|nlohmann_json/include|nlohmann_json/tests|nlohmann_json/docs" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="libs"/>
+						<entry excluding="FreeRTOS/portable/GCC/ARM_CM7|FreeRTOS/portable/GCC/TriCore_1782|FreeRTOS/portable/GCC/STR75x|FreeRTOS/portable/GCC/RX700v3_DPFPU|FreeRTOS/portable/GCC/RX600v2|FreeRTOS/portable/GCC/RX600|FreeRTOS/portable/GCC/RX200|FreeRTOS/portable/GCC/RX100|FreeRTOS/portable/GCC/RL78|FreeRTOS/portable/GCC/RISC-V|FreeRTOS/portable/GCC/PPC440_Xilinx|FreeRTOS/portable/GCC/PPC405_Xilinx|FreeRTOS/portable/GCC/NiosII|FreeRTOS/portable/GCC/MSP430F449|FreeRTOS/portable/GCC/MicroBlazeV9|FreeRTOS/portable/GCC/MicroBlazeV8|FreeRTOS/portable/GCC/MicroBlaze|FreeRTOS/portable/GCC/MCF5235|FreeRTOS/portable/GCC/IA32_flat|FreeRTOS/portable/GCC/HCS12|FreeRTOS/portable/GCC/H8S2329|FreeRTOS/portable/GCC/CORTUS_APS3|FreeRTOS/portable/GCC/ColdFire_V2|FreeRTOS/portable/GCC/AVR32_UC3|FreeRTOS/portable/GCC/AVR_Mega0|FreeRTOS/portable/GCC/AVR_AVRDx|FreeRTOS/portable/GCC/ATMega323|FreeRTOS/portable/GCC/ARM7_LPC23xx|FreeRTOS/portable/GCC/ARM7_LPC2000|FreeRTOS/portable/GCC/ARM7_AT91SAM7S|FreeRTOS/portable/GCC/ARM7_AT91FR40008|FreeRTOS/portable/GCC/ARM_CRx_No_GIC|FreeRTOS/portable/GCC/ARM_CRx_MPU|FreeRTOS/portable/GCC/ARM_CR5|FreeRTOS/portable/GCC/ARM_CM85_NTZ|FreeRTOS/portable/GCC/ARM_CM85|FreeRTOS/portable/GCC/ARM_CM55_NTZ|FreeRTOS/portable/GCC/ARM_CM55|FreeRTOS/portable/GCC/ARM_CM4_MPU|FreeRTOS/portable/GCC/ARM_CM35P_NTZ|FreeRTOS/portable/GCC/ARM_CM35P|FreeRTOS/portable/GCC/ARM_CM33_NTZ|FreeRTOS/portable/GCC/ARM_CM33|FreeRTOS/portable/GCC/ARM_CM3_MPU|FreeRTOS/portable/GCC/ARM_CM3|FreeRTOS/portable/GCC/ARM_CM23_NTZ|FreeRTOS/portable/GCC/ARM_CM23|FreeRTOS/portable/GCC/ARM_CM0|FreeRTOS/portable/GCC/ARM_CA9|FreeRTOS/portable/GCC/ARM_CA53_64_BIT_SRE|FreeRTOS/portable/GCC/ARM_CA53_64_BIT|FreeRTOS/portable/GCC/ARM_AARCH64_SRE|FreeRTOS/portable/GCC/ARM_AARCH64|FreeRTOS/portable/MemMang/heap_5.c|FreeRTOS/portable/MemMang/heap_4.c|FreeRTOS/portable/MemMang/heap_2.c|FreeRTOS/portable/MemMang/heap_1.c|FreeRTOS/portable/WizC|FreeRTOS/portable/ThirdParty|FreeRTOS/portable/template|FreeRTOS/portable/Tasking|FreeRTOS/portable/Softune|FreeRTOS/portable/SDCC|FreeRTOS/portable/RVDS|FreeRTOS/portable/Rowley|FreeRTOS/portable/Renesas|FreeRTOS/portable/Paradigm|FreeRTOS/portable/oWatcom|FreeRTOS/portable/MSVC-MingW|FreeRTOS/portable/MPLAB|FreeRTOS/portable/MikroC|FreeRTOS/portable/Keil|FreeRTOS/portable/IAR|FreeRTOS/portable/CodeWarrior|FreeRTOS/portable/CCS|FreeRTOS/portable/CCRH|FreeRTOS/portable/BCC|FreeRTOS/portable/ARMv8M|FreeRTOS/portable/ARMClang|FreeRTOS/examples|tinyusb/tools|tinyusb/test|tinyusb/lib|tinyusb/hw|tinyusb/examples|tinyusb/docs|cycfi/q/test|cycfi/q/q_io|cycfi/q/example|q/example|q/q_io|q/test|lvgl/demos|lvgl/tests|lvgl/scripts|lvgl/examples|lvgl/env_support|lvgl/docs|littlefs/runners|littlefs/scripts|nlohmann_json/tools|littlefs/benches|nlohmann_json/cmake|littlefs/tests|littlefs/bd|nlohmann_json/include|nlohmann_json/tests|nlohmann_json/docs" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="libs"/>
 						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="middlewares"/>
 						<entry excluding="FreeRTOS/Source/portable/MemMang/heap_2.c|FreeRTOS/Source/portable/MemMang/heap_1.c|FreeRTOS/Source/portable/MemMang/heap_5.c|FreeRTOS/Source/portable/MemMang/heap_4.c|FreeRTOS/Source/portable/GCC/ARM_CM7|FreeRTOS/Source/portable/MemMang/heap_3.c" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="rtos"/>
 						<entry excluding="stm32f746" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="system"/>

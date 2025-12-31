@@ -113,7 +113,7 @@ public:
             delete ctx;
         };
 
-        auto timer = xTimerCreate(nullptr, pdMS_TO_TICKS(time), periodic, this, timer_cb);
+        auto timer = xTimerCreate(nullptr, pdMS_TO_TICKS(time), periodic, timer_ctx, timer_cb);
         assert(timer != nullptr);
 
         auto result = xTimerStart(timer, 0);
