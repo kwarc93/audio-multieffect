@@ -55,7 +55,7 @@ namespace hal::ipc
                                                                      ipc_struct.cm4_to_cm7.mb_buffer,
                                                                      &ipc_struct.cm4_to_cm7.mb_object);
 
-        ipc_struct.cm4_to_cm7.initialized = ipc_struct.cm4_to_cm7.mb_handle != NULL;
+        ipc_struct.cm4_to_cm7.initialized = ipc_struct.cm4_to_cm7.mb_handle != nullptr;
         return ipc_struct.cm4_to_cm7.initialized;
     }
 
@@ -73,7 +73,7 @@ namespace hal::ipc
                                                                      ipc_struct.cm7_to_cm4.mb_buffer,
                                                                      &ipc_struct.cm7_to_cm4.mb_object);
 
-        ipc_struct.cm7_to_cm4.initialized = ipc_struct.cm7_to_cm4.mb_handle != NULL;
+        ipc_struct.cm7_to_cm4.initialized = ipc_struct.cm7_to_cm4.mb_handle != nullptr;
         return ipc_struct.cm7_to_cm4.initialized;
     }
 
