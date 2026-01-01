@@ -90,6 +90,12 @@ void tud_resume_cb(void)
     tusb.usb_status = tud_mounted() ? USB_MOUNTED : USB_NOT_MOUNTED;
 }
 
+bool dcd_deinit(uint8_t rhport)
+{
+    (void) rhport;
+    return true;
+}
+
 //-----------------------------------------------------------------------------
 // TUSB Application Callbacks
 
@@ -344,9 +350,14 @@ void usb_audio::disable(void)
     if (!tusb_inited())
         return;
 
-    tud_deinit(BOARD_TUD_RHPORT);
+    bool result = tud_deinit(BOARD_TUD_RHPORT);
+    assert(result);
+
     if (this->usb_task)
+    {
         vTaskDelete(this->usb_task);
+        this->usb_task = nullptr;
+    }
     this->audio_from_host.buffer.fill(0);
 }
 
