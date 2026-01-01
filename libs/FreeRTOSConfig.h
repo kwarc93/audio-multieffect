@@ -128,7 +128,7 @@ extern uint32_t SystemCoreClock;
 
 /* configMAX_TASK_NAME_LEN sets the maximum length (in characters) of a task's
  * human readable name.  Includes the NULL terminator. */
-#define configMAX_TASK_NAME_LEN                    16
+#define configMAX_TASK_NAME_LEN                    20
 
 /* Time is measured in 'ticks' - which is the number of times the tick interrupt
  * has executed since the RTOS kernel was started.

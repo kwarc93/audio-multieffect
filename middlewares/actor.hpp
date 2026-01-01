@@ -25,10 +25,8 @@ class actor
 public:
     struct event
     {
-        event(const T &data, uint32_t flags = 0) : flags {flags}, data {data} {}
-        enum flags { immutable = 1 << 0, periodic = 1 << 1 };
-        uint32_t flags;
         T data;
+        bool immutable {false};
     };
 
     actor(const std::string_view &name, uint32_t priority, size_t stack_size, uint32_t queue_size = 32)
@@ -56,14 +54,16 @@ public:
     {
         const event *e = nullptr;
 
-        if (evt.flags & event::immutable)
+        if (evt.immutable)
         {
-            /* rvalue must not be passed with immutable, it would cause dangling pointer */
+            /* With immutable (static) events, rvalue must not be passed - it would cause dangling pointer */
             assert(!std::is_rvalue_reference<E&&>::value);
             e = &evt;
         }
         else
         {
+            /* Mutable (dynamic) events must not be used from interrupt */
+            assert(xPortIsInsideInterrupt() == pdFALSE);
             e = new event(std::forward<E>(evt));
         }
 
@@ -91,11 +91,9 @@ public:
         {
             event evt;
             actor* target;
-            timer_context(const T &data, uint32_t flags, actor *target) :
-            evt{data, flags}, target{target} {}
         };
 
-        auto *timer_ctx = new timer_context(evt.data, (periodic ? event::immutable | event::periodic : 0), this);
+        auto *timer_ctx = new timer_context{{evt.data, periodic}, this};
         assert(timer_ctx != nullptr);
 
         auto timer_cb = [](TimerHandle_t timer)
@@ -104,7 +102,7 @@ public:
 
             ctx->target->send(ctx->evt);
 
-            if (ctx->evt.flags & event::periodic)
+            if (ctx->evt.immutable)
                 return;
 
             /* Delete one-shot timer and its argument */
@@ -152,6 +150,8 @@ private:
     {
         actor *this_ = static_cast<actor*>(arg);
 
+        printf("Actor '%s' started, event size: %u bytes\r\n", pcTaskGetName(this_->task), sizeof(event));
+
         while (true)
         {
             event *evt = nullptr;
@@ -160,7 +160,7 @@ private:
             {
                 this_->dispatch(*evt);
 
-                if (!(evt->flags & event::immutable))
+                if (!evt->immutable)
                     delete evt;
             }
         }

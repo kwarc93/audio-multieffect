@@ -476,7 +476,7 @@ void effect_processor::audio_capture_cb(const hal::audio_devices::codec::input_s
     }
 
     /* Send event to process data */
-    static const event e{ events::process_audio {}, event::immutable };
+    static const event e{ events::process_audio {}, true };
     this->send(e, 0);
 }
 
