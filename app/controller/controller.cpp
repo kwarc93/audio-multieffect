@@ -157,10 +157,7 @@ void controller::event_handler(const events::button_state_changed &e)
         this->settings->save();
         this->view->send({lcd_view_events::shutdown {}});
         this->model->send({effect_processor_events::shutdown {}});
-
-        vTaskDelay(100);
-        hal::system::stop();
-        hal::system::reset();
+        this->schedule({events::shutdown {}}, 100, false);
     }
 }
 
@@ -170,6 +167,17 @@ void controller::event_handler(const controller_events::save_settings &e)
     {
         printf("Failed to save settings\r\n");
     }
+}
+
+void controller::event_handler(const controller_events::shutdown &e)
+{
+    hal::system::stop();
+    hal::system::reset();
+}
+
+void controller::event_handler(const controller_events::restart &e)
+{
+    hal::system::reset();
 }
 
 void controller::event_handler(const lcd_view_events::outgoing &e)
@@ -191,9 +199,7 @@ void controller::view_event_handler(const lcd_view_events::factory_reset &e)
 
     this->view->send({lcd_view_events::shutdown {}});
     this->model->send({effect_processor_events::shutdown {}});
-
-    vTaskDelay(100);
-    hal::system::reset();
+    this->schedule({events::restart {}}, 100, false);
 }
 
 void controller::view_event_handler(const lcd_view_events::splash_loaded &e)

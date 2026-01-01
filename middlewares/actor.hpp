@@ -85,7 +85,7 @@ public:
         assert(status == pdTRUE);
     }
 
-    void schedule(const event &evt, uint32_t time, bool periodic)
+    TimerHandle_t schedule(const event &evt, uint32_t time, bool periodic)
     {
         struct timer_context
         {
@@ -99,13 +99,16 @@ public:
         auto timer_cb = [](TimerHandle_t timer)
         {
             auto *ctx = static_cast<timer_context*>(pvTimerGetTimerID(timer));
+            bool periodic = xTimerGetReloadMode(timer);
 
+            /* Periodic events can be immutable because they live on heap */
+            ctx->evt.immutable = periodic;
             ctx->target->send(ctx->evt);
 
-            if (ctx->evt.immutable)
+            if (periodic)
                 return;
 
-            /* Delete one-shot timer and its argument */
+            /* Delete one-shot timer and its context */
             auto result = xTimerDelete(timer, 0);
             assert(result == pdPASS);
             delete ctx;
@@ -116,6 +119,14 @@ public:
 
         auto result = xTimerStart(timer, 0);
         assert(result == pdPASS);
+
+        return timer;
+    }
+
+    void cancel(TimerHandle_t timer)
+    {
+        /* Set timer to one-shot to self-delete itself */
+        vTimerSetReloadMode(timer, pdFALSE);
     }
 
 protected:

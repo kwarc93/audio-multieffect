@@ -54,6 +54,16 @@ struct save_settings
 
 };
 
+struct shutdown
+{
+
+};
+
+struct restart
+{
+
+};
+
 using incoming = std::variant
 <
     initialize,
@@ -61,6 +71,8 @@ using incoming = std::variant
     button_debounce,
     button_state_changed,
     save_settings,
+    shutdown,
+    restart,
 
     effect_processor_events::outgoing,
     lcd_view_events::outgoing
@@ -90,6 +102,8 @@ private:
     void event_handler(const controller_events::button_debounce &e);
     void event_handler(const controller_events::button_state_changed &e);
     void event_handler(const controller_events::save_settings &e);
+    void event_handler(const controller_events::shutdown &e);
+    void event_handler(const controller_events::restart &e);
     void event_handler(const lcd_view_events::outgoing &e);
     void event_handler(const effect_processor_events::outgoing &e);
 
