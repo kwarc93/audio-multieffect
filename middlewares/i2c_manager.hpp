@@ -71,7 +71,7 @@ public:
 
     void transfer(const transfer_desc &descriptor, const transfer_cb_t &callback) override
     {
-        const event e
+        event e
         {
             schedule_transfer_evt_t
             {

@@ -93,9 +93,9 @@ void controller::event_handler(const controller_events::initialize &e)
     this->settings->set_boot_counter(this->settings->get_boot_counter() + 1);
 
     /* Schedule periodic events */
-    this->schedule({events::button_debounce {}}, 20, true);
-    this->schedule({events::led_toggle {}}, 500, true);
-    this->schedule({events::save_settings {}}, 1000, true);
+    this->schedule({events::button_debounce {}}, 20);
+    this->schedule({events::led_toggle {}}, 500);
+    this->schedule({events::save_settings {}}, 1000);
 
     /* Start view & model */
     this->view->send({lcd_view_events::show_splash_screen {}});

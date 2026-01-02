@@ -202,7 +202,7 @@ void lcd_view::event_handler(const events::initialize &e)
 
     display.backlight(true);
 
-    this->schedule({events::timer {}}, 10, true);
+    this->schedule({events::timer {}}, 10);
 
     ui_init(this);
 }

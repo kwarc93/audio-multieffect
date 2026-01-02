@@ -34,8 +34,7 @@ public:
     struct timed_event
     {
         event evt;
-        actor* target;
-        std::atomic_bool cancelled;
+        std::atomic<actor*> target {nullptr};
     };
 
     actor(const std::string_view &name, uint32_t priority, size_t stack_size, uint32_t queue_size = 32)
@@ -94,20 +93,21 @@ public:
         assert(status == pdTRUE);
     }
 
-    TimerHandle_t schedule(const event &evt, uint32_t time, bool periodic)
+    TimerHandle_t schedule(const event &evt, uint32_t period, bool periodic = true)
     {
         /* Periodic events can be immutable because they live on heap */
-        auto *timer_ctx = new timed_event{{evt.data, periodic}, this, false};
+        auto *timer_ctx = new timed_event{{evt.data, periodic}, this};
         assert(timer_ctx != nullptr);
 
         auto timer_cb = [](TimerHandle_t timer)
         {
             const auto *ctx = static_cast<timed_event*>(pvTimerGetTimerID(timer));
+            actor *target = ctx->target;
             const bool periodic = xTimerGetReloadMode(timer);
-            const bool cancelled = ctx->cancelled;
+            const bool cancelled = target == nullptr;
 
             if (!cancelled)
-                ctx->target->send(ctx->evt);
+                target->send(ctx->evt, 0);
 
             if (!periodic || cancelled)
             {
@@ -117,7 +117,7 @@ public:
             }
         };
 
-        auto timer = xTimerCreate(nullptr, pdMS_TO_TICKS(time), periodic, timer_ctx, timer_cb);
+        auto timer = xTimerCreate(nullptr, pdMS_TO_TICKS(period), periodic, timer_ctx, timer_cb);
         assert(timer != nullptr);
 
         auto result = xTimerStart(timer, 0);
@@ -129,7 +129,7 @@ public:
     void cancel(TimerHandle_t timer)
     {
         auto *ctx = static_cast<timed_event*>(pvTimerGetTimerID(timer));
-        ctx->cancelled = true;
+        ctx->target = nullptr;
     }
 
 protected:

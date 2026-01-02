@@ -50,7 +50,7 @@ public:
                                   {
                                       /* Send event to process IPC data */
                                       static const event e{ ipc_controller_events::ipc_data {}, true };
-                                      this->send(e, 0);
+                                      this->send(e);
                                   });
 
          /* Start observing model */
@@ -89,7 +89,7 @@ private:
         if (bytes_received == sizeof(evt))
         {
             /* Send event to model */
-            this->model->send({std::move(evt)});
+            this->model->send({evt});
         }
     }
 
