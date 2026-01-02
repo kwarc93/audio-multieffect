@@ -13,7 +13,9 @@
 #include "queue.h"
 #include "timers.h"
 
-#include <string>
+#include <string_view>
+#include <atomic>
+#include <cstdio>
 #include <cassert>
 
 namespace middlewares
@@ -27,6 +29,13 @@ public:
     {
         T data;
         bool immutable {false};
+    };
+
+    struct timed_event
+    {
+        event evt;
+        actor* target;
+        std::atomic_bool cancelled;
     };
 
     actor(const std::string_view &name, uint32_t priority, size_t stack_size, uint32_t queue_size = 32)
@@ -87,31 +96,25 @@ public:
 
     TimerHandle_t schedule(const event &evt, uint32_t time, bool periodic)
     {
-        struct timer_context
-        {
-            event evt;
-            actor* target;
-        };
-
-        auto *timer_ctx = new timer_context{{evt.data, periodic}, this};
+        /* Periodic events can be immutable because they live on heap */
+        auto *timer_ctx = new timed_event{{evt.data, periodic}, this, false};
         assert(timer_ctx != nullptr);
 
         auto timer_cb = [](TimerHandle_t timer)
         {
-            auto *ctx = static_cast<timer_context*>(pvTimerGetTimerID(timer));
-            bool periodic = xTimerGetReloadMode(timer);
+            const auto *ctx = static_cast<timed_event*>(pvTimerGetTimerID(timer));
+            const bool periodic = xTimerGetReloadMode(timer);
+            const bool cancelled = ctx->cancelled;
 
-            /* Periodic events can be immutable because they live on heap */
-            ctx->evt.immutable = periodic;
-            ctx->target->send(ctx->evt);
+            if (!cancelled)
+                ctx->target->send(ctx->evt);
 
-            if (periodic)
-                return;
-
-            /* Delete one-shot timer and its context */
-            auto result = xTimerDelete(timer, 0);
-            assert(result == pdPASS);
-            delete ctx;
+            if (!periodic || cancelled)
+            {
+                auto result = xTimerDelete(timer, 0);
+                assert(result == pdPASS);
+                delete ctx;
+            }
         };
 
         auto timer = xTimerCreate(nullptr, pdMS_TO_TICKS(time), periodic, timer_ctx, timer_cb);
@@ -125,8 +128,8 @@ public:
 
     void cancel(TimerHandle_t timer)
     {
-        /* Set timer to one-shot to self-delete itself */
-        vTimerSetReloadMode(timer, pdFALSE);
+        auto *ctx = static_cast<timed_event*>(pvTimerGetTimerID(timer));
+        ctx->cancelled = true;
     }
 
 protected:
