@@ -7,6 +7,7 @@
 
 #include "ltdc.hpp"
 
+#include <array>
 #include <cassert>
 
 #include <cmsis/stm32f7xx.h>
@@ -36,6 +37,23 @@ void ltdc::global_toggle(bool state)
         LTDC->GCR |= LTDC_GCR_LTDCEN;
     else
         LTDC->GCR &= ~LTDC_GCR_LTDCEN;
+}
+
+size_t ltdc::layer::get_pixel_size(pixel_format fmt)
+{
+    constexpr std::array<size_t, 8> pixel_size_map
+    {{
+        4, // pixel_format::ARGB8888
+        4, // pixel_format::RGB888
+        2, // pixel_format::RGB565
+        2, // pixel_format::ARGB1555
+        2, // pixel_format::ARGB4444
+        1, // pixel_format::L8
+        1, // pixel_format::AL44
+        2, // pixel_format::AL88
+    }};
+
+    return pixel_size_map.at(static_cast<std::underlying_type_t<pixel_format>>(fmt));
 }
 
 //-----------------------------------------------------------------------------
@@ -182,8 +200,8 @@ void ltdc::layer::configure(id layer, const layer::cfg &cfg)
                     | cfg.b << LTDC_LxDCCR_DCBLUE_Pos;
 
     layer_reg->CFBAR = reinterpret_cast<uint32_t>(cfg.frame_buf_addr);
-    layer_reg->CFBLR = (cfg.frame_buf_width * pixel_size.at(cfg.pix_fmt) + 3) << LTDC_LxCFBLR_CFBLL_Pos
-                     | (cfg.frame_buf_width * pixel_size.at(cfg.pix_fmt)) << LTDC_LxCFBLR_CFBP_Pos;
+    layer_reg->CFBLR = (cfg.frame_buf_width * get_pixel_size(cfg.pix_fmt) + 3) << LTDC_LxCFBLR_CFBLL_Pos
+                     | (cfg.frame_buf_width * get_pixel_size(cfg.pix_fmt)) << LTDC_LxCFBLR_CFBP_Pos;
     layer_reg->CFBLNR = cfg.frame_buf_height << LTDC_LxCFBLNR_CFBLNBR_Pos;
 
     LTDC->SRCR |= LTDC_SRCR_IMR;

@@ -13,7 +13,7 @@
 #include <algorithm>
 #include <memory>
 #include <vector>
-#include <map>
+#include <array>
 
 #include <hal_system.hpp>
 
@@ -419,21 +419,21 @@ void effect_processor::notify_effect_attributes_changed(const effect *e)
 
 std::unique_ptr<effect> effect_processor::create_new(effect_id id)
 {
-    static const std::map<effect_id, std::function<std::unique_ptr<effect>()>> effect_factory =
-    {
-        { effect_id::tuner,         []() { return std::make_unique<tuner>(); } },
-        { effect_id::tremolo,       []() { return std::make_unique<tremolo>(); } },
-        { effect_id::echo,          []() { return std::make_unique<echo>(); } },
-        { effect_id::chorus,        []() { return std::make_unique<chorus>(); } },
-        { effect_id::reverb,        []() { return std::make_unique<reverb>(); } },
-        { effect_id::overdrive,     []() { return std::make_unique<overdrive>(); } },
-        { effect_id::cabinet_sim,   []() { return std::make_unique<cabinet_sim>(); } },
-        { effect_id::vocoder,       []() { return std::make_unique<vocoder>(); } },
-        { effect_id::phaser,        []() { return std::make_unique<phaser>(); } },
-        { effect_id::amplifier_sim, []() { return std::make_unique<amp_sim>(); } }
-    };
+    constexpr std::array<std::unique_ptr<effect>(*)(), static_cast<uint8_t>(effect_id::_count)> effect_factory
+    {{
+        []() -> std::unique_ptr<effect> { return std::make_unique<tuner>();       },
+        []() -> std::unique_ptr<effect> { return std::make_unique<tremolo>();     },
+        []() -> std::unique_ptr<effect> { return std::make_unique<echo>();        },
+        []() -> std::unique_ptr<effect> { return std::make_unique<chorus>();      },
+        []() -> std::unique_ptr<effect> { return std::make_unique<reverb>();      },
+        []() -> std::unique_ptr<effect> { return std::make_unique<overdrive>();   },
+        []() -> std::unique_ptr<effect> { return std::make_unique<cabinet_sim>(); },
+        []() -> std::unique_ptr<effect> { return std::make_unique<vocoder>();     },
+        []() -> std::unique_ptr<effect> { return std::make_unique<phaser>();      },
+        []() -> std::unique_ptr<effect> { return std::make_unique<amp_sim>();     }
+    }};
 
-    std::unique_ptr<effect> e = effect_factory.at(id)();
+    std::unique_ptr<effect> e = effect_factory.at(static_cast<uint8_t>(id))();
     e->set_callback([this](effect* e) { this->notify_effect_attributes_changed(e); });
     return e;
 }

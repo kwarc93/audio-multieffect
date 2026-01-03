@@ -11,7 +11,6 @@
 #include <cstdint>
 #include <cstddef>
 #include <functional>
-#include <unordered_map>
 
 namespace drivers
 {
@@ -79,18 +78,9 @@ public:
 private:
     static inline transfer_cb_t transfer_callback;
 
-    static const inline std::unordered_map<color, size_t> pixel_size
-    {
-        { color::ARGB8888, 4 }, { color::RGB888, 4 },
-        { color::RGB565, 2 },   { color::ARGB1555, 2 },
-        { color::ARGB4444, 2 }, { color::L8, 1 },
-        { color::AL44, 1 },     { color::AL88, 2 },
-        { color::L4, 1 },       { color::A8, 1 },
-        { color::A4, 1 },
-    };
-
-    static void set_mode(enum mode mode);
-    static void send_command(enum command command);
+    static void set_mode(mode mode);
+    static void send_command(command cmd);
+    static size_t get_pixel_size(color col);
 };
 
 }

@@ -30,7 +30,7 @@ namespace
 
 void dma2d::set_mode(mode mode)
 {
-    static const std::array<uint32_t, 4> dma2d_cr_cmode
+    constexpr std::array<uint32_t, 4> dma2d_cr_cmode
     {{
         0,
         DMA2D_CR_MODE_0,
@@ -44,7 +44,7 @@ void dma2d::set_mode(mode mode)
 
 void dma2d::send_command(command cmd)
 {
-    static const std::array<uint8_t, 3> dma2d_cr_cmd
+    constexpr std::array<uint8_t, 3> dma2d_cr_cmd
     {{
         DMA2D_CR_ABORT,
         DMA2D_CR_SUSP,
@@ -53,6 +53,26 @@ void dma2d::send_command(command cmd)
 
     DMA2D->CR &= ~(DMA2D_CR_ABORT_Msk | DMA2D_CR_SUSP_Msk | DMA2D_CR_START_Msk);
     DMA2D->CR |= dma2d_cr_cmd[static_cast<uint8_t>(cmd)];
+}
+
+size_t dma2d::get_pixel_size(color col)
+{
+    constexpr std::array<size_t, 11> pixel_size_map
+    {{
+        4, // color::ARGB8888
+        4, // color::RGB888
+        2, // color::RGB565
+        2, // color::ARGB1555
+        2, // color::ARGB4444
+        1, // color::L8
+        1, // color::AL44
+        2, // color::AL88
+        1, // color::L4
+        1, // color::A8
+        1, // color::A4
+    }};
+
+    return pixel_size_map.at(static_cast<std::underlying_type_t<color>>(col));
 }
 
 //-----------------------------------------------------------------------------
@@ -100,7 +120,7 @@ void dma2d::transfer(const transfer_cfg &cfg)
 
     /* Configure color parameters */
     uint32_t color = 0;
-    memcpy(&color, cfg.src, pixel_size.at(cfg.color_mode));
+    memcpy(&color, cfg.src, get_pixel_size(cfg.color_mode));
     DMA2D->OCOLR = (cfg.alpha << 24) | color;
 
     /* Configure foreground memory parameters. */
@@ -110,7 +130,7 @@ void dma2d::transfer(const transfer_cfg &cfg)
     DMA2D->FGOR = cfg.rotate_90_deg ? (cfg.x2 - cfg.x1) : 0;
 
     /* Configure output memory parameters. */
-    DMA2D->OMAR = reinterpret_cast<uint32_t>(cfg.dst) + pixel_size.at(cfg.color_mode) * (cfg.y1 * cfg.width + cfg.x1);
+    DMA2D->OMAR = reinterpret_cast<uint32_t>(cfg.dst) + get_pixel_size(cfg.color_mode) * (cfg.y1 * cfg.width + cfg.x1);
     DMA2D->OPFCCR = static_cast<uint32_t>(cfg.color_mode) << DMA2D_FGPFCCR_CM_Pos;
     DMA2D->OOR = cfg.rotate_90_deg ? 0 : cfg.width - (cfg.x2 - cfg.x1 + 1);
 
@@ -126,7 +146,7 @@ void dma2d::transfer(const transfer_cfg &cfg)
         return;
     }
 
-    const size_t px_size = pixel_size.at(cfg.color_mode);
+    const size_t px_size = get_pixel_size(cfg.color_mode);
     int16_t lines = cfg.x2 - cfg.x1 + 1;
     int16_t x1 = cfg.x1;
 
@@ -153,7 +173,7 @@ void dma2d::transfer(const transfer_cfg &cfg)
         while (DMA2D->CR & DMA2D_CR_START);
 
         /* Update foreground memory address */
-        DMA2D->FGMAR += pixel_size.at(cfg.color_mode);
+        DMA2D->FGMAR += get_pixel_size(cfg.color_mode);
     }
 }
 

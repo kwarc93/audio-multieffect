@@ -11,7 +11,6 @@
 #include <cstdint>
 #include <cstddef>
 #include <functional>
-#include <unordered_map>
 
 namespace drivers
 {
@@ -91,14 +90,7 @@ public:
         static void enable(id layer, bool layer_enable, bool color_keying_enable, bool clut_enable);
         static void set_framebuf_addr(id layer, void *addr);
     private:
-        static const inline std::unordered_map<pixel_format, size_t> pixel_size
-        {
-            { pixel_format::ARGB8888, 4 }, { pixel_format::RGB888, 4 },
-            { pixel_format::RGB565, 2 },   { pixel_format::ARGB1555, 2 },
-            { pixel_format::ARGB4444, 2 }, { pixel_format::L8, 1 },
-            { pixel_format::AL44, 1 },     { pixel_format::AL88, 2 },
-        };
-
+        static size_t get_pixel_size(pixel_format fmt);
     };
 
     static void irq_handler(void);
