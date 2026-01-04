@@ -23,8 +23,7 @@ mfx::lcd_view *view;
 void notify_effect_bypass_changed(lv_obj_t *obj, mfx::effect_id effect)
 {
     bool bypassed = !lv_obj_has_state(obj, LV_STATE_CHECKED);
-    const events::effect_bypass_changed evt {effect, bypassed};
-    view->notify(evt);
+    view->notify(events::effect_bypass_changed {effect, bypassed});
 }
 
 void notify_tuner_controls_changed(void)
@@ -259,16 +258,14 @@ void ui_settings_dark_mode_changed(lv_event_t * e)
 {
     bool dark_mode = lv_obj_has_state(ui_sw_sett_dark_mode, LV_STATE_CHECKED);
 
-    const events::theme_changed evt {dark_mode};
-    view->notify(evt);
+    view->notify(events::theme_changed {dark_mode});
 }
 
 void ui_settings_display_brightess_changed(lv_event_t * e)
 {
     uint8_t brightness = lv_slider_get_value(ui_sld_sett_displ_bright);
 
-    const events::lcd_brightness_changed evt {brightness};
-    view->notify(evt);
+    view->notify(events::lcd_brightness_changed {brightness});
 }
 
 void ui_settings_in_vol_changed(lv_event_t * e)
@@ -279,8 +276,7 @@ void ui_settings_in_vol_changed(lv_event_t * e)
     uint8_t main_in_vol = lv_slider_get_value(main_in_slider);
     uint8_t aux_in_vol = lv_slider_get_value(aux_in_slider);
 
-    const events::input_volume_changed evt {main_in_vol, aux_in_vol};
-    view->notify(evt);
+    view->notify(events::input_volume_changed {main_in_vol, aux_in_vol});
 }
 
 void ui_settings_out_vol_changed(lv_event_t * e)
@@ -289,20 +285,17 @@ void ui_settings_out_vol_changed(lv_event_t * e)
 
     uint8_t out_vol = lv_slider_get_value(out_slider);
 
-    const events::output_volume_changed evt {out_vol};
-    view->notify(evt);
+    view->notify(events::output_volume_changed {out_vol});
 }
 
 void ui_settings_mute_audio(lv_event_t * e)
 {
-    const events::mute_changed evt {lv_obj_has_state(ui_sw_sett_mute_audio, LV_STATE_CHECKED)};
-    view->notify(evt);
+    view->notify(events::mute_changed {lv_obj_has_state(ui_sw_sett_mute_audio, LV_STATE_CHECKED)});
 }
 
 void ui_settings_route_mic_to_aux(lv_event_t * e)
 {
-    const events::route_mic_to_aux_changed evt {lv_obj_has_state(ui_sw_sett_route_mic_to_aux, LV_STATE_CHECKED)};
-    view->notify(evt);
+    view->notify(events::route_mic_to_aux_changed {lv_obj_has_state(ui_sw_sett_route_mic_to_aux, LV_STATE_CHECKED)});
 }
 
 void ui_settings_usb_if_toggle(lv_event_t * e)
@@ -311,32 +304,27 @@ void ui_settings_usb_if_toggle(lv_event_t * e)
     usb_if_enabled ? lv_obj_clear_state(ui_sw_sett_usb_direct_mon, LV_STATE_DISABLED) :
                      lv_obj_add_state(ui_sw_sett_usb_direct_mon, LV_STATE_DISABLED);
 
-    const events::usb_audio_if_changed evt {usb_if_enabled};
-    view->notify(evt);
+    view->notify(events::usb_audio_if_changed {usb_if_enabled});
 }
 
 void ui_settings_usb_direct_mon(lv_event_t * e)
 {
-    const events::usb_direct_mon_changed evt {lv_obj_has_state(ui_sw_sett_usb_direct_mon, LV_STATE_CHECKED)};
-    view->notify(evt);
+    view->notify(events::usb_direct_mon_changed {lv_obj_has_state(ui_sw_sett_usb_direct_mon, LV_STATE_CHECKED)});
 }
 
 void ui_settings_add_effect(uint32_t id)
 {
-    const events::add_effect_request evt {static_cast<mfx::effect_id>(id)};
-    view->notify(evt);
+    view->notify(events::add_effect_request {static_cast<mfx::effect_id>(id)});
 }
 
 void ui_settings_remove_effect(uint32_t effect_id)
 {
-    const events::remove_effect_request evt {static_cast<mfx::effect_id>(effect_id)};
-    view->notify(evt);
+    view->notify(events::remove_effect_request {static_cast<mfx::effect_id>(effect_id)});
 }
 
 void ui_settings_move_effect(uint32_t effect_id, int32_t step)
 {
-    const events::move_effect_request evt {static_cast<mfx::effect_id>(effect_id), step};
-    view->notify(evt);
+    view->notify(events::move_effect_request {static_cast<mfx::effect_id>(effect_id), step});
 }
 
 void ui_settings_factory_reset(void)

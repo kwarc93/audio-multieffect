@@ -89,7 +89,7 @@ private:
         if (bytes_received == sizeof(evt))
         {
             /* Send event to model */
-            this->model->send({evt});
+            this->model->send({std::move(evt)});
         }
     }
 

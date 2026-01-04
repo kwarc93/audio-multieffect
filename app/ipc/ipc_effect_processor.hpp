@@ -48,7 +48,7 @@ private:
             if (bytes_received == sizeof(evt))
             {
                 /* Notify observers about event */
-                this->notify(evt);
+                this->notify(std::move(evt));
             }
         }
         else
