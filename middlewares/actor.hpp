@@ -60,7 +60,7 @@ public:
 
     void attach(std::function<void(O)> callback)
     {
-        this->callback = callback;
+        this->callback = std::move(callback);
     }
 
     void notify(O evt)
@@ -69,35 +69,39 @@ public:
             this->callback(std::move(evt));
     }
 
-    void send(const event& evt, uint32_t timeout = portMAX_DELAY)
+    template <typename E = event>
+    void send(E &&evt, uint32_t timeout = portMAX_DELAY)
     {
-        assert(evt.immutable);
+        const event *e = nullptr;
+
+        if (evt.immutable)
+        {
+            /* With immutable (static) events, rvalue must not be passed - it would cause dangling pointer */
+            assert(!std::is_rvalue_reference<E&&>::value);
+            e = &evt;
+        }
+        else
+        {
+            /* Mutable (dynamic) events must not be used from interrupt */
+            assert(xPortIsInsideInterrupt() == pdFALSE);
+            e = new event(std::forward<E>(evt));
+        }
+
+        assert(e != nullptr);
 
         auto status = pdFALSE;
 
         if (xPortIsInsideInterrupt())
         {
             BaseType_t yield = pdFALSE;
-            status = xQueueSendToBackFromISR(this->queue, &evt, &yield);
+            status = xQueueSendToBackFromISR(this->queue, &e, &yield);
             portYIELD_FROM_ISR(yield);
         }
         else
         {
-            status = xQueueSendToBack(this->queue, &evt, pdMS_TO_TICKS(timeout));
+            status = xQueueSendToBack(this->queue, &e, pdMS_TO_TICKS(timeout));
         }
 
-        assert(status == pdTRUE);
-    }
-
-    void send(event&& evt, uint32_t timeout = portMAX_DELAY)
-    {
-        assert(!evt.immutable);
-        assert(xPortIsInsideInterrupt() == pdFALSE);
-
-        auto* evt_ptr = new event(std::move(evt));
-        assert(evt_ptr != nullptr);
-
-        auto status = xQueueSendToBack(this->queue, &evt_ptr, pdMS_TO_TICKS(timeout));
         assert(status == pdTRUE);
     }
 
@@ -109,13 +113,13 @@ public:
 
         auto timer_cb = [](TimerHandle_t timer)
         {
-            const auto *ctx = static_cast<timed_event*>(pvTimerGetTimerID(timer));
+            auto *ctx = static_cast<timed_event*>(pvTimerGetTimerID(timer));
             actor *target = ctx->target;
             const bool periodic = xTimerGetReloadMode(timer);
             const bool cancelled = target == nullptr;
 
             if (!cancelled)
-                target->send(periodic ? ctx->evt : std::move(ctx->evt), 0);
+                target->send(ctx->evt, 0);
 
             if (!periodic || cancelled)
             {
