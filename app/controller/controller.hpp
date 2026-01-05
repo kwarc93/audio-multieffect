@@ -16,7 +16,6 @@
 #include <hal_button.hpp>
 
 #include <middlewares/actor.hpp>
-#include <middlewares/observer.hpp>
 
 #include "app/view/lcd_view/lcd_view.hpp"
 #include "app/model/effect_processor.hpp"
@@ -80,9 +79,7 @@ using incoming = std::variant
 
 }
 
-class controller : public middlewares::actor<controller_events::incoming>,
-                   public middlewares::observer<effect_processor_events::outgoing>,
-                   public middlewares::observer<lcd_view_events::outgoing>
+class controller : public middlewares::actor<controller_events::incoming>
 {
 public:
     controller(std::unique_ptr<effect_processor_base> model,
@@ -93,8 +90,6 @@ public:
 
 private:
     void dispatch(const event &e) override;
-    void update(const effect_processor_events::outgoing &e) override;
-    void update(const lcd_view_events::outgoing &e) override;
 
     /* Event handlers */
     void event_handler(const controller_events::initialize &e);

@@ -14,7 +14,6 @@
 #include <array>
 
 #include <middlewares/actor.hpp>
-#include <middlewares/observer.hpp>
 
 #include <hal_audio.hpp>
 
@@ -191,8 +190,8 @@ using outgoing = std::variant
 
 }
 
-class effect_processor_base : public middlewares::actor<effect_processor_events::incoming>,
-                              public middlewares::subject<effect_processor_events::outgoing>
+class effect_processor_base : public middlewares::actor<effect_processor_events::incoming,
+                                                        effect_processor_events::outgoing>
 {
 public:
     effect_processor_base() : actor("effect_processor", configTASK_PRIO_REALTIME, 4096) {}

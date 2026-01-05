@@ -20,26 +20,28 @@
 namespace middlewares
 {
 
-struct i2c_manager_event
+namespace i2c_manager_events
 {
-    struct schedule_transfer_evt_t
-    {
-        uint8_t address;
-        std::vector<std::byte> tx;
-        std::vector<std::byte> rx;
-        hal::interface::i2c_proxy::transfer_cb_t callback;
-    };
 
-    struct perform_transfer_evt_t
-    {
-        hal::interface::i2c_proxy::transfer_desc &descriptor;
-        TaskHandle_t caller_task_id;
-    };
-
-    using holder = std::variant<schedule_transfer_evt_t, perform_transfer_evt_t>;
+struct schedule_transfer_evt_t
+{
+    uint8_t address;
+    std::vector<std::byte> tx;
+    std::vector<std::byte> rx;
+    hal::interface::i2c_proxy::transfer_cb_t callback;
 };
 
-class i2c_manager : private i2c_manager_event, private actor<i2c_manager_event::holder>, public hal::interface::i2c_proxy
+struct perform_transfer_evt_t
+{
+    hal::interface::i2c_proxy::transfer_desc &descriptor;
+    TaskHandle_t caller_task_id;
+};
+
+using incoming = std::variant<schedule_transfer_evt_t, perform_transfer_evt_t>;
+
+}
+
+class i2c_manager : private actor<i2c_manager_events::incoming>, public hal::interface::i2c_proxy
 {
 public:
     i2c_manager(hal::interface::i2c &drv) : actor("i2c_manager", configTASK_PRIO_HIGH, 1024), i2c_proxy(drv)
@@ -54,7 +56,7 @@ public:
 
     void transfer(transfer_desc &descriptor) override
     {
-        const event e {perform_transfer_evt_t {descriptor, xTaskGetCurrentTaskHandle()}, true};
+        const event e {i2c_manager_events::perform_transfer_evt_t {descriptor, xTaskGetCurrentTaskHandle()}, true};
 
         auto bytes_to_write = descriptor.tx_size;
         auto bytes_to_read = descriptor.rx_size;
@@ -73,7 +75,7 @@ public:
     {
         event e
         {
-            schedule_transfer_evt_t
+            i2c_manager_events::schedule_transfer_evt_t
             {
                 descriptor.address,
                 std::vector<std::byte>(descriptor.tx_data, descriptor.tx_data + descriptor.tx_size),
@@ -91,7 +93,7 @@ private:
         std::visit([this](auto &&e) { this->event_handler(e); }, e.data);
     }
 
-    void event_handler(const schedule_transfer_evt_t &e)
+    void event_handler(const i2c_manager_events::schedule_transfer_evt_t &e)
     {
         this->driver.set_address(e.address);
         this->driver.set_no_stop(e.rx.size() > 0);
@@ -117,7 +119,7 @@ private:
         }
     }
 
-    void event_handler(const perform_transfer_evt_t &e)
+    void event_handler(const i2c_manager_events::perform_transfer_evt_t &e)
     {
         this->driver.set_address(e.descriptor.address);
         this->driver.set_no_stop(e.descriptor.rx_size > 0);
@@ -143,7 +145,5 @@ namespace i2c_managers
 }
 
 }
-
-
 
 #endif /* I2C_MANAGER_HPP_ */

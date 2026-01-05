@@ -13,6 +13,7 @@
 #include "queue.h"
 #include "timers.h"
 
+#include <functional>
 #include <string_view>
 #include <atomic>
 #include <cstdio>
@@ -21,13 +22,13 @@
 namespace middlewares
 {
 
-template<typename T>
+template<typename I, typename O = void*>
 class actor
 {
 public:
     struct event
     {
-        T data;
+        I data;
         bool immutable {false};
     };
 
@@ -57,39 +58,46 @@ public:
         this->task = nullptr;
     }
 
-    template <typename E = event>
-    void send(E &&evt, uint32_t timeout = portMAX_DELAY)
+    void attach(std::function<void(O)> callback)
     {
-        const event *e = nullptr;
+        this->callback = callback;
+    }
 
-        if (evt.immutable)
-        {
-            /* With immutable (static) events, rvalue must not be passed - it would cause dangling pointer */
-            assert(!std::is_rvalue_reference<E&&>::value);
-            e = &evt;
-        }
-        else
-        {
-            /* Mutable (dynamic) events must not be used from interrupt */
-            assert(xPortIsInsideInterrupt() == pdFALSE);
-            e = new event(std::forward<E>(evt));
-        }
+    void notify(O evt)
+    {
+        if (this->callback)
+            this->callback(std::move(evt));
+    }
 
-        assert(e != nullptr);
+    void send(const event& evt, uint32_t timeout = portMAX_DELAY)
+    {
+        assert(evt.immutable);
 
         auto status = pdFALSE;
 
         if (xPortIsInsideInterrupt())
         {
             BaseType_t yield = pdFALSE;
-            status = xQueueSendToBackFromISR(this->queue, &e, &yield);
+            status = xQueueSendToBackFromISR(this->queue, &evt, &yield);
             portYIELD_FROM_ISR(yield);
         }
         else
         {
-            status = xQueueSendToBack(this->queue, &e, pdMS_TO_TICKS(timeout));
+            status = xQueueSendToBack(this->queue, &evt, pdMS_TO_TICKS(timeout));
         }
 
+        assert(status == pdTRUE);
+    }
+
+    void send(event&& evt, uint32_t timeout = portMAX_DELAY)
+    {
+        assert(!evt.immutable);
+        assert(xPortIsInsideInterrupt() == pdFALSE);
+
+        auto* evt_ptr = new event(std::move(evt));
+        assert(evt_ptr != nullptr);
+
+        auto status = xQueueSendToBack(this->queue, &evt_ptr, pdMS_TO_TICKS(timeout));
         assert(status == pdTRUE);
     }
 
@@ -107,7 +115,7 @@ public:
             const bool cancelled = target == nullptr;
 
             if (!cancelled)
-                target->send(ctx->evt, 0);
+                target->send(periodic ? ctx->evt : std::move(ctx->evt), 0);
 
             if (!periodic || cancelled)
             {
@@ -180,6 +188,7 @@ private:
         }
     }
 
+    std::function<void(O)> callback {};
     QueueHandle_t queue {};
     TaskHandle_t task {};
 };

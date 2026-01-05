@@ -13,7 +13,6 @@
 #include <cassert>
 
 #include <middlewares/actor.hpp>
-#include <middlewares/observer.hpp>
 
 #include "app/model/effect_processor.hpp"
 
@@ -37,8 +36,8 @@ using incoming = std::variant
 
 }
 
-class ipc_controller : public middlewares::actor<ipc_controller_events::incoming>,
-                       public middlewares::observer<effect_processor_events::outgoing>
+class ipc_controller : public middlewares::actor<ipc_controller_events::incoming,
+                                                 effect_processor_events::outgoing>
 {
 public:
      ipc_controller(std::unique_ptr<effect_processor_base> model) :
@@ -46,15 +45,24 @@ public:
      model {std::move(model)}
      {
          const bool initialized = hal::ipc::init_cm7_to_cm4(
-                                  [this]()
-                                  {
-                                      /* Send event to process IPC data */
-                                      static const event e{ ipc_controller_events::ipc_data {}, true };
-                                      this->send(e);
-                                  });
+         [this]()
+         {
+             /* Send event to process IPC data */
+             static const event e{ ipc_controller_events::ipc_data {}, true };
+             this->send(e);
+         });
 
          /* Start observing model */
-         this->model->attach(this);
+         this->model->attach(
+         [this](effect_processor_events::outgoing e)
+         {
+             /* IPC: send data to CM4 */
+             const size_t bytes_sent = hal::ipc::send_to_cm4((void *)&e, sizeof(e));
+             if (bytes_sent != sizeof(e))
+             {
+                 /* Not enough space in message buffer */
+             }
+         });
 
          assert(initialized);
      }
@@ -68,16 +76,6 @@ private:
     void dispatch(const event &e) override
     {
         std::visit([this](auto &&e) { this->event_handler(e); }, e.data);
-    }
-
-    void update(const effect_processor_events::outgoing &e) override
-    {
-        /* IPC: send data to CM4 */
-        const size_t bytes_sent = hal::ipc::send_to_cm4((void *)&e, sizeof(e));
-        if (bytes_sent != sizeof(e))
-        {
-            /* Not enough space in message buffer */
-        }
     }
 
     /* Event handlers */

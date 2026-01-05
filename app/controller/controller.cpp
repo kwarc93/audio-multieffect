@@ -34,20 +34,6 @@ void controller::dispatch(const event& e)
     std::visit([this](auto &&e) { this->event_handler(e); }, e.data);
 }
 
-void controller::update(const effect_processor_events::outgoing &e)
-{
-    /* WARNING: This method could have been called from another thread */
-    /* Forward this event dispatching to the controller thread (to avoid race conditions) */
-    this->send({e});
-}
-
-void controller::update(const lcd_view_events::outgoing &e)
-{
-    /* WARNING: This method could have been called from another thread */
-    /* Forward this event dispatching to the controller thread (to avoid race conditions) */
-    this->send({e});
-}
-
 void controller::event_handler(const controller_events::initialize &e)
 {
     /* Load & dump settings */
@@ -60,10 +46,10 @@ void controller::event_handler(const controller_events::initialize &e)
     printf("Settings:\r\n%s\r\n", settings->dump().data());
 
     /* Start observing model */
-    this->model->attach(this);
+    this->model->attach([this](effect_processor_events::outgoing evt){ this->send({std::move(evt)}); });
 
     /* Start observing view(s) */
-    this->view->attach(this);
+    this->view->attach([this](lcd_view_events::outgoing evt){ this->send({std::move(evt)}); });
 
     /* Configure view & model */
     this->model->send({effect_processor_events::configuration
