@@ -89,17 +89,24 @@ static lv_obj_t * menu_create_text(lv_obj_t * parent, const char * icon, const c
     return obj;
 }
 
-static lv_obj_t * menu_create_slider(lv_obj_t * parent, const char * icon, const char * txt, int32_t min, int32_t max, int32_t val, lv_event_cb_t event_cb)
+static lv_obj_t * menu_create_slider(lv_obj_t * parent, lv_obj_t ** lbl, const char * txt, int32_t min, int32_t max, int32_t val, lv_event_cb_t event_cb)
 {
-    lv_obj_t * obj = menu_create_text(parent, icon, txt);
+    lv_obj_t * obj = menu_create_text(parent, NULL, txt);
 
     lv_obj_t * slider = lv_slider_create(obj);
     lv_obj_set_flex_grow(slider, 1);
     lv_slider_set_range(slider, min, max);
     lv_slider_set_value(slider, val, LV_ANIM_OFF);
 
-    if (icon == NULL)
-        lv_obj_add_flag(slider, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK);
+    if (lbl)
+    {
+        *lbl = lv_label_create(obj);
+        lv_obj_add_flag(*lbl, LV_OBJ_FLAG_IGNORE_LAYOUT);
+        lv_obj_set_align(*lbl, LV_ALIGN_TOP_RIGHT);
+        lv_obj_set_style_pad_all(*lbl, 0, 0);
+    }
+
+    lv_obj_add_flag(slider, LV_OBJ_FLAG_FLEX_IN_NEW_TRACK);
 
     if (event_cb)
         lv_obj_add_event_cb(slider, event_cb, LV_EVENT_ALL, NULL);
@@ -620,16 +627,16 @@ void ui_settings_screen_init(void)
     lv_obj_set_style_pad_hor(sub_audio_page, menu_pad_hor, 0);
     lv_menu_separator_create(sub_audio_page);
     section = lv_menu_section_create(sub_audio_page);
-    cont = menu_create_slider(section, NULL, "MAIN input volume", 0, 31, 11, ui_event_sld_in_vol);
-    ui_sld_sett_main_in_vol = lv_obj_get_child(cont, -1);
-    cont = menu_create_slider(section, NULL, "AUX input volume", 0, 31, 11, ui_event_sld_in_vol);
-    ui_sld_sett_aux_in_vol = lv_obj_get_child(cont, -1);
+    cont = menu_create_slider(section, &ui_lbl_sett_main_in_vol, "MAIN input volume", 0, 31, 11, ui_event_sld_in_vol);
+    ui_sld_sett_main_in_vol = lv_obj_get_child(cont, -2);
+    cont = menu_create_slider(section, &ui_lbl_sett_aux_in_vol, "AUX input volume", 0, 31, 11, ui_event_sld_in_vol);
+    ui_sld_sett_aux_in_vol = lv_obj_get_child(cont, -2);
     cont = menu_create_switch(section, NULL, "Route onboard microphone to AUX", false, ui_event_sw_route_mic_to_aux);
     ui_sw_sett_route_mic_to_aux = lv_obj_get_child(cont, -1);
     lv_menu_separator_create(sub_audio_page);
     section = lv_menu_section_create(sub_audio_page);
-    cont = menu_create_slider(section, NULL, "OUT volume", 0, 63, 57, ui_event_sld_out_vol);
-    ui_sld_sett_out_vol = lv_obj_get_child(cont, -1);
+    cont = menu_create_slider(section, &ui_lbl_sett_out_vol, "OUT volume", 0, 63, 57, ui_event_sld_out_vol);
+    ui_sld_sett_out_vol = lv_obj_get_child(cont, -2);
     cont = menu_create_switch(section, NULL, "Mute output", false, ui_event_sw_mute_audio);
     ui_sw_sett_mute_audio = lv_obj_get_child(cont, -1);
     lv_menu_separator_create(sub_audio_page);

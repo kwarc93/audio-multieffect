@@ -6,6 +6,7 @@
 #include "ui.h"
 
 #include "lcd_view.hpp"
+#include "app/utils.hpp"
 
 #include <cassert>
 #include <string>
@@ -276,6 +277,10 @@ void ui_settings_in_vol_changed(lv_event_t * e)
     uint8_t main_in_vol = lv_slider_get_value(main_in_slider);
     uint8_t aux_in_vol = lv_slider_get_value(aux_in_slider);
 
+    // TODO: Obtain volume ranges from lcd_view
+    lv_label_set_text_fmt(ui_lbl_sett_main_in_vol, "%+.1f dB", mfx::utils::remap(0, 31, -16.5f, +30.0f, main_in_vol));
+    lv_label_set_text_fmt(ui_lbl_sett_aux_in_vol, "%+.1f dB", mfx::utils::remap(0, 31, -6.0f, +17.25f, aux_in_vol));
+
     view->notify(events::input_volume_changed {main_in_vol, aux_in_vol});
 }
 
@@ -284,6 +289,9 @@ void ui_settings_out_vol_changed(lv_event_t * e)
     lv_obj_t *out_slider = ui_sld_sett_out_vol;
 
     uint8_t out_vol = lv_slider_get_value(out_slider);
+
+    // TODO: Obtain volume ranges from lcd_view
+    lv_label_set_text_fmt(ui_lbl_sett_out_vol, "%+.1f dB", static_cast<float>(mfx::utils::remap(0, 63, -57, +6, out_vol)));
 
     view->notify(events::output_volume_changed {out_vol});
 }
