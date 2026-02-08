@@ -221,10 +221,10 @@ private:
     void event_handler(const effect_processor_events::remove_effect& e);
     void event_handler(const effect_processor_events::move_effect& e);
     void event_handler(const effect_processor_events::bypass_effect &e);
+    void event_handler(const effect_processor_events::set_mute &e);
     void event_handler(const effect_processor_events::set_input_volume &e);
     void event_handler(const effect_processor_events::set_output_volume &e);
     void event_handler(const effect_processor_events::route_mic_to_aux &e);
-    void event_handler(const effect_processor_events::set_mute &e);
     void event_handler(const effect_processor_events::enable_usb_audio_if &e);
     void event_handler(const effect_processor_events::enable_usb_direct_mon &e);
     void event_handler(const effect_processor_events::process_audio &e);

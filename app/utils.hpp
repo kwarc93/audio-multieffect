@@ -9,17 +9,29 @@
 #define UTILS_HPP_
 
 #include <algorithm>
+#include <type_traits>
 
 namespace mfx::utils
 {
 
-template<typename T>
-constexpr T map_range(T in_start, T in_end, T out_start, T out_end, T in_value)
+template <typename I, typename O, typename V,
+typename = std::enable_if_t<std::is_arithmetic<I>::value && std::is_arithmetic<O>::value && std::is_arithmetic<V>::value>>
+constexpr std::common_type_t<I, O, V>
+remap(I in_start, I in_end, O out_start, O out_end, V in_value) noexcept
 {
-    const T in_range = in_end - in_start;
-    const T out_range = out_end - out_start;
+    using common_t = std::common_type_t<I, O, V>;
+    using calc_t = std::conditional_t<std::is_floating_point<common_t>::value, common_t, float>;
 
-    return (in_value - in_start) * out_range / in_range + out_start;
+    const calc_t in_s  = static_cast<calc_t>(in_start);
+    const calc_t in_e  = static_cast<calc_t>(in_end);
+    const calc_t out_s = static_cast<calc_t>(out_start);
+    const calc_t out_e = static_cast<calc_t>(out_end);
+    const calc_t val   = static_cast<calc_t>(in_value);
+
+    if (in_e == in_s) return static_cast<common_t>(out_s);
+
+    calc_t result = (val - in_s) * (out_e - out_s) / (in_e - in_s) + out_s;
+    return static_cast<common_t>(result);
 }
 
 constexpr float lin_to_log(float x)

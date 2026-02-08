@@ -81,14 +81,21 @@ void effect_processor::event_handler(const events::configuration &e)
     this->audio.mute(e.output_muted);
 
     if (e.usb_audio_if_enabled)
+    {
         this->usb_audio.enable();
+        const auto vol_range = this->audio.get_output_volume_range();
+        const float volume_db = utils::remap(vol_range.min_val, vol_range.max_val, vol_range.min_db, vol_range.max_db, e.output_vol);
+        this->usb_audio.notify_volume_changed(volume_db);
+        this->usb_audio.notify_mute_changed(e.output_muted);
+    }
+
     this->usb_direct_mon = e.usb_direct_mon_enabled;
 
     this->usb_audio.set_volume_changed_callback(
     [this](float output_volume_db)
     {
         const auto vol_range = this->audio.get_output_volume_range();
-        const uint8_t volume = utils::map_range<float>(vol_range.min_db, vol_range.max_db, vol_range.min_val, vol_range.max_val, output_volume_db);
+        const uint8_t volume = utils::remap(vol_range.min_db, vol_range.max_db, vol_range.min_val, vol_range.max_val, output_volume_db);
 
         this->send({events::set_output_volume {volume}});
         this->notify(events::output_volume_changed {volume});
@@ -161,6 +168,12 @@ void effect_processor::event_handler(const events::bypass_effect &e)
         effect->bypass(e.bypassed);
 }
 
+void effect_processor::event_handler(const events::set_mute &e)
+{
+    this->audio.mute(e.value);
+    this->usb_audio.notify_mute_changed(e.value);
+}
+
 void effect_processor::event_handler(const events::set_input_volume &e)
 {
     this->audio.set_input_volume(e.main_input_vol, 0);
@@ -170,6 +183,10 @@ void effect_processor::event_handler(const events::set_input_volume &e)
 void effect_processor::event_handler(const events::set_output_volume &e)
 {
     this->audio.set_output_volume(e.output_vol);
+
+    const auto vol_range = this->audio.get_output_volume_range();
+    const float volume_db = utils::remap(vol_range.min_val, vol_range.max_val, vol_range.min_db, vol_range.max_db, e.output_vol);
+    this->usb_audio.notify_volume_changed(volume_db);
 }
 
 void effect_processor::event_handler(const events::route_mic_to_aux &e)
@@ -185,10 +202,6 @@ void effect_processor::event_handler(const events::route_mic_to_aux &e)
     true);
 }
 
-void effect_processor::event_handler(const events::set_mute &e)
-{
-    this->audio.mute(e.value);
-}
 
 void effect_processor::event_handler(const events::enable_usb_audio_if &e)
 {

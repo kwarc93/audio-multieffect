@@ -337,7 +337,7 @@ usb_audio::~usb_audio()
     disable();
 }
 
-void usb_audio::enable(void)
+void usb_audio::enable()
 {
     if (tusb_inited())
         return;
@@ -379,7 +379,7 @@ void usb_audio::disable(void)
     this->audio_from_host.buffer.fill(0);
 }
 
-void usb_audio::set_volume_changed_callback(std::function<void(float out_volume_db)> callback)
+void usb_audio::set_volume_changed_callback(std::function<void(float volume_db)> callback)
 {
     tusb.usb_volume_callback = std::move(callback);
 }
@@ -387,6 +387,48 @@ void usb_audio::set_volume_changed_callback(std::function<void(float out_volume_
 void usb_audio::set_mute_changed_callback(std::function<void(bool muted)> callback)
 {
     tusb.usb_mute_callback = std::move(callback);
+}
+
+void usb_audio::notify_volume_changed(float volume_db)
+{
+    if (tusb.volume[0] != db_to_uac(volume_db))
+    {
+        tusb.volume.fill(db_to_uac(volume_db));
+
+        if (!tud_audio_mounted())
+            return;
+
+        audio_interrupt_data_t data;
+        data.v2.bInfo = 0;
+        data.v2.bAttribute = AUDIO20_CS_REQ_CUR;
+        data.v2.wValue_cn_or_mcn = 0;
+        data.v2.wValue_cs = AUDIO20_FU_CTRL_VOLUME;
+        data.v2.wIndex_ep_or_int = 0;
+        data.v2.wIndex_entity_id = UAC2_ENTITY_HPH_FEATURE_UNIT;
+
+        tud_audio_int_write(&data);
+    }
+}
+
+void usb_audio::notify_mute_changed(bool muted)
+{
+    if (tusb.mute[0] != muted)
+    {
+        tusb.mute.fill(muted);
+
+        if (!tud_audio_mounted())
+            return;
+
+        audio_interrupt_data_t data;
+        data.v2.bInfo = 0;
+        data.v2.bAttribute = AUDIO20_CS_REQ_CUR;
+        data.v2.wValue_cn_or_mcn = 0;
+        data.v2.wValue_cs = AUDIO20_FU_CTRL_MUTE;
+        data.v2.wIndex_ep_or_int = 0;
+        data.v2.wIndex_entity_id = UAC2_ENTITY_HPH_FEATURE_UNIT;
+
+        tud_audio_int_write(&data);
+    }
 }
 
 bool usb_audio::is_enabled(void) const

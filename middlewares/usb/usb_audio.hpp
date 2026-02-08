@@ -22,6 +22,9 @@ namespace middlewares
 class usb_audio
 {
 public:
+    using input_buffer_t = hal::interface::audio_buffer<int32_t, mfx::config::dsp_vector_size, 1, 24>;
+    using output_buffer_t = hal::interface::audio_buffer<int32_t, mfx::config::dsp_vector_size, 2, 24>;
+
     usb_audio(const hal::interface::audio_volume_range &volume_range);
     ~usb_audio();
 
@@ -30,11 +33,14 @@ public:
     bool is_enabled(void) const;
     void process();
 
-    void set_volume_changed_callback(std::function<void(float out_volume_db)> callback);
+    void set_volume_changed_callback(std::function<void(float volume_db)> callback);
     void set_mute_changed_callback(std::function<void(bool muted)> callback);
 
-    hal::interface::audio_buffer<int32_t, mfx::config::dsp_vector_size, 1, 24> audio_to_host;
-    hal::interface::audio_buffer<int32_t, mfx::config::dsp_vector_size, 2, 24> audio_from_host;
+    void notify_volume_changed(float volume_db);
+    void notify_mute_changed(bool muted);
+
+    input_buffer_t audio_to_host;
+    output_buffer_t audio_from_host;
 
 private:
     TaskHandle_t usb_task;

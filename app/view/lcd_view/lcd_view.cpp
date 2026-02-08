@@ -330,8 +330,8 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const tremolo_attr &spe
     else
         lv_obj_add_state(ui_btn_trem_bypass, LV_STATE_CHECKED);
 
-    lv_arc_set_value(ui_arc_trem_rate, utils::map_range<float>(1, 20, lv_arc_get_min_value(ui_arc_trem_rate), lv_arc_get_max_value(ui_arc_trem_rate), specific.ctrl.rate));
-    lv_arc_set_value(ui_arc_trem_depth, utils::map_range<float>(0, 0.5, lv_arc_get_min_value(ui_arc_trem_depth), lv_arc_get_max_value(ui_arc_trem_depth), specific.ctrl.depth));
+    lv_arc_set_value(ui_arc_trem_rate, utils::remap(1, 20, lv_arc_get_min_value(ui_arc_trem_rate), lv_arc_get_max_value(ui_arc_trem_rate), specific.ctrl.rate));
+    lv_arc_set_value(ui_arc_trem_depth, utils::remap(0.0f, 0.5f, lv_arc_get_min_value(ui_arc_trem_depth), lv_arc_get_max_value(ui_arc_trem_depth), specific.ctrl.depth));
 
     if (specific.ctrl.shape == tremolo_attr::controls::shape_type::sine)
     {
@@ -357,9 +357,9 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const echo_attr &specif
     else
         lv_obj_add_state(ui_btn_echo_bypass, LV_STATE_CHECKED);
 
-    lv_arc_set_value(ui_arc_echo_blur, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_echo_blur), lv_arc_get_max_value(ui_arc_echo_blur), specific.ctrl.blur));
-    lv_arc_set_value(ui_arc_echo_time, utils::map_range<float>(0.05f, 1, lv_arc_get_min_value(ui_arc_echo_time), lv_arc_get_max_value(ui_arc_echo_time), specific.ctrl.time));
-    lv_arc_set_value(ui_arc_echo_feedb, utils::map_range<float>(0, 0.9f, lv_arc_get_min_value(ui_arc_echo_feedb), lv_arc_get_max_value(ui_arc_echo_feedb), specific.ctrl.feedback));
+    lv_arc_set_value(ui_arc_echo_blur, utils::remap(0, 1, lv_arc_get_min_value(ui_arc_echo_blur), lv_arc_get_max_value(ui_arc_echo_blur), specific.ctrl.blur));
+    lv_arc_set_value(ui_arc_echo_time, utils::remap(0.05f, 1.0f, lv_arc_get_min_value(ui_arc_echo_time), lv_arc_get_max_value(ui_arc_echo_time), specific.ctrl.time));
+    lv_arc_set_value(ui_arc_echo_feedb, utils::remap(0.0f, 0.9f, lv_arc_get_min_value(ui_arc_echo_feedb), lv_arc_get_max_value(ui_arc_echo_feedb), specific.ctrl.feedback));
 
     if (specific.ctrl.mode == echo_attr::controls::mode_type::echo)
     {
@@ -385,9 +385,9 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const chorus_attr &spec
     else
         lv_obj_add_state(ui_btn_chorus_bypass, LV_STATE_CHECKED);
 
-    lv_arc_set_value(ui_arc_chorus_depth, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_chorus_depth), lv_arc_get_max_value(ui_arc_chorus_depth), specific.ctrl.depth));
-    lv_arc_set_value(ui_arc_chorus_rate, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_chorus_rate), lv_arc_get_max_value(ui_arc_chorus_rate), specific.ctrl.rate));
-    lv_arc_set_value(ui_arc_chorus_mix, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_chorus_mix), lv_arc_get_max_value(ui_arc_chorus_mix), specific.ctrl.mix));
+    lv_arc_set_value(ui_arc_chorus_depth, utils::remap(0, 1, lv_arc_get_min_value(ui_arc_chorus_depth), lv_arc_get_max_value(ui_arc_chorus_depth), specific.ctrl.depth));
+    lv_arc_set_value(ui_arc_chorus_rate, utils::remap(0, 1, lv_arc_get_min_value(ui_arc_chorus_rate), lv_arc_get_max_value(ui_arc_chorus_rate), specific.ctrl.rate));
+    lv_arc_set_value(ui_arc_chorus_mix, utils::remap(0, 1, lv_arc_get_min_value(ui_arc_chorus_mix), lv_arc_get_max_value(ui_arc_chorus_mix), specific.ctrl.mix));
 
     if (specific.ctrl.mode == chorus_attr::controls::mode_type::white)
     {
@@ -413,9 +413,9 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const reverb_attr &spec
     else
         lv_obj_add_state(ui_btn_reverb_bypass, LV_STATE_CHECKED);
 
-    lv_arc_set_value(ui_arc_reverb_bw, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_reverb_bw), lv_arc_get_max_value(ui_arc_reverb_bw), specific.ctrl.bandwidth));
-    lv_arc_set_value(ui_arc_reverb_damp, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_reverb_damp), lv_arc_get_max_value(ui_arc_reverb_damp), specific.ctrl.damping));
-    lv_arc_set_value(ui_arc_reverb_decay, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_reverb_decay), lv_arc_get_max_value(ui_arc_reverb_decay), specific.ctrl.decay));
+    lv_arc_set_value(ui_arc_reverb_bw, utils::remap(0, 1, lv_arc_get_min_value(ui_arc_reverb_bw), lv_arc_get_max_value(ui_arc_reverb_bw), specific.ctrl.bandwidth));
+    lv_arc_set_value(ui_arc_reverb_damp, utils::remap(0, 1, lv_arc_get_min_value(ui_arc_reverb_damp), lv_arc_get_max_value(ui_arc_reverb_damp), specific.ctrl.damping));
+    lv_arc_set_value(ui_arc_reverb_decay, utils::remap(0, 1, lv_arc_get_min_value(ui_arc_reverb_decay), lv_arc_get_max_value(ui_arc_reverb_decay), specific.ctrl.decay));
 
     if (specific.ctrl.mode == reverb_attr::controls::mode_type::plate)
     {
@@ -441,9 +441,9 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const overdrive_attr &s
     else
         lv_obj_add_state(ui_btn_od_bypass, LV_STATE_CHECKED);
 
-    lv_arc_set_value(ui_arc_od_mix, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_od_mix), lv_arc_get_max_value(ui_arc_od_mix), specific.ctrl.mix));
-    lv_arc_set_value(ui_arc_od_gain, utils::map_range<float>(1, 200, lv_arc_get_min_value(ui_arc_od_gain), lv_arc_get_max_value(ui_arc_od_gain), specific.ctrl.gain));
-    lv_arc_set_value(ui_arc_od_tone, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_od_tone), lv_arc_get_max_value(ui_arc_od_tone), specific.ctrl.high));
+    lv_arc_set_value(ui_arc_od_mix, utils::remap(0, 1, lv_arc_get_min_value(ui_arc_od_mix), lv_arc_get_max_value(ui_arc_od_mix), specific.ctrl.mix));
+    lv_arc_set_value(ui_arc_od_gain, utils::remap(1, 200, lv_arc_get_min_value(ui_arc_od_gain), lv_arc_get_max_value(ui_arc_od_gain), specific.ctrl.gain));
+    lv_arc_set_value(ui_arc_od_tone, utils::remap(0, 1, lv_arc_get_min_value(ui_arc_od_tone), lv_arc_get_max_value(ui_arc_od_tone), specific.ctrl.high));
 
     if (specific.ctrl.mode == overdrive_attr::controls::mode_type::soft)
     {
@@ -505,8 +505,8 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const vocoder_attr &spe
     const auto pos = std::distance(specific.bands_list.begin(), std::find(specific.bands_list.begin(), specific.bands_list.end(), specific.ctrl.bands));
     lv_roller_set_selected(ui_roller_voc_bands, pos, LV_ANIM_OFF);
 
-    lv_arc_set_value(ui_arc_voc_clarity, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_voc_clarity), lv_arc_get_max_value(ui_arc_voc_clarity), specific.ctrl.clarity));
-    lv_arc_set_value(ui_arc_voc_tone, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_voc_tone), lv_arc_get_max_value(ui_arc_voc_tone), specific.ctrl.tone));
+    lv_arc_set_value(ui_arc_voc_clarity, utils::remap(0, 1, lv_arc_get_min_value(ui_arc_voc_clarity), lv_arc_get_max_value(ui_arc_voc_clarity), specific.ctrl.clarity));
+    lv_arc_set_value(ui_arc_voc_tone, utils::remap(0, 1, lv_arc_get_min_value(ui_arc_voc_tone), lv_arc_get_max_value(ui_arc_voc_tone), specific.ctrl.tone));
 
     if (specific.ctrl.mode == vocoder_attr::controls::mode_type::vintage)
     {
@@ -532,8 +532,8 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const phaser_attr &spec
     else
         lv_obj_add_state(ui_btn_pha_bypass, LV_STATE_CHECKED);
 
-    lv_arc_set_value(ui_arc_pha_rate, utils::map_range<float>(0.01f, 1.0f, lv_arc_get_min_value(ui_arc_pha_rate), lv_arc_get_max_value(ui_arc_pha_rate), specific.ctrl.rate));
-    lv_arc_set_value(ui_arc_pha_depth, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_pha_depth), lv_arc_get_max_value(ui_arc_pha_depth), specific.ctrl.depth));
+    lv_arc_set_value(ui_arc_pha_rate, utils::remap(0.01f, 1.0f, lv_arc_get_min_value(ui_arc_pha_rate), lv_arc_get_max_value(ui_arc_pha_rate), specific.ctrl.rate));
+    lv_arc_set_value(ui_arc_pha_depth, utils::remap(0, 1, lv_arc_get_min_value(ui_arc_pha_depth), lv_arc_get_max_value(ui_arc_pha_depth), specific.ctrl.depth));
 
     if (specific.ctrl.contour == phaser_attr::controls::contour_mode::off)
     {
@@ -556,12 +556,12 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const amp_sim_attr &spe
     else
         lv_obj_add_state(ui_btn_amp_sim_bypass, LV_STATE_CHECKED);
 
-    lv_arc_set_value(ui_arc_amp_sim_input, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_amp_sim_input), lv_arc_get_max_value(ui_arc_amp_sim_input), specific.ctrl.input));
-    lv_arc_set_value(ui_arc_amp_sim_drive, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_amp_sim_drive), lv_arc_get_max_value(ui_arc_amp_sim_drive), specific.ctrl.drive));
-    lv_arc_set_value(ui_arc_amp_sim_compr, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_amp_sim_compr), lv_arc_get_max_value(ui_arc_amp_sim_compr), specific.ctrl.compression));
-    lv_arc_set_value(ui_arc_amp_sim_bass, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_amp_sim_bass), lv_arc_get_max_value(ui_arc_amp_sim_bass), specific.ctrl.bass));
-    lv_arc_set_value(ui_arc_amp_sim_mids, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_amp_sim_mids), lv_arc_get_max_value(ui_arc_amp_sim_mids), specific.ctrl.mids));
-    lv_arc_set_value(ui_arc_amp_sim_treb, utils::map_range<float>(0, 1, lv_arc_get_min_value(ui_arc_amp_sim_treb), lv_arc_get_max_value(ui_arc_amp_sim_treb), specific.ctrl.treb));
+    lv_arc_set_value(ui_arc_amp_sim_input, utils::remap(0, 1, lv_arc_get_min_value(ui_arc_amp_sim_input), lv_arc_get_max_value(ui_arc_amp_sim_input), specific.ctrl.input));
+    lv_arc_set_value(ui_arc_amp_sim_drive, utils::remap(0, 1, lv_arc_get_min_value(ui_arc_amp_sim_drive), lv_arc_get_max_value(ui_arc_amp_sim_drive), specific.ctrl.drive));
+    lv_arc_set_value(ui_arc_amp_sim_compr, utils::remap(0, 1, lv_arc_get_min_value(ui_arc_amp_sim_compr), lv_arc_get_max_value(ui_arc_amp_sim_compr), specific.ctrl.compression));
+    lv_arc_set_value(ui_arc_amp_sim_bass, utils::remap(0, 1, lv_arc_get_min_value(ui_arc_amp_sim_bass), lv_arc_get_max_value(ui_arc_amp_sim_bass), specific.ctrl.bass));
+    lv_arc_set_value(ui_arc_amp_sim_mids, utils::remap(0, 1, lv_arc_get_min_value(ui_arc_amp_sim_mids), lv_arc_get_max_value(ui_arc_amp_sim_mids), specific.ctrl.mids));
+    lv_arc_set_value(ui_arc_amp_sim_treb, utils::remap(0, 1, lv_arc_get_min_value(ui_arc_amp_sim_treb), lv_arc_get_max_value(ui_arc_amp_sim_treb), specific.ctrl.treb));
 
     if (specific.ctrl.mode == amp_sim_attr::controls::mode_type::logain)
     {

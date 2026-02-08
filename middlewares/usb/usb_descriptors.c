@@ -76,9 +76,10 @@ uint8_t const * tud_descriptor_device_cb(void)
 
 #define CONFIG_TOTAL_LEN  (TUD_CONFIG_DESC_LEN + TUD_AUDIO20_GMFX_INTERFACE_DESC_LEN)
 
-#define EPNUM_AUDIO_IN    0x01
-#define EPNUM_AUDIO_OUT   0x01
-#define EPNUM_AUDIO_FB    0x02
+#define EPNUM_AUDIO_IN   0x81  // EP1 IN
+#define EPNUM_AUDIO_OUT  0x01  // EP1 OUT
+#define EPNUM_AUDIO_FB   0x82  // EP2 IN (feedback)
+#define EPNUM_AUDIO_INT  0x83  // EP3 IN (interrupt)
 
 uint8_t const desc_configuration[] =
 {
@@ -86,8 +87,10 @@ uint8_t const desc_configuration[] =
     TUD_CONFIG_DESCRIPTOR(1, ITF_NUM_TOTAL, 0, CONFIG_TOTAL_LEN, 0x00, 250),
 
     // Interface number, string index, EP Out & EP In address, Feedback EP % FB EP size
-    TUD_AUDIO20_GMFX_INTERFACE_DESCRIPTOR(2, EPNUM_AUDIO_OUT, EPNUM_AUDIO_IN | 0x80, EPNUM_AUDIO_FB | 0x80, 4)
+    TUD_AUDIO20_GMFX_INTERFACE_DESCRIPTOR(2, EPNUM_AUDIO_OUT, EPNUM_AUDIO_IN, EPNUM_AUDIO_INT, EPNUM_AUDIO_FB, 4)
 };
+
+TU_VERIFY_STATIC(sizeof(desc_configuration) == CONFIG_TOTAL_LEN, "Incorrect size");
 
 // Invoked when received GET CONFIGURATION DESCRIPTOR
 // Application return pointer to descriptor

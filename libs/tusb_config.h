@@ -66,7 +66,7 @@ extern "C" {
 #define CFG_TUD_MAX_SPEED   BOARD_TUD_MAX_SPEED
 
 // Enable debugging level (0/1/2/3 <-> none/err/warn/info)
-#define CFG_TUSB_DEBUG      1
+#define CFG_TUSB_DEBUG      0
 
 // Enable DMA for device controller (STM32 USB HS only)
 #define CFG_TUD_DWC2_DMA_ENABLE         0
@@ -100,6 +100,9 @@ extern "C" {
 // AUDIO CLASS DRIVER CONFIGURATION
 //-----------------------------------------------------------------------------
 #define CFG_TUD_AUDIO                                                1
+
+// Allow volume controlled by device
+#define CFG_TUD_AUDIO_ENABLE_INTERRUPT_EP                            1
 
 #define CFG_TUD_AUDIO_FUNC_1_DESC_LEN                                TUD_AUDIO_GMFX_INTERFACE_DESC_LEN
 
