@@ -125,18 +125,18 @@ void controller::event_handler(const events::button_state_changed &e)
 {
     if (e.state == events::button_state_changed::state::pressed)
     {
-        printf("Button: <pressed>\r\n");
+        printf("Button: pressed\r\n");
 
         struct mallinfo mi = mallinfo();
         printf("Heap used: %d bytes\r\n", mi.uordblks);
     }
     else if (e.state == events::button_state_changed::state::released)
     {
-        printf("Button: <released>\r\n");
+        printf("Button: released\r\n");
     }
     else if (e.state == events::button_state_changed::state::hold)
     {
-        printf("Button: <hold>\r\n");
+        printf("Button: hold\r\n");
 
         printf("System shutdown\r\n");
 

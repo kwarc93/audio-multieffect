@@ -395,7 +395,7 @@ void usb_audio::notify_volume_changed(float volume_db)
     {
         tusb.volume.fill(db_to_uac(volume_db));
 
-        if (!tud_audio_mounted())
+        if (tusb.usb_status != USB_MOUNTED)
             return;
 
         audio_interrupt_data_t data;
@@ -416,7 +416,7 @@ void usb_audio::notify_mute_changed(bool muted)
     {
         tusb.mute.fill(muted);
 
-        if (!tud_audio_mounted())
+        if (tusb.usb_status != USB_MOUNTED)
             return;
 
         audio_interrupt_data_t data;
@@ -438,7 +438,7 @@ bool usb_audio::is_enabled(void) const
 
 void usb_audio::process()
 {
-    if (!tud_audio_mounted())
+    if (tusb.usb_status != USB_MOUNTED)
         return;
 
     const uint16_t bytes_to_read = audio_from_host.buffer.size() * sizeof(int32_t);
