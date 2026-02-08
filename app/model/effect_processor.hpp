@@ -14,6 +14,7 @@
 #include <array>
 
 #include <middlewares/actor.hpp>
+#include <middlewares/usb/usb_audio.hpp>
 
 #include <hal_audio.hpp>
 
@@ -152,6 +153,7 @@ struct effect_attributes_enumerated
     effect_specific_attr specific;
 };
 
+using mute_changed = set_mute;
 using input_volume_changed = set_input_volume;
 using output_volume_changed = set_output_volume;
 
@@ -182,6 +184,7 @@ using incoming = std::variant
 using outgoing = std::variant
 <
     dsp_load_changed,
+    mute_changed,
     input_volume_changed,
     output_volume_changed,
     effect_attributes_changed,
@@ -258,12 +261,15 @@ private:
     hal::audio_devices::codec::input_buffer_t<2 * config::dsp_vector_size> audio_input;
     hal::audio_devices::codec::output_buffer_t<2 * config::dsp_vector_size> audio_output;
 
+
     effect::dsp_input dsp_main_input;
     effect::dsp_input dsp_aux_input;
     effect::dsp_output dsp_output;
 
     uint32_t processing_time_us;
+
     bool usb_direct_mon;
+    middlewares::usb_audio usb_audio;
 };
 
 }

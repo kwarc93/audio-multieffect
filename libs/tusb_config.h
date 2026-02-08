@@ -66,7 +66,7 @@ extern "C" {
 #define CFG_TUD_MAX_SPEED   BOARD_TUD_MAX_SPEED
 
 // Enable debugging level (0/1/2/3 <-> none/err/warn/info)
-#define CFG_TUSB_DEBUG      0
+#define CFG_TUSB_DEBUG      1
 
 // Enable DMA for device controller (STM32 USB HS only)
 #define CFG_TUD_DWC2_DMA_ENABLE         0

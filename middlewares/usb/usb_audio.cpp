@@ -10,10 +10,9 @@
 #include <cmath>
 #include <array>
 #include <cstring>
+#include <algorithm>
 
 #include <hal_usb.hpp>
-
-#include <cmsis_device.h> // For managing D-Cache & I-Cache
 
 #include "app/config.hpp"
 #include "tusb.h"
@@ -33,33 +32,41 @@ enum tusb_status
     USB_SUSPENDED,
 };
 
-enum tusb_volume_ctrl
-{
-    VOLUME_CTRL_0_DB = 0,
-    VOLUME_CTRL_10_DB = 2560,
-    VOLUME_CTRL_20_DB = 5120,
-    VOLUME_CTRL_30_DB = 7680,
-    VOLUME_CTRL_40_DB = 10240,
-    VOLUME_CTRL_50_DB = 12800,
-    VOLUME_CTRL_60_DB = 15360,
-    VOLUME_CTRL_70_DB = 17920,
-    VOLUME_CTRL_80_DB = 20480,
-    VOLUME_CTRL_90_DB = 23040,
-    VOLUME_CTRL_100_DB = 25600,
-    VOLUME_CTRL_SILENCE = 0x8000,
-};
-
 struct tusb_context
 {
     uint32_t usb_status;
+
+    float vol_min_db;
+    float vol_max_db;
+    float vol_step_db;
+
     std::array<int8_t, CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX + 1> mute;    // +1 for master channel 0
     std::array<int16_t, CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX + 1> volume; // +1 for master channel 0
+
+    std::function<void(float)> usb_volume_callback;
+    std::function<void(bool)> usb_mute_callback;
 
     static constexpr uint32_t current_sample_rate {static_cast<uint32_t>(std::round(mfx::config::sampling_frequency_hz / 1000.0f) * 1000)};
     static constexpr std::array<uint32_t, 1> sample_rates {current_sample_rate};
 };
 
 tusb_context tusb;
+
+//-----------------------------------------------------------------------------
+// UAC volume level conversions
+
+constexpr int uac_db_unit  = 256;  // 1 dB = 256 units
+
+constexpr int16_t db_to_uac(float db)
+{
+    // Convert dB → 1/256 dB units with rounding
+    return static_cast<int16_t>(std::lround(db * uac_db_unit));
+}
+
+constexpr float uac_to_db(int16_t uac)
+{
+    return static_cast<float>(uac) / uac_db_unit;
+}
 
 }
 
@@ -109,7 +116,7 @@ static bool tud_audio_clock_get_request(uint8_t rhport, audio20_control_request_
     {
         if (request->bRequest == AUDIO20_CS_REQ_CUR)
         {
-            TU_LOG1("Clock get current freq %lu\r\n", current_sample_rate);
+            TU_LOG1("Clock get current freq %lu\r\n", tusb.current_sample_rate);
 
             audio20_control_cur_4_t curf = { (int32_t) tu_htole32(tusb.current_sample_rate) };
             return tud_audio_buffer_and_schedule_control_xfer(rhport, (tusb_control_request_t const*) request, &curf, sizeof(curf));
@@ -117,7 +124,7 @@ static bool tud_audio_clock_get_request(uint8_t rhport, audio20_control_request_
         else if (request->bRequest == AUDIO20_CS_REQ_RANGE)
         {
             audio20_control_range_4_n_t(tusb.sample_rates.size()) rangef = { tu_htole16(tusb.sample_rates.size()),{} };
-            TU_LOG1("Clock get %d freq ranges\r\n", N_SAMPLE_RATES);
+            TU_LOG1("Clock get %d freq ranges\r\n", tusb.sample_rates.size());
 
             for (uint8_t i = 0; i < tusb.sample_rates.size(); i++)
             {
@@ -173,16 +180,16 @@ static bool tud_audio_feature_unit_get_request(uint8_t rhport, audio20_control_r
     {
         if (request->bRequest == AUDIO20_CS_REQ_RANGE)
         {
-            audio20_control_range_2_n_t(1) range_vol = { tu_htole16(1), { tu_htole16(-VOLUME_CTRL_50_DB), tu_htole16(VOLUME_CTRL_0_DB), tu_htole16(256) } };
+            audio20_control_range_2_n_t(1) range_vol = { tu_htole16(1), { tu_htole16(db_to_uac(tusb.vol_min_db)), tu_htole16(db_to_uac(tusb.vol_max_db)), tu_htole16(uac_db_unit) } };
             TU_LOG1("Get channel %u volume range (%d, %d, %u) dB\r\n", request->bChannelNumber,
-                    range_vol.subrange[0].bMin / 256, range_vol.subrange[0].bMax / 256, range_vol.subrange[0].bRes / 256);
+                    range_vol.subrange[0].bMin / uac_db_unit, range_vol.subrange[0].bMax / uac_db_unit, range_vol.subrange[0].bRes / uac_db_unit);
 
             return tud_audio_buffer_and_schedule_control_xfer(rhport, (tusb_control_request_t const*) request, &range_vol, sizeof(range_vol));
         }
         else if (request->bRequest == AUDIO20_CS_REQ_CUR)
         {
             audio20_control_cur_2_t cur_vol = { tu_htole16(tusb.volume[request->bChannelNumber]) };
-            TU_LOG1("Get channel %u volume %d dB\r\n", request->bChannelNumber, cur_vol.bCur / 256);
+            TU_LOG1("Get channel %u volume %d dB\r\n", request->bChannelNumber, cur_vol.bCur / uac_db_unit);
 
             return tud_audio_buffer_and_schedule_control_xfer(rhport, (tusb_control_request_t const*) request, &cur_vol, sizeof(cur_vol));
         }
@@ -208,7 +215,10 @@ static bool tud_audio_feature_unit_set_request(uint8_t rhport, audio20_control_r
 
         tusb.mute[request->bChannelNumber] = ((audio20_control_cur_1_t const*)buf)->bCur;
 
-        TU_LOG1("Set channel %d Mute: %d\r\n", request->bChannelNumber, mute[request->bChannelNumber]);
+        TU_LOG1("Set channel %d Mute: %d\r\n", request->bChannelNumber, tusb.mute[request->bChannelNumber]);
+
+        if (tusb.usb_mute_callback && request->bChannelNumber == 0)
+            tusb.usb_mute_callback(tusb.mute[request->bChannelNumber]);
 
         return true;
     }
@@ -218,7 +228,10 @@ static bool tud_audio_feature_unit_set_request(uint8_t rhport, audio20_control_r
 
         tusb.volume[request->bChannelNumber] = ((audio20_control_cur_2_t const*) buf)->bCur;
 
-        TU_LOG1("Set channel %d volume: %d dB\r\n", request->bChannelNumber, volume[request->bChannelNumber] / 256);
+        TU_LOG1("Set channel %d volume: %d dB\r\n", request->bChannelNumber, tusb.volume[request->bChannelNumber] / uac_db_unit);
+
+        if (tusb.usb_volume_callback && request->bChannelNumber == 0)
+            tusb.usb_volume_callback(uac_to_db(tusb.volume[request->bChannelNumber]));
 
         return true;
     }
@@ -305,13 +318,18 @@ void tud_audio_feedback_params_cb(uint8_t func_id, uint8_t alt_itf, audio_feedba
 namespace middlewares
 {
 
-usb_audio::usb_audio()
+usb_audio::usb_audio(const hal::interface::audio_volume_range &volume_range)
 {
     this->usb_task = nullptr;
 
     tusb.usb_status = USB_NOT_MOUNTED;
+
+    tusb.vol_min_db = volume_range.min_db;
+    tusb.vol_max_db = volume_range.max_db;
+    tusb.vol_step_db = volume_range.max_db - volume_range.min_db / volume_range.max_val;
+
     tusb.mute.fill(0);
-    tusb.volume.fill(VOLUME_CTRL_0_DB);
+    tusb.volume.fill(db_to_uac(0));
 }
 
 usb_audio::~usb_audio()
@@ -359,6 +377,16 @@ void usb_audio::disable(void)
         this->usb_task = nullptr;
     }
     this->audio_from_host.buffer.fill(0);
+}
+
+void usb_audio::set_volume_changed_callback(std::function<void(float out_volume_db)> callback)
+{
+    tusb.usb_volume_callback = std::move(callback);
+}
+
+void usb_audio::set_mute_changed_callback(std::function<void(bool muted)> callback)
+{
+    tusb.usb_mute_callback = std::move(callback);
 }
 
 bool usb_audio::is_enabled(void) const

@@ -18,7 +18,6 @@
 #include <hal_system.hpp>
 
 #include <middlewares/i2c_manager.hpp>
-#include <middlewares/usb/usb_audio.hpp>
 
 #include <cmsis_device.h> // For managing D-Cache & I-Cache
 
@@ -32,6 +31,7 @@
 #include "app/model/vocoder/vocoder.hpp"
 #include "app/model/phaser/phaser.hpp"
 #include "app/model/amp_sim/amp_sim.hpp"
+#include "app/utils.hpp"
 
 using namespace mfx;
 namespace events = effect_processor_events;
@@ -41,12 +41,6 @@ namespace events = effect_processor_events;
 
 namespace
 {
-    middlewares::usb_audio & get_usb_audio(void)
-    {
-        static middlewares::usb_audio usb_audio;
-        return usb_audio;
-    }
-
     uint32_t cpu_cycles_to_us(uint32_t start, uint32_t end)
     {
         constexpr uint32_t cycles_per_us = hal::system::system_clock / 1000000ul;
@@ -86,10 +80,26 @@ void effect_processor::event_handler(const events::configuration &e)
     this->audio.route_onboard_mic_to_aux(e.mic_routed_to_aux);
     this->audio.mute(e.output_muted);
 
-    auto& usb = get_usb_audio();
     if (e.usb_audio_if_enabled)
-        usb.enable();
+        this->usb_audio.enable();
     this->usb_direct_mon = e.usb_direct_mon_enabled;
+
+    this->usb_audio.set_volume_changed_callback(
+    [this](float output_volume_db)
+    {
+        const auto vol_range = this->audio.get_output_volume_range();
+        const uint8_t volume = utils::map_range<float>(vol_range.min_db, vol_range.max_db, vol_range.min_val, vol_range.max_val, output_volume_db);
+
+        this->send({events::set_output_volume {volume}});
+        this->notify(events::output_volume_changed {volume});
+    });
+
+    this->usb_audio.set_mute_changed_callback(
+    [this](bool muted)
+    {
+        this->send({events::set_mute {muted}});
+        this->notify(events::mute_changed {muted});
+    });
 }
 
 void effect_processor::event_handler(const events::start_audio &e)
@@ -182,8 +192,7 @@ void effect_processor::event_handler(const events::set_mute &e)
 
 void effect_processor::event_handler(const events::enable_usb_audio_if &e)
 {
-    auto &usb = get_usb_audio();
-    e.value ? usb.enable() : usb.disable();
+    e.value ? this->usb_audio.enable() : this->usb_audio.disable();
 }
 
 void effect_processor::event_handler(const events::enable_usb_direct_mon &e)
@@ -196,11 +205,10 @@ void effect_processor::event_handler(const events::process_audio &e)
     const uint32_t cycles_start = hal::system::clock::cycles();
 
     /* Handle USB audio */
-    auto &usb = get_usb_audio();
-    const bool usb_enabled = usb.is_enabled();
+    const bool usb_enabled = this->usb_audio.is_enabled();
     const bool unmute_sample = !usb_enabled || this->usb_direct_mon;
     if (usb_enabled)
-        usb.process();
+        this->usb_audio.process();
 
     /* Process effects */
     std::reference_wrapper<decltype(this->dsp_output)> current_output = this->dsp_output;
@@ -236,11 +244,11 @@ void effect_processor::event_handler(const events::process_audio &e)
         /* Duplicate left channel to right channel & mix with received USB audio */
         const auto j = 2 * i;
         const auto out = sample * unmute_sample;
-        this->audio_output.buffer[out_buf_idx + j] = out + usb.audio_from_host.buffer[j];
-        this->audio_output.buffer[out_buf_idx + j + 1] = out + usb.audio_from_host.buffer[j + 1];
+        this->audio_output.buffer[out_buf_idx + j] = out + this->usb_audio.audio_from_host.buffer[j];
+        this->audio_output.buffer[out_buf_idx + j + 1] = out + this->usb_audio.audio_from_host.buffer[j + 1];
 
         /* Fill USB audio buffer */
-        usb.audio_to_host.buffer[i] = sample;
+        this->usb_audio.audio_to_host.buffer[i] = sample;
     }
 
 #ifdef CORE_CM7
@@ -498,7 +506,8 @@ uint8_t effect_processor::get_processing_load(void)
 /* public */
 
 effect_processor::effect_processor() :
-audio{middlewares::i2c_managers::main::get_instance()}
+audio{middlewares::i2c_managers::main::get_instance()},
+usb_audio {audio.get_output_volume_range()}
 {
     this->processing_time_us = 0;
     this->usb_direct_mon = false;

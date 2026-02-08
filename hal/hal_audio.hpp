@@ -55,6 +55,14 @@ namespace hal
                 this->input_drv->set_input_volume(vol, ch);
         }
 
+        hal::interface::audio_volume_range get_input_volume_range(uint8_t ch) const
+        {
+            if (this->input_drv)
+                return this->input_drv->get_input_volume_range(ch);
+            else
+                return {};
+        }
+
         /* Output related methods */
         void play(const T2 *output, uint16_t length, const typename hal::interface::audio_output<T2>::play_cb_t &cb, bool loop)
         {
@@ -92,6 +100,13 @@ namespace hal
                 this->output_drv->set_output_volume(vol);
         }
 
+        hal::interface::audio_volume_range get_output_volume_range() const
+        {
+            if (this->output_drv)
+                return this->output_drv->get_output_volume_range();
+            else
+                return {};
+        }
 
     protected:
         hal::interface::audio_input<T1> *input_drv;

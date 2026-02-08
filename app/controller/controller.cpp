@@ -411,6 +411,12 @@ void controller::model_event_handler(const effect_processor_events::dsp_load_cha
     this->view->send({lcd_view_events::update_dsp_load {e.load_pct}});
 }
 
+void controller::model_event_handler(const effect_processor_events::mute_changed &e)
+{
+    this->view->send({lcd_view_events::update_mute {e.value}});
+    this->settings->set_output_muted(e.value);
+}
+
 void controller::model_event_handler(const effect_processor_events::input_volume_changed &e)
 {
     /* TODO */
@@ -418,7 +424,8 @@ void controller::model_event_handler(const effect_processor_events::input_volume
 
 void controller::model_event_handler(const effect_processor_events::output_volume_changed &e)
 {
-    /* TODO */
+    this->view->send({lcd_view_events::update_output_volume {e.output_vol}});
+    this->settings->set_output_volume(e.output_vol);
 }
 
 void controller::model_event_handler(const effect_processor_events::effect_attributes_changed &e)

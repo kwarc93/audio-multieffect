@@ -25,12 +25,13 @@ public:
     enum class output { none, speaker, headphone, both, automatic };
     enum class frame_slots { slot0_left, slot1_left, slot0_right, slot1_right };
 
-    audio_wm8994ecs(hal::interface::i2c_proxy &dev, uint8_t addr, input in, output out, bool in_swap = false);
+    audio_wm8994ecs(hal::interface::i2c_proxy &dev, uint8_t addr, input in, output out, bool in_ch_swap = false);
     ~audio_wm8994ecs();
 
     void capture(audio_input::sample_t *input, uint16_t length, const capture_cb_t &cb, bool loop) override;
     void stop_capture(void) override;
     void set_input_volume(uint8_t vol, uint8_t ch) override;
+    hal::interface::audio_volume_range get_input_volume_range(uint8_t ch) const override;
     void set_input_channels(frame_slots left_ch, frame_slots right_ch);
 
     void play(const audio_output::sample_t *output, uint16_t length, const play_cb_t &cb, bool loop) override;
@@ -39,6 +40,7 @@ public:
     void stop(void) override;
     void mute(bool value) override;
     void set_output_volume(uint8_t vol) override;
+    hal::interface::audio_volume_range get_output_volume_range(void) const override;
 
 private:
     hal::interface::i2c_proxy &i2c;
@@ -46,7 +48,8 @@ private:
     typedef sai<int32_t> sai_32bit;
     sai_32bit sai_drv;
 
-    bool in_swapped;
+    bool in_ch_swapped;
+    bool in_ch_digital[2] {false, false};
 
     capture_cb_t capture_callback;
     play_cb_t play_callback;

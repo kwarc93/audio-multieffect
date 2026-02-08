@@ -275,8 +275,28 @@ void lcd_view::event_handler(const lcd_view_events::update_presets_list &e)
 
 void lcd_view::event_handler(const events::update_dsp_load &e)
 {
-    if (ui_lbl_sett_cpu_load != nullptr)
+    if (ui_lbl_sett_cpu_load)
         lv_label_set_text_fmt(ui_lbl_sett_cpu_load, "DSP load: %u%%", e.load_pct);
+}
+
+void lcd_view::event_handler(const lcd_view_events::update_mute &e)
+{
+    if (ui_sw_sett_mute_audio)
+    {
+        e.muted ? lv_obj_add_state(ui_sw_sett_mute_audio, LV_STATE_CHECKED) :
+                  lv_obj_clear_state(ui_sw_sett_mute_audio, LV_STATE_CHECKED);
+    }
+}
+
+void lcd_view::event_handler(const lcd_view_events::update_input_volume &e)
+{
+    /* TODO */
+}
+
+void lcd_view::event_handler(const lcd_view_events::update_output_volume &e)
+{
+    if (ui_sld_sett_out_vol)
+        lv_slider_set_value(ui_sld_sett_out_vol, e.output_vol, LV_ANIM_OFF);
 }
 
 void lcd_view::set_effect_attr(const effect_attr &basic, const tuner_attr &specific)

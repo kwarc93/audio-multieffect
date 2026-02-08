@@ -202,6 +202,22 @@ struct update_dsp_load
     uint8_t load_pct;
 };
 
+struct update_mute
+{
+    bool muted;
+};
+
+struct update_input_volume
+{
+    uint8_t main_input_vol;
+    uint8_t aux_input_vol;
+};
+
+struct update_output_volume
+{
+    uint8_t output_vol;
+};
+
 using outgoing = std::variant
 <
     factory_reset,
@@ -240,7 +256,10 @@ using incoming = std::variant
     set_effect_attributes,
     update_effects_list,
     update_presets_list,
-    update_dsp_load
+    update_dsp_load,
+    update_mute,
+    update_input_volume,
+    update_output_volume
 >;
 
 }
@@ -266,6 +285,9 @@ private:
     void event_handler(const lcd_view_events::update_effects_list &e);
     void event_handler(const lcd_view_events::update_presets_list &e);
     void event_handler(const lcd_view_events::update_dsp_load &e);
+    void event_handler(const lcd_view_events::update_mute &e);
+    void event_handler(const lcd_view_events::update_input_volume &e);
+    void event_handler(const lcd_view_events::update_output_volume &e);
 
     void set_effect_attr(const effect_attr &basic, const tuner_attr &specific);
     void set_effect_attr(const effect_attr &basic, const tremolo_attr &specific);
