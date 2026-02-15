@@ -36,21 +36,21 @@ struct tusb_context
 {
     uint32_t usb_status;
 
-    float vol_min_db;
-    float vol_max_db;
-    float vol_step_db;
+    float out_vol_min_db;
+    float out_vol_max_db;
+    float out_vol_step_db;
 
-    float gain_min_db;
-    float gain_max_db;
-    float gain_step_db;
+    float in_vol_min_db;
+    float in_vol_max_db;
+    float in_vol_step_db;
 
+    std::array<int16_t, CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX + 1> in_volume; // +1 for master channel 0
+    std::array<int16_t, CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX + 1> out_volume; // +1 for master channel 0
     std::array<int8_t, CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX + 1> mute;    // +1 for master channel 0
-    std::array<int16_t, CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX + 1> volume; // +1 for master channel 0
-    std::array<int16_t, CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX + 1> in_gain; // +1 for master channel 0
 
-    std::function<void(float)> usb_volume_callback;
+    std::function<void(float)> usb_in_vol_callback;
+    std::function<void(float)> usb_out_vol_callback;
     std::function<void(bool)> usb_mute_callback;
-    std::function<void(float)> usb_in_gain_callback;
 
     static constexpr uint32_t current_sample_rate {static_cast<uint32_t>(std::round(mfx::config::sampling_frequency_hz / 1000.0f) * 1000)};
     static constexpr std::array<uint32_t, 1> sample_rates {current_sample_rate};
@@ -186,7 +186,7 @@ static bool tud_audio_feature_unit_get_request(uint8_t rhport, audio20_control_r
         {
             if (request->bRequest == AUDIO20_CS_REQ_RANGE)
             {
-                audio20_control_range_2_n_t(1) range_vol = { tu_htole16(1), { tu_htole16(db_to_uac(tusb.vol_min_db)), tu_htole16(db_to_uac(tusb.vol_max_db)), tu_htole16(uac_db_unit) } };
+                audio20_control_range_2_n_t(1) range_vol = { tu_htole16(1), { tu_htole16(db_to_uac(tusb.out_vol_min_db)), tu_htole16(db_to_uac(tusb.out_vol_max_db)), tu_htole16(uac_db_unit) } };
                 TU_LOG1("Get HPH channel %u volume range (%d, %d, %u) dB\r\n", request->bChannelNumber,
                         range_vol.subrange[0].bMin / uac_db_unit, range_vol.subrange[0].bMax / uac_db_unit, range_vol.subrange[0].bRes / uac_db_unit);
 
@@ -194,7 +194,7 @@ static bool tud_audio_feature_unit_get_request(uint8_t rhport, audio20_control_r
             }
             else if (request->bRequest == AUDIO20_CS_REQ_CUR)
             {
-                audio20_control_cur_2_t cur_vol = { tu_htole16(tusb.volume[request->bChannelNumber]) };
+                audio20_control_cur_2_t cur_vol = { tu_htole16(tusb.out_volume[request->bChannelNumber]) };
                 TU_LOG1("Get HPH channel %u volume %d dB\r\n", request->bChannelNumber, cur_vol.bCur / uac_db_unit);
 
                 return tud_audio_buffer_and_schedule_control_xfer(rhport, (tusb_control_request_t const*) request, &cur_vol, sizeof(cur_vol));
@@ -203,20 +203,20 @@ static bool tud_audio_feature_unit_get_request(uint8_t rhport, audio20_control_r
     }
     else if (request->bEntityID == UAC2_ENTITY_INS_FEATURE_UNIT)
     {
-        if (request->bControlSelector == AUDIO20_FU_CTRL_INPUT_GAIN)
+        if (request->bControlSelector == AUDIO20_FU_CTRL_VOLUME)
         {
             if (request->bRequest == AUDIO20_CS_REQ_RANGE)
             {
-                audio20_control_range_2_n_t(1) range_vol = { tu_htole16(1), { tu_htole16(db_to_uac(tusb.gain_min_db)), tu_htole16(db_to_uac(tusb.gain_max_db)), tu_htole16(uac_db_unit) } };
-                TU_LOG1("Get INS channel %u gain range (%d, %d, %u) dB\r\n", request->bChannelNumber,
+                audio20_control_range_2_n_t(1) range_vol = { tu_htole16(1), { tu_htole16(db_to_uac(tusb.in_vol_min_db)), tu_htole16(db_to_uac(tusb.in_vol_max_db)), tu_htole16(uac_db_unit) } };
+                TU_LOG1("Get INS channel %u volume range (%d, %d, %u) dB\r\n", request->bChannelNumber,
                         range_vol.subrange[0].bMin / uac_db_unit, range_vol.subrange[0].bMax / uac_db_unit, range_vol.subrange[0].bRes / uac_db_unit);
 
                 return tud_audio_buffer_and_schedule_control_xfer(rhport, (tusb_control_request_t const*) request, &range_vol, sizeof(range_vol));
             }
             else if (request->bRequest == AUDIO20_CS_REQ_CUR)
             {
-                audio20_control_cur_2_t cur_vol = { tu_htole16(tusb.in_gain[request->bChannelNumber]) };
-                TU_LOG1("Get INS channel %u gain %d dB\r\n", request->bChannelNumber, cur_vol.bCur / uac_db_unit);
+                audio20_control_cur_2_t cur_vol = { tu_htole16(tusb.in_volume[request->bChannelNumber]) };
+                TU_LOG1("Get INS channel %u volume %d dB\r\n", request->bChannelNumber, cur_vol.bCur / uac_db_unit);
 
                 return tud_audio_buffer_and_schedule_control_xfer(rhport, (tusb_control_request_t const*) request, &cur_vol, sizeof(cur_vol));
             }
@@ -255,28 +255,28 @@ static bool tud_audio_feature_unit_set_request(uint8_t rhport, audio20_control_r
         {
             TU_VERIFY(request->wLength == sizeof(audio20_control_cur_2_t));
 
-            tusb.volume[request->bChannelNumber] = ((audio20_control_cur_2_t const*) buf)->bCur;
+            tusb.out_volume[request->bChannelNumber] = ((audio20_control_cur_2_t const*) buf)->bCur;
 
-            TU_LOG1("Set HPH channel %d volume: %d dB\r\n", request->bChannelNumber, tusb.volume[request->bChannelNumber] / uac_db_unit);
+            TU_LOG1("Set HPH channel %d volume: %d dB\r\n", request->bChannelNumber, tusb.out_volume[request->bChannelNumber] / uac_db_unit);
 
-            if (tusb.usb_volume_callback && request->bChannelNumber == 0)
-                tusb.usb_volume_callback(uac_to_db(tusb.volume[request->bChannelNumber]));
+            if (tusb.usb_out_vol_callback && request->bChannelNumber == 0)
+                tusb.usb_out_vol_callback(uac_to_db(tusb.out_volume[request->bChannelNumber]));
 
             return true;
         }
     }
     else if (request->bEntityID == UAC2_ENTITY_INS_FEATURE_UNIT)
     {
-        if (request->bControlSelector == AUDIO20_FU_CTRL_INPUT_GAIN)
+        if (request->bControlSelector == AUDIO20_FU_CTRL_VOLUME)
         {
             TU_VERIFY(request->wLength == sizeof(audio20_control_cur_2_t));
 
-            tusb.in_gain[request->bChannelNumber] = ((audio20_control_cur_2_t const*) buf)->bCur;
+            tusb.in_volume[request->bChannelNumber] = ((audio20_control_cur_2_t const*) buf)->bCur;
 
-            TU_LOG1("Set INS channel %d gain: %d dB\r\n", request->bChannelNumber, tusb.in_gain[request->bChannelNumber] / uac_db_unit);
+            TU_LOG1("Set INS channel %d volume: %d dB\r\n", request->bChannelNumber, tusb.in_volume[request->bChannelNumber] / uac_db_unit);
 
-            if (tusb.usb_in_gain_callback && request->bChannelNumber == 0)
-                tusb.usb_in_gain_callback(uac_to_db(tusb.in_gain[request->bChannelNumber]));
+            if (tusb.usb_in_vol_callback && request->bChannelNumber == 0)
+                tusb.usb_in_vol_callback(uac_to_db(tusb.in_volume[request->bChannelNumber]));
 
             return true;
         }
@@ -301,6 +301,8 @@ bool tud_audio_get_req_entity_cb(uint8_t rhport, tusb_control_request_t const *p
         return tud_audio_clock_get_request(rhport, request);
     if (request->bEntityID == UAC2_ENTITY_HPH_FEATURE_UNIT)
         return tud_audio_feature_unit_get_request(rhport, request);
+    if (request->bEntityID == UAC2_ENTITY_INS_FEATURE_UNIT)
+        return tud_audio_feature_unit_get_request(rhport, request);
 
     TU_LOG1("Get request not handled, entity = %d, selector = %d, request = %d\r\n",
             request->bEntityID, request->bControlSelector, request->bRequest);
@@ -313,10 +315,12 @@ bool tud_audio_set_req_entity_cb(uint8_t rhport, tusb_control_request_t const *p
 {
     audio20_control_request_t const *request = (audio20_control_request_t const*) p_request;
 
-    if (request->bEntityID == UAC2_ENTITY_HPH_FEATURE_UNIT)
-        return tud_audio_feature_unit_set_request(rhport, request, buf);
     if (request->bEntityID == UAC2_ENTITY_CLOCK)
         return tud_audio_clock_set_request(rhport, request, buf);
+    if (request->bEntityID == UAC2_ENTITY_HPH_FEATURE_UNIT)
+        return tud_audio_feature_unit_set_request(rhport, request, buf);
+    if (request->bEntityID == UAC2_ENTITY_INS_FEATURE_UNIT)
+        return tud_audio_feature_unit_set_request(rhport, request, buf);
 
     TU_LOG1("Set request not handled, entity = %d, selector = %d, request = %d\r\n",
             request->bEntityID, request->bControlSelector, request->bRequest);
@@ -372,17 +376,17 @@ usb_audio::usb_audio(const hal::interface::audio_volume_range &in_volume_range, 
 
     tusb.usb_status = USB_NOT_MOUNTED;
 
-    tusb.vol_min_db = out_volume_range.min_db;
-    tusb.vol_max_db = out_volume_range.max_db;
-    tusb.vol_step_db = out_volume_range.max_db - out_volume_range.min_db / out_volume_range.max_val;
+    tusb.in_vol_min_db = in_volume_range.min_db;
+    tusb.in_vol_max_db = in_volume_range.max_db;
+    tusb.in_vol_step_db = in_volume_range.max_db - in_volume_range.min_db / in_volume_range.max_val;
 
-    tusb.gain_min_db = in_volume_range.min_db;
-    tusb.gain_max_db = in_volume_range.max_db;
-    tusb.gain_step_db = in_volume_range.max_db - in_volume_range.min_db / in_volume_range.max_val;
+    tusb.out_vol_min_db = out_volume_range.min_db;
+    tusb.out_vol_max_db = out_volume_range.max_db;
+    tusb.out_vol_step_db = out_volume_range.max_db - out_volume_range.min_db / out_volume_range.max_val;
 
+    tusb.in_volume.fill(db_to_uac(0));
+    tusb.out_volume.fill(db_to_uac(0));
     tusb.mute.fill(0);
-    tusb.volume.fill(db_to_uac(0));
-    tusb.in_gain.fill(db_to_uac(0));
 
     this->audio_from_host.buffer.fill(0);
     this->audio_to_host.buffer.fill(0);
@@ -434,9 +438,14 @@ void usb_audio::disable(void)
     this->audio_to_host.buffer.fill(0);
 }
 
-void usb_audio::set_volume_changed_callback(std::function<void(float volume_db)> callback)
+void usb_audio::set_input_volume_changed_callback(std::function<void(float volume_db)> callback)
 {
-    tusb.usb_volume_callback = std::move(callback);
+    tusb.usb_in_vol_callback = std::move(callback);
+}
+
+void usb_audio::set_output_volume_changed_callback(std::function<void(float volume_db)> callback)
+{
+    tusb.usb_out_vol_callback = std::move(callback);
 }
 
 void usb_audio::set_mute_changed_callback(std::function<void(bool muted)> callback)
@@ -444,16 +453,32 @@ void usb_audio::set_mute_changed_callback(std::function<void(bool muted)> callba
     tusb.usb_mute_callback = std::move(callback);
 }
 
-void usb_audio::set_input_gain_changed_callback(std::function<void(float gain_db)> callback)
+void usb_audio::notify_input_volume_changed(float volume_db)
 {
-    tusb.usb_in_gain_callback = std::move(callback);
+    if (tusb.in_volume[0] != db_to_uac(volume_db))
+    {
+        tusb.in_volume.fill(db_to_uac(volume_db));
+
+        if (tusb.usb_status == USB_NOT_MOUNTED)
+            return;
+
+        audio_interrupt_data_t data;
+        data.v2.bInfo = 0;
+        data.v2.bAttribute = AUDIO20_CS_REQ_CUR;
+        data.v2.wValue_cn_or_mcn = 0;
+        data.v2.wValue_cs = AUDIO20_FU_CTRL_VOLUME;
+        data.v2.wIndex_ep_or_int = 0;
+        data.v2.wIndex_entity_id = UAC2_ENTITY_INS_FEATURE_UNIT;
+
+        tud_audio_int_write(&data);
+    }
 }
 
-void usb_audio::notify_volume_changed(float volume_db)
+void usb_audio::notify_output_volume_changed(float volume_db)
 {
-    if (tusb.volume[0] != db_to_uac(volume_db))
+    if (tusb.out_volume[0] != db_to_uac(volume_db))
     {
-        tusb.volume.fill(db_to_uac(volume_db));
+        tusb.out_volume.fill(db_to_uac(volume_db));
 
         if (tusb.usb_status == USB_NOT_MOUNTED)
             return;
@@ -486,27 +511,6 @@ void usb_audio::notify_mute_changed(bool muted)
         data.v2.wValue_cs = AUDIO20_FU_CTRL_MUTE;
         data.v2.wIndex_ep_or_int = 0;
         data.v2.wIndex_entity_id = UAC2_ENTITY_HPH_FEATURE_UNIT;
-
-        tud_audio_int_write(&data);
-    }
-}
-
-void usb_audio::notify_input_gain_changed(float gain_db)
-{
-    if (tusb.in_gain[0] != db_to_uac(gain_db))
-    {
-        tusb.in_gain.fill(db_to_uac(gain_db));
-
-        if (tusb.usb_status == USB_NOT_MOUNTED)
-            return;
-
-        audio_interrupt_data_t data;
-        data.v2.bInfo = 0;
-        data.v2.bAttribute = AUDIO20_CS_REQ_CUR;
-        data.v2.wValue_cn_or_mcn = 0;
-        data.v2.wValue_cs = AUDIO20_FU_CTRL_INPUT_GAIN;
-        data.v2.wIndex_ep_or_int = 0;
-        data.v2.wIndex_entity_id = UAC2_ENTITY_INS_FEATURE_UNIT;
 
         tud_audio_int_write(&data);
     }

@@ -33,13 +33,13 @@ public:
     bool is_enabled(void) const;
     void process();
 
-    void set_volume_changed_callback(std::function<void(float volume_db)> callback);
+    void set_input_volume_changed_callback(std::function<void(float volume_db)> callback);
+    void set_output_volume_changed_callback(std::function<void(float volume_db)> callback);
     void set_mute_changed_callback(std::function<void(bool muted)> callback);
-    void set_input_gain_changed_callback(std::function<void(float gain_db)> callback);
 
-    void notify_volume_changed(float volume_db);
+    void notify_input_volume_changed(float volume_db);
+    void notify_output_volume_changed(float volume_db);
     void notify_mute_changed(bool muted);
-    void notify_input_gain_changed(float gain_db);
 
     input_buffer_t audio_to_host;
     output_buffer_t audio_from_host;

@@ -91,10 +91,10 @@ enum
     TUD_AUDIO20_DESC_FEATURE_UNIT(/*_unitid*/ UAC2_ENTITY_HPH_FEATURE_UNIT, /*_srcid*/ UAC2_ENTITY_HPH_INPUT_TERMINAL, /*_stridx*/ 0x00, /*_ctrlch0master*/ (AUDIO20_CTRL_RW << AUDIO20_FEATURE_UNIT_CTRL_MUTE_POS | AUDIO20_CTRL_RW << AUDIO20_FEATURE_UNIT_CTRL_VOLUME_POS), /*_ctrlch1*/ AUDIO20_CTRL_NONE, /*_ctrlch2*/ AUDIO20_CTRL_NONE),\
     /* Input Terminal Descriptor(4.7.2.4) */\
     TUD_AUDIO20_DESC_INPUT_TERM(/*_termid*/ UAC2_ENTITY_INS_INPUT_TERMINAL, /*_termtype*/ 0x0603, /*_assocTerm*/ 0x00, /*_clkid*/ UAC2_ENTITY_CLOCK, /*_nchannelslogical*/ CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX, /*_channelcfg*/ AUDIO20_CHANNEL_CONFIG_NON_PREDEFINED, /*_idxchannelnames*/ 0x00, /*_ctrl*/ 0 * (AUDIO20_CTRL_R << AUDIO20_IN_TERM_CTRL_CONNECTOR_POS), /*_stridx*/ 0x00),\
-    /* Feature Unit Descriptor(4.7.2.8) */\
-    TUD_AUDIO20_DESC_FEATURE_UNIT(/*_unitid*/ UAC2_ENTITY_INS_FEATURE_UNIT, /*_srcid*/ UAC2_ENTITY_INS_INPUT_TERMINAL, /*_stridx*/ 0x00, /*_ctrlch0master*/ (AUDIO20_CTRL_RW << AUDIO20_FEATURE_UNIT_CTRL_INPUT_GAIN_POS), /*_ctrlch1*/ AUDIO20_CTRL_NONE),\
     /* Output Terminal Descriptor(4.7.2.5) */\
     TUD_AUDIO20_DESC_OUTPUT_TERM(/*_termid*/ UAC2_ENTITY_INS_OUTPUT_TERMINAL, /*_termtype*/ AUDIO_TERM_TYPE_USB_STREAMING, /*_assocTerm*/ 0x00, /*_srcid*/ UAC2_ENTITY_INS_FEATURE_UNIT, /*_clkid*/ UAC2_ENTITY_CLOCK, /*_ctrl*/ 0x0000, /*_stridx*/ 0x00),\
+    /* Feature Unit Descriptor(4.7.2.8) */\
+    TUD_AUDIO20_DESC_FEATURE_UNIT(/*_unitid*/ UAC2_ENTITY_INS_FEATURE_UNIT, /*_srcid*/ UAC2_ENTITY_INS_INPUT_TERMINAL, /*_stridx*/ 0x00, /*_ctrlch0master*/ (AUDIO20_CTRL_RW << AUDIO20_FEATURE_UNIT_CTRL_VOLUME_POS), /*_ctrlch1*/ AUDIO20_CTRL_NONE),\
     /* Standard AC Interrupt Endpoint Descriptor(4.8.2.1) */\
     TUD_AUDIO20_DESC_STD_AC_INT_EP(/*_ep*/ _epint, /*_interval*/ 0x01), \
     /* Standard AS Interface Descriptor(4.9.1) */\

@@ -91,13 +91,23 @@ void effect_processor::event_handler(const events::configuration &e)
         this->usb_audio.enable();
         const auto vol_range = this->audio.get_output_volume_range();
         const float volume_db = utils::remap(vol_range.min_val, vol_range.max_val, vol_range.min_db, vol_range.max_db, e.output_vol);
-        this->usb_audio.notify_volume_changed(volume_db);
+        this->usb_audio.notify_output_volume_changed(volume_db);
         this->usb_audio.notify_mute_changed(e.output_muted);
     }
 
     this->usb_direct_mon = e.usb_direct_mon_enabled;
 
-    this->usb_audio.set_volume_changed_callback(
+    this->usb_audio.set_input_volume_changed_callback(
+    [this](float input_volume_db)
+    {
+        const auto vol_range = this->audio.get_input_volume_range(0);
+        const uint8_t volume = utils::remap(vol_range.min_db, vol_range.max_db, vol_range.min_val, vol_range.max_val, input_volume_db);
+
+        // TODO: Instead `aux_input_volume` use getter from audio class
+        this->send({events::set_input_volume {volume, aux_input_volume}});
+    });
+
+    this->usb_audio.set_output_volume_changed_callback(
     [this](float output_volume_db)
     {
         const auto vol_range = this->audio.get_output_volume_range();
@@ -110,16 +120,6 @@ void effect_processor::event_handler(const events::configuration &e)
     [this](bool muted)
     {
         this->send({events::set_mute {muted}});
-    });
-
-    this->usb_audio.set_input_gain_changed_callback(
-    [this](float input_gain_db)
-    {
-        const auto vol_range = this->audio.get_input_volume_range(0);
-        const uint8_t volume = utils::remap(vol_range.min_db, vol_range.max_db, vol_range.min_val, vol_range.max_val, input_gain_db);
-
-        // TODO: Instead `aux_input_volume` use getter from audio class
-        this->send({events::set_input_volume {volume, aux_input_volume}});
     });
 
     /* Notify about changes */
@@ -139,7 +139,7 @@ void effect_processor::event_handler(const events::configuration &e)
     vol_info.output_vol_min = vol_range.min_val;
     vol_info.output_vol_max = vol_range.max_val;
     const float volume_db = utils::remap(vol_range.min_val, vol_range.max_val, vol_range.min_db, vol_range.max_db, e.output_vol);
-    this->usb_audio.notify_volume_changed(volume_db);
+    this->usb_audio.notify_output_volume_changed(volume_db);
 
     this->notify(vol_info);
     this->notify(events::mute_changed {e.output_muted});
@@ -225,7 +225,7 @@ void effect_processor::event_handler(const events::set_input_volume &e)
     vol_range = this->audio.get_input_volume_range(1);
     const float aux_volume_db = utils::remap(vol_range.min_val, vol_range.max_val, vol_range.min_db, vol_range.max_db, e.aux_input_vol);
 
-    this->usb_audio.notify_input_gain_changed(main_volume_db);
+    this->usb_audio.notify_input_volume_changed(main_volume_db);
     this->notify(events::input_volume_changed {e.main_input_vol, e.aux_input_vol, main_volume_db, aux_volume_db});
 }
 
@@ -236,7 +236,7 @@ void effect_processor::event_handler(const events::set_output_volume &e)
     const auto vol_range = this->audio.get_output_volume_range();
     const float volume_db = utils::remap(vol_range.min_val, vol_range.max_val, vol_range.min_db, vol_range.max_db, e.output_vol);
 
-    this->usb_audio.notify_volume_changed(volume_db);
+    this->usb_audio.notify_output_volume_changed(volume_db);
     this->notify(events::output_volume_changed {e.output_vol, volume_db});
 }
 
