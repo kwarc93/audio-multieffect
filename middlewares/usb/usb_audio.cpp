@@ -330,6 +330,9 @@ usb_audio::usb_audio(const hal::interface::audio_volume_range &volume_range)
 
     tusb.mute.fill(0);
     tusb.volume.fill(db_to_uac(0));
+
+    this->audio_from_host.buffer.fill(0);
+    this->audio_to_host.buffer.fill(0);
 }
 
 usb_audio::~usb_audio()
@@ -341,9 +344,6 @@ void usb_audio::enable()
 {
     if (tusb_inited())
         return;
-
-    this->audio_from_host.buffer.fill(0);
-    this->audio_to_host.buffer.fill(0);
 
 #if BOARD_TUD_RHPORT == 0
     hal::usbd::init_fs();
@@ -376,7 +376,9 @@ void usb_audio::disable(void)
         vTaskDelete(this->usb_task);
         this->usb_task = nullptr;
     }
+
     this->audio_from_host.buffer.fill(0);
+    this->audio_to_host.buffer.fill(0);
 }
 
 void usb_audio::set_volume_changed_callback(std::function<void(float volume_db)> callback)

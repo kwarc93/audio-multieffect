@@ -119,7 +119,7 @@ public:
             const bool cancelled = target == nullptr;
 
             if (!cancelled)
-                target->send(ctx->evt, 0);
+                target->send(ctx->evt);
 
             if (!periodic || cancelled)
             {
