@@ -627,15 +627,15 @@ void ui_settings_screen_init(void)
     lv_obj_set_style_pad_hor(sub_audio_page, menu_pad_hor, 0);
     lv_menu_separator_create(sub_audio_page);
     section = lv_menu_section_create(sub_audio_page);
-    cont = menu_create_slider(section, &ui_lbl_sett_main_in_vol, "MAIN input volume", 0, 31, 11, ui_event_sld_in_vol);
+    cont = menu_create_slider(section, &ui_lbl_sett_main_in_vol, "MAIN input volume", 0, 100, 0, ui_event_sld_in_vol);
     ui_sld_sett_main_in_vol = lv_obj_get_child(cont, -2);
-    cont = menu_create_slider(section, &ui_lbl_sett_aux_in_vol, "AUX input volume", 0, 31, 11, ui_event_sld_in_vol);
+    cont = menu_create_slider(section, &ui_lbl_sett_aux_in_vol, "AUX input volume", 0, 100, 0, ui_event_sld_in_vol);
     ui_sld_sett_aux_in_vol = lv_obj_get_child(cont, -2);
     cont = menu_create_switch(section, NULL, "Route onboard microphone to AUX", false, ui_event_sw_route_mic_to_aux);
     ui_sw_sett_route_mic_to_aux = lv_obj_get_child(cont, -1);
     lv_menu_separator_create(sub_audio_page);
     section = lv_menu_section_create(sub_audio_page);
-    cont = menu_create_slider(section, &ui_lbl_sett_out_vol, "OUT volume", 0, 63, 57, ui_event_sld_out_vol);
+    cont = menu_create_slider(section, &ui_lbl_sett_out_vol, "OUT volume", 0, 100, 0, ui_event_sld_out_vol);
     ui_sld_sett_out_vol = lv_obj_get_child(cont, -2);
     cont = menu_create_switch(section, NULL, "Mute output", false, ui_event_sw_mute_audio);
     ui_sw_sett_mute_audio = lv_obj_get_child(cont, -1);
@@ -665,7 +665,7 @@ void ui_settings_screen_init(void)
     lv_obj_t * sub_display_page = lv_menu_page_create(menu, "Display");
     lv_obj_set_style_pad_hor(sub_display_page, menu_pad_hor, 0);
     section = lv_menu_section_create(sub_display_page);
-    cont = menu_create_slider(section, NULL, "Brightness", 0, 100, 100, ui_event_sld_display_brightness);
+    cont = menu_create_slider(section, NULL, "Brightness", 0, 100, 0, ui_event_sld_display_brightness);
     ui_sld_sett_displ_bright = lv_obj_get_child(cont, -1);
     cont = menu_create_switch(section, NULL, "Dark mode", true, ui_event_sw_dark_mode);
     ui_sw_sett_dark_mode = lv_obj_get_child(cont, -1);

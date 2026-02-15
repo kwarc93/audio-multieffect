@@ -53,28 +53,25 @@ void controller::event_handler(const controller_events::initialize &e)
 
     /* Configure view & model */
     this->model->send({effect_processor_events::configuration
-                      {
-                          this->settings->get_main_input_volume(),
-                          this->settings->get_aux_input_volume(),
-                          this->settings->get_output_volume(),
-                          this->settings->get_output_muted(),
-                          this->settings->get_mic_routed_to_aux(),
-                          this->settings->get_usb_audio_if_enabled(),
-                          this->settings->get_usb_direct_mon_enabled(),
-                      }});
+    {
+        this->settings->get_main_input_volume(),
+        this->settings->get_aux_input_volume(),
+        this->settings->get_output_volume(),
+        this->settings->get_output_muted(),
+        this->settings->get_mic_routed_to_aux(),
+        this->settings->get_usb_audio_if_enabled(),
+        this->settings->get_usb_direct_mon_enabled(),
+    }});
 
     this->view->send({lcd_view_events::configuration
-                     {
-                         this->settings->get_dark_mode(),
-                         this->settings->get_display_brightness(),
-                         this->settings->get_main_input_volume(),
-                         this->settings->get_aux_input_volume(),
-                         this->settings->get_output_volume(),
-                         this->settings->get_output_muted(),
-                         this->settings->get_mic_routed_to_aux(),
-                         this->settings->get_usb_audio_if_enabled(),
-                         this->settings->get_usb_direct_mon_enabled(),
-                     }});
+    {
+        this->settings->get_dark_mode(),
+        this->settings->get_display_brightness(),
+        // TODO: Settings below should come with notification from model
+        this->settings->get_mic_routed_to_aux(),
+        this->settings->get_usb_audio_if_enabled(),
+        this->settings->get_usb_direct_mon_enabled(),
+    }});
 
     this->settings->set_boot_counter(this->settings->get_boot_counter() + 1);
 
@@ -406,6 +403,19 @@ void controller::view_event_handler(const lcd_view_events::move_effect_request &
     this->model->send({effect_processor_events::move_effect {e.id, e.step}});
 }
 
+void controller::model_event_handler(const effect_processor_events::volume_range_info &e)
+{
+    this->view->send({lcd_view_events::update_volume_range
+    {
+        e.main_input_vol_min,
+        e.main_input_vol_max,
+        e.aux_input_vol_min,
+        e.aux_input_vol_max,
+        e.output_vol_min,
+        e.output_vol_max,
+    }});
+}
+
 void controller::model_event_handler(const effect_processor_events::dsp_load_changed &e)
 {
     this->view->send({lcd_view_events::update_dsp_load {e.load_pct}});
@@ -419,12 +429,14 @@ void controller::model_event_handler(const effect_processor_events::mute_changed
 
 void controller::model_event_handler(const effect_processor_events::input_volume_changed &e)
 {
-    /* TODO */
+    this->view->send({lcd_view_events::update_input_volume {e.main_input_vol, e.aux_input_vol, e.main_input_vol_db, e.aux_input_vol_db}});
+    this->settings->set_main_input_volume(e.main_input_vol);
+    this->settings->set_aux_input_volume(e.aux_input_vol);
 }
 
 void controller::model_event_handler(const effect_processor_events::output_volume_changed &e)
 {
-    this->view->send({lcd_view_events::update_output_volume {e.output_vol}});
+    this->view->send({lcd_view_events::update_output_volume {e.output_vol, e.output_vol_db}});
     this->settings->set_output_volume(e.output_vol);
 }
 

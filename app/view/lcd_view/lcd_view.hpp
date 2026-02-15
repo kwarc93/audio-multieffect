@@ -43,10 +43,6 @@ struct configuration
 {
     bool dark_mode;
     uint8_t display_brightness;
-    uint8_t main_input_vol;
-    uint8_t aux_input_vol;
-    uint8_t output_vol;
-    bool output_muted;
     bool mic_routed_to_aux;
     bool usb_audio_if_enabled;
     bool usb_direct_mon_enabled;
@@ -211,11 +207,28 @@ struct update_input_volume
 {
     uint8_t main_input_vol;
     uint8_t aux_input_vol;
+
+    float main_input_vol_db;
+    float aux_input_vol_db;
 };
 
 struct update_output_volume
 {
     uint8_t output_vol;
+
+    float output_vol_db;
+};
+
+struct update_volume_range
+{
+    uint8_t main_input_vol_min;
+    uint8_t main_input_vol_max;
+
+    uint8_t aux_input_vol_min;
+    uint8_t aux_input_vol_max;
+
+    uint8_t output_vol_min;
+    uint8_t output_vol_max;
 };
 
 using outgoing = std::variant
@@ -259,7 +272,8 @@ using incoming = std::variant
     update_dsp_load,
     update_mute,
     update_input_volume,
-    update_output_volume
+    update_output_volume,
+    update_volume_range
 >;
 
 }
@@ -288,6 +302,7 @@ private:
     void event_handler(const lcd_view_events::update_mute &e);
     void event_handler(const lcd_view_events::update_input_volume &e);
     void event_handler(const lcd_view_events::update_output_volume &e);
+    void event_handler(const lcd_view_events::update_volume_range &e);
 
     void set_effect_attr(const effect_attr &basic, const tuner_attr &specific);
     void set_effect_attr(const effect_attr &basic, const tremolo_attr &specific);

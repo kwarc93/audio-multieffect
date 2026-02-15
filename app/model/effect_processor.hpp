@@ -153,9 +153,43 @@ struct effect_attributes_enumerated
     effect_specific_attr specific;
 };
 
-using mute_changed = set_mute;
-using input_volume_changed = set_input_volume;
-using output_volume_changed = set_output_volume;
+struct mute_changed
+{
+    bool value;
+};
+
+struct volume_range_info
+{
+    uint8_t main_input_vol_min;
+    uint8_t main_input_vol_max;
+
+    uint8_t aux_input_vol_min;
+    uint8_t aux_input_vol_max;
+
+    uint8_t output_vol_min;
+    uint8_t output_vol_max;
+};
+
+struct input_volume_changed
+{
+    uint8_t main_input_vol;
+    uint8_t aux_input_vol;
+
+    float main_input_vol_db;
+    float aux_input_vol_db;
+};
+
+struct output_volume_changed
+{
+    uint8_t output_vol;
+
+    float output_vol_db;
+};
+
+struct update_mute
+{
+    bool muted;
+};
 
 using incoming = std::variant
 <
@@ -183,6 +217,7 @@ using incoming = std::variant
 
 using outgoing = std::variant
 <
+    volume_range_info,
     dsp_load_changed,
     mute_changed,
     input_volume_changed,

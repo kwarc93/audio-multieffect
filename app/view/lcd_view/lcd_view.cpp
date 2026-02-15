@@ -59,45 +59,6 @@ void lcd_view::event_handler(const lcd_view_events::configuration &e)
         lv_slider_set_value(ui_sld_sett_displ_bright, e.display_brightness, LV_ANIM_OFF);
     }
 
-    if (ui_sld_sett_main_in_vol)
-    {
-        lv_slider_set_value(ui_sld_sett_main_in_vol, e.main_input_vol, LV_ANIM_OFF);
-    }
-
-    if (ui_lbl_sett_main_in_vol)
-    {
-        // TODO: Obtain volume ranges from controller
-        lv_label_set_text_fmt(ui_lbl_sett_main_in_vol, "%+.1f dB", mfx::utils::remap(0, 31, -16.5f, +30.0f, e.main_input_vol));
-    }
-
-    if (ui_sld_sett_aux_in_vol)
-    {
-        lv_slider_set_value(ui_sld_sett_aux_in_vol, e.aux_input_vol, LV_ANIM_OFF);
-    }
-
-    if (ui_lbl_sett_aux_in_vol)
-    {
-        // TODO: Obtain volume ranges from controller
-        lv_label_set_text_fmt(ui_lbl_sett_aux_in_vol, "%+.1f dB", mfx::utils::remap(0, 31, -6.0f, +17.25f, e.aux_input_vol));
-    }
-
-    if (ui_sld_sett_out_vol)
-    {
-        lv_slider_set_value(ui_sld_sett_out_vol, e.output_vol, LV_ANIM_OFF);
-    }
-
-    if (ui_lbl_sett_out_vol)
-    {
-        // TODO: Obtain volume ranges from controller
-        lv_label_set_text_fmt(ui_lbl_sett_out_vol, "%+.1f dB", static_cast<float>(mfx::utils::remap(0, 63, -57, +6, e.output_vol)));
-    }
-
-    if (ui_sw_sett_mute_audio)
-    {
-        e.output_muted ? lv_obj_add_state(ui_sw_sett_mute_audio, LV_STATE_CHECKED) :
-                         lv_obj_clear_state(ui_sw_sett_mute_audio, LV_STATE_CHECKED);
-    }
-
     if (ui_sw_sett_route_mic_to_aux)
     {
         e.mic_routed_to_aux ? lv_obj_add_state(ui_sw_sett_route_mic_to_aux, LV_STATE_CHECKED) :
@@ -314,13 +275,11 @@ void lcd_view::event_handler(const lcd_view_events::update_input_volume &e)
     if (ui_sld_sett_aux_in_vol)
         lv_slider_set_value(ui_sld_sett_aux_in_vol, e.aux_input_vol, LV_ANIM_OFF);
 
-    // TODO: Obtain volume ranges from controller
-
     if (ui_lbl_sett_main_in_vol)
-        lv_label_set_text_fmt(ui_lbl_sett_main_in_vol, "%+.1f dB", mfx::utils::remap(0, 31, -16.5f, +30.0f, e.main_input_vol));
+        lv_label_set_text_fmt(ui_lbl_sett_main_in_vol, "%+.1f dB", e.main_input_vol_db);
 
     if (ui_lbl_sett_aux_in_vol)
-        lv_label_set_text_fmt(ui_lbl_sett_aux_in_vol, "%+.1f dB", mfx::utils::remap(0, 31, -6.0f, +17.25f, e.aux_input_vol));
+        lv_label_set_text_fmt(ui_lbl_sett_aux_in_vol, "%+.1f dB", e.aux_input_vol_db);
 }
 
 void lcd_view::event_handler(const lcd_view_events::update_output_volume &e)
@@ -328,10 +287,20 @@ void lcd_view::event_handler(const lcd_view_events::update_output_volume &e)
     if (ui_sld_sett_out_vol)
         lv_slider_set_value(ui_sld_sett_out_vol, e.output_vol, LV_ANIM_OFF);
 
-    // TODO: Obtain volume ranges from controller
-
     if (ui_lbl_sett_out_vol)
-        lv_label_set_text_fmt(ui_lbl_sett_out_vol, "%+.1f dB", static_cast<float>(mfx::utils::remap(0, 63, -57, +6, e.output_vol)));
+        lv_label_set_text_fmt(ui_lbl_sett_out_vol, "%+.1f dB", e.output_vol_db);
+}
+
+void lcd_view::event_handler(const lcd_view_events::update_volume_range &e)
+{
+    if (ui_sld_sett_main_in_vol)
+        lv_slider_set_range(ui_sld_sett_main_in_vol, e.main_input_vol_min, e.main_input_vol_max);
+
+    if (ui_sld_sett_aux_in_vol)
+        lv_slider_set_range(ui_sld_sett_aux_in_vol, e.aux_input_vol_min, e.aux_input_vol_max);
+
+    if (ui_sld_sett_out_vol)
+        lv_slider_set_range(ui_sld_sett_out_vol, e.output_vol_min, e.output_vol_max);
 }
 
 void lcd_view::set_effect_attr(const effect_attr &basic, const tuner_attr &specific)

@@ -126,6 +126,7 @@ private:
 
     void model_event_handler(const effect_processor_events::dsp_load_changed &e);
     void model_event_handler(const effect_processor_events::mute_changed &e);
+    void model_event_handler(const effect_processor_events::volume_range_info &e);
     void model_event_handler(const effect_processor_events::input_volume_changed &e);
     void model_event_handler(const effect_processor_events::output_volume_changed &e);
     void model_event_handler(const effect_processor_events::effect_attributes_changed &e);
