@@ -183,9 +183,9 @@ static bool is_fx_name_in_chain(const char *name)
 
 static int fx_name_to_id(const char *name)
 {
-    for (unsigned i = 0; i < ui_fx_names_size; i++)
+    for (unsigned i = 0; i < ui_sett_fx_names_size; i++)
     {
-        if (strcmp(ui_fx_names[i], name) == 0)
+        if (strcmp(ui_arr_sett_fx_names[i], name) == 0)
             return i;
     }
 
@@ -235,11 +235,11 @@ static void fx_ops_add_handler(lv_event_t * e)
         lv_obj_add_event_cb(btn, fx_ops_back_handler, LV_EVENT_ALL, NULL);
         lv_group_remove_obj(btn);
 
-        for (unsigned i = 0; i < ui_fx_names_size; i++)
+        for (unsigned i = 0; i < ui_sett_fx_names_size; i++)
         {
-            btn = lv_list_add_btn(ui_list_sett_fx_items, NULL, ui_fx_names[i]);
+            btn = lv_list_add_btn(ui_list_sett_fx_items, NULL, ui_arr_sett_fx_names[i]);
 
-            if (is_fx_name_in_chain(ui_fx_names[i]))
+            if (is_fx_name_in_chain(ui_arr_sett_fx_names[i]))
             {
                 lv_obj_set_style_text_color(btn, lv_color_darken(lv_color_white(), 127), LV_STATE_DISABLED);
                 lv_obj_add_state(btn, LV_STATE_DISABLED);
@@ -595,7 +595,7 @@ void ui_settings_update_presets_list(const char * preset_name)
 
 void ui_settings_update_effects_list(uint8_t effect_id)
 {
-    list_add_btn(ui_list_sett_fx_chain, ui_fx_names[effect_id], &ui_btn_sett_curr_fx);
+    list_add_btn(ui_list_sett_fx_chain, ui_arr_sett_fx_names[effect_id], &ui_btn_sett_curr_fx);
 }
 
 void ui_settings_screen_init(void)
@@ -678,11 +678,7 @@ void ui_settings_screen_init(void)
     lv_obj_t * sub_hardware_page = lv_menu_page_create(menu, "Hardware");
     lv_obj_set_style_pad_hor(sub_hardware_page, menu_pad_hor, 0);
     section = lv_menu_section_create(sub_hardware_page);
-#ifdef DUAL_CORE_APP
-    menu_create_text(section, NULL, "Board: STM32H745I-DISCO DKH745IO$AT2\nCPU1: ARM Cortex-M7 400MHz\nCPU2: ARM Cortex-M4 200MHz\nRAM: 8MB\nStorage: 64MB\nAudio: 24bit/48kHz\nDisplay: 480x272 RGB565");
-#else
-    menu_create_text(section, NULL, "Board: STM32F746G-DISCO MB1191B\nCPU: ARM Cortex-M7 200MHz\nRAM: 8MB\nStorage: 16MB\nAudio: 24bit/48kHz\nDisplay: 480x272 RGB565");
-#endif
+    menu_create_text(section, NULL, ui_txt_sett_hw_info);
     lv_obj_t * sub_about_page = lv_menu_page_create(menu, "About");
     lv_obj_set_style_pad_hor(sub_about_page, menu_pad_hor, 0);
     cont = menu_create_text(sub_about_page, NULL, "Guitar MFX - Guitar Multi Effect Processor\nCopyright 2023 Kamil Worek. All rights reserved.");

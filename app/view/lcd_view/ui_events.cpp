@@ -7,6 +7,7 @@
 
 #include "lcd_view.hpp"
 #include "app/utils.hpp"
+#include "app/config.hpp"
 
 #include <cassert>
 #include <string>
@@ -236,8 +237,9 @@ void ui_set_user_data(void *user_data)
 
 void ui_init_user_actions(void)
 {
-    ui_fx_names_size = mfx::effect_name.size();
-    ui_fx_names = mfx::effect_name.data();
+    ui_sett_fx_names_size = mfx::effect_name.size();
+    ui_arr_sett_fx_names = mfx::effect_name.data();
+    ui_txt_sett_hw_info = mfx::config::hw_info_txt;
 }
 
 void ui_splash_loaded(lv_event_t * e)

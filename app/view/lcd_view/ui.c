@@ -42,8 +42,9 @@ lv_obj_t * ui_sw_sett_route_mic_to_aux;
 lv_obj_t * ui_sw_sett_usb_if_toggle;
 lv_obj_t * ui_sw_sett_usb_direct_mon;
 lv_obj_t * ui_lbl_sett_cpu_load;
-const char * const* ui_fx_names;
-size_t ui_fx_names_size;
+const char * ui_txt_sett_hw_info;
+const char * const* ui_arr_sett_fx_names;
+size_t ui_sett_fx_names_size;
 
 // SCREEN: ui_fx_tuner
 lv_obj_t * ui_fx_tuner;
