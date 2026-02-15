@@ -25,7 +25,7 @@ public:
     using input_buffer_t = hal::interface::audio_buffer<int32_t, mfx::config::dsp_vector_size, 1, 24>;
     using output_buffer_t = hal::interface::audio_buffer<int32_t, mfx::config::dsp_vector_size, 2, 24>;
 
-    usb_audio(const hal::interface::audio_volume_range &volume_range);
+    usb_audio(const hal::interface::audio_volume_range &in_volume_range, const hal::interface::audio_volume_range &out_volume_range);
     ~usb_audio();
 
     void enable(void);
@@ -35,9 +35,11 @@ public:
 
     void set_volume_changed_callback(std::function<void(float volume_db)> callback);
     void set_mute_changed_callback(std::function<void(bool muted)> callback);
+    void set_input_gain_changed_callback(std::function<void(float gain_db)> callback);
 
     void notify_volume_changed(float volume_db);
     void notify_mute_changed(bool muted);
+    void notify_input_gain_changed(float gain_db);
 
     input_buffer_t audio_to_host;
     output_buffer_t audio_from_host;

@@ -47,6 +47,9 @@ namespace
         uint32_t total_cycles = end - start;
         return total_cycles / cycles_per_us;
     }
+
+    // TODO: Remove this after adding getters for audio volume
+    uint8_t aux_input_volume {0};
 }
 
 //-----------------------------------------------------------------------------
@@ -75,6 +78,7 @@ void effect_processor::event_handler(const events::shutdown &e)
 void effect_processor::event_handler(const events::configuration &e)
 {
     /* Configure audio */
+    aux_input_volume = e.aux_input_vol;
     this->audio.set_input_volume(e.main_input_vol, 0);
     this->audio.set_input_volume(e.aux_input_vol, 1);
     this->audio.set_output_volume(e.output_vol);
@@ -106,6 +110,16 @@ void effect_processor::event_handler(const events::configuration &e)
     [this](bool muted)
     {
         this->send({events::set_mute {muted}});
+    });
+
+    this->usb_audio.set_input_gain_changed_callback(
+    [this](float input_gain_db)
+    {
+        const auto vol_range = this->audio.get_input_volume_range(0);
+        const uint8_t volume = utils::remap(vol_range.min_db, vol_range.max_db, vol_range.min_val, vol_range.max_val, input_gain_db);
+
+        // TODO: Instead `aux_input_volume` use getter from audio class
+        this->send({events::set_input_volume {volume, aux_input_volume}});
     });
 
     /* Notify about changes */
@@ -206,10 +220,12 @@ void effect_processor::event_handler(const events::set_input_volume &e)
     auto vol_range = this->audio.get_input_volume_range(0);
     const float main_volume_db = utils::remap(vol_range.min_val, vol_range.max_val, vol_range.min_db, vol_range.max_db, e.main_input_vol);
 
+    aux_input_volume = e.aux_input_vol;
     this->audio.set_input_volume(e.aux_input_vol, 1);
     vol_range = this->audio.get_input_volume_range(1);
     const float aux_volume_db = utils::remap(vol_range.min_val, vol_range.max_val, vol_range.min_db, vol_range.max_db, e.aux_input_vol);
 
+    this->usb_audio.notify_input_gain_changed(main_volume_db);
     this->notify(events::input_volume_changed {e.main_input_vol, e.aux_input_vol, main_volume_db, aux_volume_db});
 }
 
@@ -555,7 +571,7 @@ uint8_t effect_processor::get_processing_load(void)
 
 effect_processor::effect_processor() :
 audio{middlewares::i2c_managers::main::get_instance()},
-usb_audio {audio.get_output_volume_range()}
+usb_audio {audio.get_input_volume_range(0), audio.get_output_volume_range()}
 {
     this->processing_time_us = 0;
     this->usb_direct_mon = false;
