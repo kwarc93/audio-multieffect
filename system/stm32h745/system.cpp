@@ -81,11 +81,19 @@ extern "C" void ipc_notify_core(void * xUpdatedMessageBuffer)
 //-----------------------------------------------------------------------------
 /* syscalls */
 
+__attribute__((noreturn))
+void abort(void)
+{
+    __disable_irq();
+    __BKPT(0);
+    for (;;);
+}
+
 #ifdef HAL_SYSTEM_RTOS_ENABLED
 /* Override default lock/unlock functions to let the heap be thread-safe */
 void __malloc_lock(struct _reent *r)
 {
-    configASSERT(!xPortIsInsideInterrupt());
+    assert(!xPortIsInsideInterrupt());
     vTaskSuspendAll();
 }
 
@@ -106,6 +114,8 @@ static SemaphoreHandle_t stdio_mutex_id = NULL;
 
 extern "C" ssize_t _write_r(struct _reent *ptr, int fd, const void *buf, size_t cnt)
 {
+    assert(!xPortIsInsideInterrupt());
+
     /* If doesnt exist, create mutex for stdio USART */
     stdio_mutex_id = (stdio_mutex_id == NULL) ? xSemaphoreCreateRecursiveMutex() : stdio_mutex_id;
     assert(stdio_mutex_id != NULL);
@@ -128,6 +138,8 @@ extern "C" ssize_t _write_r(struct _reent *ptr, int fd, const void *buf, size_t 
 
 extern "C" ssize_t _read_r(struct _reent *ptr, int fd, void *buf, size_t cnt)
 {
+    assert(!xPortIsInsideInterrupt());
+
     /* If doesnt exist, create mutex for stdio USART */
     stdio_mutex_id = (stdio_mutex_id == NULL) ? xSemaphoreCreateRecursiveMutex() : stdio_mutex_id;
     assert(stdio_mutex_id != NULL);
@@ -170,8 +182,8 @@ extern "C" int _read (int fd, char *buf, int cnt)
 extern "C"
 {
 void vApplicationIdleHook (void){ __WFI(); }
-void vApplicationMallocFailedHook (void) { configASSERT(0); }
-void vApplicationStackOverflowHook (TaskHandle_t xTask, char *pcTaskName) { configASSERT(0); }
+void vApplicationMallocFailedHook (void) { assert(0); }
+void vApplicationStackOverflowHook (TaskHandle_t xTask, char *pcTaskName) { assert(0); }
 }
 #endif /* HAL_SYSTEM_RTOS_ENABLED */
 
