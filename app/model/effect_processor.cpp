@@ -47,9 +47,6 @@ namespace
         uint32_t total_cycles = end - start;
         return total_cycles / cycles_per_us;
     }
-
-    // TODO: Remove this after adding getters for audio volume
-    uint8_t aux_input_volume {0};
 }
 
 //-----------------------------------------------------------------------------
@@ -78,7 +75,6 @@ void effect_processor::event_handler(const events::shutdown &e)
 void effect_processor::event_handler(const events::configuration &e)
 {
     /* Configure audio */
-    aux_input_volume = e.aux_input_vol;
     this->audio.set_input_volume(e.main_input_vol, 0);
     this->audio.set_input_volume(e.aux_input_vol, 1);
     this->audio.set_output_volume(e.output_vol);
@@ -103,8 +99,7 @@ void effect_processor::event_handler(const events::configuration &e)
         const auto vol_range = this->audio.get_input_volume_range(0);
         const uint8_t volume = utils::remap(vol_range.min_db, vol_range.max_db, vol_range.min_val, vol_range.max_val, input_volume_db);
 
-        // TODO: Instead `aux_input_volume` use getter from audio class
-        this->send({events::set_input_volume {volume, aux_input_volume}});
+        this->send({events::set_input_volume {volume, this->audio.get_input_volume(1)}});
     });
 
     this->usb_audio.set_output_volume_changed_callback(
@@ -220,7 +215,6 @@ void effect_processor::event_handler(const events::set_input_volume &e)
     auto vol_range = this->audio.get_input_volume_range(0);
     const float main_volume_db = utils::remap(vol_range.min_val, vol_range.max_val, vol_range.min_db, vol_range.max_db, e.main_input_vol);
 
-    aux_input_volume = e.aux_input_vol;
     this->audio.set_input_volume(e.aux_input_vol, 1);
     vol_range = this->audio.get_input_volume_range(1);
     const float aux_volume_db = utils::remap(vol_range.min_val, vol_range.max_val, vol_range.min_db, vol_range.max_db, e.aux_input_vol);

@@ -185,6 +185,7 @@ namespace hal::interface
         virtual void capture(sample_t *input, uint16_t length, const capture_cb_t &cb, bool loop) = 0;
         virtual void stop_capture(void) = 0;
         virtual void set_input_volume(uint8_t vol, uint8_t ch) = 0;
+        virtual uint8_t get_input_volume(uint8_t ch) const = 0;
         virtual audio_volume_range get_input_volume_range(uint8_t ch) const = 0;
 
     protected:
@@ -207,6 +208,7 @@ namespace hal::interface
         virtual void stop(void) = 0;
         virtual void mute(bool value) = 0;
         virtual void set_output_volume(uint8_t vol) = 0;
+        virtual uint8_t get_output_volume(void) const = 0;
         virtual audio_volume_range get_output_volume_range() const = 0;
 
     protected:

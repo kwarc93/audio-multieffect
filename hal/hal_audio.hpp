@@ -55,6 +55,14 @@ namespace hal
                 this->input_drv->set_input_volume(vol, ch);
         }
 
+        uint8_t get_input_volume(uint8_t ch) const
+        {
+            if (this->output_drv)
+                return this->input_drv->get_input_volume(ch);
+            else
+                return 0;
+        }
+
         hal::interface::audio_volume_range get_input_volume_range(uint8_t ch) const
         {
             if (this->input_drv)
@@ -98,6 +106,14 @@ namespace hal
         {
             if (this->output_drv)
                 this->output_drv->set_output_volume(vol);
+        }
+
+        uint8_t get_output_volume(void) const
+        {
+            if (this->output_drv)
+                return this->output_drv->get_output_volume();
+            else
+                return 0;
         }
 
         hal::interface::audio_volume_range get_output_volume_range() const

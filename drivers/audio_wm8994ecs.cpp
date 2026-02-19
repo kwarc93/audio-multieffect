@@ -414,7 +414,7 @@ void audio_wm8994ecs::reset(void)
 /* public */
 
 audio_wm8994ecs::audio_wm8994ecs(hal::interface::i2c_proxy &i2c, uint8_t addr, input in, output out, bool in_ch_swap) :
-i2c {i2c}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}, in_ch_swapped{in_ch_swap}
+i2c {i2c}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}, input_ch_swapped{in_ch_swap}
 {
     constexpr uint32_t audio_freq = 48000;
     constexpr uint16_t slots_1_3 = 0b1010;
@@ -742,7 +742,7 @@ i2c {i2c}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}, in_ch_swapped{in_ch_sw
     }
 
     /* AIF1 Word Length = 32-bits, AIF1 Format = I2S */
-    (this->in_ch_swapped) ? this->write_reg(0x300, 0x8070) : this->write_reg(0x300, 0x4070);
+    (this->input_ch_swapped) ? this->write_reg(0x300, 0x8070) : this->write_reg(0x300, 0x4070);
 
     /* slave mode */
     this->write_reg(0x302, 0x0000);
@@ -930,7 +930,7 @@ void audio_wm8994ecs::set_input_volume(uint8_t vol, uint8_t ch)
     /* Digital volume of ADC2 OUT (-6.0dB to 17.25dB) */
     const uint16_t dvol = 0xB0 + 2 * vol;
 
-    if (this->in_ch_swapped)
+    if (this->input_ch_swapped)
         ch = !ch;
 
     switch (ch)
@@ -938,22 +938,33 @@ void audio_wm8994ecs::set_input_volume(uint8_t vol, uint8_t ch)
         case 0: // Left
             this->write_reg(WM8994_LEFT_LINE_IN12_VOL, vol | 0x0140);
             this->write_reg(WM8994_AIF1_ADC2_LEFT_VOL, dvol | 0x100);
+            this->input_volume[ch] = vol;
             break;
         case 1: // Right
             this->write_reg(WM8994_RIGHT_LINE_IN12_VOL, vol | 0x0140);
             this->write_reg(WM8994_AIF1_ADC2_RIGHT_VOL, dvol | 0x100);
+            this->input_volume[ch] = vol;
             break;
         default:
             break;
     }
 }
 
-hal::interface::audio_volume_range audio_wm8994ecs::get_input_volume_range(uint8_t ch) const
+uint8_t audio_wm8994ecs::get_input_volume(uint8_t ch) const
 {
-    if (this->in_ch_swapped)
+    if (this->input_ch_swapped)
         ch = !ch;
 
-    if (this->in_ch_digital[ch])
+    /* Return cached volume instead of register value */
+    return this->input_volume[ch];
+}
+
+hal::interface::audio_volume_range audio_wm8994ecs::get_input_volume_range(uint8_t ch) const
+{
+    if (this->input_ch_swapped)
+        ch = !ch;
+
+    if (this->input_ch_is_digital[ch])
         return {0, 31, -6.0f, +17.25f};
     else
         return {0, 31, -16.5f, +30.0f};
@@ -966,8 +977,8 @@ void audio_wm8994ecs::set_input_channels(frame_slots left_ch, frame_slots right_
     const uint16_t right_slot = static_cast<uint16_t>(right_ch);
 
     // Audio from slot 1 is digital (digital mic)
-    this->in_ch_digital[0] = left_ch == frame_slots::slot1_left;
-    this->in_ch_digital[1] = right_ch == frame_slots::slot1_right;
+    this->input_ch_is_digital[0] = left_ch == frame_slots::slot1_left;
+    this->input_ch_is_digital[1] = right_ch == frame_slots::slot1_right;
 
     const sai_32bit::block::config sai_b_cfg
     {
@@ -1047,6 +1058,14 @@ void audio_wm8994ecs::set_output_volume(uint8_t vol)
     this->write_reg(WM8994_RIGHT_OUTPUT_VOL, vol | 0x01C0);
     this->write_reg(WM8994_SPK_LEFT_VOL, vol | 0x00C0);
     this->write_reg(WM8994_SPK_RIGHT_VOL, vol | 0x01C0);
+
+    this->output_volume = vol;
+}
+
+uint8_t audio_wm8994ecs::get_output_volume(void) const
+{
+    /* Return cached volume instead of register value */
+    return this->output_volume;
 }
 
 hal::interface::audio_volume_range audio_wm8994ecs::get_output_volume_range(void) const

@@ -65,7 +65,7 @@ constexpr int uac_db_unit  = 256;  // 1 dB = 256 units
 
 constexpr int16_t db_to_uac(float db)
 {
-    // Convert dB → 1/256 dB units with rounding
+    // Convert dB to 1/256 dB units with rounding
     return static_cast<int16_t>(std::lround(db * uac_db_unit));
 }
 
@@ -80,7 +80,7 @@ extern "C"
 {
 
 //-----------------------------------------------------------------------------
-// TUSB Device callbacks
+// TUSB device callbacks
 
 void tud_mount_cb(void)
 {
@@ -110,7 +110,7 @@ bool dcd_deinit(uint8_t rhport)
 }
 
 //-----------------------------------------------------------------------------
-// TUSB Application Callbacks
+// TUSB application callbacks
 
 
 // Helper for clock get requests
