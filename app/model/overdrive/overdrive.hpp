@@ -38,9 +38,9 @@ private:
 
     /* Interpolator & decimator for oversampling & decimation*/
     constexpr static uint8_t oversampling_factor = 2;
-    libs::adsp::interpolator<oversampling_factor, config::dsp_vector_size> intrpl;
-    libs::adsp::decimator<oversampling_factor, oversampling_factor * config::dsp_vector_size> decim;
-    std::array<float, oversampling_factor * config::dsp_vector_size> sample_buffer;
+    libs::adsp::interpolator<oversampling_factor, config::dsp_buffer_size> intrpl;
+    libs::adsp::decimator<oversampling_factor, oversampling_factor * config::dsp_buffer_size> decim;
+    std::array<float, oversampling_factor * config::dsp_buffer_size> sample_buffer;
 
     /* Tunable high-pass 2nd order IIR filter */
     libs::adsp::iir_highpass iir_hp;

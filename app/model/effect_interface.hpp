@@ -22,8 +22,8 @@ namespace mfx
 class effect
 {
 public:
-    typedef std::vector<float> dsp_input;
-    typedef std::vector<float> dsp_output;
+    typedef std::array<float, config::dsp_buffer_size> dsp_input;
+    typedef std::array<float, config::dsp_buffer_size> dsp_output;
 
     effect(const effect_id id) : basic {id, effect_name[static_cast<uint8_t>(id)], true, 0}, aux_in {nullptr} {};
     virtual ~effect() {};

@@ -174,11 +174,11 @@ private:
 
     std::array<libs::adsp::iir_biquad<2>, bands> car_bpf;
     std::array<libs::adsp::iir_biquad<1>, bands> car_lpf;
-    std::array<float, mfx::config::dsp_vector_size> car_env, car_bp;
+    std::array<float, mfx::config::dsp_buffer_size> car_env, car_bp;
 
     std::array<libs::adsp::iir_biquad<2>, bands> mod_bpf;
     std::array<libs::adsp::iir_biquad<1>, bands> mod_lpf;
-    std::array<float, mfx::config::dsp_vector_size> mod_env;
+    std::array<float, mfx::config::dsp_buffer_size> mod_env;
     std::array<float, bands> mod_hold;
 
     vocoder_attr &attr;
@@ -200,7 +200,7 @@ public:
 
     void process(const dsp_input &car, const dsp_input &mod, dsp_output &out)
     {
-        constexpr unsigned block_size = config::dsp_vector_size;
+        constexpr unsigned block_size = config::dsp_buffer_size;
         constexpr unsigned move_size = this->window_size - block_size;
 
         float *cenv_in = this->car_env.data();

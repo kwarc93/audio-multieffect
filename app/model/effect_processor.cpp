@@ -59,10 +59,7 @@ void effect_processor::dispatch(const event &e)
 
 void effect_processor::event_handler(const events::initialize &e)
 {
-    /* DSP buffers contain only one channel */
-    this->dsp_main_input.resize(config::dsp_vector_size);
-    this->dsp_aux_input.resize(config::dsp_vector_size);
-    this->dsp_output.resize(config::dsp_vector_size);
+
 }
 
 void effect_processor::event_handler(const events::shutdown &e)
@@ -287,7 +284,8 @@ void effect_processor::event_handler(const events::process_audio &e)
     current_output = current_input;
 
     const auto out_buf_idx = this->audio_output.sample_index;
-    for (unsigned i = 0; i < current_output.get().size(); i++)
+    const auto buffer_size = current_output.get().size();
+    for (unsigned i = 0; i < buffer_size; ++i)
     {
         /* Transform normalized DSP samples to RAW buffer (24bit onto 32bit MSB) */
         decltype(this->audio_output.buffer)::value_type sample;
@@ -300,10 +298,11 @@ void effect_processor::event_handler(const events::process_audio &e)
         sample = std::clamp(sample, min, max) << 8;
 
         /* Duplicate left channel to right channel & mix with received USB audio */
-        const auto j = 2 * i;
-        const auto out = sample * unmute_sample;
-        this->audio_output.buffer[out_buf_idx + j] = out + this->usb_audio.audio_from_host.buffer[j];
-        this->audio_output.buffer[out_buf_idx + j + 1] = out + this->usb_audio.audio_from_host.buffer[j + 1];
+        const auto left_idx = 2 * i;
+        const auto right_idx = left_idx + 1;
+        const auto out_sample = sample * unmute_sample;
+        this->audio_output.buffer[out_buf_idx + left_idx] = out_sample + this->usb_audio.audio_from_host.buffer[left_idx];
+        this->audio_output.buffer[out_buf_idx + right_idx] = out_sample + this->usb_audio.audio_from_host.buffer[right_idx];
 
         /* Fill USB audio buffer */
         this->usb_audio.audio_to_host.buffer[i] = sample;
@@ -534,7 +533,7 @@ void effect_processor::audio_capture_cb(const hal::audio_devices::codec::input_s
     this->audio_input.sample_index = input - this->audio_input.buffer.begin();
 
     /* Transform RAW samples (24bit extended onto 32bit MSB) to normalized DSP buffer */
-    for (unsigned i = this->audio_input.sample_index, j = 0; i < this->audio_input.sample_index + this->audio_input.buffer.size() / 2; i+=2, j++)
+    for (unsigned i = this->audio_input.sample_index, j = 0; i < this->audio_input.sample_index + this->audio_input.buffer.size() / 2; i+=2, j+=1)
     {
         constexpr float scale = 1.0f / (1 << (this->audio_input.bps - 1));
         this->dsp_main_input[j] = (this->audio_input.buffer[i] >> 8) * scale;       // Left
@@ -556,7 +555,7 @@ void effect_processor::audio_play_cb(uint16_t sample_index)
 
 uint8_t effect_processor::get_processing_load(void)
 {
-    constexpr uint32_t max_processing_time_us = 1e6 * config::dsp_vector_size / config::sampling_frequency_hz;
+    constexpr uint32_t max_processing_time_us = 1e6 * config::dsp_buffer_size / config::sampling_frequency_hz;
     return 100 * this->processing_time_us / max_processing_time_us;
 }
 

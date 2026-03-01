@@ -29,17 +29,17 @@ public:
 
     constexpr static unsigned decim_factor {4};
 private:
-    libs::adsp::decimator<decim_factor, config::dsp_vector_size> decimator;
+    libs::adsp::decimator<decim_factor, config::dsp_buffer_size> decimator;
     libs::adsp::basic_iir<libs::adsp::basic_iir_type::highpass> hpf;
     libs::adsp::envelope_follower envf;
     libs::adsp::median_filter median;
     libs::adsp::averaging_filter ema;
-    libs::adsp::pitch_detector<config::dsp_vector_size / decim_factor, 256> pitch_detector;
+    libs::adsp::pitch_detector<config::dsp_buffer_size / decim_factor, 256> pitch_detector;
 
     float envelope;
     float detected_pitch;
     unsigned frame_counter;
-    std::array<float, config::dsp_vector_size / decim_factor> decim_input;
+    std::array<float, config::dsp_buffer_size / decim_factor> decim_input;
 
     tuner_attr attr {0};
 };

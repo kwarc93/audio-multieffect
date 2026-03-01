@@ -14,7 +14,7 @@ namespace mfx::config
 {
 
 /* Buffer size of audio samples (directly affects in/out latency) */
-constexpr inline uint16_t dsp_vector_size {128};
+constexpr inline size_t dsp_buffer_size {128};
 
 /* Sampling frequency of audio signals */
 constexpr inline uint32_t sampling_frequency_hz {48000 + CFG_FS_CALIB};

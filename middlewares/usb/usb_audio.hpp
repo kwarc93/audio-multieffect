@@ -22,8 +22,8 @@ namespace middlewares
 class usb_audio
 {
 public:
-    using input_buffer_t = hal::interface::audio_buffer<int32_t, mfx::config::dsp_vector_size, 1, 24>;
-    using output_buffer_t = hal::interface::audio_buffer<int32_t, mfx::config::dsp_vector_size, 2, 24>;
+    using input_buffer_t = hal::interface::audio_buffer<int32_t, mfx::config::dsp_buffer_size, 1, 24>;
+    using output_buffer_t = hal::interface::audio_buffer<int32_t, mfx::config::dsp_buffer_size, 2, 24>;
 
     usb_audio(const hal::interface::audio_volume_range &in_volume_range, const hal::interface::audio_volume_range &out_volume_range);
     ~usb_audio();
