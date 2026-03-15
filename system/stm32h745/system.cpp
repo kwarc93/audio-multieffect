@@ -81,6 +81,7 @@ extern "C" void ipc_notify_core(void * xUpdatedMessageBuffer)
 //-----------------------------------------------------------------------------
 /* syscalls */
 
+extern "C"
 __attribute__((noreturn))
 void abort(void)
 {
@@ -91,13 +92,13 @@ void abort(void)
 
 #ifdef HAL_SYSTEM_RTOS_ENABLED
 /* Override default lock/unlock functions to let the heap be thread-safe */
-void __malloc_lock(struct _reent *r)
+extern "C" void __malloc_lock(struct _reent *r)
 {
     assert(!xPortIsInsideInterrupt());
     vTaskSuspendAll();
 }
 
-void __malloc_unlock(struct _reent *r)
+extern "C" void __malloc_unlock(struct _reent *r)
 {
     xTaskResumeAll();
 }
