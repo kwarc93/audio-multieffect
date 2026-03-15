@@ -930,6 +930,8 @@ void audio_wm8994ecs::set_input_volume(uint8_t vol, uint8_t ch)
     /* Digital volume of ADC2 OUT (-6.0dB to 17.25dB) */
     const uint16_t dvol = 0xB0 + 2 * vol;
 
+    this->input_volume[ch] = vol;
+
     if (this->input_ch_swapped)
         ch = !ch;
 
@@ -938,12 +940,10 @@ void audio_wm8994ecs::set_input_volume(uint8_t vol, uint8_t ch)
         case 0: // Left
             this->write_reg(WM8994_LEFT_LINE_IN12_VOL, vol | 0x0140);
             this->write_reg(WM8994_AIF1_ADC2_LEFT_VOL, dvol | 0x100);
-            this->input_volume[ch] = vol;
             break;
         case 1: // Right
             this->write_reg(WM8994_RIGHT_LINE_IN12_VOL, vol | 0x0140);
             this->write_reg(WM8994_AIF1_ADC2_RIGHT_VOL, dvol | 0x100);
-            this->input_volume[ch] = vol;
             break;
         default:
             break;
@@ -952,18 +952,12 @@ void audio_wm8994ecs::set_input_volume(uint8_t vol, uint8_t ch)
 
 uint8_t audio_wm8994ecs::get_input_volume(uint8_t ch) const
 {
-    if (this->input_ch_swapped)
-        ch = !ch;
-
     /* Return cached volume instead of register value */
     return this->input_volume[ch];
 }
 
 hal::interface::audio_volume_range audio_wm8994ecs::get_input_volume_range(uint8_t ch) const
 {
-    if (this->input_ch_swapped)
-        ch = !ch;
-
     if (this->input_ch_is_digital[ch])
         return {0, 31, -6.0f, +17.25f};
     else

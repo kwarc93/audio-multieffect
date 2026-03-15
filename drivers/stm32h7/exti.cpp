@@ -112,7 +112,7 @@ void exti::configure(bool state, line line, port port, mode mode, edge edge, ext
 
 void exti::trigger(line line)
 {
-    EXTI->SWIER1 |= 1 << static_cast<uint8_t>(line);
+    EXTI->SWIER1 = 1 << static_cast<uint8_t>(line);
 }
 
 void exti::irq_handler(line line)
