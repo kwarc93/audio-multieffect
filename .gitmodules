@@ -13,3 +13,9 @@
 [submodule "libs/FreeRTOS"]
 	path = libs/FreeRTOS
 	url = https://github.com/FreeRTOS/FreeRTOS-Kernel.git
+[submodule "nam-core"]
+	path = nam-core
+	url = https://github.com/tone-3000/nam-pedal
+[submodule "libs/nam-core"]
+	path = libs/nam-core
+	url = https://github.com/tone-3000/nam-pedal

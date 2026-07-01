@@ -78,6 +78,9 @@ void ui_amp_sim_bass_changed(lv_event_t * e);
 void ui_amp_sim_mids_changed(lv_event_t * e);
 void ui_amp_sim_treb_changed(lv_event_t * e);
 void ui_amp_sim_mode_changed(lv_event_t * e);
+void ui_nam_bypass(lv_event_t * e);
+void ui_nam_model_changed(lv_event_t * e);
+
 
 #ifdef __cplusplus
 } /*extern "C"*/

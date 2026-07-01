@@ -314,6 +314,7 @@ private:
     void set_effect_attr(const effect_attr &basic, const vocoder_attr &specific);
     void set_effect_attr(const effect_attr &basic, const phaser_attr &specific);
     void set_effect_attr(const effect_attr &basic, const amp_sim_attr &specific);
+    void set_effect_attr(const effect_attr &basic, const neural_amp_modeler_attr &specific);
 
     void change_effect_screen(effect_id id, int dir);
 

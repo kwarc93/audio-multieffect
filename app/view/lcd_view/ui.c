@@ -263,6 +263,16 @@ lv_obj_t * ui_lbl_amp_sim_mode_logain;
 lv_obj_t * ui_lbl_amp_sim_mode_higain;
 lv_obj_t * ui_btn_amp_sim_mid_knob;
 
+// SCREEN: ui_fx_nam
+lv_obj_t * ui_fx_nam;
+lv_obj_t * ui_pnl_nam_content;
+lv_obj_t * ui_lbl_nam_fx_name;
+lv_obj_t * ui_btn_nam_bypass;
+lv_obj_t * ui_lbl_btn_nam_bypass;
+lv_obj_t * ui_pnl_nam_controls;
+lv_obj_t * ui_roller_nam_models;
+lv_obj_t * ui_lbl_nam_models;
+
 ///////////////////// TEST LVGL SETTINGS ////////////////////
 #if LV_COLOR_DEPTH != 16
     #error "LV_COLOR_DEPTH should be 16bit to match SquareLine Studio's settings"
@@ -796,6 +806,26 @@ void ui_event_sw_amp_sim_mode(lv_event_t * e)
         ui_amp_sim_mode_changed(e);
         _ui_state_modify(ui_lbl_amp_sim_mode_logain, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
         _ui_state_modify(ui_lbl_amp_sim_mode_higain, LV_STATE_CHECKED, _UI_MODIFY_STATE_TOGGLE);
+    }
+}
+void ui_event_fx_nam(lv_event_t * e)
+{
+    ui_screen_gesture_handler(e);
+}
+void ui_event_btn_nam_bypass(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_CLICKED) {
+        ui_nam_bypass(e);
+    }
+}
+void ui_event_roller_nam_models(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_nam_model_changed(e);
     }
 }
 

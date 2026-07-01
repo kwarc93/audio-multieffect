@@ -224,6 +224,18 @@ void notify_amp_sim_controls_changed(void)
     view->notify(events::effect_controls_changed {ctrl});
 }
 
+void notify_nam_controls_changed(void)
+{
+    const mfx::neural_amp_modeler_attr::controls ctrl
+    {
+        // TODO:
+        1.0f,
+        1.0f
+    };
+
+    view->notify(events::effect_controls_changed {ctrl});
+}
+
 }
 
 //-----------------------------------------------------------------------------
@@ -590,5 +602,14 @@ void ui_amp_sim_mode_changed(lv_event_t * e)
     notify_amp_sim_controls_changed();
 }
 
+void ui_nam_bypass(lv_event_t * e)
+{
+    notify_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::neural_amp_modeler);
+}
+
+void ui_nam_model_changed(lv_event_t * e)
+{
+    notify_nam_controls_changed();
+}
 
 

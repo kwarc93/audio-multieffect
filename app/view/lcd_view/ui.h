@@ -344,7 +344,19 @@ extern lv_obj_t * ui_sw_amp_sim_mode;
 extern lv_obj_t * ui_lbl_amp_sim_mode_logain;
 extern lv_obj_t * ui_lbl_amp_sim_mode_higain;
 extern lv_obj_t * ui_btn_amp_sim_mid_knob;
-
+// SCREEN: ui_fx_nam
+void ui_fx_nam_screen_init(void);
+void ui_event_fx_nam(lv_event_t * e);
+extern lv_obj_t * ui_fx_nam;
+extern lv_obj_t * ui_pnl_nam_content;
+extern lv_obj_t * ui_lbl_nam_fx_name;
+void ui_event_btn_nam_bypass(lv_event_t * e);
+extern lv_obj_t * ui_btn_nam_bypass;
+extern lv_obj_t * ui_lbl_btn_nam_bypass;
+extern lv_obj_t * ui_pnl_nam_controls;
+void ui_event_roller_nam_models(lv_event_t * e);
+extern lv_obj_t * ui_roller_nam_models;
+extern lv_obj_t * ui_lbl_nam_models;
 
 LV_IMG_DECLARE(ui_img_pot_ver_line_png);    // assets/pot_ver_line.png
 LV_IMG_DECLARE(ui_img_pot_ver_knob_png);    // assets/pot_ver_knob.png

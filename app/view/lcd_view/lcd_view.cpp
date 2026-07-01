@@ -581,6 +581,18 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const amp_sim_attr &spe
     }
 }
 
+void lcd_view::set_effect_attr(const effect_attr &basic, const neural_amp_modeler_attr &specific)
+{
+    if (basic.bypassed)
+        lv_obj_clear_state(ui_btn_nam_bypass, LV_STATE_CHECKED);
+    else
+        lv_obj_add_state(ui_btn_nam_bypass, LV_STATE_CHECKED);
+
+    // TODO: Set the rest of controls
+    lv_roller_set_options(ui_roller_nam_models, "Soldano SLO100 OVD SM57", LV_ROLLER_MODE_NORMAL);
+    lv_roller_set_selected(ui_roller_nam_models, 0, LV_ANIM_OFF);
+}
+
 void lcd_view::change_effect_screen(effect_id id, int dir)
 {
     lv_obj_t *new_screen = nullptr;
@@ -626,6 +638,10 @@ void lcd_view::change_effect_screen(effect_id id, int dir)
     case effect_id::amplifier_sim:
         ui_fx_amp_sim_screen_init();
         new_screen = ui_fx_amp_sim;
+        break;
+    case effect_id::neural_amp_modeler:
+        ui_fx_nam_screen_init();
+        new_screen = ui_fx_nam;
         break;
     default:
         return;

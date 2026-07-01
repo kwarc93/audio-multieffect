@@ -28,6 +28,7 @@ enum class effect_id : uint8_t
     vocoder,
     phaser,
     amplifier_sim,
+    neural_amp_modeler,
 
     _count // Indicates total number of effects
 };
@@ -43,7 +44,8 @@ constexpr inline std::array<const char*, static_cast<uint8_t>(effect_id::_count)
     "Cabinet simulator",
     "Vocoder",
     "Phaser",
-    "Amplifier simulator"
+    "Amplifier simulator",
+    "Neural amp modeler"
 }};
 
 //-----------------------------------------------------------------------------
@@ -263,6 +265,21 @@ struct amp_sim_attr
     };
 };
 
+struct neural_amp_modeler_attr
+{
+    struct controls
+    {
+        float in_vol; // Input volume, range: [0, 1]
+        float out_vol; // Output volume, range: [0, 1]
+    } ctrl;
+
+    static constexpr controls default_ctrl
+    {
+        1.0f, // input volume
+        1.0f, // output volume
+    };
+};
+
 typedef std::variant
 <
     tuner_attr,
@@ -274,7 +291,8 @@ typedef std::variant
     cabinet_sim_attr,
     vocoder_attr,
     phaser_attr,
-    amp_sim_attr
+    amp_sim_attr,
+    neural_amp_modeler_attr
 > effect_specific_attr;
 
 typedef std::variant
@@ -288,7 +306,8 @@ typedef std::variant
     cabinet_sim_attr::controls,
     vocoder_attr::controls,
     phaser_attr::controls,
-    amp_sim_attr::controls
+    amp_sim_attr::controls,
+    neural_amp_modeler_attr::controls
 > effect_controls;
 
 }

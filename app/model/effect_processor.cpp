@@ -31,6 +31,7 @@
 #include "app/model/vocoder/vocoder.hpp"
 #include "app/model/phaser/phaser.hpp"
 #include "app/model/amp_sim/amp_sim.hpp"
+#include "app/model/nam/nam.hpp"
 #include "app/utils.hpp"
 
 using namespace mfx;
@@ -477,6 +478,17 @@ void effect_processor::set_controls(const amp_sim_attr::controls &ctrl)
     amp_sim_effect->set_tone_stack(ctrl.bass, ctrl.mids, ctrl.treb);
 }
 
+void effect_processor::set_controls(const neural_amp_modeler_attr::controls &ctrl)
+{
+    auto nam_effect = static_cast<neural_amp_modeler*>(this->find_effect(effect_id::neural_amp_modeler));
+
+    if (nam_effect == nullptr)
+        return;
+
+    nam_effect->set_input_volume(ctrl.in_vol);
+    nam_effect->set_output_volume(ctrl.out_vol);
+}
+
 void effect_processor::notify_effect_attributes_changed(const effect *e)
 {
     this->notify(events::effect_attributes_changed {e->get_basic_attributes(), e->get_specific_attributes()});
@@ -486,16 +498,17 @@ std::unique_ptr<effect> effect_processor::create_new(effect_id id)
 {
     constexpr std::array<std::unique_ptr<effect>(*)(), static_cast<uint8_t>(effect_id::_count)> effect_factory
     {{
-        []() -> std::unique_ptr<effect> { return std::make_unique<tuner>();       },
-        []() -> std::unique_ptr<effect> { return std::make_unique<tremolo>();     },
-        []() -> std::unique_ptr<effect> { return std::make_unique<echo>();        },
-        []() -> std::unique_ptr<effect> { return std::make_unique<chorus>();      },
-        []() -> std::unique_ptr<effect> { return std::make_unique<reverb>();      },
-        []() -> std::unique_ptr<effect> { return std::make_unique<overdrive>();   },
-        []() -> std::unique_ptr<effect> { return std::make_unique<cabinet_sim>(); },
-        []() -> std::unique_ptr<effect> { return std::make_unique<vocoder>();     },
-        []() -> std::unique_ptr<effect> { return std::make_unique<phaser>();      },
-        []() -> std::unique_ptr<effect> { return std::make_unique<amp_sim>();     }
+        []() -> std::unique_ptr<effect> { return std::make_unique<tuner>();              },
+        []() -> std::unique_ptr<effect> { return std::make_unique<tremolo>();            },
+        []() -> std::unique_ptr<effect> { return std::make_unique<echo>();               },
+        []() -> std::unique_ptr<effect> { return std::make_unique<chorus>();             },
+        []() -> std::unique_ptr<effect> { return std::make_unique<reverb>();             },
+        []() -> std::unique_ptr<effect> { return std::make_unique<overdrive>();          },
+        []() -> std::unique_ptr<effect> { return std::make_unique<cabinet_sim>();        },
+        []() -> std::unique_ptr<effect> { return std::make_unique<vocoder>();            },
+        []() -> std::unique_ptr<effect> { return std::make_unique<phaser>();             },
+        []() -> std::unique_ptr<effect> { return std::make_unique<amp_sim>();            },
+        []() -> std::unique_ptr<effect> { return std::make_unique<neural_amp_modeler>(); }
     }};
 
     std::unique_ptr<effect> e = effect_factory.at(static_cast<uint8_t>(id))();
