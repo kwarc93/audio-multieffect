@@ -31,6 +31,10 @@ extern "C" void system_init(void)
     SCB->CPACR |= (3UL << 20) | (3UL << 22);
     __DSB();
     __ISB();
+
+    /* Enable FPU Flush To Zero to avoid handling subnormals */
+    FPU->FPDSCR |= (1UL << FPU_FPDSCR_FZ_Pos);
+    __set_FPSCR(__get_FPSCR() | (1UL << FPU_FPDSCR_FZ_Pos));
 #endif
 
     /*
