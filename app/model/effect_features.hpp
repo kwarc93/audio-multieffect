@@ -28,9 +28,14 @@ enum class effect_id : uint8_t
     vocoder,
     phaser,
     amplifier_sim,
+#ifndef CFG_DISABLE_NEURAL_AMP_MODELER
     neural_amp_modeler,
+    _count, // Indicates total number of effects
+#else
+    _count,
+    neural_amp_modeler,
+#endif
 
-    _count // Indicates total number of effects
 };
 
 constexpr inline std::array<const char*, static_cast<uint8_t>(effect_id::_count)> effect_name
@@ -45,7 +50,9 @@ constexpr inline std::array<const char*, static_cast<uint8_t>(effect_id::_count)
     "Vocoder",
     "Phaser",
     "Amplifier simulator",
+#ifndef CFG_DISABLE_NEURAL_AMP_MODELER
     "Neural amp modeler"
+#endif
 }};
 
 //-----------------------------------------------------------------------------

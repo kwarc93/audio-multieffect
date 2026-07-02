@@ -480,6 +480,7 @@ void effect_processor::set_controls(const amp_sim_attr::controls &ctrl)
 
 void effect_processor::set_controls(const neural_amp_modeler_attr::controls &ctrl)
 {
+#ifndef CFG_DISABLE_NEURAL_AMP_MODELER
     auto nam_effect = static_cast<neural_amp_modeler*>(this->find_effect(effect_id::neural_amp_modeler));
 
     if (nam_effect == nullptr)
@@ -488,6 +489,7 @@ void effect_processor::set_controls(const neural_amp_modeler_attr::controls &ctr
     nam_effect->set_model(ctrl.model_idx);
     nam_effect->set_input_volume(ctrl.in_vol);
     nam_effect->set_output_volume(ctrl.out_vol);
+#endif
 }
 
 void effect_processor::notify_effect_attributes_changed(const effect *e)
@@ -509,7 +511,9 @@ std::unique_ptr<effect> effect_processor::create_new(effect_id id)
         []() -> std::unique_ptr<effect> { return std::make_unique<vocoder>();            },
         []() -> std::unique_ptr<effect> { return std::make_unique<phaser>();             },
         []() -> std::unique_ptr<effect> { return std::make_unique<amp_sim>();            },
+#ifndef CFG_DISABLE_NEURAL_AMP_MODELER
         []() -> std::unique_ptr<effect> { return std::make_unique<neural_amp_modeler>(); }
+#endif
     }};
 
     std::unique_ptr<effect> e = effect_factory.at(static_cast<uint8_t>(id))();
