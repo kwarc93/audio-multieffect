@@ -173,13 +173,14 @@ void to_json(json& j, const amp_sim_attr::controls& c)
 void from_json(const json& j, neural_amp_modeler_attr::controls& c)
 {
     const auto& def = neural_amp_modeler_attr::default_ctrl;
+    c.model_idx = j.value("model_idx", def.model_idx);
     c.in_vol = j.value("in_volume", def.in_vol);
     c.out_vol = j.value("out_volume", def.out_vol);
 }
 
 void to_json(json& j, const neural_amp_modeler_attr::controls& c)
 {
-    j = json{ {"in_volume", c.in_vol}, {"out_volume", c.out_vol} };
+    j = json{ {"model_index", c.model_idx}, {"in_volume", c.in_vol}, {"out_volume", c.out_vol} };
 }
 
 std::optional<effect_controls> get_controls(effect_id id, const json& ctrl_json)

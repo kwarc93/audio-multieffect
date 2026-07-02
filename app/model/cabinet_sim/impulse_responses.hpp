@@ -18,7 +18,7 @@ constexpr uint32_t max_ir_length = 2048;
 typedef std::array<float, max_ir_length> ir_t;
 
 /* Impulse response: 1960-G12M25-SM57-Cap45-0_5in */
-constexpr std::array<float, 2048> ir_1960_G12M25_SM57_Cap45_0_5in
+static constexpr std::array<float, 2048> ir_1960_G12M25_SM57_Cap45_0_5in
 {
     0.0001250471759523,    0.0009862624598048,    0.0039279254690762,
     0.0104185964462666,    0.0204788350454992,    0.0313951028800413,
@@ -706,7 +706,7 @@ constexpr std::array<float, 2048> ir_1960_G12M25_SM57_Cap45_0_5in
 };
 
 /* Impulse response: orange2x12 */
-constexpr std::array<float, 2048> ir_orange2x12
+static constexpr std::array<float, 2048> ir_orange2x12
 {
     0.0071702669340197,    0.0216155263925175,    0.0326226938417702,
     0.0374490457655164,    0.0370372049059212,    0.0261882326681322,
@@ -1394,7 +1394,7 @@ constexpr std::array<float, 2048> ir_orange2x12
 };
 
 /* Impulse response: Catharsis Fredman 1on-pres8 */
-constexpr std::array<float, 2048> ir_cf_1on_pres8
+static constexpr std::array<float, 2048> ir_cf_1on_pres8
 {
     0.0087863410668798,    0.0214852155953372,    0.0309440890158471,
     0.0361102800131489,    0.0368121075889538,    0.0318845624628149,

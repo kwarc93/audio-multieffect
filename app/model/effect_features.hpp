@@ -197,7 +197,7 @@ struct cabinet_sim_attr
         controls::resolution::standart // ir_res
     };
 
-    std::array<const char *, 3> ir_names; // List of available impulses
+    std::array<const char *, 3> ir_names {}; // List of available impulses
 };
 
 struct vocoder_attr
@@ -220,7 +220,7 @@ struct vocoder_attr
         controls::mode_type::modern // mode
     };
 
-    std::array<unsigned, 8> bands_list; // List of available bands
+    std::array<unsigned, 8> bands_list {}; // List of available bands
 };
 
 struct phaser_attr
@@ -269,15 +269,19 @@ struct neural_amp_modeler_attr
 {
     struct controls
     {
+        uint8_t model_idx; // Currently selected model index
         float in_vol; // Input volume, range: [0, 1]
         float out_vol; // Output volume, range: [0, 1]
     } ctrl;
 
     static constexpr controls default_ctrl
     {
+        0, // selected model
         1.0f, // input volume
         1.0f, // output volume
     };
+
+    std::array<const char *, 7> model_names {}; // List of available models
 };
 
 typedef std::variant

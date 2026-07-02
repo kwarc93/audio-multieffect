@@ -485,6 +485,7 @@ void effect_processor::set_controls(const neural_amp_modeler_attr::controls &ctr
     if (nam_effect == nullptr)
         return;
 
+    nam_effect->set_model(ctrl.model_idx);
     nam_effect->set_input_volume(ctrl.in_vol);
     nam_effect->set_output_volume(ctrl.out_vol);
 }

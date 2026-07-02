@@ -588,9 +588,13 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const neural_amp_modele
     else
         lv_obj_add_state(ui_btn_nam_bypass, LV_STATE_CHECKED);
 
-    // TODO: Set the rest of controls
-    lv_roller_set_options(ui_roller_nam_models, "Soldano SLO100 OVD SM57", LV_ROLLER_MODE_NORMAL);
-    lv_roller_set_selected(ui_roller_nam_models, 0, LV_ANIM_OFF);
+    std::string options;
+    for (const auto &model : specific.model_names)
+        options += std::string(model) + "\n";
+    options.erase(options.end() - 1);
+
+    lv_roller_set_options(ui_roller_nam_models, options.c_str(), LV_ROLLER_MODE_NORMAL);
+    lv_roller_set_selected(ui_roller_nam_models, specific.ctrl.model_idx, LV_ANIM_OFF);
 }
 
 void lcd_view::change_effect_screen(effect_id id, int dir)
