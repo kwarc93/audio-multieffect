@@ -272,6 +272,10 @@ lv_obj_t * ui_lbl_btn_nam_bypass;
 lv_obj_t * ui_pnl_nam_controls;
 lv_obj_t * ui_roller_nam_models;
 lv_obj_t * ui_lbl_nam_models;
+lv_obj_t * ui_pnl_nam_volume;
+lv_obj_t * ui_img_nam_volume;
+lv_obj_t * ui_arc_nam_volume;
+lv_obj_t * ui_lbl_nam_volume;
 
 ///////////////////// TEST LVGL SETTINGS ////////////////////
 #if LV_COLOR_DEPTH != 16
@@ -826,6 +830,14 @@ void ui_event_roller_nam_models(lv_event_t * e)
 
     if(event_code == LV_EVENT_VALUE_CHANGED) {
         ui_nam_model_changed(e);
+    }
+}
+void ui_event_arc_nam_volume(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_VALUE_CHANGED) {
+        ui_nam_volume_changed(e);
     }
 }
 

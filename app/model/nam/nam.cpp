@@ -153,6 +153,12 @@ void neural_amp_modeler::process(const dsp_input& in, dsp_output& out)
         in_ptrs[0] = const_cast<float*>(in.data() + mfx::config::dsp_buffer_size / 2);
         out_ptrs[0] = out.data() + mfx::config::dsp_buffer_size / 2;
         nam_process(&this->nam_state, static_cast<const float* const*>(in_ptrs), out_ptrs, mfx::config::dsp_buffer_size / 2);
+
+        std::transform(out.begin(), out.end(), out.begin(),
+        [this](auto input)
+        {
+            return input * (1.8f * this->attr.ctrl.out_vol + 0.1f);
+        });
     }
     else
     {

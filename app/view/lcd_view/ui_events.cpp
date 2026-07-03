@@ -227,12 +227,13 @@ void notify_amp_sim_controls_changed(void)
 void notify_nam_controls_changed(void)
 {
     lv_obj_t *models_list = ui_roller_nam_models;
+    lv_obj_t *volume_knob = ui_arc_nam_volume;
 
     const mfx::neural_amp_modeler_attr::controls ctrl
     {
         static_cast<uint8_t>(lv_roller_get_selected(models_list)),
         1.0f,
-        1.0f
+        static_cast<float>(lv_arc_get_value(volume_knob)) * 0.01f,
     };
 
     view->notify(events::effect_controls_changed {ctrl});
@@ -613,5 +614,11 @@ void ui_nam_model_changed(lv_event_t * e)
 {
     notify_nam_controls_changed();
 }
+
+void ui_nam_volume_changed(lv_event_t * e)
+{
+    notify_nam_controls_changed();
+}
+
 
 

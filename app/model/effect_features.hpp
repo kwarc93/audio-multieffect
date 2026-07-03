@@ -285,7 +285,7 @@ struct neural_amp_modeler_attr
     {
         0, // selected model
         1.0f, // input volume
-        1.0f, // output volume
+        0.5f, // output volume
     };
 
     std::array<const char *, 9> model_names {}; // List of available models

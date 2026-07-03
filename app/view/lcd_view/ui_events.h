@@ -80,6 +80,7 @@ void ui_amp_sim_treb_changed(lv_event_t * e);
 void ui_amp_sim_mode_changed(lv_event_t * e);
 void ui_nam_bypass(lv_event_t * e);
 void ui_nam_model_changed(lv_event_t * e);
+void ui_nam_volume_changed(lv_event_t * e);
 
 
 #ifdef __cplusplus

@@ -595,6 +595,8 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const neural_amp_modele
 
     lv_roller_set_options(ui_roller_nam_models, options.c_str(), LV_ROLLER_MODE_NORMAL);
     lv_roller_set_selected(ui_roller_nam_models, specific.ctrl.model_idx, LV_ANIM_OFF);
+
+    lv_arc_set_value(ui_arc_nam_volume, utils::remap(0, 1, lv_arc_get_min_value(ui_arc_nam_volume), lv_arc_get_max_value(ui_arc_nam_volume), specific.ctrl.out_vol));
 }
 
 void lcd_view::change_effect_screen(effect_id id, int dir)

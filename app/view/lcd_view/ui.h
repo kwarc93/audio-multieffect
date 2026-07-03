@@ -356,7 +356,12 @@ extern lv_obj_t * ui_lbl_btn_nam_bypass;
 extern lv_obj_t * ui_pnl_nam_controls;
 void ui_event_roller_nam_models(lv_event_t * e);
 extern lv_obj_t * ui_roller_nam_models;
+extern void ui_event_arc_nam_volume(lv_event_t * e);
 extern lv_obj_t * ui_lbl_nam_models;
+extern lv_obj_t * ui_pnl_nam_volume;
+extern lv_obj_t * ui_img_nam_volume;
+extern lv_obj_t * ui_arc_nam_volume;
+extern lv_obj_t * ui_lbl_nam_volume;
 
 LV_IMG_DECLARE(ui_img_pot_ver_line_png);    // assets/pot_ver_line.png
 LV_IMG_DECLARE(ui_img_pot_ver_knob_png);    // assets/pot_ver_knob.png
