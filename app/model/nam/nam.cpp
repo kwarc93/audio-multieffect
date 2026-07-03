@@ -18,15 +18,17 @@ using namespace mfx;
 namespace
 {
 
-constexpr std::array<std::pair<const char*, const nam_a2_lite_t*>, 7> nam_map
+constexpr std::array<std::pair<const char*, const nam_a2_lite_t*>, 9> nam_map
 {{
     { "Fender Pro Reverb 1967", &Fender_Pro_Reverb_1967 },
     { "Fender Twin Reverb 1965", &Fender_Twin_Reverb_1965 },
     { "Roland JC 120B Jazz Chorus", &Roland_JC_120B_Jazz_Chorus },
     { "Orange OTR 120 2x12", &Orange_OTR_120_2x12 },
     { "Vox AC30/4 1961 Fawn EF86", &Vox_AC30_4_1961_Fawn_EF86 },
+    { "Marshall Super Lead 12000", &Marshall_Super_Lead_12_000 },
     { "Soldano SLO 100", &Soldano_SLO_100 },
-    { "Peavey 5150", &Peavey_5150 }
+    { "Peavey 5150", &Peavey_5150 },
+    { "Mesa Dual Rectifier MW", &Mesa_Dual_Rectifier_MW }
 }};
 
 static_assert(nam_map.size() == neural_amp_modeler_attr{}.model_names.size());
