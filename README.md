@@ -12,11 +12,12 @@ Device captures audio signal from line-in jack (blue), then processes audio samp
 - echo/delay
 - chorus
 - reverb
+- vocoder
+- phaser
 - overdrive
 - tube amplifier simulator
 - speaker cabinet simulator
-- vocoder
-- phaser
+- neural amp modeler (STM32H7 only)
 
 Effects order (in signal chain) can be changed through settings menu and each effect can be enabled/disabled separately. Changing between effects is done by left/right *swipe* gesture. Settings screen can be accessed by *swipe down* gesture.
 The guitar signal (MAIN) is captured as left channel from input jack. The right channel input (AUX) can be used for other purposes. For example, the vocoder effect needs an additional input signal as a modulator, which can be:
