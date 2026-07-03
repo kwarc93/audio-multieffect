@@ -18,12 +18,13 @@ using namespace mfx;
 namespace
 {
 
-constexpr std::array<std::pair<const char*, const nam_a2_lite_t*>, 9> nam_map
+constexpr std::array<std::pair<const char*, const nam_a2_lite_t*>, 10> nam_map
 {{
     { "Fender Pro Reverb 1967", &Fender_Pro_Reverb_1967 },
-    { "Fender Twin Reverb 1965", &Fender_Twin_Reverb_1965 },
+    { "Laney LA100BL 1969", &Laney_LA100BL_pre_Supergroup_1969 },
     { "Roland JC 120B Jazz Chorus", &Roland_JC_120B_Jazz_Chorus },
     { "Orange OTR 120 2x12", &Orange_OTR_120_2x12 },
+    { "Gibson GA-20 Tweed 1961", &Gibson_GA_20_Tweed_1961 },
     { "Vox AC30/4 1961 Fawn EF86", &Vox_AC30_4_1961_Fawn_EF86 },
     { "Marshall Super Lead 12000", &Marshall_Super_Lead_12_000 },
     { "Soldano SLO 100", &Soldano_SLO_100 },
@@ -157,7 +158,7 @@ void neural_amp_modeler::process(const dsp_input& in, dsp_output& out)
         std::transform(out.begin(), out.end(), out.begin(),
         [this](auto input)
         {
-            return input * (1.8f * this->attr.ctrl.out_vol + 0.1f);
+            return input * this->out_gain;
         });
     }
     else
@@ -202,5 +203,7 @@ void neural_amp_modeler::set_output_volume(float vol)
         return;
 
     this->attr.ctrl.out_vol = vol;
+    // Range: -10db .. +10db
+    this->out_gain = std::pow(10.0f, vol - 0.5f);
 }
 

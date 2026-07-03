@@ -40,6 +40,7 @@ private:
     nam_state_t nam_state {0};
     bool model_ready {false};
     int prewarmed_samples {0};
+    float out_gain {1};
 
     neural_amp_modeler_attr attr {0};
 };

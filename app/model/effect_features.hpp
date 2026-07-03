@@ -288,7 +288,7 @@ struct neural_amp_modeler_attr
         0.5f, // output volume
     };
 
-    std::array<const char *, 9> model_names {}; // List of available models
+    std::array<const char *, 10> model_names {}; // List of available models
 };
 
 typedef std::variant
