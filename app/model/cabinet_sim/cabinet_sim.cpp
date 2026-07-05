@@ -21,11 +21,12 @@ using namespace mfx;
 namespace
 {
 
-constexpr std::array<std::pair<const char*, const ir_t*>, 3> ir_map
+constexpr std::array<std::pair<const char*, const ir_t*>, 4> ir_map
 {{
     { "Marshall 1960A 4x12", &ir_1960_G12M25_SM57_Cap45_0_5in },
     { "Orange 2x12", &ir_orange2x12 },
-    { "Catharsis Fredman", &ir_cf_1on_pres8 }
+    { "Catharsis Fredman", &ir_cf_1on_pres8 },
+    { "2002 Mesa Boogie 4x12", &ir_2002_Mesa_Boogie_4x12 },
 }};
 
 }

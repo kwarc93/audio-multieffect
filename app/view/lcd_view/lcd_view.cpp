@@ -645,10 +645,12 @@ void lcd_view::change_effect_screen(effect_id id, int dir)
         ui_fx_amp_sim_screen_init();
         new_screen = ui_fx_amp_sim;
         break;
+#ifndef CFG_DISABLE_NEURAL_AMP_MODELER
     case effect_id::neural_amp_modeler:
         ui_fx_nam_screen_init();
         new_screen = ui_fx_nam;
         break;
+#endif
     default:
         return;
     }

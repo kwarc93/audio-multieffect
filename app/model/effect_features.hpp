@@ -30,10 +30,8 @@ enum class effect_id : uint8_t
     amplifier_sim,
 #ifndef CFG_DISABLE_NEURAL_AMP_MODELER
     neural_amp_modeler,
-    _count, // Indicates total number of effects
 #else
-    _count,
-    neural_amp_modeler,
+    _count // Indicates total number of effects
 #endif
 
 };
@@ -204,7 +202,7 @@ struct cabinet_sim_attr
         controls::resolution::standart // ir_res
     };
 
-    std::array<const char *, 3> ir_names {}; // List of available impulses
+    std::array<const char *, 4> ir_names {}; // List of available impulses
 };
 
 struct vocoder_attr

@@ -607,7 +607,9 @@ void ui_amp_sim_mode_changed(lv_event_t * e)
 
 void ui_nam_bypass(lv_event_t * e)
 {
+#ifndef CFG_DISABLE_NEURAL_AMP_MODELER
     notify_effect_bypass_changed(lv_event_get_target(e), mfx::effect_id::neural_amp_modeler);
+#endif
 }
 
 void ui_nam_model_changed(lv_event_t * e)
