@@ -30,9 +30,8 @@ enum class effect_id : uint8_t
     amplifier_sim,
 #ifndef CFG_DISABLE_NEURAL_AMP_MODELER
     neural_amp_modeler,
-#else
-    _count // Indicates total number of effects
 #endif
+    _count // Indicates total number of effects
 
 };
 
