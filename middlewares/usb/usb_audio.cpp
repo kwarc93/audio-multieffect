@@ -34,6 +34,7 @@ enum tusb_status
 
 struct tusb_context
 {
+    uint8_t itf_count;
     uint32_t usb_status;
 
     float out_vol_min_db;
@@ -344,8 +345,20 @@ bool tud_audio_set_itf_close_ep_cb(uint8_t rhport, tusb_control_request_t const 
     uint8_t const itf = tu_u16_low(tu_le16toh(p_request->wIndex));
     uint8_t const alt = tu_u16_low(tu_le16toh(p_request->wValue));
 
-    if (ITF_NUM_AUDIO20_STREAMING_HPH == itf && alt == 0)
+    TU_LOG2("Close interface %d alt %d\r\n", itf, alt);
+
+    if (alt == 0)
+    {
+        if (ITF_NUM_AUDIO20_STREAMING_HPH == itf || ITF_NUM_AUDIO20_STREAMING_INS == itf)
+        {
+            tusb.itf_count -= (tusb.itf_count > 0);
+        }
+    }
+
+    if (tusb.itf_count == 0)
+    {
         tusb.usb_status = USB_MOUNTED;
+    }
 
     return true;
 }
@@ -357,8 +370,15 @@ bool tud_audio_set_itf_cb(uint8_t rhport, tusb_control_request_t const *p_reques
     uint8_t const alt = tu_u16_low(tu_le16toh(p_request->wValue));
 
     TU_LOG2("Set interface %d alt %d\r\n", itf, alt);
-    if (ITF_NUM_AUDIO20_STREAMING_HPH == itf && alt != 0)
-        tusb.usb_status = USB_STREAMING;
+
+    if (alt != 0)
+    {
+        if (ITF_NUM_AUDIO20_STREAMING_HPH == itf || ITF_NUM_AUDIO20_STREAMING_INS == itf)
+        {
+            tusb.itf_count += (tusb.itf_count < 2);
+            tusb.usb_status = USB_STREAMING;
+        }
+    }
 
     return true;
 }
@@ -383,6 +403,7 @@ usb_audio::usb_audio(const hal::interface::audio_volume_range &in_volume_range, 
 {
     this->usb_task = nullptr;
 
+    tusb.itf_count = 0;
     tusb.usb_status = USB_NOT_MOUNTED;
 
     tusb.in_vol_min_db = in_volume_range.min_db;
@@ -533,7 +554,11 @@ bool usb_audio::is_enabled(void) const
 void usb_audio::process()
 {
     if (tusb.usb_status != USB_STREAMING)
+    {
+        this->audio_from_host.buffer.fill(0);
+        this->audio_to_host.buffer.fill(0);
         return;
+    }
 
     const uint16_t bytes_to_read = audio_from_host.buffer.size() * sizeof(int32_t);
     const uint16_t bytes_read = tud_audio_read(audio_from_host.buffer.data(), bytes_to_read);
