@@ -393,9 +393,9 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const chorus_attr &spec
     else
         lv_obj_add_state(ui_comp->bypass_button, LV_STATE_CHECKED);
 
-    ui_comp_fx_knob_set_value(ui_comp->depth_knob, utils::remap(0, 1, lv_arc_get_min_value(ui_arc_chorus_depth), lv_arc_get_max_value(ui_arc_chorus_depth), specific.ctrl.depth));
-    ui_comp_fx_knob_set_value(ui_comp->rate_knob, utils::remap(0, 1, lv_arc_get_min_value(ui_arc_chorus_rate), lv_arc_get_max_value(ui_arc_chorus_rate), specific.ctrl.rate));
-    ui_comp_fx_knob_set_value(ui_comp->mix_knob, utils::remap(0, 1, lv_arc_get_min_value(ui_arc_chorus_mix), lv_arc_get_max_value(ui_arc_chorus_mix), specific.ctrl.mix));
+    ui_comp_fx_knob_set_value(ui_comp->depth_knob, utils::remap(0, 1, lv_arc_get_min_value(ui_comp->depth_knob), lv_arc_get_max_value(ui_comp->depth_knob), specific.ctrl.depth));
+    ui_comp_fx_knob_set_value(ui_comp->rate_knob, utils::remap(0, 1, lv_arc_get_min_value(ui_comp->rate_knob), lv_arc_get_max_value(ui_comp->rate_knob), specific.ctrl.rate));
+    ui_comp_fx_knob_set_value(ui_comp->mix_knob, utils::remap(0, 1, lv_arc_get_min_value(ui_comp->mix_knob), lv_arc_get_max_value(ui_comp->mix_knob), specific.ctrl.mix));
 
     bool switch_checked = specific.ctrl.mode == chorus_attr::controls::mode_type::deep;
     ui_comp_fx_switch_set_state(ui_comp->mode_switch, switch_checked);

@@ -7,10 +7,7 @@
 
 #include "lcd_view.hpp"
 #include "app/utils.hpp"
-<<<<<<< Upstream, based on origin/master
 #include "app/config.hpp"
-=======
->>>>>>> 78201cf Further refactor of chorus screen
 
 #include <cassert>
 #include <string>
@@ -89,11 +86,11 @@ void notify_chorus_controls_changed(void)
 
     const mfx::chorus_attr::controls ctrl
     {
-        mfx::utils::map_range<float>(0, 100, 0, 1, ui_comp_fx_knob_get_value(ui_comp->depth_knob)),
-        mfx::utils::map_range<float>(0, 100, 0, 1, ui_comp_fx_knob_get_value(ui_comp->rate_knob)),
+        lv_arc_get_value(ui_comp->depth_knob) * 0.01f,
+        lv_arc_get_value(ui_comp->rate_knob) * 0.01f,
         0, // Not used
-        mfx::utils::map_range<float>(0, 100, 0, 1, ui_comp_fx_knob_get_value(ui_comp->mix_knob)),
-        ui_comp_fx_switch_get_state(ui_comp->mode_switch) ?
+        lv_arc_get_value(ui_comp->mix_knob) * 0.01f,
+        lv_obj_has_state(ui_comp->mode_switch, LV_STATE_CHECKED) ?
         mfx::chorus_attr::controls::mode_type::deep :
         mfx::chorus_attr::controls::mode_type::white
     };

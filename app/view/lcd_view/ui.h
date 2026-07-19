@@ -149,9 +149,9 @@ extern lv_obj_t * ui_sw_echo_mode;
 extern lv_obj_t * ui_lbl_echo_mode_echo;
 extern lv_obj_t * ui_lbl_echo_mode_delay;
 // SCREEN: ui_fx_chorus
+extern lv_obj_t * ui_scr_chorus;
 lv_obj_t * ui_scr_chorus_create(void);
 void ui_event_fx_chorus(lv_event_t * e);
-extern lv_obj_t * ui_scr_chorus;
 void ui_event_btn_chorus_bypass(lv_event_t * e);
 void ui_event_arc_chorus_mix(lv_event_t * e);
 void ui_event_arc_chorus_rate(lv_event_t * e);

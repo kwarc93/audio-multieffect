@@ -28,7 +28,7 @@ lv_obj_t * ui_comp_fx_knob_create(lv_obj_t * parent, const char * name, uint8_t 
     if (!data) return NULL;
 
     lv_obj_t * fx_knob = lv_obj_create(parent);
-	   lv_obj_set_user_data(fx_knob, data);
+    lv_obj_set_user_data(fx_knob, data);
     lv_obj_add_event_cb(fx_knob, delete_event_cb, LV_EVENT_DELETE, data);
 
     lv_obj_set_width(fx_knob, lv_pct(33));
