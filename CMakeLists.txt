@@ -51,7 +51,6 @@ if(BOARD STREQUAL "STM32F746G-DISCO")
     set(MCU_FPU           fpv5-sp-d16)
     set(LINKER_SCRIPT     "${PROJECT_SOURCE_DIR}/system/stm32f746/arm-cortex-m.ld")
     set(SYSTEM_DIR        "${PROJECT_SOURCE_DIR}/system/stm32f746")
-    set(SYSTEM_STARTUP    "${SYSTEM_DIR}/startup-cortex-m7.S")
     set(DRIVERS_MCU_DIR   "${PROJECT_SOURCE_DIR}/drivers/stm32f7")
     set(HAL_MCU_DIR       "${PROJECT_SOURCE_DIR}/hal/stm32f7")
     set(CMSIS_DSP_LIB     arm_cortexM7lfsp_math)
@@ -81,7 +80,6 @@ elseif(BOARD STREQUAL "STM32H745I-DISCO")
     set(MCU_FPU           fpv5-d16)
     set(LINKER_SCRIPT     "${PROJECT_SOURCE_DIR}/system/stm32h745/arm-cortex-m.ld")
     set(SYSTEM_DIR        "${PROJECT_SOURCE_DIR}/system/stm32h745")
-    set(SYSTEM_STARTUP    "${SYSTEM_DIR}/startup-cortex-m7.S")
     set(DRIVERS_MCU_DIR   "${PROJECT_SOURCE_DIR}/drivers/stm32h7")
     set(HAL_MCU_DIR       "${PROJECT_SOURCE_DIR}/hal/stm32h7")
     set(CMSIS_DSP_LIB     arm_cortexM7lfsp_math)
@@ -111,7 +109,6 @@ elseif(BOARD STREQUAL "STM32H745I-DISCO-CM7")
     set(MCU_FPU           fpv5-d16)
     set(LINKER_SCRIPT     "${PROJECT_SOURCE_DIR}/system/stm32h745/arm-cortex-m7.ld")
     set(SYSTEM_DIR        "${PROJECT_SOURCE_DIR}/system/stm32h745")
-    set(SYSTEM_STARTUP    "${SYSTEM_DIR}/startup-cortex-m7.S")
     set(DRIVERS_MCU_DIR   "${PROJECT_SOURCE_DIR}/drivers/stm32h7")
     set(HAL_MCU_DIR       "${PROJECT_SOURCE_DIR}/hal/stm32h7")
     set(CMSIS_DSP_LIB     arm_cortexM7lfsp_math)
@@ -143,7 +140,6 @@ elseif(BOARD STREQUAL "STM32H745I-DISCO-CM4")
     set(MCU_FPU           fpv4-sp-d16)
     set(LINKER_SCRIPT     "${PROJECT_SOURCE_DIR}/system/stm32h745/arm-cortex-m4.ld")
     set(SYSTEM_DIR        "${PROJECT_SOURCE_DIR}/system/stm32h745")
-    set(SYSTEM_STARTUP    "${SYSTEM_DIR}/startup-cortex-m7.S")
     set(DRIVERS_MCU_DIR   "${PROJECT_SOURCE_DIR}/drivers/stm32h7")
     set(HAL_MCU_DIR       "${PROJECT_SOURCE_DIR}/hal/stm32h7")
     set(CMSIS_DSP_LIB     arm_cortexM4lf_math)
@@ -171,7 +167,7 @@ endif()
 # -----------------------------------------------------------------------------
 # 3. Git revision string (replaces makefile.defs' GIT_REVISION shell command)
 # -----------------------------------------------------------------------------
-include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/git-version.cmake")
+include(git-version)
 get_git_revision(GIT_REVISION)
 message(STATUS "GIT_REVISION = ${GIT_REVISION}")
 
@@ -235,6 +231,7 @@ target_compile_options(audio_mfx_common INTERFACE
     -Wall
     -Wextra
     -Wuninitialized
+    -Wno-unused-parameter
     $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions;-fno-rtti>
 )
 
@@ -251,9 +248,6 @@ target_link_options(audio_mfx_common INTERFACE
 )
 set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY LINK_DEPENDS ${LINKER_SCRIPT})
 
-add_subdirectory(cmsis)
-target_link_libraries(audio_mfx_common INTERFACE cmsis_dsp)
-
 # -----------------------------------------------------------------------------
 # 6. Source tree
 # -----------------------------------------------------------------------------
@@ -262,7 +256,9 @@ add_subdirectory(drivers)
 add_subdirectory(middlewares)
 add_subdirectory(system)
 add_subdirectory(libs)
+add_subdirectory(cmsis)
 
+target_link_libraries(audio_mfx_common INTERFACE cmsis_dsp)
 # -----------------------------------------------------------------------------
 # 7. Post-build steps: .hex/.bin generation and size report (equivalent of
 #    Eclipse's "Create flash image" / "Print size" post-build steps).

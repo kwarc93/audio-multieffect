@@ -5,7 +5,7 @@
 # =============================================================================
 
 target_sources(${PROJECT_NAME} PRIVATE
-    ${SYSTEM_STARTUP}
+    ${SYSTEM_DIR}/startup.S
     ${SYSTEM_DIR}/system.cpp
     ${SYSTEM_DIR}/interrupt_handlers.cpp
 )
