@@ -1,11 +1,9 @@
 # =============================================================================
 # Third-party / vendored libraries under libs/ (mostly git submodules).
 #
-# FreeRTOS, lvgl and nlohmann_json ship their own upstream CMakeLists.txt and
-# are consumed via add_subdirectory(). littlefs, tinyusb and nam-core are git
-# submodules with no CMake support of their own; adding a CMakeLists.txt
-# inside a submodule would leave it locally modified, so their sources are
-# listed directly in this file instead and referenced with a relative path.
+# FreeRTOS, lvgl, nlohmann_json, and TinyUSB ship CMake integration and are
+# consumed without modifying their submodules. littlefs and nam-core have no
+# CMake support of their own, so their sources are listed directly here.
 #
 # willpirkle/ and memtest/ are not submodules (see .gitmodules), so their own
 # CMakeLists.txt next to their sources is unproblematic.
@@ -33,7 +31,8 @@ if(TARGET freertos_kernel_port)
 endif()
 
 # --- nlohmann_json (single-header JSON library, ships its own CMakeLists) ---
-set(JSON_BuildTests OFF CACHE INTERNAL "")
+# CMake 3.13+ honors this normal variable when nlohmann_json calls option().
+set(JSON_BuildTests OFF)
 add_subdirectory(nlohmann_json)
 target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
 
@@ -48,93 +47,15 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/l
 add_subdirectory(willpirkle)
 add_subdirectory(memtest)
 
-# --- TinyUSB (submodule, no upstream CMake support) --------------------------
-# Every portable/<vendor>/<driver> MCU driver is compiled in: each is guarded
-# internally by CFG_TUSB_MCU and reduces to an empty translation unit when it
-# doesn't match the current target, with unused code dropped by
-# --gc-sections at link time.
+# --- TinyUSB ---------------------------------------------------------------
+# TinyUSB's source-level CMake integration adds its portable core and class
+# sources to an existing target. MCU drivers are selected by the application.
+add_subdirectory(tinyusb/src)
+tinyusb_target_add(${PROJECT_NAME})
 target_sources(${PROJECT_NAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/tusb.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/common/tusb_fifo.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/typec/usbc.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/device/usbd.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/host/hub.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/host/usbh.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/class/audio/audio_device.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/class/bth/bth_device.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/class/cdc/cdc_device.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/class/cdc/cdc_host.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/class/dfu/dfu_device.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/class/dfu/dfu_rt_device.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/class/hid/hid_device.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/class/hid/hid_host.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/class/midi/midi2_device.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/class/midi/midi2_host.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/class/midi/midi_device.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/class/midi/midi_host.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/class/msc/msc_device.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/class/msc/msc_host.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/class/mtp/mtp_device.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/class/net/ecm_rndis_device.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/class/net/ncm_device.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/class/printer/printer_device.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/class/usbtmc/usbtmc_device.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/class/vendor/vendor_device.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/class/vendor/vendor_host.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/class/video/video_device.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/analog/max3421/hcd_max3421.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/bridgetek/ft9xx/dcd_ft9xx.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/chipidea/ci_fs/dcd_ci_fs.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/chipidea/ci_hs/dcd_ci_hs.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/chipidea/ci_hs/hcd_ci_hs.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/dialog/da146xx/dcd_da146xx.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/ehci/ehci.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/mentor/musb/dcd_musb.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/mentor/musb/hcd_musb.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/microchip/pic/dcd_pic.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/microchip/pic32mz/dcd_pic32mz.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/microchip/samd/dcd_samd.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/microchip/samd/hcd_samd.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/microchip/samg/dcd_samg.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/microchip/samx7x/dcd_samx7x.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/mindmotion/mm32/dcd_mm32f327x_otg.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/nordic/nrf5x/dcd_nrf5x.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/nuvoton/nuc120/dcd_nuc120.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/nuvoton/nuc121/dcd_nuc121.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/nuvoton/nuc505/dcd_nuc505.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/nxp/khci/dcd_khci.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/nxp/khci/hcd_khci.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/nxp/lpc17_40/dcd_lpc17_40.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/nxp/lpc_ip3511/dcd_lpc_ip3511.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/nxp/lpc_ip3516/hcd_lpc_ip3516.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/ohci/ohci.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/raspberrypi/pio_usb/dcd_pio_usb.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/raspberrypi/pio_usb/hcd_pio_usb.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/raspberrypi/rp2040/dcd_rp2040.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/raspberrypi/rp2040/hcd_rp2040.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/raspberrypi/rp2040/rp2040_usb.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/renesas/rusb2/dcd_rusb2.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/renesas/rusb2/hcd_rusb2.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/renesas/rusb2/rusb2_common.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/sony/cxd56/dcd_cxd56.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/st/stm32_fsdev/dcd_stm32_fsdev.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/st/stm32_fsdev/fsdev_common.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/st/stm32_fsdev/hcd_stm32_fsdev.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/st/typec/typec_stm32.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/sunxi/dcd_sunxi_musb.c
     ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/synopsys/dwc2/dcd_dwc2.c
     ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/synopsys/dwc2/dwc2_common.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/synopsys/dwc2/hcd_dwc2.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/template/dcd_template.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/template/hcd_template.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/ti/msp430x5xx/dcd_msp430x5xx.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/valentyusb/eptri/dcd_eptri.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/wch/dcd_ch32_usbfs.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/wch/dcd_ch32_usbhs.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/tinyusb/src/portable/wch/hcd_ch32_usbfs.c
 )
-# libs/tusb_config.h and libs/tinyusb/src are already on the include path
-# set up in the top-level CMakeLists.txt.
 
 if(HAS_VIEW)
     # lvgl ships its own CMakeLists.txt (env_support/cmake/custom.cmake).
