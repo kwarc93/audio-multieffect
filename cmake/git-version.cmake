@@ -1,16 +1,9 @@
 # =============================================================================
-# Determine firmware version information from git, mirroring what
-# makefile.defs used to do for the Eclipse/make build:
+# Determines the firmware version string from git (equivalent of
+# makefile.defs' `GIT_REVISION := $(shell git describe --tags --dirty --always)`),
+# exposed to C/C++ via the GIT_REVISION define.
 #
-#   GIT_REVISION := $(shell git describe --tags --dirty --always)
-#
-# The result is exposed to C/C++ as the GIT_REVISION macro (a quoted string),
-# exactly like the old build did with -DGIT_REVISION='"..."'.
-#
-# This runs at *configure* time (when you run "cmake --preset ..."), not at
-# every build, so re-run cmake configure (or just re-build - see the
-# add_custom_target re-check below) if you want the string refreshed after
-# committing.
+# Evaluated at configure time; re-run cmake configure to refresh it.
 # =============================================================================
 
 function(get_git_revision OUT_VAR)

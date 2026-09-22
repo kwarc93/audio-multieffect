@@ -3,10 +3,6 @@
 /STM32H745I-DISCO-CM4/
 /STM32H745I-DISCO-CM7/
 
-# CMake build trees (one per board preset, see CMakePresets.json)
 /build/
-
-# Machine-local CMake preset overrides (toolchain paths etc.) - see
-# CMakeUserPresets.json.example for a template.
 /CMakeUserPresets.json
 

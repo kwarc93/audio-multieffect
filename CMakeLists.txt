@@ -1,36 +1,20 @@
 cmake_minimum_required(VERSION 3.23)
 
 # =============================================================================
-# Top-level CMake project for the audio-multieffect firmware.
-#
-# This file is the single "control room" of the whole build:
-#   1. it figures out which of the 4 hardware targets (BOARD) we are building,
-#   2. it derives all MCU/board specific settings (CPU, FPU, defines, linker
-#      script, ...) from that one BOARD variable,
-#   3. it declares ONE executable target (the firmware image) and then walks
-#      down into app/, drivers/, hal/, middlewares/, system/ and libs/ via
-#      add_subdirectory() - each of those directories has its own small
-#      CMakeLists.txt that calls target_sources()/target_include_directories()
-#      on this same executable target to add "its" files.
-#
-# This mirrors the Eclipse CDT project, which had 4 build configurations
-# (STM32F746G-DISCO, STM32H745I-DISCO, STM32H745I-DISCO-CM4,
-# STM32H745I-DISCO-CM7), each compiling a different subset of the source tree
-# for a different MCU core.
+# Top-level project: selects the target board, derives all board-specific
+# settings from it, declares a single executable target, and delegates to
+# per-directory CMakeLists.txt files via add_subdirectory() to populate its
+# sources (each one calls target_sources()/target_include_directories() on
+# ${PROJECT_NAME} rather than building separate static libraries).
 # =============================================================================
 
-# Make our helper .cmake files (toolchain, git version, ...) available via
-# include(...) without needing a relative "cmake/" prefix everywhere.
+# Make the helper modules below (toolchain, git version) includable by name.
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 project(audio-multieffect LANGUAGES C CXX ASM)
 
 # -----------------------------------------------------------------------------
 # 1. Board selection
-#
-# BOARD picks which of the 4 original Eclipse build configurations we produce.
-# It must be set before the rest of this file can do anything useful, which is
-# why CMakePresets.json defines one preset per board (see that file).
 # -----------------------------------------------------------------------------
 set(BOARD "" CACHE STRING "Target board: one of STM32F746G-DISCO, STM32H745I-DISCO, STM32H745I-DISCO-CM4, STM32H745I-DISCO-CM7")
 set_property(CACHE BOARD PROPERTY STRINGS
@@ -47,20 +31,12 @@ endif()
 message(STATUS "Building for BOARD = ${BOARD}")
 
 # -----------------------------------------------------------------------------
-# 2. Per-board configuration
-#
-# Everything that differed between the 4 Eclipse configurations (MCU core,
-# FPU, preprocessor defines, linker script, CMSIS-DSP variant, FreeRTOS port,
-# and which parts of app/ + libs/ get compiled) is derived here, once, from
-# BOARD. The rest of the CMake tree only looks at the variables set below.
+# 2. Per-board configuration: MCU, defines, linker script and which optional
+#    parts of the source tree (HAS_*) this board needs. Consumed by the
+#    per-directory CMakeLists.txt files added further down.
 # -----------------------------------------------------------------------------
-
-# --- flags shared by every board -------------------------------------------
-set(MCU_INSTRUCTION_SET thumb)
 set(MCU_FLOAT_ABI hard)
 
-# Which optional parts of the source tree this board needs. Read by the
-# CMakeLists.txt files in app/, libs/ etc.
 set(HAS_CONTROLLER OFF)   # app/controller (UI/settings controller actor)
 set(HAS_MODEL OFF)        # app/model (real DSP effect chain)
 set(HAS_MODEL_NAM OFF)    # app/model/nam + libs/nam-core (Neural Amp Modeler)
@@ -196,17 +172,17 @@ get_git_revision(GIT_REVISION)
 message(STATUS "GIT_REVISION = ${GIT_REVISION}")
 
 # -----------------------------------------------------------------------------
-# 4. The firmware executable target
-#
-# Every add_subdirectory() below adds its own sources/includes to this one
-# target with target_sources()/target_include_directories() - there is
-# intentionally only a single link step, just like the original Makefile.
+# 4. Firmware executable target
 # -----------------------------------------------------------------------------
 add_executable(${PROJECT_NAME} main.cpp)
-set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "${PROJECT_NAME}" SUFFIX ".elf")
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    OUTPUT_NAME "${PROJECT_NAME}"
+    SUFFIX ".elf"
+    CXX_STANDARD 17
+    CXX_STANDARD_REQUIRED ON
+    CXX_EXTENSIONS OFF
+)
 
-# Defines common to every board (identical to the "Defined symbols" shared by
-# all 4 Eclipse configurations).
 target_compile_definitions(${PROJECT_NAME} PRIVATE
     __HEAP_SIZE=0x00020000
     __STACK_SIZE=0x00001000
@@ -217,7 +193,6 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
     ${BOARD_DEFINES}
 )
 
-# Repo root, CMSIS and third-party single-header libs used everywhere.
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/cmsis
@@ -226,16 +201,12 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/hal
     ${HAL_MCU_DIR}
 )
-# nlohmann_json's own CMakeLists.txt (libs/nlohmann_json) is added later via
-# add_subdirectory(libs) and linked in as the nlohmann_json::nlohmann_json
-# target, which brings in its single_include path automatically.
+# nlohmann_json is linked in as nlohmann_json::nlohmann_json (see libs/CMakeLists.txt),
+# which brings in its own include path.
 
 # -----------------------------------------------------------------------------
-# 5. Common ARM GCC compiler/linker flags
-#
-# These reproduce the "Optimization"/"Debugging"/"Warnings" option pages of
-# the Eclipse "ARM Cross GCC" toolchain settings, applied identically to every
-# board (per-board CPU/FPU flags are added separately below).
+# 5. Compiler/linker flags, equivalent to the Eclipse ARM Cross GCC toolchain
+#    settings shared by all 4 configurations (per-board CPU/FPU flags above).
 # -----------------------------------------------------------------------------
 set(MCU_FLAGS
     -mcpu=${MCU_CPU}
@@ -246,19 +217,17 @@ set(MCU_FLAGS
 
 target_compile_options(${PROJECT_NAME} PRIVATE
     ${MCU_FLAGS}
-    -O3                              # "Optimize most (-O3)"
+    -O3
     -fmessage-length=0
     -fsigned-char
     -ffunction-sections
     -fdata-sections
     -fsingle-precision-constant
-    -g                               # "Debug level: default"
+    -g
     -Wall
-    -Wextra                          # "Warn on various unused elements (-Wunused)" + uninitialized
+    -Wextra
     -Wuninitialized
-    $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions>
-    $<$<COMPILE_LANGUAGE:CXX>:-fno-rtti>
-    $<$<COMPILE_LANGUAGE:CXX>:-std=c++17>
+    $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions;-fno-rtti>
 )
 
 target_link_options(${PROJECT_NAME} PRIVATE
@@ -274,12 +243,11 @@ target_link_options(${PROJECT_NAME} PRIVATE
 )
 set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY LINK_DEPENDS ${LINKER_SCRIPT})
 
-# CMSIS-DSP ships as prebuilt static libraries (see cmsis/CMakeLists.txt).
 add_subdirectory(cmsis)
 target_link_libraries(${PROJECT_NAME} PRIVATE cmsis_dsp)
 
 # -----------------------------------------------------------------------------
-# 6. Walk down into the rest of the source tree.
+# 6. Source tree
 # -----------------------------------------------------------------------------
 add_subdirectory(app)
 add_subdirectory(drivers)
@@ -288,9 +256,8 @@ add_subdirectory(system)
 add_subdirectory(libs)
 
 # -----------------------------------------------------------------------------
-# 7. Post-build steps: .hex/.bin generation, size report, disassembly listing
-#    (equivalent of Eclipse's "Create flash image" / "Print size" /
-#    "Create extended listing" post-build steps).
+# 7. Post-build steps: .hex/.bin generation and size report (equivalent of
+#    Eclipse's "Create flash image" / "Print size" post-build steps).
 # -----------------------------------------------------------------------------
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_OBJCOPY} -O ihex $<TARGET_FILE:${PROJECT_NAME}> ${PROJECT_NAME}.hex
@@ -301,8 +268,8 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     VERBATIM
 )
 
-# Optional extended disassembly listing, only built on demand (`cmake --build . --target listing`)
-# since it is slow and not needed for a normal build/flash cycle.
+# Extended disassembly listing (equivalent of Eclipse's "Create extended
+# listing" step), built on demand only: `cmake --build . --target listing`.
 add_custom_target(listing
     COMMAND ${CMAKE_OBJDUMP} --source --all-headers --demangle --line-numbers --wide $<TARGET_FILE:${PROJECT_NAME}> > ${PROJECT_NAME}.lst
     DEPENDS ${PROJECT_NAME}

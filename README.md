@@ -48,20 +48,37 @@ https://youtu.be/vwppcxMA08A?feature=shared
 
 ## How to build
 
-Project was created using **Eclipse IDE for Embedded C/C++ Developers**
+The project uses **CMake** (>= 3.23) with presets, and the **gcc-arm-none-eabi** cross-compiler toolchain.
 
-Follow these steps:
-1. Install **Eclipse IDE for Embedded C/C++ Developers** and **gcc-arm-none-eabi** toolchain. Setup Eclipse's global ARM toolchain path in **Window->Preferences->MCU**.
-2. Clone repo: `git clone --recurse-submodules https://github.com/kwarc93/audio-multieffect.git`
-3. In Eclipse go to: **File->Import->Existing projects into workspace**, select folder with cloned repo and check **Copy projects into workspace**. Click **Finish**.
+### Prerequisites
 
-Now the project should have four build configurations: 
+- CMake >= 3.23, available on your `PATH`.
+- A build tool: **GNU Make** (or Ninja, if you adapt the presets/generator).
+- **gcc-arm-none-eabi** toolchain (tested with 10.3).
+
+The toolchain and build tool do not need to be on the system `PATH` - their location is configured per-machine (see below).
+
+### One-time setup
+
+1. Clone the repo with submodules: `git clone --recurse-submodules https://github.com/kwarc93/audio-multieffect.git`
+2. Copy `CMakeUserPresets.json.example` to `CMakeUserPresets.json` (gitignored) and set `TOOLCHAIN_BIN_DIR` (folder containing `arm-none-eabi-gcc`) and `CMAKE_MAKE_PROGRAM` (path to `make`/`ninja`) to match your machine.
+
+### Building
+
+The project provides one CMake preset per board/core:
 - **STM32F746G-DISCO**
 - **STM32H745I-DISCO** *(single core)*
 - **STM32H745I-DISCO-CM4** *(dual core)*
 - **STM32H745I-DISCO-CM7** *(dual core)*
 
-it should be possible to build each one with no errors.
+Each preset defined in `CMakeUserPresets.json` has a `-local` suffix. Configure and build with:
+
+```
+cmake --preset STM32F746G-DISCO-local
+cmake --build --preset STM32F746G-DISCO-local
+```
+
+Substitute the board name for any of the other three presets. Each build produces `audio-multieffect.elf/.hex/.bin` under `build/<preset-name>/`.
 
 ## How to add new effect
 
