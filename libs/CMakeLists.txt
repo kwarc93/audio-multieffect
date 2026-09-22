@@ -27,11 +27,9 @@ target_compile_definitions(freertos_config INTERFACE
 set(FREERTOS_HEAP "3" CACHE STRING "FreeRTOS heap implementation (heap_3 = malloc/free wrapper)")
 add_subdirectory(FreeRTOS)
 target_link_libraries(${PROJECT_NAME} PRIVATE freertos_kernel)
-# Targets pulled in via add_subdirectory() don't inherit the parent target's
-# compile options, so the MCU flags must be applied explicitly here too.
-target_compile_options(freertos_kernel PRIVATE ${MCU_FLAGS} -O3 -fmessage-length=0)
+target_link_libraries(freertos_kernel PRIVATE audio_mfx_common)
 if(TARGET freertos_kernel_port)
-    target_compile_options(freertos_kernel_port PRIVATE ${MCU_FLAGS} -O3 -fmessage-length=0)
+    target_link_libraries(freertos_kernel_port PRIVATE audio_mfx_common)
 endif()
 
 # --- nlohmann_json (single-header JSON library, ships its own CMakeLists) ---
@@ -142,7 +140,7 @@ if(HAS_VIEW)
     # lvgl ships its own CMakeLists.txt (env_support/cmake/custom.cmake).
     set(LV_CONF_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lv_conf.h CACHE STRING "" FORCE)
     add_subdirectory(lvgl)
-    target_compile_options(lvgl PRIVATE ${MCU_FLAGS} -O3 -fmessage-length=0)
+    target_link_libraries(lvgl PRIVATE audio_mfx_common)
     # lvgl's CMakeLists.txt also defines lvgl_examples/lvgl_demos targets,
     # which are not used here and would otherwise be built by default.
     set_target_properties(lvgl_examples lvgl_demos PROPERTIES EXCLUDE_FROM_ALL TRUE)

@@ -5,7 +5,7 @@
 # =============================================================================
 
 target_sources(${PROJECT_NAME} PRIVATE
-    ${SYSTEM_DIR}/startup-cortex-m7.S
+    ${SYSTEM_STARTUP}
     ${SYSTEM_DIR}/system.cpp
     ${SYSTEM_DIR}/interrupt_handlers.cpp
 )

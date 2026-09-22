@@ -9,7 +9,7 @@ cmake_minimum_required(VERSION 3.23)
 # =============================================================================
 
 # Make the helper modules below (toolchain, git version) includable by name.
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+list(PREPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 project(audio-multieffect LANGUAGES C CXX ASM)
 
@@ -49,13 +49,14 @@ if(BOARD STREQUAL "STM32F746G-DISCO")
     set(MCU_CORE          CM7)
     set(MCU_CPU           cortex-m7)
     set(MCU_FPU           fpv5-sp-d16)
-    set(LINKER_SCRIPT     "${CMAKE_SOURCE_DIR}/system/stm32f746/arm-cortex-m.ld")
-    set(SYSTEM_DIR        "${CMAKE_SOURCE_DIR}/system/stm32f746")
-    set(DRIVERS_MCU_DIR   "${CMAKE_SOURCE_DIR}/drivers/stm32f7")
-    set(HAL_MCU_DIR       "${CMAKE_SOURCE_DIR}/hal/stm32f7")
+    set(LINKER_SCRIPT     "${PROJECT_SOURCE_DIR}/system/stm32f746/arm-cortex-m.ld")
+    set(SYSTEM_DIR        "${PROJECT_SOURCE_DIR}/system/stm32f746")
+    set(SYSTEM_STARTUP    "${SYSTEM_DIR}/startup-cortex-m7.S")
+    set(DRIVERS_MCU_DIR   "${PROJECT_SOURCE_DIR}/drivers/stm32f7")
+    set(HAL_MCU_DIR       "${PROJECT_SOURCE_DIR}/hal/stm32f7")
     set(CMSIS_DSP_LIB     arm_cortexM7lfsp_math)
     set(FREERTOS_PORT     GCC_ARM_CM7)
-    set(FREERTOS_PORT_DIR "${CMAKE_SOURCE_DIR}/libs/FreeRTOS/portable/GCC/ARM_CM7/r0p1")
+    set(FREERTOS_PORT_DIR "${PROJECT_SOURCE_DIR}/libs/FreeRTOS/portable/GCC/ARM_CM7/r0p1")
 
     set(HAS_CONTROLLER ON)
     set(HAS_MODEL ON)
@@ -78,13 +79,14 @@ elseif(BOARD STREQUAL "STM32H745I-DISCO")
     set(MCU_CORE          CM7)
     set(MCU_CPU           cortex-m7)
     set(MCU_FPU           fpv5-d16)
-    set(LINKER_SCRIPT     "${CMAKE_SOURCE_DIR}/system/stm32h745/arm-cortex-m.ld")
-    set(SYSTEM_DIR        "${CMAKE_SOURCE_DIR}/system/stm32h745")
-    set(DRIVERS_MCU_DIR   "${CMAKE_SOURCE_DIR}/drivers/stm32h7")
-    set(HAL_MCU_DIR       "${CMAKE_SOURCE_DIR}/hal/stm32h7")
+    set(LINKER_SCRIPT     "${PROJECT_SOURCE_DIR}/system/stm32h745/arm-cortex-m.ld")
+    set(SYSTEM_DIR        "${PROJECT_SOURCE_DIR}/system/stm32h745")
+    set(SYSTEM_STARTUP    "${SYSTEM_DIR}/startup-cortex-m7.S")
+    set(DRIVERS_MCU_DIR   "${PROJECT_SOURCE_DIR}/drivers/stm32h7")
+    set(HAL_MCU_DIR       "${PROJECT_SOURCE_DIR}/hal/stm32h7")
     set(CMSIS_DSP_LIB     arm_cortexM7lfsp_math)
     set(FREERTOS_PORT     GCC_ARM_CM4F)
-    set(FREERTOS_PORT_DIR "${CMAKE_SOURCE_DIR}/libs/FreeRTOS/portable/GCC/ARM_CM4F")
+    set(FREERTOS_PORT_DIR "${PROJECT_SOURCE_DIR}/libs/FreeRTOS/portable/GCC/ARM_CM4F")
 
     set(HAS_CONTROLLER ON)
     set(HAS_MODEL ON)
@@ -107,13 +109,14 @@ elseif(BOARD STREQUAL "STM32H745I-DISCO-CM7")
     set(MCU_CORE          CM7)
     set(MCU_CPU           cortex-m7)
     set(MCU_FPU           fpv5-d16)
-    set(LINKER_SCRIPT     "${CMAKE_SOURCE_DIR}/system/stm32h745/arm-cortex-m7.ld")
-    set(SYSTEM_DIR        "${CMAKE_SOURCE_DIR}/system/stm32h745")
-    set(DRIVERS_MCU_DIR   "${CMAKE_SOURCE_DIR}/drivers/stm32h7")
-    set(HAL_MCU_DIR       "${CMAKE_SOURCE_DIR}/hal/stm32h7")
+    set(LINKER_SCRIPT     "${PROJECT_SOURCE_DIR}/system/stm32h745/arm-cortex-m7.ld")
+    set(SYSTEM_DIR        "${PROJECT_SOURCE_DIR}/system/stm32h745")
+    set(SYSTEM_STARTUP    "${SYSTEM_DIR}/startup-cortex-m7.S")
+    set(DRIVERS_MCU_DIR   "${PROJECT_SOURCE_DIR}/drivers/stm32h7")
+    set(HAL_MCU_DIR       "${PROJECT_SOURCE_DIR}/hal/stm32h7")
     set(CMSIS_DSP_LIB     arm_cortexM7lfsp_math)
     set(FREERTOS_PORT     GCC_ARM_CM4F)
-    set(FREERTOS_PORT_DIR "${CMAKE_SOURCE_DIR}/libs/FreeRTOS/portable/GCC/ARM_CM4F")
+    set(FREERTOS_PORT_DIR "${PROJECT_SOURCE_DIR}/libs/FreeRTOS/portable/GCC/ARM_CM4F")
 
     set(DUAL_CORE_APP ON)
     set(HAS_CONTROLLER OFF)   # UI lives on the CM4 core, this is the DSP core
@@ -138,13 +141,14 @@ elseif(BOARD STREQUAL "STM32H745I-DISCO-CM4")
     set(MCU_CORE          CM4)
     set(MCU_CPU           cortex-m4)
     set(MCU_FPU           fpv4-sp-d16)
-    set(LINKER_SCRIPT     "${CMAKE_SOURCE_DIR}/system/stm32h745/arm-cortex-m4.ld")
-    set(SYSTEM_DIR        "${CMAKE_SOURCE_DIR}/system/stm32h745")
-    set(DRIVERS_MCU_DIR   "${CMAKE_SOURCE_DIR}/drivers/stm32h7")
-    set(HAL_MCU_DIR       "${CMAKE_SOURCE_DIR}/hal/stm32h7")
+    set(LINKER_SCRIPT     "${PROJECT_SOURCE_DIR}/system/stm32h745/arm-cortex-m4.ld")
+    set(SYSTEM_DIR        "${PROJECT_SOURCE_DIR}/system/stm32h745")
+    set(SYSTEM_STARTUP    "${SYSTEM_DIR}/startup-cortex-m7.S")
+    set(DRIVERS_MCU_DIR   "${PROJECT_SOURCE_DIR}/drivers/stm32h7")
+    set(HAL_MCU_DIR       "${PROJECT_SOURCE_DIR}/hal/stm32h7")
     set(CMSIS_DSP_LIB     arm_cortexM4lf_math)
     set(FREERTOS_PORT     GCC_ARM_CM4F)
-    set(FREERTOS_PORT_DIR "${CMAKE_SOURCE_DIR}/libs/FreeRTOS/portable/GCC/ARM_CM4F")
+    set(FREERTOS_PORT_DIR "${PROJECT_SOURCE_DIR}/libs/FreeRTOS/portable/GCC/ARM_CM4F")
 
     set(DUAL_CORE_APP ON)
     set(HAS_CONTROLLER ON)    # UI + settings + presets live on the CM4 core
@@ -167,7 +171,7 @@ endif()
 # -----------------------------------------------------------------------------
 # 3. Git revision string (replaces makefile.defs' GIT_REVISION shell command)
 # -----------------------------------------------------------------------------
-include(git-version)
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/git-version.cmake")
 get_git_revision(GIT_REVISION)
 message(STATUS "GIT_REVISION = ${GIT_REVISION}")
 
@@ -183,7 +187,9 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     CXX_EXTENSIONS OFF
 )
 
-target_compile_definitions(${PROJECT_NAME} PRIVATE
+add_library(audio_mfx_common INTERFACE)
+
+target_compile_definitions(audio_mfx_common INTERFACE
     __HEAP_SIZE=0x00020000
     __STACK_SIZE=0x00001000
     _LITE_EXIT
@@ -193,16 +199,18 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
     ${BOARD_DEFINES}
 )
 
-target_include_directories(${PROJECT_NAME} PRIVATE
-    ${CMAKE_SOURCE_DIR}
-    ${CMAKE_SOURCE_DIR}/cmsis
-    ${CMAKE_SOURCE_DIR}/libs
-    ${CMAKE_SOURCE_DIR}/libs/tinyusb/src
-    ${CMAKE_SOURCE_DIR}/hal
+target_include_directories(audio_mfx_common INTERFACE
+    ${PROJECT_SOURCE_DIR}
+    ${PROJECT_SOURCE_DIR}/cmsis
+    ${PROJECT_SOURCE_DIR}/libs
+    ${PROJECT_SOURCE_DIR}/libs/tinyusb/src
+    ${PROJECT_SOURCE_DIR}/hal
     ${HAL_MCU_DIR}
 )
 # nlohmann_json is linked in as nlohmann_json::nlohmann_json (see libs/CMakeLists.txt),
 # which brings in its own include path.
+
+target_link_libraries(${PROJECT_NAME} PRIVATE audio_mfx_common)
 
 # -----------------------------------------------------------------------------
 # 5. Compiler/linker flags, equivalent to the Eclipse ARM Cross GCC toolchain
@@ -215,7 +223,7 @@ set(MCU_FLAGS
     -mfloat-abi=${MCU_FLOAT_ABI}
 )
 
-target_compile_options(${PROJECT_NAME} PRIVATE
+target_compile_options(audio_mfx_common INTERFACE
     ${MCU_FLAGS}
     -O3
     -fmessage-length=0
@@ -230,7 +238,7 @@ target_compile_options(${PROJECT_NAME} PRIVATE
     $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions;-fno-rtti>
 )
 
-target_link_options(${PROJECT_NAME} PRIVATE
+target_link_options(audio_mfx_common INTERFACE
     ${MCU_FLAGS}
     -T${LINKER_SCRIPT}
     -Wl,--gc-sections
@@ -239,12 +247,12 @@ target_link_options(${PROJECT_NAME} PRIVATE
     -u_scanf_float
     --specs=nano.specs
     --specs=nosys.specs
-    -L${CMAKE_SOURCE_DIR}/cmsis/dsp
+    -L${PROJECT_SOURCE_DIR}/cmsis/dsp
 )
 set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY LINK_DEPENDS ${LINKER_SCRIPT})
 
 add_subdirectory(cmsis)
-target_link_libraries(${PROJECT_NAME} PRIVATE cmsis_dsp)
+target_link_libraries(audio_mfx_common INTERFACE cmsis_dsp)
 
 # -----------------------------------------------------------------------------
 # 6. Source tree
