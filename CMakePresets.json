@@ -1,0 +1,53 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": { "major": 3, "minor": 23, "patch": 0 },
+
+  "configurePresets": [
+    {
+      "name": "common",
+      "description": "Shared settings for all 4 board configurations. Not selectable directly (hidden).",
+      "hidden": true,
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "toolchainFile": "${sourceDir}/cmake/arm-none-eabi-gcc.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "STM32F746G-DISCO",
+      "displayName": "STM32F746G-DISCO",
+      "description": "Single Cortex-M7 core, F7 discovery board.",
+      "inherits": "common",
+      "cacheVariables": { "BOARD": "STM32F746G-DISCO" }
+    },
+    {
+      "name": "STM32H745I-DISCO",
+      "displayName": "STM32H745I-DISCO (unified)",
+      "description": "H745 board, single combined image running on the CM7 core only.",
+      "inherits": "common",
+      "cacheVariables": { "BOARD": "STM32H745I-DISCO" }
+    },
+    {
+      "name": "STM32H745I-DISCO-CM7",
+      "displayName": "STM32H745I-DISCO-CM7 (dual-core, DSP core)",
+      "description": "H745 board, dual-core build - CM7 half (effect DSP).",
+      "inherits": "common",
+      "cacheVariables": { "BOARD": "STM32H745I-DISCO-CM7" }
+    },
+    {
+      "name": "STM32H745I-DISCO-CM4",
+      "displayName": "STM32H745I-DISCO-CM4 (dual-core, UI/storage core)",
+      "description": "H745 board, dual-core build - CM4 half (UI, settings/presets storage, USB).",
+      "inherits": "common",
+      "cacheVariables": { "BOARD": "STM32H745I-DISCO-CM4" }
+    }
+  ],
+
+  "buildPresets": [
+    { "name": "STM32F746G-DISCO",     "configurePreset": "STM32F746G-DISCO" },
+    { "name": "STM32H745I-DISCO",     "configurePreset": "STM32H745I-DISCO" },
+    { "name": "STM32H745I-DISCO-CM7", "configurePreset": "STM32H745I-DISCO-CM7" },
+    { "name": "STM32H745I-DISCO-CM4", "configurePreset": "STM32H745I-DISCO-CM4" }
+  ]
+}
