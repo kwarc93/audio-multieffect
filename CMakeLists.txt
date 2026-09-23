@@ -152,7 +152,6 @@ elseif(BOARD STREQUAL "STM32H745I-DISCO-CM4")
         CORE_CM4
         DUAL_CORE_APP
         CFG_FS_CALIB=-2
-        CFG_TUSB_MCU=OPT_MCU_STM32H7
     )
 endif()
 
@@ -219,9 +218,8 @@ target_compile_options(audio_mfx_common INTERFACE
     -fsingle-precision-constant
     -g
     -Wall
-    -Wextra
+    -Wunused
     -Wuninitialized
-    -Wno-unused-parameter
     $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions;-fno-rtti>
 )
 
