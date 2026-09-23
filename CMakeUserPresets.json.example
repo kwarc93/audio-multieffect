@@ -1,9 +1,4 @@
 {
-  "//": "Template for CMakeUserPresets.json - copy this file to CMakeUserPresets.json",
-  "//2": "(which is gitignored) and adjust the two paths below for your machine. These",
-  "//3": "presets add your local toolchain paths on top of the board presets from",
-  "//4": "CMakePresets.json (CMake forbids two presets sharing the same name across",
-  "//5": "files, so the combined/local presets get a '-local' suffix).",
   "version": 6,
   "cmakeMinimumRequired": { "major": 3, "minor": 23, "patch": 0 },
 
@@ -12,10 +7,7 @@
       "name": "user-common",
       "hidden": true,
       "environment": {
-        "TOOLCHAIN_BIN_DIR": "C:/path/to/arm-none-eabi-gcc/bin"
-      },
-      "cacheVariables": {
-        "CMAKE_MAKE_PROGRAM": "C:/path/to/make.exe"
+        "ARM_NONE_EABI_TOOLCHAIN_PATH": "YOUR/PATH/TO/ARM_NONE_EABI/TOOLCHAIN"
       }
     },
     { "name": "STM32F746G-DISCO-local",     "inherits": ["STM32F746G-DISCO", "user-common"] },
@@ -31,4 +23,3 @@
     { "name": "STM32H745I-DISCO-CM4-local", "configurePreset": "STM32H745I-DISCO-CM4-local" }
   ]
 }
-

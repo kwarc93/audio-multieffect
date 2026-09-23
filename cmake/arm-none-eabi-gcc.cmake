@@ -1,61 +1,44 @@
 # =============================================================================
 # Toolchain file for the GNU Arm Embedded (arm-none-eabi) cross compiler.
-# Loaded via --toolchain / a preset's "toolchainFile" field, before project()
-# runs its compiler checks.
-#
-# The toolchain directory is not assumed to be on PATH; it must be supplied
-# via the TOOLCHAIN_BIN_DIR environment variable, e.g.:
-#   cmake --preset STM32F746G-DISCO
-# with TOOLCHAIN_BIN_DIR set in the environment (see CMakeUserPresets.json.example).
 # =============================================================================
 
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_PROCESSOR arm)
 
-# TOOLCHAIN_BIN_DIR must come from the environment, not a plain cache/-D
-# variable: CMake's internal try_compile() compiler checks re-run this
-# toolchain file in a fresh process that inherits the environment but does
-# not forward arbitrary cache variables.
-if(DEFINED ENV{TOOLCHAIN_BIN_DIR})
-    set(TOOLCHAIN_BIN_DIR "$ENV{TOOLCHAIN_BIN_DIR}" CACHE PATH "Directory containing arm-none-eabi-gcc(.exe) and friends" FORCE)
+# 1. Resolve and normalize the toolchain path from environment variables
+if(DEFINED ENV{ARM_NONE_EABI_TOOLCHAIN_PATH})
+    set(TOOLCHAIN_HINT "$ENV{ARM_NONE_EABI_TOOLCHAIN_PATH}")
+    cmake_path(SET TOOLCHAIN_HINT NORMALIZE "${TOOLCHAIN_HINT}")
 else()
-    set(TOOLCHAIN_BIN_DIR "" CACHE PATH "Directory containing arm-none-eabi-gcc(.exe) and friends")
-endif()
-
-if(NOT TOOLCHAIN_BIN_DIR)
     message(FATAL_ERROR
-        "TOOLCHAIN_BIN_DIR is not set. Set it as an environment variable "
-        "pointing at the folder that contains arm-none-eabi-gcc(.exe), e.g. "
-        "via the \"environment\" block of CMakeUserPresets.json (see "
-        "CMakeUserPresets.json.example), or export it before running cmake.")
+        "ARM_NONE_EABI_TOOLCHAIN_PATH environment variable is not set. "
+        "Please provide the path to the directory containing arm-none-eabi-gcc.")
 endif()
 
-set(TOOLCHAIN_PREFIX arm-none-eabi-)
+# 2. Find core compilers (CMake handles system suffixes like .exe automatically)
+find_program(CMAKE_C_COMPILER_PATH   NAMES arm-none-eabi-gcc   HINTS ${TOOLCHAIN_HINT} REQUIRED NO_DEFAULT_PATH)
+find_program(CMAKE_CXX_COMPILER_PATH NAMES arm-none-eabi-g++   HINTS ${TOOLCHAIN_HINT} REQUIRED NO_DEFAULT_PATH)
+find_program(CMAKE_ASM_COMPILER_PATH NAMES arm-none-eabi-gcc   HINTS ${TOOLCHAIN_HINT} REQUIRED NO_DEFAULT_PATH)
 
-if(CMAKE_HOST_WIN32)
-    set(_TOOLCHAIN_EXE_SUFFIX ".exe")
-else()
-    set(_TOOLCHAIN_EXE_SUFFIX "")
-endif()
+set(CMAKE_C_COMPILER   "${CMAKE_C_COMPILER_PATH}")
+set(CMAKE_CXX_COMPILER "${CMAKE_CXX_COMPILER_PATH}")
+set(CMAKE_ASM_COMPILER "${CMAKE_ASM_COMPILER_PATH}")
 
-set(CMAKE_C_COMPILER   "${TOOLCHAIN_BIN_DIR}/${TOOLCHAIN_PREFIX}gcc${_TOOLCHAIN_EXE_SUFFIX}")
-set(CMAKE_CXX_COMPILER "${TOOLCHAIN_BIN_DIR}/${TOOLCHAIN_PREFIX}g++${_TOOLCHAIN_EXE_SUFFIX}")
-set(CMAKE_ASM_COMPILER "${TOOLCHAIN_BIN_DIR}/${TOOLCHAIN_PREFIX}gcc${_TOOLCHAIN_EXE_SUFFIX}")
+# 3. Find auxiliary binary utilities used for post-build steps
+find_program(OBJCOPY_PATH NAMES arm-none-eabi-objcopy HINTS ${TOOLCHAIN_HINT} REQUIRED NO_DEFAULT_PATH)
+find_program(OBJDUMP_PATH NAMES arm-none-eabi-objdump HINTS ${TOOLCHAIN_HINT} REQUIRED NO_DEFAULT_PATH)
+find_program(SIZE_PATH    NAMES arm-none-eabi-size    HINTS ${TOOLCHAIN_HINT} REQUIRED NO_DEFAULT_PATH)
+find_program(AR_PATH      NAMES arm-none-eabi-ar      HINTS ${TOOLCHAIN_HINT} REQUIRED NO_DEFAULT_PATH)
 
-# Used by the post-build steps in the top-level CMakeLists.txt (hex/bin
-# generation, size report, disassembly listing).
-set(CMAKE_OBJCOPY "${TOOLCHAIN_BIN_DIR}/${TOOLCHAIN_PREFIX}objcopy${_TOOLCHAIN_EXE_SUFFIX}" CACHE FILEPATH "objcopy")
-set(CMAKE_OBJDUMP "${TOOLCHAIN_BIN_DIR}/${TOOLCHAIN_PREFIX}objdump${_TOOLCHAIN_EXE_SUFFIX}" CACHE FILEPATH "objdump")
-set(CMAKE_SIZE    "${TOOLCHAIN_BIN_DIR}/${TOOLCHAIN_PREFIX}size${_TOOLCHAIN_EXE_SUFFIX}"    CACHE FILEPATH "size")
-set(CMAKE_AR      "${TOOLCHAIN_BIN_DIR}/${TOOLCHAIN_PREFIX}ar${_TOOLCHAIN_EXE_SUFFIX}"      CACHE FILEPATH "ar")
+set(CMAKE_OBJCOPY "${OBJCOPY_PATH}" CACHE FILEPATH "Path to arm-none-eabi-objcopy")
+set(CMAKE_OBJDUMP "${OBJDUMP_PATH}" CACHE FILEPATH "Path to arm-none-eabi-objdump")
+set(CMAKE_SIZE    "${SIZE_PATH}"    CACHE FILEPATH "Path to arm-none-eabi-size")
+set(CMAKE_AR      "${AR_PATH}"      CACHE FILEPATH "Path to arm-none-eabi-ar")
 
-# A bare-metal cross compiler cannot link an executable without a target-
-# specific CRT/linker script, so compiler sanity checks only need to produce
-# sanity checks, instead of a full executable.
+# 4. Skip compiler sanity link checks for bare-metal targets
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
-# Never try to root-search the host system's own /usr/include, /usr/lib etc.
-# for a cross build - only look inside directories we explicitly add.
+# 5. Prevent root-searching host system paths during cross-compilation
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
