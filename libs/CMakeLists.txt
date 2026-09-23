@@ -20,8 +20,33 @@ add_subdirectory(FreeRTOS)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE freertos_kernel)
 target_link_libraries(freertos_kernel PRIVATE audio_mfx_common)
+target_compile_options(freertos_kernel PRIVATE $<BUILD_INTERFACE:-w>)
 if(TARGET freertos_kernel_port)
     target_link_libraries(freertos_kernel_port PRIVATE audio_mfx_common)
+endif()
+
+# --- TinyUSB -----------------------------------------------------------------
+add_subdirectory(tinyusb/src)
+tinyusb_target_add(${PROJECT_NAME})
+target_sources(${PROJECT_NAME} PRIVATE
+    "${CMAKE_CURRENT_LIST_DIR}/tinyusb/src/portable/synopsys/dwc2/dcd_dwc2.c"
+    "${CMAKE_CURRENT_LIST_DIR}/tinyusb/src/portable/synopsys/dwc2/dwc2_common.c"
+)
+
+# --- LVGL Graphical Stack ----------------------------------------------------
+if(HAS_VIEW)
+    set(LV_CONF_PATH "${CMAKE_CURRENT_LIST_DIR}/lv_conf.h" CACHE STRING "" FORCE)
+    
+    # EXCLUDE_FROM_ALL prevents building unused demos/examples automatically
+    add_subdirectory(lvgl EXCLUDE_FROM_ALL)
+    
+    target_link_libraries(lvgl PRIVATE audio_mfx_common)
+    target_compile_options(lvgl PRIVATE $<BUILD_INTERFACE:-w>)
+    target_include_directories(lvgl SYSTEM PRIVATE
+        "${CMAKE_CURRENT_LIST_DIR}/FreeRTOS/include"
+        "${FREERTOS_PORT_DIR}"
+    )
+    target_link_libraries(${PROJECT_NAME} PRIVATE lvgl)
 endif()
 
 # --- nlohmann_json -----------------------------------------------------------
@@ -50,33 +75,11 @@ target_include_directories(memtest SYSTEM PUBLIC "${CMAKE_CURRENT_LIST_DIR}/memt
 target_link_libraries(memtest PRIVATE audio_mfx_common)
 target_link_libraries(${PROJECT_NAME} PRIVATE memtest)
 
-# --- TinyUSB -----------------------------------------------------------------
-add_subdirectory(tinyusb/src)
-tinyusb_target_add(${PROJECT_NAME})
-target_sources(${PROJECT_NAME} PRIVATE
-    "${CMAKE_CURRENT_LIST_DIR}/tinyusb/src/portable/synopsys/dwc2/dcd_dwc2.c"
-    "${CMAKE_CURRENT_LIST_DIR}/tinyusb/src/portable/synopsys/dwc2/dwc2_common.c"
-)
-
-# --- LVGL Graphical Stack ----------------------------------------------------
-if(HAS_VIEW)
-    set(LV_CONF_PATH "${CMAKE_CURRENT_LIST_DIR}/lv_conf.h" CACHE STRING "" FORCE)
-    
-    # EXCLUDE_FROM_ALL prevents building unused demos/examples automatically
-    add_subdirectory(lvgl EXCLUDE_FROM_ALL)
-    
-    target_link_libraries(lvgl PRIVATE audio_mfx_common)
-    target_include_directories(lvgl SYSTEM PRIVATE
-        "${CMAKE_CURRENT_LIST_DIR}/FreeRTOS/include"
-        "${FREERTOS_PORT_DIR}"
-    )
-    target_link_libraries(${PROJECT_NAME} PRIVATE lvgl)
-endif()
-
-# --- nam-core (Neural Amp Modeler Encapsulated Component) --------------------
+# --- nam-core (Encapsulated Component) --------------------
 if(HAS_MODEL_NAM)
     add_library(nam_core STATIC "${CMAKE_CURRENT_LIST_DIR}/nam-core/nam_model.c")
     target_include_directories(nam_core SYSTEM PUBLIC "${CMAKE_CURRENT_LIST_DIR}/nam-core")
     target_link_libraries(nam_core PRIVATE audio_mfx_common)
     target_link_libraries(${PROJECT_NAME} PRIVATE nam_core)
 endif()
+
