@@ -1,19 +1,19 @@
 # =============================================================================
-# Board peripheral drivers. Common drivers live directly in drivers/;
+# Board peripheral drivers. Common drivers live directly in drivers/.
 # MCU-specific register-level drivers live in drivers/stm32f7 or
 # drivers/stm32h7, selected via DRIVERS_MCU_DIR (set in the top-level
 # CMakeLists.txt based on BOARD).
 # =============================================================================
 
 target_sources(${PROJECT_NAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/audio_wm8994ecs.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/button_gpio.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/lcd_rk043fn48h.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/led_gpio.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/led_pwm.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/qspi_mt25ql512a.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/qspi_n25q128a.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/touch_ft5336.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/audio_wm8994ecs.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/button_gpio.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/lcd_rk043fn48h.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/led_gpio.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/led_pwm.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/qspi_mt25ql512a.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/qspi_n25q128a.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/touch_ft5336.cpp
 
     ${DRIVERS_MCU_DIR}/core.cpp
     ${DRIVERS_MCU_DIR}/delay.cpp
@@ -42,7 +42,7 @@ if(MCU_FAMILY STREQUAL "STM32H7")
 endif()
 
 target_include_directories(${PROJECT_NAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_LIST_DIR}
     ${DRIVERS_MCU_DIR}
 )
 

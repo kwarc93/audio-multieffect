@@ -1,7 +1,5 @@
 # =============================================================================
-# MCU startup code: interrupt vector table (.S), CMSIS SystemInit/clock setup
-# (system.cpp) and C++ interrupt handlers. SYSTEM_DIR is set in the top-level
-# CMakeLists.txt based on BOARD.
+# Note: SYSTEM_DIR is set in the top-level CMakeLists.txt based on BOARD.
 # =============================================================================
 
 target_sources(${PROJECT_NAME} PRIVATE

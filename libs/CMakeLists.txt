@@ -44,8 +44,10 @@ target_sources(${PROJECT_NAME} PRIVATE
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/littlefs)
 
 # --- willpirkle / memtest (vendored, not submodules) -------------------------
-add_subdirectory(willpirkle)
-add_subdirectory(memtest)
+target_sources(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/willpirkle/fxobjects.cpp)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/willpirkle)
+target_sources(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/memtest/memtest.c)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/memtest)
 
 # --- TinyUSB ---------------------------------------------------------------
 # TinyUSB's source-level CMake integration adds its portable core and class
