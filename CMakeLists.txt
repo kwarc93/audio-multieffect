@@ -1,11 +1,9 @@
 cmake_minimum_required(VERSION 3.23)
 
 # =============================================================================
-# Top-level project: selects the target board, derives all board-specific
-# settings from it, declares a single executable target, and delegates to
-# per-directory CMakeLists.txt files via add_subdirectory() to populate its
-# sources (each one calls target_sources()/target_include_directories() on
-# ${PROJECT_NAME} rather than building separate static libraries).
+# Top-level Project Configuration
+# Defines the target board topology, compiler toolchain requirements, 
+# architecture flags, and coordinates the modular source subdirectories.
 # =============================================================================
 
 # Make the helper modules below (toolchain, git version) includable by name.
@@ -14,9 +12,9 @@ list(PREPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 project(audio-multieffect LANGUAGES C CXX ASM)
 
 # -----------------------------------------------------------------------------
-# 1. Board selection
+# 1. Target Board Selection
 # -----------------------------------------------------------------------------
-set(BOARD "" CACHE STRING "Target board: one of STM32F746G-DISCO, STM32H745I-DISCO, STM32H745I-DISCO-CM4, STM32H745I-DISCO-CM7")
+set(BOARD "" CACHE STRING "Target hardware platform selection")
 set_property(CACHE BOARD PROPERTY STRINGS
     "STM32F746G-DISCO"
     "STM32H745I-DISCO"
@@ -24,25 +22,24 @@ set_property(CACHE BOARD PROPERTY STRINGS
     "STM32H745I-DISCO-CM7"
 )
 
-set(_valid_boards "STM32F746G-DISCO" "STM32H745I-DISCO" "STM32H745I-DISCO-CM4" "STM32H745I-DISCO-CM7")
-if(NOT BOARD IN_LIST _valid_boards)
-    message(FATAL_ERROR "BOARD is '${BOARD}' but must be one of: ${_valid_boards}. Use one of the CMake presets, e.g. `cmake --preset STM32F746G-DISCO`.")
+set(VALID_BOARDS "STM32F746G-DISCO" "STM32H745I-DISCO" "STM32H745I-DISCO-CM4" "STM32H745I-DISCO-CM7")
+if(NOT BOARD IN_LIST VALID_BOARDS)
+    message(FATAL_ERROR "BOARD '${BOARD}' is invalid. Must be one of: ${VALID_BOARDS}. Please configure using a valid CMake preset.")
 endif()
-message(STATUS "Building for BOARD = ${BOARD}")
+message(STATUS "Configuring project for target board: ${BOARD}")
 
 # -----------------------------------------------------------------------------
-# 2. Per-board configuration: MCU, defines, linker script and which optional
-#    parts of the source tree (HAS_*) this board needs. Consumed by the
-#    per-directory CMakeLists.txt files added further down.
+# 2. Hardware Architecture & Feature Matrix Definitions
 # -----------------------------------------------------------------------------
 set(MCU_FLOAT_ABI hard)
 
-set(HAS_CONTROLLER OFF)   # app/controller (UI/settings controller actor)
-set(HAS_MODEL OFF)        # app/model (real DSP effect chain)
-set(HAS_MODEL_NAM OFF)    # app/model/nam + libs/nam-core (Neural Amp Modeler)
-set(HAS_VIEW OFF)         # app/view (console_view + lcd_view + lvgl)
-set(HAS_LITTLEFS OFF)     # libs/littlefs (settings/presets storage)
-set(DUAL_CORE_APP OFF)    # this image is one half of a dual-core (H745) build
+# Initialize global hardware capability flags
+set(HAS_CONTROLLER OFF)
+set(HAS_MODEL OFF)
+set(HAS_MODEL_NAM OFF)
+set(HAS_VIEW OFF)
+set(HAS_LITTLEFS OFF)
+set(DUAL_CORE_APP OFF)
 
 if(BOARD STREQUAL "STM32F746G-DISCO")
     set(MCU_FAMILY        STM32F7)
@@ -59,7 +56,6 @@ if(BOARD STREQUAL "STM32F746G-DISCO")
 
     set(HAS_CONTROLLER ON)
     set(HAS_MODEL ON)
-    set(HAS_MODEL_NAM OFF)          # CFG_DISABLE_NEURAL_AMP_MODELER: no NAM on the F7
     set(HAS_VIEW ON)
     set(HAS_LITTLEFS ON)
 
@@ -116,11 +112,8 @@ elseif(BOARD STREQUAL "STM32H745I-DISCO-CM7")
     set(FREERTOS_PORT_DIR "${PROJECT_SOURCE_DIR}/libs/FreeRTOS/portable/GCC/ARM_CM4F")
 
     set(DUAL_CORE_APP ON)
-    set(HAS_CONTROLLER OFF)   # UI lives on the CM4 core, this is the DSP core
     set(HAS_MODEL ON)
     set(HAS_MODEL_NAM ON)
-    set(HAS_VIEW OFF)
-    set(HAS_LITTLEFS OFF)     # storage/filesystem lives on the CM4 core
 
     set(BOARD_DEFINES
         STM32H745xx
@@ -147,9 +140,7 @@ elseif(BOARD STREQUAL "STM32H745I-DISCO-CM4")
     set(FREERTOS_PORT_DIR "${PROJECT_SOURCE_DIR}/libs/FreeRTOS/portable/GCC/ARM_CM4F")
 
     set(DUAL_CORE_APP ON)
-    set(HAS_CONTROLLER ON)    # UI + settings + presets live on the CM4 core
-    set(HAS_MODEL OFF)        # real effect DSP lives on the CM7 core (IPC proxy instead)
-    set(HAS_MODEL_NAM OFF)
+    set(HAS_CONTROLLER ON)
     set(HAS_VIEW ON)
     set(HAS_LITTLEFS ON)
 
@@ -165,14 +156,14 @@ elseif(BOARD STREQUAL "STM32H745I-DISCO-CM4")
 endif()
 
 # -----------------------------------------------------------------------------
-# 3. Git revision string (replaces makefile.defs' GIT_REVISION shell command)
+# 3. Dynamic Versioning Integration
 # -----------------------------------------------------------------------------
 include(git-version)
 get_git_revision(GIT_REVISION)
-message(STATUS "GIT_REVISION = ${GIT_REVISION}")
+message(STATUS "Current Project Git Revision: ${GIT_REVISION}")
 
 # -----------------------------------------------------------------------------
-# 4. Firmware executable target
+# 4. Target Definition & Common Interface Library
 # -----------------------------------------------------------------------------
 add_executable(${PROJECT_NAME} main.cpp)
 set_target_properties(${PROJECT_NAME} PROPERTIES
@@ -183,6 +174,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     CXX_EXTENSIONS OFF
 )
 
+# Common settings container to propagate configuration definitions across directories
 add_library(audio_mfx_common INTERFACE)
 
 target_compile_definitions(audio_mfx_common INTERFACE
@@ -203,14 +195,11 @@ target_include_directories(audio_mfx_common INTERFACE
     ${PROJECT_SOURCE_DIR}/hal
     ${HAL_MCU_DIR}
 )
-# nlohmann_json is linked in as nlohmann_json::nlohmann_json (see libs/CMakeLists.txt),
-# which brings in its own include path.
 
 target_link_libraries(${PROJECT_NAME} PRIVATE audio_mfx_common)
 
 # -----------------------------------------------------------------------------
-# 5. Compiler/linker flags, equivalent to the Eclipse ARM Cross GCC toolchain
-#    settings shared by all 4 configurations (per-board CPU/FPU flags above).
+# 5. Compiler and Linker Toolchain Flags
 # -----------------------------------------------------------------------------
 set(MCU_FLAGS
     -mcpu=${MCU_CPU}
@@ -246,10 +235,12 @@ target_link_options(audio_mfx_common INTERFACE
     --specs=nosys.specs
     -L${PROJECT_SOURCE_DIR}/cmsis/dsp
 )
-set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY LINK_DEPENDS ${LINKER_SCRIPT})
+
+# Track linker script changes to force a target relink
+set_target_properties(${PROJECT_NAME} PROPERTIES LINK_DEPENDS "${LINKER_SCRIPT}")
 
 # -----------------------------------------------------------------------------
-# 6. Source tree
+# 6. Source Tree Subdirectories Execution
 # -----------------------------------------------------------------------------
 add_subdirectory(app)
 add_subdirectory(drivers)
@@ -258,26 +249,26 @@ add_subdirectory(system)
 add_subdirectory(libs)
 add_subdirectory(cmsis)
 
+# Bind the processed CMSIS library back into the configuration interface target
 target_link_libraries(audio_mfx_common INTERFACE cmsis_dsp)
+
 # -----------------------------------------------------------------------------
-# 7. Post-build steps: .hex/.bin generation and size report (equivalent of
-#    Eclipse's "Create flash image" / "Print size" post-build steps).
+# 7. Post-Build Artifact Generation (Hex, Binary & Memory Metrics)
 # -----------------------------------------------------------------------------
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_OBJCOPY} -O ihex $<TARGET_FILE:${PROJECT_NAME}> ${PROJECT_NAME}.hex
-    COMMAND ${CMAKE_OBJCOPY} -O binary $<TARGET_FILE:${PROJECT_NAME}> ${PROJECT_NAME}.bin
+    COMMAND ${CMAKE_OBJCOPY} -O ihex $<TARGET_FILE:${PROJECT_NAME}> "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.hex"
+    COMMAND ${CMAKE_OBJCOPY} -O binary $<TARGET_FILE:${PROJECT_NAME}> "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.bin"
     COMMAND ${CMAKE_SIZE} --format=berkeley $<TARGET_FILE:${PROJECT_NAME}>
-    BYPRODUCTS ${PROJECT_NAME}.hex ${PROJECT_NAME}.bin
-    COMMENT "Generating .hex/.bin and printing size for ${BOARD}"
+    BYPRODUCTS "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.hex" "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.bin"
+    COMMENT "Generating Flash image deployment files (.hex/.bin) and evaluating memory size for ${BOARD}"
     VERBATIM
 )
 
-# Extended disassembly listing (equivalent of Eclipse's "Create extended
-# listing" step), built on demand only: `cmake --build . --target listing`.
+# Optional diagnostic target for compilation analysis: run `cmake --build . --target listing`
 add_custom_target(listing
-    COMMAND ${CMAKE_OBJDUMP} --source --all-headers --demangle --line-numbers --wide $<TARGET_FILE:${PROJECT_NAME}> > ${PROJECT_NAME}.lst
+    COMMAND ${CMAKE_OBJDUMP} --source --all-headers --demangle --line-numbers --wide $<TARGET_FILE:${PROJECT_NAME}> > "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.lst"
     DEPENDS ${PROJECT_NAME}
-    BYPRODUCTS ${PROJECT_NAME}.lst
-    COMMENT "Generating extended disassembly listing"
+    BYPRODUCTS "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.lst"
+    COMMENT "Generating extended application disassembly listing"
     VERBATIM
 )
