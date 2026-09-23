@@ -35,7 +35,7 @@ if(HAS_MODEL)
         ${CMAKE_CURRENT_LIST_DIR}/model/tuner/tuner.cpp
         ${CMAKE_CURRENT_LIST_DIR}/model/vocoder/vocoder.cpp
     )
-    if(HAS_MODEL_NAM)
+    if(HAS_EFFECT_NAM)
         target_sources(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/model/nam/nam.cpp)
     endif()
 endif()

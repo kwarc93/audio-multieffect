@@ -26,12 +26,14 @@ if(TARGET freertos_kernel_port)
 endif()
 
 # --- TinyUSB -----------------------------------------------------------------
-add_subdirectory(tinyusb/src)
-tinyusb_target_add(${PROJECT_NAME})
-target_sources(${PROJECT_NAME} PRIVATE
-    "${CMAKE_CURRENT_LIST_DIR}/tinyusb/src/portable/synopsys/dwc2/dcd_dwc2.c"
-    "${CMAKE_CURRENT_LIST_DIR}/tinyusb/src/portable/synopsys/dwc2/dwc2_common.c"
-)
+if(HAS_TINYUSB)
+    add_subdirectory(tinyusb/src)
+    tinyusb_target_add(${PROJECT_NAME})
+    target_sources(${PROJECT_NAME} PRIVATE
+        "${CMAKE_CURRENT_LIST_DIR}/tinyusb/src/portable/synopsys/dwc2/dcd_dwc2.c"
+        "${CMAKE_CURRENT_LIST_DIR}/tinyusb/src/portable/synopsys/dwc2/dwc2_common.c"
+    )
+endif()
 
 # --- LVGL Graphical Stack ----------------------------------------------------
 if(HAS_VIEW)
@@ -55,13 +57,15 @@ add_subdirectory(nlohmann_json)
 target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
 
 # --- littlefs (Encapsulated Component) ---------------------------------------
-add_library(littlefs STATIC
-    "${CMAKE_CURRENT_LIST_DIR}/littlefs/lfs.c"
-    "${CMAKE_CURRENT_LIST_DIR}/littlefs/lfs_util.c"
-)
-target_include_directories(littlefs SYSTEM PUBLIC "${CMAKE_CURRENT_LIST_DIR}/littlefs")
-target_link_libraries(littlefs PRIVATE audio_mfx_common)
-target_link_libraries(${PROJECT_NAME} PRIVATE littlefs)
+if(HAS_LITTLEFS)
+    add_library(littlefs STATIC
+        "${CMAKE_CURRENT_LIST_DIR}/littlefs/lfs.c"
+        "${CMAKE_CURRENT_LIST_DIR}/littlefs/lfs_util.c"
+    )
+    target_include_directories(littlefs SYSTEM PUBLIC "${CMAKE_CURRENT_LIST_DIR}/littlefs")
+    target_link_libraries(littlefs PRIVATE audio_mfx_common)
+    target_link_libraries(${PROJECT_NAME} PRIVATE littlefs)
+endif()
 
 # --- willpirkle (Encapsulated Component) -------------------------------------
 add_library(willpirkle STATIC "${CMAKE_CURRENT_LIST_DIR}/willpirkle/fxobjects.cpp")
@@ -76,7 +80,7 @@ target_link_libraries(memtest PRIVATE audio_mfx_common)
 target_link_libraries(${PROJECT_NAME} PRIVATE memtest)
 
 # --- nam-core (Encapsulated Component) --------------------
-if(HAS_MODEL_NAM)
+if(HAS_EFFECT_NAM)
     add_library(nam_core STATIC "${CMAKE_CURRENT_LIST_DIR}/nam-core/nam_model.c")
     target_include_directories(nam_core SYSTEM PUBLIC "${CMAKE_CURRENT_LIST_DIR}/nam-core")
     target_link_libraries(nam_core PRIVATE audio_mfx_common)
