@@ -229,7 +229,7 @@ target_link_options(audio_mfx_common INTERFACE
     -Wl,--gc-sections
     -Wl,--print-memory-usage
     -u_printf_float
-    -u_scanf_float
+#   -u_scanf_float
     --specs=nano.specs
     --specs=nosys.specs
     -L${PROJECT_SOURCE_DIR}/cmsis/dsp

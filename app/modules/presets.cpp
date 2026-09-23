@@ -5,8 +5,6 @@
  *      Author: kwarc
  */
 
-#define JSON_NO_IO
-#define JSON_USE_IMPLICIT_CONVERSIONS 0
 #include "nlohmann/json.hpp"
 
 #include "presets.hpp"

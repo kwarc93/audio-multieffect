@@ -52,8 +52,11 @@ if(HAS_VIEW)
 endif()
 
 # --- nlohmann_json -----------------------------------------------------------
-set(JSON_BuildTests OFF)
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+set(JSON_ImplicitConversions OFF CACHE INTERNAL "")
 add_subdirectory(nlohmann_json)
+target_compile_definitions(nlohmann_json INTERFACE JSON_NO_IO)
+target_link_libraries(nlohmann_json INTERFACE audio_mfx_common)
 target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
 
 # --- littlefs (Encapsulated Component) ---------------------------------------
