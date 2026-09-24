@@ -1,8 +1,7 @@
-/STM32F746G-DISCO/
-/STM32H745I-DISCO/
-/STM32H745I-DISCO-CM4/
-/STM32H745I-DISCO-CM7/
-
+/.vscode/
+/.settings/
+/.cproject
+/.project
 /build/
 /CMakeUserPresets.json
 

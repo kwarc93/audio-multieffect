@@ -48,20 +48,17 @@ https://youtu.be/vwppcxMA08A?feature=shared
 
 ## How to build
 
-The project uses **CMake** (>= 3.23) with presets, and the **gcc-arm-none-eabi** cross-compiler toolchain.
+The project uses **CMake** with presets, and the **gcc-arm-none-eabi** cross-compiler toolchain.
 
 ### Prerequisites
 
-- CMake >= 3.23, available on your `PATH`.
-- A build tool: **GNU Make** (or Ninja, if you adapt the presets/generator).
-- **gcc-arm-none-eabi** toolchain (tested with 10.3).
-
-The toolchain and build tool do not need to be on the system `PATH` - their location is configured per-machine (see below).
+- **CMake**: at least v3.20, available in `PATH`.
+- **GNU Make**, available in `PATH`
+- **gcc-arm-none-eabi**: at least v10.3, available as environmental variable `ARM_NONE_EABI_TOOLCHAIN_PATH`
 
 ### One-time setup
 
 1. Clone the repo with submodules: `git clone --recurse-submodules https://github.com/kwarc93/audio-multieffect.git`
-2. Copy `CMakeUserPresets.json.example` to `CMakeUserPresets.json` (gitignored) and set `TOOLCHAIN_BIN_DIR` (folder containing `arm-none-eabi-gcc`) and `CMAKE_MAKE_PROGRAM` (path to `make`/`ninja`) to match your machine.
 
 ### Building
 
@@ -71,11 +68,11 @@ The project provides one CMake preset per board/core:
 - **STM32H745I-DISCO-CM4** *(dual core)*
 - **STM32H745I-DISCO-CM7** *(dual core)*
 
-Each preset defined in `CMakeUserPresets.json` has a `-local` suffix. Configure and build with:
+Configure and build with:
 
 ```
-cmake --preset STM32F746G-DISCO-local
-cmake --build --preset STM32F746G-DISCO-local
+cmake --preset STM32F746G-DISCO
+cmake --build --preset STM32F746G-DISCO
 ```
 
 Substitute the board name for any of the other three presets. Each build produces `audio-multieffect.elf/.hex/.bin` under `build/<preset-name>/`.
