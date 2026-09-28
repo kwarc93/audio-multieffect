@@ -43,9 +43,14 @@
   ],
 
   "buildPresets": [
-    { "name": "STM32F746G-DISCO",     "configurePreset": "STM32F746G-DISCO" },
-    { "name": "STM32H745I-DISCO",     "configurePreset": "STM32H745I-DISCO" },
-    { "name": "STM32H745I-DISCO-CM7", "configurePreset": "STM32H745I-DISCO-CM7" },
-    { "name": "STM32H745I-DISCO-CM4", "configurePreset": "STM32H745I-DISCO-CM4" }
+    { 
+      "name": "common-build",
+      "hidden": true,
+      "jobs": 0
+    },
+    { "name": "STM32F746G-DISCO",     "inherits": "common-build", "configurePreset": "STM32F746G-DISCO" },
+    { "name": "STM32H745I-DISCO",     "inherits": "common-build", "configurePreset": "STM32H745I-DISCO" },
+    { "name": "STM32H745I-DISCO-CM7", "inherits": "common-build", "configurePreset": "STM32H745I-DISCO-CM7" },
+    { "name": "STM32H745I-DISCO-CM4", "inherits": "common-build", "configurePreset": "STM32H745I-DISCO-CM4" }
   ]
 }

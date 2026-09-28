@@ -153,6 +153,7 @@ elseif(BOARD STREQUAL "STM32H745I-DISCO-CM4")
         DUAL_CORE_APP
         CFG_FS_CALIB=-2
     )
+
 endif()
 
 # -----------------------------------------------------------------------------
@@ -273,9 +274,10 @@ add_custom_target(listing
 )
 
 # -----------------------------------------------------------------------------
-# 8. Advanced MCU Debug Configuration (Multi-Core OpenOCD Setup)
+# 8. Target Flash Deployment Configuration (OpenOCD)
 # -----------------------------------------------------------------------------
 file(TO_CMAKE_PATH "$ENV{OPENOCD_PATH}" ENV_OPENOCD_PATH)
+set(OPENOCD_BIN "${ENV_OPENOCD_PATH}/openocd")
 
 if(BOARD STREQUAL "STM32F746G-DISCO")
     set(OPENOCD_CONFIG_FILE "board/stm32f746g-disco.cfg" CACHE INTERNAL "")
@@ -283,6 +285,18 @@ elseif(BOARD MATCHES "STM32H745I-DISCO")
     set(OPENOCD_CONFIG_FILE "board/stm32h745i-disco.cfg" CACHE INTERNAL "")
 endif()
 
+add_custom_target(flash
+    COMMAND ${OPENOCD_BIN} 
+            -f ${OPENOCD_CONFIG_FILE}
+            -c "program $<TARGET_FILE:${PROJECT_NAME}> preverify verify reset exit"
+    DEPENDS ${PROJECT_NAME}
+    COMMENT "Executing OpenOCD pipeline: erasing, programming, verifying, and resetting ${BOARD}"
+    VERBATIM
+)
+
+# -----------------------------------------------------------------------------
+# 9. Advanced MCU Debug Configuration (OpenOCD)
+# -----------------------------------------------------------------------------
 add_custom_target(openocd-server
     COMMAND ${ENV_OPENOCD_PATH}/openocd -f ${OPENOCD_CONFIG_FILE}
     VERBATIM
