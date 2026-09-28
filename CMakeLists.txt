@@ -271,3 +271,19 @@ add_custom_target(listing
     COMMENT "Generating extended application disassembly listing"
     VERBATIM
 )
+
+# -----------------------------------------------------------------------------
+# 8. Advanced MCU Debug Configuration (Multi-Core OpenOCD Setup)
+# -----------------------------------------------------------------------------
+file(TO_CMAKE_PATH "$ENV{OPENOCD_PATH}" ENV_OPENOCD_PATH)
+
+if(BOARD STREQUAL "STM32F746G-DISCO")
+    set(OPENOCD_CONFIG_FILE "board/stm32f746g-disco.cfg" CACHE INTERNAL "")
+elseif(BOARD MATCHES "STM32H745I-DISCO")
+    set(OPENOCD_CONFIG_FILE "board/stm32h745i-disco.cfg" CACHE INTERNAL "")
+endif()
+
+add_custom_target(openocd-server
+    COMMAND ${ENV_OPENOCD_PATH}/openocd -f ${OPENOCD_CONFIG_FILE}
+    VERBATIM
+)
