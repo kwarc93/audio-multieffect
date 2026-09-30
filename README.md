@@ -54,7 +54,7 @@ The project uses **CMake** with presets, and the **gcc-arm-none-eabi** cross-com
 
 - **CMake**: at least v3.20, available in `PATH`.
 - **GNU Make**, available in `PATH`
-- **gcc-arm-none-eabi**: at least v10.3, available as environmental variable `ARM_NONE_EABI_TOOLCHAIN_PATH`
+- **gcc-arm-none-eabi**: at least v10.3, available in `PATH` or as environmental variable `ARM_NONE_EABI_TOOLCHAIN_PATH`
 
 ### One-time setup
 
@@ -76,6 +76,21 @@ cmake --build --preset STM32F746G-DISCO
 ```
 
 Substitute the board name for any of the other three presets. Each build produces `audio-multieffect.elf/.hex/.bin` under `build/<preset-name>/`.
+
+## How to flash/debug
+
+### Prerequisites
+
+- **OpenOCD**: available in `PATH` or as environmental variable `OPENOCD_PATH`
+
+### Flashing
+```
+cmake --build --preset STM32F746G-DISCO --target flash
+```
+
+### Debugging
+
+This project does not include any debug configurations; use your preferred tools to set up debugging.
 
 ## How to add new effect
 

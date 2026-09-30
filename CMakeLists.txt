@@ -276,8 +276,7 @@ add_custom_target(listing
 # -----------------------------------------------------------------------------
 # 8. Target Flash Deployment Configuration (OpenOCD)
 # -----------------------------------------------------------------------------
-file(TO_CMAKE_PATH "$ENV{OPENOCD_PATH}" ENV_OPENOCD_PATH)
-set(OPENOCD_BIN "${ENV_OPENOCD_PATH}/openocd")
+find_program(OPENOCD_BIN NAMES openocd HINTS "$ENV{OPENOCD_PATH}")
 
 if(BOARD STREQUAL "STM32F746G-DISCO")
     set(OPENOCD_CONFIG_FILE "board/stm32f746g-disco.cfg" CACHE INTERNAL "")
