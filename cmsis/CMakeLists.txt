@@ -9,7 +9,7 @@ set_target_properties(cmsis_dsp PROPERTIES
     IMPORTED_LOCATION "${CMAKE_CURRENT_LIST_DIR}/dsp/lib${CMSIS_DSP_LIB}.a"
 )
 
-target_include_directories(cmsis_dsp INTERFACE
+target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
     ${CMAKE_CURRENT_LIST_DIR}/dsp
 )

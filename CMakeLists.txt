@@ -249,7 +249,7 @@ add_subdirectory(system)
 add_subdirectory(libs)
 add_subdirectory(cmsis)
 
-# Bind the processed CMSIS library back into the configuration interface target
+# Link the CMSIS DSP library into the configuration interface target
 target_link_libraries(audio_mfx_common INTERFACE cmsis_dsp)
 
 # -----------------------------------------------------------------------------
