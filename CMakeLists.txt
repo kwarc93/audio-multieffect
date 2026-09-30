@@ -290,14 +290,7 @@ add_custom_target(flash
             -f ${OPENOCD_CONFIG_FILE}
             -c "program $<TARGET_FILE:${PROJECT_NAME}> preverify verify reset exit"
     DEPENDS ${PROJECT_NAME}
-    COMMENT "Executing OpenOCD pipeline: erasing, programming, verifying, and resetting ${BOARD}"
+    COMMENT "Flashing board ${BOARD} using OpenOCD"
     VERBATIM
 )
 
-# -----------------------------------------------------------------------------
-# 9. Advanced MCU Debug Configuration (OpenOCD)
-# -----------------------------------------------------------------------------
-add_custom_target(openocd-server
-    COMMAND ${ENV_OPENOCD_PATH}/openocd -f ${OPENOCD_CONFIG_FILE}
-    VERBATIM
-)
