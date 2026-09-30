@@ -55,12 +55,16 @@ extern "C" void UsageFault_Handler(void)
 
 extern "C" void OTG_FS_IRQHandler(void)
 {
+#ifdef CFG_TUSB_MCU
     tusb_int_handler(0, true);
+#endif
 }
 
 extern "C"  void OTG_HS_IRQHandler(void)
 {
+#ifdef CFG_TUSB_MCU
     tusb_int_handler(1, true);
+#endif
 }
 
 extern "C" void USART1_IRQHandler(void)

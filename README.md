@@ -48,20 +48,34 @@ https://youtu.be/vwppcxMA08A?feature=shared
 
 ## How to build
 
-Project was created using **Eclipse IDE for Embedded C/C++ Developers**
+The project uses **CMake** with presets, and the **gcc-arm-none-eabi** cross-compiler toolchain.
 
-Follow these steps:
-1. Install **Eclipse IDE for Embedded C/C++ Developers** and **gcc-arm-none-eabi** toolchain. Setup Eclipse's global ARM toolchain path in **Window->Preferences->MCU**.
-2. Clone repo: `git clone --recurse-submodules https://github.com/kwarc93/audio-multieffect.git`
-3. In Eclipse go to: **File->Import->Existing projects into workspace**, select folder with cloned repo and check **Copy projects into workspace**. Click **Finish**.
+### Prerequisites
 
-Now the project should have four build configurations: 
+- **CMake**: at least v3.20, available in `PATH`.
+- **GNU Make**, available in `PATH`
+- **gcc-arm-none-eabi**: at least v10.3, available as environmental variable `ARM_NONE_EABI_TOOLCHAIN_PATH`
+
+### One-time setup
+
+1. Clone the repo with submodules: `git clone --recurse-submodules https://github.com/kwarc93/audio-multieffect.git`
+
+### Building
+
+The project provides one CMake preset per board/core:
 - **STM32F746G-DISCO**
 - **STM32H745I-DISCO** *(single core)*
 - **STM32H745I-DISCO-CM4** *(dual core)*
 - **STM32H745I-DISCO-CM7** *(dual core)*
 
-it should be possible to build each one with no errors.
+Configure and build with:
+
+```
+cmake --preset STM32F746G-DISCO
+cmake --build --preset STM32F746G-DISCO
+```
+
+Substitute the board name for any of the other three presets. Each build produces `audio-multieffect.elf/.hex/.bin` under `build/<preset-name>/`.
 
 ## How to add new effect
 
