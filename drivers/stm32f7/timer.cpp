@@ -10,7 +10,6 @@
 #include <array>
 
 #include <cmsis/stm32f7xx.h>
-#include <cmsis/core_cm7.h>
 
 #include <drivers/stm32f7/gpio.hpp>
 #include <drivers/stm32f7/rcc.hpp>
