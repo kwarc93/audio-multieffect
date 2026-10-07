@@ -235,7 +235,6 @@ target_link_options(audio_mfx_common INTERFACE
 #   -u_scanf_float
     --specs=nano.specs
     --specs=nosys.specs
-#   -L${PROJECT_SOURCE_DIR}/cmsis/dsp
 )
 
 # Track linker script changes to force a target relink
@@ -250,9 +249,6 @@ add_subdirectory(middlewares)
 add_subdirectory(system)
 add_subdirectory(libs)
 add_subdirectory(cmsis)
-
-# Link the CMSIS DSP library into the configuration interface target
-#target_link_libraries(audio_mfx_common INTERFACE cmsis_dsp)
 
 # -----------------------------------------------------------------------------
 # 7. Post-Build Artifact Generation (Hex, Binary & Memory Metrics)

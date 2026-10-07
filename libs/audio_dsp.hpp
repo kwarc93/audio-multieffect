@@ -32,7 +32,7 @@ namespace detail
 template<uint16_t fft_len>
 inline arm_status arm_rfft_fast_init_f32(arm_rfft_fast_instance_f32* instance)
 {
-    if constexpr (fft_len == 32)   return arm_rfft_fast_init_32_f32(instance);
+    if constexpr      (fft_len == 32)   return arm_rfft_fast_init_32_f32(instance);
     else if constexpr (fft_len == 64)   return arm_rfft_fast_init_64_f32(instance);
     else if constexpr (fft_len == 128)  return arm_rfft_fast_init_128_f32(instance);
     else if constexpr (fft_len == 256)  return arm_rfft_fast_init_256_f32(instance);
