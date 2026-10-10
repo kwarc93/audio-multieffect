@@ -105,7 +105,7 @@ inline void test(void)
     std::generate(pattern.begin(), pattern.end(), [](){ return hal::random::get() % 256; });
 
     // first write the file
-    lfs_file_t file;
+    [[maybe_unused]] lfs_file_t file;
     uint32_t start = hal::system::clock::cycles();
     assert(lfs_file_open(&lfs, &file, "file", LFS_O_WRONLY | LFS_O_CREAT) == LFS_ERR_OK);
     for (lfs_size_t i = 0; i < chunks; i++)
@@ -120,7 +120,7 @@ inline void test(void)
     // then read the file
     start = hal::system::clock::cycles();
     assert(lfs_file_open(&lfs, &file, "file", LFS_O_RDONLY) == LFS_ERR_OK);
-    std::array<uint8_t, CHUNK_SIZE> buffer;
+    [[maybe_unused]] std::array<uint8_t, CHUNK_SIZE> buffer;
     for (lfs_size_t i = 0; i < chunks; i++)
     {
         assert(lfs_file_read(&lfs, &file, buffer.data(), CHUNK_SIZE) == CHUNK_SIZE);

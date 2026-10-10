@@ -190,8 +190,8 @@ class vocoder::modern_vocoder
 public:
     modern_vocoder(vocoder_attr &attributes) : attr {attributes}
     {
-        arm_rfft_fast_init_f32(&this->fft, this->window_size);
-        arm_rfft_fast_init_f32(&this->fft_filter, this->window_size / 2);
+        libs::adsp::detail::arm_rfft_fast_init_f32<this->window_size>(&this->fft);
+        libs::adsp::detail::arm_rfft_fast_init_f32<this->window_size / 2>(&this->fft_filter);
 
         arm_fill_f32(0, this->car_input.data(), this->car_input.size());
         arm_fill_f32(0, this->mod_input.data(), this->mod_input.size());

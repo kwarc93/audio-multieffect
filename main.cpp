@@ -81,7 +81,8 @@ int main(int argc, const char* argv[])
     printf("System started\r\n");
     printf("Software version: " GIT_REVISION "\r\n");
 
-    auto result = xTaskCreate(init_thread, "init_thread", 2048 / sizeof(StackType_t), nullptr, configTASK_PRIO_BACKGROUND, nullptr);
+    [[maybe_unused]] auto result = pdFAIL;
+    result = xTaskCreate(init_thread, "init_thread", 2048 / sizeof(StackType_t), nullptr, configTASK_PRIO_BACKGROUND, nullptr);
     assert(result == pdPASS);
 
     vTaskStartScheduler();

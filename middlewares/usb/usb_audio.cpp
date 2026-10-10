@@ -446,7 +446,8 @@ void usb_audio::enable()
     };
     tusb_init(BOARD_TUD_RHPORT, &dev_init);
 
-    auto result = xTaskCreate([](void *arg){ while(1) { tud_task(); }; }, "usb_thread", 4096 / sizeof(StackType_t), this, configTASK_PRIO_CRITICAL, &this->usb_task);
+    [[maybe_unused]] auto result = pdFAIL;
+    result = xTaskCreate([](void *arg){ while(1) { tud_task(); }; }, "usb_thread", 4096 / sizeof(StackType_t), this, configTASK_PRIO_CRITICAL, &this->usb_task);
     assert(result == pdPASS);
 }
 
@@ -455,7 +456,7 @@ void usb_audio::disable(void)
     if (!tusb_inited())
         return;
 
-    bool result = tud_deinit(BOARD_TUD_RHPORT);
+    [[maybe_unused]] bool result = tud_deinit(BOARD_TUD_RHPORT);
     assert(result);
 
     if (this->usb_task)

@@ -13,9 +13,12 @@
 [submodule "libs/FreeRTOS"]
 	path = libs/FreeRTOS
 	url = https://github.com/FreeRTOS/FreeRTOS-Kernel.git
-[submodule "nam-core"]
-	path = nam-core
-	url = https://github.com/tone-3000/nam-pedal
 [submodule "libs/nam-core"]
 	path = libs/nam-core
 	url = https://github.com/tone-3000/nam-pedal
+[submodule "cmsis/cmsis_6"]
+	path = cmsis/cmsis_6
+	url = https://github.com/ARM-software/CMSIS_6.git
+[submodule "cmsis/cmsis-dsp"]
+	path = cmsis/cmsis-dsp
+	url = https://github.com/ARM-software/CMSIS-DSP.git

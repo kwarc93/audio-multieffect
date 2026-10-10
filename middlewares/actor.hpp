@@ -45,7 +45,8 @@ public:
         assert(this->queue != nullptr);
 
         /* Create worker thread */
-        auto result = xTaskCreate(actor::thread_loop, name.data(), stack_size / sizeof(StackType_t), this, priority, &this->task);
+        [[maybe_unused]] auto result = pdFAIL;
+        result = xTaskCreate(actor::thread_loop, name.data(), stack_size / sizeof(StackType_t), this, priority, &this->task);
         assert(result == pdPASS);
     }
 
@@ -89,7 +90,7 @@ public:
 
         assert(e != nullptr);
 
-        auto status = pdFALSE;
+        [[maybe_unused]] auto status = pdFALSE;
 
         if (xPortIsInsideInterrupt())
         {
@@ -123,7 +124,7 @@ public:
 
             if (!periodic || cancelled)
             {
-                auto result = xTimerDelete(timer, 0);
+                [[maybe_unused]] auto result = xTimerDelete(timer, 0);
                 assert(result == pdPASS);
                 delete ctx;
             }
@@ -132,7 +133,7 @@ public:
         auto timer = xTimerCreate(nullptr, pdMS_TO_TICKS(period), periodic, timer_ctx, timer_cb);
         assert(timer != nullptr);
 
-        auto result = xTimerStart(timer, 0);
+        [[maybe_unused]] auto result = xTimerStart(timer, 0);
         assert(result == pdPASS);
 
         return timer;

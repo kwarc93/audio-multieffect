@@ -18,31 +18,56 @@
 
 /* CMSIS DSP library */
 #include <cmsis/cmsis_device.h>
-#include <cmsis/dsp/arm_math.h>
+#include <arm_math.h>
 
 //-----------------------------------------------------------------------------
 
 namespace libs::adsp
 {
-    constexpr inline float pi {3.1415926535897932};
 
-    template <typename T>
-    int sgn(T val)
-    {
-        return (T(0) < val) - (val < T(0));
-    }
+namespace detail
+{
 
-    constexpr float lin2db(float x)
+// Helper function to initialize RFFT for a given FFT length at compile time to reduce code size
+template<uint16_t fft_len>
+inline arm_status arm_rfft_fast_init_f32(arm_rfft_fast_instance_f32* instance)
+{
+    if constexpr      (fft_len == 32)   return arm_rfft_fast_init_32_f32(instance);
+    else if constexpr (fft_len == 64)   return arm_rfft_fast_init_64_f32(instance);
+    else if constexpr (fft_len == 128)  return arm_rfft_fast_init_128_f32(instance);
+    else if constexpr (fft_len == 256)  return arm_rfft_fast_init_256_f32(instance);
+    else if constexpr (fft_len == 512)  return arm_rfft_fast_init_512_f32(instance);
+    else if constexpr (fft_len == 1024) return arm_rfft_fast_init_1024_f32(instance);
+    else if constexpr (fft_len == 2048) return arm_rfft_fast_init_2048_f32(instance);
+    else if constexpr (fft_len == 4096) return arm_rfft_fast_init_4096_f32(instance);
+    else
     {
-        constexpr float eps = 1 / (1 << 24); // -144.5dB for 24-bit signal
-        return 20.0f * std::log10(std::max(x, eps));
+        static_assert(fft_len != fft_len, "Unsupported RFFT length");
+        return ARM_MATH_ARGUMENT_ERROR;
     }
+}
 
-    constexpr float db2lin(float db)
-    {
-        constexpr float eps = 1.0f / (1u << 24); // -144.5dB for 24-bit signal
-        return std::clamp(std::pow(10.0f, db / 20.0f), eps, 1.0f);
-    }
+}
+
+constexpr inline float pi {3.1415926535897932};
+
+template <typename T>
+int sgn(T val)
+{
+    return (T(0) < val) - (val < T(0));
+}
+
+constexpr float lin2db(float x)
+{
+    constexpr float eps = 1 / (1 << 24); // -144.5dB for 24-bit signal
+    return 20.0f * std::log10(std::max(x, eps));
+}
+
+constexpr float db2lin(float db)
+{
+    constexpr float eps = 1.0f / (1u << 24); // -144.5dB for 24-bit signal
+    return std::clamp(std::pow(10.0f, db / 20.0f), eps, 1.0f);
+}
 
 //-----------------------------------------------------------------------------
 
@@ -650,7 +675,7 @@ class fast_convolution
 public:
     fast_convolution()
     {
-        arm_rfft_fast_init_f32(&this->fft, this->fft_size);
+        detail::arm_rfft_fast_init_f32<this->fft_size>(&this->fft);
         arm_fill_f32(0, this->ir_fft.data(), this->ir_fft.size());
         arm_fill_f32(0, this->input.data(), this->input.size());
     }
@@ -803,7 +828,7 @@ public:
 
         if (norm != 0)
         {
-            arm_levinson_durbin(r, a + 1, g, ord);
+            arm_levinson_durbin_f32(r, a + 1, g, ord);
             arm_negate_f32(a + 1, a + 1, ord);
         }
         else
@@ -818,58 +843,6 @@ public:
 
     }
 private:
-    /* Levinson-Durbin algorithm from CMSIS DSP library */
-    void arm_levinson_durbin (const float *phi, float *a, float *err, int nbCoefs)
-    {
-        float e;
-        int p;
-
-        a[0] = phi[1] / phi[0];
-
-        e = phi[0] - phi[1] * a[0];
-        for (p = 1; p < nbCoefs; p++)
-        {
-            float suma = 0.0f;
-            float sumb = 0.0f;
-            float k;
-            int nb, j, i;
-
-            for (i = 0; i < p; i++)
-            {
-                suma += a[i] * phi[p - i];
-                sumb += a[i] * phi[i + 1];
-            }
-
-            k = (phi[p + 1] - suma) / (phi[0] - sumb);
-
-            nb = p >> 1;
-            j = 0;
-            for (i = 0; i < nb; i++)
-            {
-                float x, y;
-
-                x = a[j] - k * a[p - 1 - j];
-                y = a[p - 1 - j] - k * a[j];
-
-                a[j] = x;
-                a[p - 1 - j] = y;
-
-                j++;
-            }
-
-            nb = p & 1;
-            if (nb)
-            {
-                a[j] = a[j] - k * a[p - 1 - j];
-            }
-
-            a[p] = k;
-            e = e * (1.0f - k * k);
-
-        }
-        *err = e;
-    }
-
     std::vector<float> autocorr;
 };
 
@@ -885,7 +858,7 @@ public:
         this->min_tau = std::max(1U, static_cast<unsigned>(std::floor(fs / max_freq)));
         this->max_tau = std::min(window_size - 2U, static_cast<unsigned>(std::ceil(fs / min_freq)));
 
-        arm_rfft_fast_init_f32(&this->fft, 2 * window_size);
+        detail::arm_rfft_fast_init_f32<2 * window_size>(&this->fft);
         arm_fill_f32(0, this->input.data(), this->input.size());
     }
 
