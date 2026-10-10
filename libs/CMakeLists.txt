@@ -43,7 +43,7 @@ endif()
 # LVGL Graphical Stack
 # -----------------------------------------------------------------------------
 if(HAS_VIEW)
-    set(LV_CONF_PATH "${CMAKE_CURRENT_LIST_DIR}/lv_conf.h" CACHE STRING "" FORCE)
+    set(LV_CONF_PATH "${CMAKE_CURRENT_LIST_DIR}/lv_conf.h" CACHE STRING "")
     
     # EXCLUDE_FROM_ALL prevents building unused demos/examples automatically
     add_subdirectory(lvgl EXCLUDE_FROM_ALL)
@@ -64,7 +64,6 @@ set(JSON_BuildTests OFF CACHE INTERNAL "")
 set(JSON_ImplicitConversions OFF CACHE INTERNAL "")
 add_subdirectory(nlohmann_json)
 target_compile_definitions(nlohmann_json INTERFACE JSON_NO_IO)
-target_link_libraries(nlohmann_json INTERFACE audio_mfx_common)
 target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
 
 # -----------------------------------------------------------------------------
@@ -105,4 +104,3 @@ if(HAS_EFFECT_NAM)
     target_link_libraries(nam_core PRIVATE audio_mfx_common)
     target_link_libraries(${PROJECT_NAME} PRIVATE nam_core)
 endif()
-

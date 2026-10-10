@@ -6,12 +6,18 @@ cmake_minimum_required(VERSION 3.23)
 # architecture flags, and coordinates the modular source subdirectories.
 # =============================================================================
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
 # Make the helper modules below (toolchain, git version) includable by name.
 list(PREPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 project(audio-multieffect LANGUAGES C CXX ASM)
+
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_C_EXTENSIONS ON)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # -----------------------------------------------------------------------------
 # 1. Target Board Selection
@@ -172,9 +178,6 @@ add_executable(${PROJECT_NAME} main.cpp)
 set_target_properties(${PROJECT_NAME} PROPERTIES
     OUTPUT_NAME "${PROJECT_NAME}"
     SUFFIX ".elf"
-    CXX_STANDARD 17
-    CXX_STANDARD_REQUIRED ON
-    CXX_EXTENSIONS OFF
 )
 
 # Common settings container to propagate configuration definitions across directories
@@ -264,7 +267,11 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 
 # Optional diagnostic target for compilation analysis: run `cmake --build . --target listing`
 add_custom_target(listing
-    COMMAND ${CMAKE_OBJDUMP} --source --all-headers --demangle --line-numbers --wide $<TARGET_FILE:${PROJECT_NAME}> > "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.lst"
+    COMMAND "${CMAKE_COMMAND}"
+        "-DOBJDUMP=${CMAKE_OBJDUMP}"
+        "-DELF=$<TARGET_FILE:${PROJECT_NAME}>"
+        "-DLISTING=${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.lst"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/generate-listing.cmake"
     DEPENDS ${PROJECT_NAME}
     BYPRODUCTS "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.lst"
     COMMENT "Generating extended application disassembly listing"
@@ -274,7 +281,7 @@ add_custom_target(listing
 # -----------------------------------------------------------------------------
 # 8. Target Flash Deployment Configuration (OpenOCD)
 # -----------------------------------------------------------------------------
-find_program(OPENOCD_BIN NAMES openocd HINTS "$ENV{OPENOCD_PATH}")
+find_program(OPENOCD_BIN NAMES openocd HINTS "$ENV{OPENOCD_PATH}" REQUIRED)
 
 if(BOARD STREQUAL "STM32F746G-DISCO")
     set(OPENOCD_CONFIG_FILE "board/stm32f746g-disco.cfg" CACHE INTERNAL "")
@@ -283,11 +290,10 @@ elseif(BOARD MATCHES "STM32H745I-DISCO")
 endif()
 
 add_custom_target(flash
-    COMMAND ${OPENOCD_BIN} 
-            -f ${OPENOCD_CONFIG_FILE}
+    COMMAND "${OPENOCD_BIN}"
+            -f "${OPENOCD_CONFIG_FILE}"
             -c "program $<TARGET_FILE:${PROJECT_NAME}> preverify verify reset exit"
     DEPENDS ${PROJECT_NAME}
     COMMENT "Flashing board ${BOARD} using OpenOCD"
     VERBATIM
 )
-
