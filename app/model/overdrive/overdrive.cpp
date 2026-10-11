@@ -28,7 +28,7 @@ float overdrive::hard_clip(float in)
     float out = in;
 
     /* Threshold for symmetrical soft clipping by Schetzen Formula */
-    constexpr float th = 1.0f/3.0f;
+    constexpr float th = 1.0f / 3.0f;
 
     const float in_abs = std::abs(in);
     const float sign = libs::adsp::sgn(in);
@@ -36,7 +36,7 @@ float overdrive::hard_clip(float in)
     if (in_abs < th)
         out = 2 * in;
     else
-        out = sign * (3 - ((2 - 3 * in_abs) * (2 - 3 * in_abs))) / 3;
+        out = sign * (3 - ((2 - 3 * in_abs) * (2 - 3 * in_abs))) * th;
 
     if (in_abs > 2 * th)
         out = sign;
@@ -72,7 +72,7 @@ overdrive::~overdrive()
 
 void overdrive::process(const dsp_input& in, dsp_output& out)
 {
-    /* 1. Apply 1-st order high-pass IIR filter (in-place) */
+    /* 1. Apply 2-nd order high-pass IIR filter (in-place) */
     this->iir_hp.process(in.data(), const_cast<float*>(in.data()), in.size());
 
     /* 2. Interpolate */
@@ -83,12 +83,13 @@ void overdrive::process(const dsp_input& in, dsp_output& out)
     {
         /* 3. Apply gain, clip & mix */
         float sample;
+        constexpr float scale = 0.5f;
         if (this->attr.ctrl.mode == overdrive_attr::controls::mode_type::hard)
             sample = this->hard_clip(input * this->attr.ctrl.gain);
         else
             sample = this->soft_clip(input * this->attr.ctrl.gain);
 
-        return this->attr.ctrl.mix * sample + (1.0f - this->attr.ctrl.mix) * input;
+        return this->attr.ctrl.mix * (scale * sample) + (1.0f - this->attr.ctrl.mix) * input;
     }
     );
 
