@@ -89,6 +89,7 @@ extern "C"
 __attribute__((noreturn))
 void abort(void)
 {
+    puts("abort()");
     __disable_irq();
     __BKPT(0);
     for (;;);
@@ -191,4 +192,3 @@ void vApplicationMallocFailedHook (void) { assert(0); }
 void vApplicationStackOverflowHook (TaskHandle_t xTask, char *pcTaskName) { assert(0); }
 }
 #endif /* HAL_SYSTEM_RTOS_ENABLED */
-

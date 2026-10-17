@@ -26,16 +26,21 @@ template<typename I, typename O = void*>
 class actor
 {
 public:
+    actor(const actor&) = delete;
+    actor& operator=(const actor&) = delete;
+    actor(actor&&) = delete;
+    actor& operator=(actor&&) = delete;
+
     struct event
     {
-        I data;
-        bool immutable {false};
+        I data {};
+        bool immutable {};
     };
 
     struct timed_event
     {
-        event evt;
-        std::atomic<actor*> target {nullptr};
+        event evt {};
+        std::atomic<actor*> target {};
     };
 
     actor(const std::string_view &name, uint32_t priority, size_t stack_size, uint32_t queue_size = 32)
@@ -48,15 +53,6 @@ public:
         [[maybe_unused]] auto result = pdFAIL;
         result = xTaskCreate(actor::thread_loop, name.data(), stack_size / sizeof(StackType_t), this, priority, &this->task);
         assert(result == pdPASS);
-    }
-
-    virtual ~actor()
-    {
-        vQueueDelete(this->queue);
-        this->queue = nullptr;
-
-        vTaskDelete(this->task);
-        this->task = nullptr;
     }
 
     void attach(std::function<void(O)> callback)
@@ -73,6 +69,8 @@ public:
     template <typename E = event>
     void send(E &&evt, uint32_t timeout = portMAX_DELAY)
     {
+        static_assert(std::is_same_v<std::remove_cv_t<std::remove_reference_t<E>>, event>);
+
         const event *e = nullptr;
 
         if (evt.immutable)
@@ -142,10 +140,11 @@ public:
     void cancel(TimerHandle_t timer)
     {
         auto *ctx = static_cast<timed_event*>(pvTimerGetTimerID(timer));
-        ctx->target = nullptr;
+        if (ctx) ctx->target = nullptr;
     }
-
 protected:
+    virtual ~actor() = default;
+
     bool wait(uint32_t timeout = portMAX_DELAY)
     {
         if (xPortIsInsideInterrupt())

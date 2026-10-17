@@ -39,7 +39,6 @@ message(STATUS "Configuring project for target board: ${BOARD}")
 # -----------------------------------------------------------------------------
 # 2. Hardware Architecture & Feature Matrix Definitions
 # -----------------------------------------------------------------------------
-set(MCU_FLOAT_ABI hard)
 
 # Initialize global hardware capability flags
 set(HAS_CONTROLLER OFF)
@@ -211,7 +210,7 @@ set(MCU_FLAGS
     -mcpu=${MCU_CPU}
     -mthumb
     -mfpu=${MCU_FPU}
-    -mfloat-abi=${MCU_FLOAT_ABI}
+    -mfloat-abi=hard
 )
 
 target_compile_options(audio_mfx_common INTERFACE
@@ -226,6 +225,8 @@ target_compile_options(audio_mfx_common INTERFACE
     -Wall
     -Wunused
     -Wuninitialized
+    $<$<AND:$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>,$<CONFIG:Release>>:-include>
+    $<$<AND:$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>,$<CONFIG:Release>>:${PROJECT_SOURCE_DIR}/system/release_assert.h>
     $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions;-fno-rtti>
 )
 
