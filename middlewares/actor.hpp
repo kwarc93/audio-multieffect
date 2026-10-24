@@ -35,12 +35,13 @@ public:
     actor(actor&&) = delete;
     actor& operator=(actor&&) = delete;
 
-    using event = I;
-
-    struct timed_event
+    struct event
     {
-        event evt {};
+        I data {};
+        event(I value) : data(std::move(value)) {}
+    private:
         actor *target {};
+        friend class actor;
     };
 
     actor(std::string_view name, uint32_t priority, size_t stack_size, uint32_t queue_size = 32) : mempool(queue_size)
@@ -80,25 +81,27 @@ public:
 
     TimerHandle_t schedule(const event &evt, uint32_t period, bool periodic = true)
     {
-        auto *timer_ctx = new timed_event{evt, this};
-        assert(timer_ctx != nullptr);
+        event *e = this->mempool.alloc(evt);
+        assert(e != nullptr);
+
+        e->target = this;
 
         auto timer_cb = [](TimerHandle_t timer)
         {
-            auto *ctx = static_cast<timed_event*>(pvTimerGetTimerID(timer));
+            event *e = static_cast<event*>(pvTimerGetTimerID(timer));
             const bool periodic = xTimerGetReloadMode(timer);
 
-            ctx->target->send(ctx->evt);
+            e->target->send(*e);
 
             if (!periodic)
             {
                 [[maybe_unused]] auto result = xTimerDelete(timer, 0);
                 assert(result == pdPASS);
-                delete ctx;
+                e->target->mempool.free(e);
             }
         };
 
-        auto timer = xTimerCreate(nullptr, pdMS_TO_TICKS(period), periodic, timer_ctx, timer_cb);
+        auto timer = xTimerCreate(nullptr, pdMS_TO_TICKS(period), periodic, e, timer_cb);
         assert(timer != nullptr);
 
         [[maybe_unused]] auto result = xTimerStart(timer, 0);
@@ -113,18 +116,19 @@ public:
         if (timer == nullptr)
             return;
 
-        auto *ctx = static_cast<timed_event*>(pvTimerGetTimerID(timer));
-        if (ctx != nullptr)
+        event *evt = static_cast<event*>(pvTimerGetTimerID(timer));
+        if (evt != nullptr)
         {
             [[maybe_unused]] auto result = xTimerDelete(timer, portMAX_DELAY);
             assert(result == pdPASS);
 
             result = xTimerPendFunctionCall(
-                [](void *p1, uint32_t)
-                {
-                    delete static_cast<timed_event*>(p1);
-                },
-                ctx, 0, portMAX_DELAY);
+            [](void *p, uint32_t)
+            {
+                event *e = static_cast<event*>(p);
+                e->target->mempool.free(e);
+            },
+            evt, 0, portMAX_DELAY);
             assert(result == pdPASS);
         }
 
@@ -165,6 +169,8 @@ private:
     void enqueue(event *evt)
     {
         assert(evt != nullptr);
+
+        evt->target = this;
 
         BaseType_t status = pdFALSE;
         if (xPortIsInsideInterrupt())

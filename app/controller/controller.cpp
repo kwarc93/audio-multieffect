@@ -31,7 +31,7 @@ namespace
 
 void controller::dispatch(const event& e)
 {
-    std::visit([this](auto &&e) { this->event_handler(e); }, e);
+    std::visit([this](auto &&e) { this->event_handler(e); }, e.data);
 }
 
 void controller::event_handler(const controller_events::initialize &e)
@@ -418,7 +418,7 @@ void controller::model_event_handler(const effect_processor_events::volume_range
 
 void controller::model_event_handler(const effect_processor_events::dsp_load_changed &e)
 {
-    this->view->send(lcd_view_events::update_dsp_load {e.load_pct});
+    this->view->send({lcd_view_events::update_dsp_load {e.load_pct}});
 }
 
 void controller::model_event_handler(const effect_processor_events::mute_changed &e)
