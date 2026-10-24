@@ -396,7 +396,16 @@ extern uint32_t SystemCoreClock;
  * are used by trace and visualisation functions and tools.  Set to 0 to exclude
  * the additional information from the structures. Defaults to 0 if left
  * undefined. */
-#define configUSE_TRACE_FACILITY                0
+#ifndef NDEBUG
+#define configUSE_TRACE_FACILITY                1
+#endif
+
+/* Set configRECORD_STACK_HIGH_ADDRESS to 1, for displaying the task stack info
+ * used by trace and visualisation functions and tools.
+ * Defaults to 0 if left undefined. */
+#ifndef NDEBUG
+#define configRECORD_STACK_HIGH_ADDRESS         1
+#endif
 
 /* Set to 1 to include the vTaskList() and vTaskGetRunTimeStats() functions in
  * the build.  Set to 0 to exclude these functions from the build.  These two
@@ -668,7 +677,7 @@ extern uint32_t SystemCoreClock;
 #define INCLUDE_uxTaskGetStackHighWaterMark    0
 #define INCLUDE_xTaskGetIdleTaskHandle         0
 #define INCLUDE_eTaskGetState                  0
-#define INCLUDE_xTimerPendFunctionCall         0
+#define INCLUDE_xTimerPendFunctionCall         1
 #define INCLUDE_xTaskAbortDelay                0
 #define INCLUDE_xTaskGetHandle                 0
 #define INCLUDE_xTaskResumeFromISR             0

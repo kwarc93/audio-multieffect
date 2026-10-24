@@ -15,7 +15,6 @@
 
 #include <functional>
 #include <string_view>
-#include <atomic>
 #include <cstdio>
 #include <cassert>
 
@@ -40,11 +39,13 @@ public:
     struct timed_event
     {
         event evt {};
-        std::atomic<actor*> target {};
+        actor *target {};
     };
 
-    actor(const std::string_view &name, uint32_t priority, size_t stack_size, uint32_t queue_size = 32)
+    actor(std::string_view name, uint32_t priority, size_t stack_size, uint32_t queue_size = 32)
     {
+        assert(queue_size > 0);
+
         /* Create queue of events */
         this->queue = xQueueCreate(queue_size, sizeof(event*));
         assert(this->queue != nullptr);
@@ -113,14 +114,11 @@ public:
         auto timer_cb = [](TimerHandle_t timer)
         {
             auto *ctx = static_cast<timed_event*>(pvTimerGetTimerID(timer));
-            actor *target = ctx->target;
             const bool periodic = xTimerGetReloadMode(timer);
-            const bool cancelled = target == nullptr;
 
-            if (!cancelled)
-                target->send(ctx->evt);
+            ctx->target->send(ctx->evt);
 
-            if (!periodic || cancelled)
+            if (!periodic)
             {
                 [[maybe_unused]] auto result = xTimerDelete(timer, 0);
                 assert(result == pdPASS);
@@ -137,13 +135,34 @@ public:
         return timer;
     }
 
-    void cancel(TimerHandle_t timer)
+void cancel(TimerHandle_t &timer)
     {
+        assert(xPortIsInsideInterrupt() == pdFALSE);
+        if (timer == nullptr)
+            return;
+
         auto *ctx = static_cast<timed_event*>(pvTimerGetTimerID(timer));
-        if (ctx) ctx->target = nullptr;
+        if (ctx != nullptr)
+        {
+            [[maybe_unused]] auto result = xTimerDelete(timer, portMAX_DELAY);
+            assert(result == pdPASS);
+
+            result = xTimerPendFunctionCall(
+            [](void *p, uint32_t)
+            {
+                delete static_cast<timed_event*>(p);
+            },
+            ctx, 0, portMAX_DELAY);
+            assert(result == pdPASS);
+        }
+
+        timer = nullptr;
     }
 protected:
-    virtual ~actor() = default;
+    virtual ~actor()
+    {
+        assert(!"actor must not be destroyed");
+    }
 
     bool wait(uint32_t timeout = portMAX_DELAY)
     {

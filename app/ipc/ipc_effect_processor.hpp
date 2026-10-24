@@ -22,13 +22,13 @@ class ipc_effect_processor : public mfx::effect_processor_base
 public:
     ipc_effect_processor()
     {
-        const bool initialized = hal::ipc::init_cm4_to_cm7(
-                                 [this]()
-                                 {
-                                     /* Send event to process IPC data */
-                                     static const event e{ effect_processor_events::ipc_data {}, true };
-                                     this->send(e);
-                                 });
+        [[maybe_unused]] const bool initialized = hal::ipc::init_cm4_to_cm7(
+        [this]()
+        {
+            /* Send event to process IPC data */
+            static const event e{ effect_processor_events::ipc_data {}, true };
+            this->send(e);
+        });
         assert(initialized);
     }
 

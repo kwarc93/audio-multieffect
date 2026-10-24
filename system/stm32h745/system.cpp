@@ -36,6 +36,10 @@ extern "C" void system_init(void)
     __set_FPSCR(__get_FPSCR() | (1UL << FPU_FPDSCR_FZ_Pos));
 #endif
 
+    /* Enable fault handlers and additional traps */
+    SCB->SHCSR |= SCB_SHCSR_MEMFAULTENA_Msk | SCB_SHCSR_BUSFAULTENA_Msk | SCB_SHCSR_USGFAULTENA_Msk;
+    SCB->CCR |= SCB_CCR_DIV_0_TRP_Msk;
+
     /* SEVONPEND enabled so that an interrupt coming from the CPU(n) interrupt signal is
        detectable by the CPU after a WFI/WFE instruction.*/
    SCB->SCR |= SCB_SCR_SEVONPEND_Msk;
@@ -127,18 +131,19 @@ extern "C" ssize_t _write_r(struct _reent *ptr, int fd, const void *buf, size_t 
     assert(stdio_mutex_id != NULL);
 
     size_t ret = 0;
-    if (xSemaphoreTake(stdio_mutex_id, portMAX_DELAY) == pdTRUE)
+    if (xSemaphoreTakeRecursive(stdio_mutex_id, portMAX_DELAY) == pdTRUE)
     {
         auto &stdio = hal::usart::stdio::get_instance();
         ret = stdio.write(reinterpret_cast<const std::byte*>(buf), cnt);
         ptr->_errno = (ret != cnt) ? EIO : 0;
+
+        xSemaphoreGiveRecursive(stdio_mutex_id);
     }
     else
     {
         ptr->_errno = EBUSY;
     }
 
-    xSemaphoreGive(stdio_mutex_id);
     return ret;
 }
 
@@ -151,18 +156,19 @@ extern "C" ssize_t _read_r(struct _reent *ptr, int fd, void *buf, size_t cnt)
     assert(stdio_mutex_id != NULL);
 
     size_t ret = 0;
-    if (xSemaphoreTake(stdio_mutex_id, portMAX_DELAY) == pdTRUE)
+    if (xSemaphoreTakeRecursive(stdio_mutex_id, portMAX_DELAY) == pdTRUE)
     {
         auto &stdio = hal::usart::stdio::get_instance();
         ret = stdio.read(reinterpret_cast<std::byte*>(buf), cnt);
         ptr->_errno = (ret != cnt) ? EIO : 0;
+
+        xSemaphoreGiveRecursive(stdio_mutex_id);
     }
     else
     {
         ptr->_errno = EBUSY;
     }
 
-    xSemaphoreGive(stdio_mutex_id);
     return ret;
 }
 

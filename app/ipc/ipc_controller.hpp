@@ -44,7 +44,7 @@ public:
      actor("ipc_ctrl", configTASK_PRIO_NORMAL, 2048, 64),
      model {std::move(model)}
      {
-         const bool initialized = hal::ipc::init_cm7_to_cm4(
+         [[maybe_unused]] const bool initialized = hal::ipc::init_cm7_to_cm4(
          [this]()
          {
              /* Send event to process IPC data */
