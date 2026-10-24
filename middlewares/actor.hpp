@@ -17,11 +17,8 @@
 
 #include <functional>
 #include <string_view>
-#include <cstddef>
-#include <new>
 #include <cstdio>
 #include <cassert>
-#include <utility>
 
 namespace middlewares
 {
@@ -69,70 +66,50 @@ public:
             this->callback(std::move(evt));
     }
 
-    void send(const event &evt)
+    bool send(const event &evt)
     {
-        this->enqueue(this->mempool.alloc(evt));
+        auto *e = this->mempool.alloc(evt);
+        bool const result = this->enqueue(e);
+        if (!result)
+            this->mempool.free(e);
+        return result;
     }
 
-    void send(event &&evt)
+    bool send(event &&evt)
     {
-        this->enqueue(this->mempool.alloc(std::move(evt)));
+        auto *e = this->mempool.alloc(std::move(evt));
+        bool const result = this->enqueue(e);
+        if (!result)
+            this->mempool.free(e);
+        return result;
     }
 
     TimerHandle_t schedule(const event &evt, uint32_t period, bool periodic = true)
     {
         event *e = this->mempool.alloc(evt);
-        assert(e != nullptr);
+        if (e == nullptr)
+            return TimerHandle_t {};
 
         e->target = this;
 
         auto timer_cb = [](TimerHandle_t timer)
         {
-            event *e = static_cast<event*>(pvTimerGetTimerID(timer));
+            auto *e = static_cast<event*>(pvTimerGetTimerID(timer));
             const bool periodic = xTimerGetReloadMode(timer);
 
             e->target->send(*e);
 
-            if (!periodic)
-            {
-                [[maybe_unused]] auto result = xTimerDelete(timer, 0);
-                assert(result == pdPASS);
+            if (!periodic && (xTimerDelete(timer, 0) == pdPASS))
                 e->target->mempool.free(e);
-            }
         };
 
-        auto timer = xTimerCreate(nullptr, pdMS_TO_TICKS(period), periodic, e, timer_cb);
-        assert(timer != nullptr);
+        auto timer = xTimerCreate("actor's timer", pdMS_TO_TICKS(period), periodic, e, timer_cb);
+        auto result = xTimerStart(timer, 0);
 
-        [[maybe_unused]] auto result = xTimerStart(timer, 0);
-        assert(result == pdPASS);
+        if (timer == nullptr || result == pdFAIL)
+            this->mempool.free(e);
 
         return timer;
-    }
-
-    void cancel(TimerHandle_t &timer)
-    {
-        assert(xPortIsInsideInterrupt() == pdFALSE);
-        if (timer == nullptr)
-            return;
-
-        event *evt = static_cast<event*>(pvTimerGetTimerID(timer));
-        if (evt != nullptr)
-        {
-            [[maybe_unused]] auto result = xTimerDelete(timer, portMAX_DELAY);
-            assert(result == pdPASS);
-
-            result = xTimerPendFunctionCall(
-            [](void *p, uint32_t)
-            {
-                event *e = static_cast<event*>(p);
-                e->target->mempool.free(e);
-            },
-            evt, 0, portMAX_DELAY);
-            assert(result == pdPASS);
-        }
-
-        timer = nullptr;
     }
 
 protected:
@@ -155,7 +132,7 @@ protected:
 
         if (xPortIsInsideInterrupt())
         {
-            BaseType_t yield = pdFALSE;
+            auto yield = pdFALSE;
             vTaskNotifyGiveFromISR(task_handle, &yield);
             portYIELD_FROM_ISR(yield);
         }
@@ -166,16 +143,17 @@ protected:
     }
 
 private:
-    void enqueue(event *evt)
+    bool enqueue(event *evt)
     {
-        assert(evt != nullptr);
+        if (evt == nullptr)
+            return false;
 
         evt->target = this;
 
-        BaseType_t status = pdFALSE;
+        auto status = pdFALSE;
         if (xPortIsInsideInterrupt())
         {
-            BaseType_t yield = pdFALSE;
+            auto yield = pdFALSE;
             status = xQueueSendToBackFromISR(this->queue, &evt, &yield);
             portYIELD_FROM_ISR(yield);
         }
@@ -184,22 +162,20 @@ private:
             status = xQueueSendToBack(this->queue, &evt, 0);
         }
 
-        if (status != pdTRUE)
-            this->mempool.free(evt);
+        return status == pdTRUE;
     }
 
     virtual void dispatch(const event &evt) = 0;
 
     static void thread_loop(void *arg)
     {
-        actor *this_ = static_cast<actor*>(arg);
+        auto *this_ = static_cast<actor*>(arg);
 
         printf("Actor '%s' started, event size: %u bytes\r\n", pcTaskGetName(this_->task), sizeof(event));
 
         while (true)
         {
             event *evt = nullptr;
-
             if (xQueueReceive(this_->queue, &evt, portMAX_DELAY) == pdTRUE)
             {
                 this_->dispatch(*evt);

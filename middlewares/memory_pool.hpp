@@ -55,47 +55,47 @@ public:
     memory_pool(memory_pool&&) = delete;
     memory_pool& operator=(memory_pool&&) = delete;
 
-    explicit memory_pool(std::size_t pool_size) : pool_size_(pool_size)
+    explicit memory_pool(std::size_t pool_size) : size(pool_size)
     {
         assert(pool_size > 0);
+        
+        blocks = reinterpret_cast<Block*>(pvPortMalloc(size * sizeof(Block)));
+        assert(blocks != nullptr);
 
-        blocks_ = reinterpret_cast<Block*>(pvPortMalloc(pool_size_ * sizeof(Block)));
-        assert(blocks_ != nullptr);
-
-        head_ = &blocks_[0];
-        for (std::size_t i = 0; i + 1 < pool_size_; ++i)
+        head = &blocks[0];
+        for (std::size_t i = 0; i + 1 < size; ++i)
         {
-            blocks_[i].next = &blocks_[i + 1];
+            blocks[i].next = &blocks[i + 1];
         }
-        blocks_[pool_size_ - 1].next = nullptr;
-        free_count_ = pool_size_;
+        blocks[size - 1].next = nullptr;
+        available_size = size;
     }
 
     ~memory_pool()
     {
-        if (blocks_)
+        assert(available_size == size);
+        if (blocks)
         {
-            assert(free_count_ == pool_size_);
-            vPortFree(blocks_);
+            vPortFree(blocks);
         }
     }
 
     template<typename... Args>
     T* alloc(Args&&... args)
     {
-        Block* blk = nullptr;
+        Block* block = nullptr;
         {
             detail::critical_section cs {};
-            blk = head_;
-            if (!blk)
+            block = head;
+            if (!block)
             {
                 return nullptr;
             }
-            head_ = blk->next;
-            --free_count_;
+            head = block->next;
+            --available_size;
         }
 
-        T* obj = reinterpret_cast<T*>(blk->data);
+        T* obj = reinterpret_cast<T*>(block->data);
         new (obj) T(std::forward<Args>(args)...);
         return obj;
     }
@@ -107,30 +107,32 @@ public:
 
         p->~T();
 
-        Block* blk = reinterpret_cast<Block*>(reinterpret_cast<std::uint8_t*>(p) - offsetof(Block, data));
+        Block* block = reinterpret_cast<Block*>(reinterpret_cast<std::uint8_t*>(p) - offsetof(Block, data));
 
         detail::critical_section cs {};
-        blk->next = head_;
-        head_ = blk;
-        ++free_count_;
+        block->next = head;
+        head = block;
+        ++available_size;
+        assert(available_size <= size);
     }
 
     std::size_t available() const
     {
         detail::critical_section cs {};
-        return free_count_;
+        return available_size;
     }
 
 private:
-    struct Block {
+    struct Block
+    {
         Block* next;
         alignas(T) unsigned char data[sizeof(T)];
     };
 
-    Block* blocks_ {};
-    Block* head_ {};
-    std::size_t pool_size_ {};
-    std::size_t free_count_ {};
+    Block* blocks {};
+    Block* head {};
+    std::size_t size {};
+    std::size_t available_size {};
 };
 
 }
