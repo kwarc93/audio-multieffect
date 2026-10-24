@@ -44,11 +44,11 @@ public:
      actor("ipc_ctrl", configTASK_PRIO_NORMAL, 2048, 64),
      model {std::move(model)}
      {
-         const bool initialized = hal::ipc::init_cm7_to_cm4(
+         [[maybe_unused]] const bool initialized = hal::ipc::init_cm7_to_cm4(
          [this]()
          {
              /* Send event to process IPC data */
-             static const event e{ ipc_controller_events::ipc_data {}, true };
+             static const event e{ ipc_controller_events::ipc_data {} };
              this->send(e);
          });
 
@@ -75,7 +75,7 @@ public:
 private:
     void dispatch(const event &e) override
     {
-        std::visit([this](auto &&e) { this->event_handler(e); }, e.data);
+        std::visit([this](auto &&e) { this->event_handler(e); }, e);
     }
 
     /* Event handlers */

@@ -215,19 +215,17 @@ set(MCU_FLAGS
 
 target_compile_options(audio_mfx_common INTERFACE
     ${MCU_FLAGS}
-    -O3
     -fmessage-length=0
     -fsigned-char
     -ffunction-sections
     -fdata-sections
     -fsingle-precision-constant
-    -g
     -Wall
-    -Wunused
-    -Wuninitialized
+    -Werror
+    $<$<CONFIG:Debug>:-Og;-g>
+    $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions;-fno-rtti>
     $<$<AND:$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>,$<CONFIG:Release>>:-include>
     $<$<AND:$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>,$<CONFIG:Release>>:${PROJECT_SOURCE_DIR}/system/release_assert.h>
-    $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions;-fno-rtti>
 )
 
 target_link_options(audio_mfx_common INTERFACE

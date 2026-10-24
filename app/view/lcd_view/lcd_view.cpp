@@ -37,7 +37,7 @@ hal::displays::main::pixel_t *lvgl_ready_fb = NULL;
 
 void lcd_view::dispatch(const event &e)
 {
-    std::visit([this](auto &&e) { this->event_handler(e); }, e.data);
+    std::visit([this](auto &&e) { this->event_handler(e); }, e);
 }
 
 void lcd_view::event_handler(const events::shutdown &e)

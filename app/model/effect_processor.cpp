@@ -55,7 +55,7 @@ namespace
 
 void effect_processor::dispatch(const event &e)
 {
-    std::visit([this](auto &&e) { this->event_handler(e); }, e.data);
+    std::visit([this](auto &&e) { this->event_handler(e); }, e);
 }
 
 void effect_processor::event_handler(const events::initialize &e)
@@ -559,7 +559,7 @@ void effect_processor::audio_capture_cb(const hal::audio_devices::codec::input_s
     }
 
     /* Send event to process data */
-    static const event e{ events::process_audio {}, true };
+    static const event e{ events::process_audio {} };
     this->send(e);
 }
 
@@ -594,5 +594,3 @@ effect_processor::~effect_processor()
 {
 
 }
-
-

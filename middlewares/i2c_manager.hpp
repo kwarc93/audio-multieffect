@@ -56,7 +56,7 @@ public:
 
     void transfer(transfer_desc &descriptor) override
     {
-        const event e {i2c_manager_events::perform_transfer_evt_t {descriptor, xTaskGetCurrentTaskHandle()}, true};
+        const event e {i2c_manager_events::perform_transfer_evt_t {descriptor, xTaskGetCurrentTaskHandle()}};
 
         auto bytes_to_write = descriptor.tx_size;
         auto bytes_to_read = descriptor.rx_size;
@@ -90,7 +90,7 @@ private:
 
     void dispatch(const event &e) override
     {
-        std::visit([this](auto &&e) { this->event_handler(e); }, e.data);
+        std::visit([this](auto &&e) { this->event_handler(e); }, e);
     }
 
     void event_handler(const i2c_manager_events::schedule_transfer_evt_t &e)

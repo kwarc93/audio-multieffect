@@ -50,7 +50,7 @@ if(HAS_VIEW)
     
     target_link_libraries(lvgl PRIVATE audio_mfx_common)
     target_compile_options(lvgl PRIVATE $<BUILD_INTERFACE:-w>)
-    target_include_directories(lvgl SYSTEM PRIVATE
+    target_include_directories(lvgl PRIVATE
         "${CMAKE_CURRENT_LIST_DIR}/FreeRTOS/include"
         "${FREERTOS_PORT_DIR}"
     )
@@ -74,7 +74,8 @@ if(HAS_LITTLEFS)
         "${CMAKE_CURRENT_LIST_DIR}/littlefs/lfs.c"
         "${CMAKE_CURRENT_LIST_DIR}/littlefs/lfs_util.c"
     )
-    target_include_directories(littlefs SYSTEM PUBLIC "${CMAKE_CURRENT_LIST_DIR}/littlefs")
+    target_include_directories(littlefs PUBLIC "${CMAKE_CURRENT_LIST_DIR}/littlefs")
+    target_compile_options(littlefs PRIVATE $<BUILD_INTERFACE:-w>)
     target_link_libraries(littlefs PRIVATE audio_mfx_common)
     target_link_libraries(${PROJECT_NAME} PRIVATE littlefs)
 endif()
@@ -83,7 +84,7 @@ endif()
 # willpirkle (Encapsulated Component)
 # -----------------------------------------------------------------------------
 add_library(willpirkle STATIC "${CMAKE_CURRENT_LIST_DIR}/willpirkle/fxobjects.cpp")
-target_include_directories(willpirkle SYSTEM PUBLIC "${CMAKE_CURRENT_LIST_DIR}/willpirkle")
+target_include_directories(willpirkle PUBLIC "${CMAKE_CURRENT_LIST_DIR}/willpirkle")
 target_link_libraries(willpirkle PRIVATE audio_mfx_common)
 target_link_libraries(${PROJECT_NAME} PRIVATE willpirkle)
 
@@ -91,7 +92,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE willpirkle)
 # memtest (Encapsulated Component)
 # -----------------------------------------------------------------------------
 add_library(memtest STATIC "${CMAKE_CURRENT_LIST_DIR}/memtest/memtest.c")
-target_include_directories(memtest SYSTEM PUBLIC "${CMAKE_CURRENT_LIST_DIR}/memtest")
+target_include_directories(memtest PUBLIC "${CMAKE_CURRENT_LIST_DIR}/memtest")
 target_link_libraries(memtest PRIVATE audio_mfx_common)
 target_link_libraries(${PROJECT_NAME} PRIVATE memtest)
 
@@ -100,7 +101,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE memtest)
 # -----------------------------------------------------------------------------
 if(HAS_EFFECT_NAM)
     add_library(nam_core STATIC "${CMAKE_CURRENT_LIST_DIR}/nam-core/nam_model.c")
-    target_include_directories(nam_core SYSTEM PUBLIC "${CMAKE_CURRENT_LIST_DIR}/nam-core")
+    target_include_directories(nam_core PUBLIC "${CMAKE_CURRENT_LIST_DIR}/nam-core")
     target_link_libraries(nam_core PRIVATE audio_mfx_common)
     target_link_libraries(${PROJECT_NAME} PRIVATE nam_core)
 endif()

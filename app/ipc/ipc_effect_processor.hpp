@@ -22,13 +22,13 @@ class ipc_effect_processor : public mfx::effect_processor_base
 public:
     ipc_effect_processor()
     {
-        const bool initialized = hal::ipc::init_cm4_to_cm7(
-                                 [this]()
-                                 {
-                                     /* Send event to process IPC data */
-                                     static const event e{ effect_processor_events::ipc_data {}, true };
-                                     this->send(e);
-                                 });
+        [[maybe_unused]] const bool initialized = hal::ipc::init_cm4_to_cm7(
+        [this]()
+        {
+            /* Send event to process IPC data */
+            static const event e{ effect_processor_events::ipc_data {} };
+            this->send(e);
+        });
         assert(initialized);
     }
 
@@ -40,7 +40,7 @@ public:
 private:
     void dispatch(const event &e) override
     {
-        if (std::holds_alternative<effect_processor_events::ipc_data>(e.data))
+        if (std::holds_alternative<effect_processor_events::ipc_data>(e))
         {
             /* IPC: receive data from CM7 */
             effect_processor_events::outgoing evt;
@@ -54,8 +54,8 @@ private:
         else
         {
             /* IPC: send data to CM7 */
-            const size_t bytes_sent = hal::ipc::send_to_cm7((void *)&e.data, sizeof(e.data));
-            if (bytes_sent != sizeof(e.data))
+            const size_t bytes_sent = hal::ipc::send_to_cm7((void *)&e, sizeof(e));
+            if (bytes_sent != sizeof(e))
             {
                 /* Not enough space in message buffer */
             }

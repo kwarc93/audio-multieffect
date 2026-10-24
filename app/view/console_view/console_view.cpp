@@ -37,14 +37,14 @@ void console_view::character_received_callback(const std::byte *data, std::size_
 
     if (queue_was_empty)
     {
-        static const console_view::event e { events::char_queue_not_empty{}, true };
+        static const console_view::event e { events::char_queue_not_empty{} };
         this->send(e);
     }
 }
 
 void console_view::dispatch(const event &e)
 {
-    std::visit([this](auto &&e) { this->event_handler(e); }, e.data);
+    std::visit([this](auto &&e) { this->event_handler(e); }, e);
 }
 
 void console_view::event_handler(const events::char_queue_not_empty &e)
@@ -71,5 +71,3 @@ console_view::~console_view()
 {
 
 }
-
-
