@@ -54,8 +54,8 @@ private:
         else
         {
             /* IPC: send data to CM7 */
-            const size_t bytes_sent = hal::ipc::send_to_cm7((void *)&e, sizeof(e));
-            if (bytes_sent != sizeof(e))
+            const size_t bytes_sent = hal::ipc::send_to_cm7((void *)&e.data, sizeof(e.data));
+            if (bytes_sent != sizeof(e.data))
             {
                 /* Not enough space in message buffer */
             }
