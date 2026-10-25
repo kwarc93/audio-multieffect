@@ -75,7 +75,7 @@ public:
 private:
     void dispatch(const event &e) override
     {
-        std::visit([this](auto &&e) { this->event_handler(e); }, e);
+        std::visit([this](auto &&e) { this->event_handler(e); }, e.data);
     }
 
     /* Event handlers */

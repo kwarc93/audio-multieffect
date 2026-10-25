@@ -40,7 +40,7 @@ public:
 private:
     void dispatch(const event &e) override
     {
-        if (std::holds_alternative<effect_processor_events::ipc_data>(e))
+        if (std::holds_alternative<effect_processor_events::ipc_data>(e.data))
         {
             /* IPC: receive data from CM7 */
             effect_processor_events::outgoing evt;
