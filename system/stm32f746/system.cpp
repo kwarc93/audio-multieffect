@@ -81,7 +81,11 @@ static SemaphoreHandle_t stdio_mutex_id = NULL;
 
 extern "C" ssize_t _write_r(struct _reent *ptr, int fd, const void *buf, size_t cnt)
 {
-    assert(!xPortIsInsideInterrupt());
+    if (xPortIsInsideInterrupt())
+    {
+        ptr->_errno = EACCES;
+        return -1;
+    }
 
     /* If doesnt exist, create mutex for stdio USART */
     stdio_mutex_id = (stdio_mutex_id == NULL) ? xSemaphoreCreateRecursiveMutex() : stdio_mutex_id;
@@ -106,7 +110,11 @@ extern "C" ssize_t _write_r(struct _reent *ptr, int fd, const void *buf, size_t 
 
 extern "C" ssize_t _read_r(struct _reent *ptr, int fd, void *buf, size_t cnt)
 {
-    assert(!xPortIsInsideInterrupt());
+    if (xPortIsInsideInterrupt())
+    {
+        ptr->_errno = EACCES;
+        return -1;
+    }
 
     /* If doesnt exist, create mutex for stdio USART */
     stdio_mutex_id = (stdio_mutex_id == NULL) ? xSemaphoreCreateRecursiveMutex() : stdio_mutex_id;
