@@ -219,10 +219,13 @@ bool qspi_mt25ql512a::reset(void)
 
     if (qspi::send(cmd))
     {
-        cmd.instruction.value = MT25QL512A_RESET_MEMORY_CMD;
+        delay::us(50);
 
+        cmd.instruction.value = MT25QL512A_RESET_MEMORY_CMD;
         if (qspi::send(cmd))
         {
+            delay::us(50);
+
             cmd.mode = qspi::functional_mode::auto_polling;
             cmd.instruction.value = MT25QL512A_READ_STATUS_REG_CMD;
             cmd.data.mode = qspi::io_mode::single;

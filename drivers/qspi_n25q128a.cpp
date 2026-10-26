@@ -148,10 +148,13 @@ bool qspi_n25q128a::reset(void)
 
     if (qspi::send(cmd))
     {
+        delay::us(50);
+        
         cmd.instruction.value = RESET_MEMORY_CMD;
-
         if (qspi::send(cmd))
         {
+            delay::us(50);
+
             cmd.mode = qspi::functional_mode::auto_polling;
             cmd.instruction.value = READ_STATUS_REG_CMD;
             cmd.data.mode = qspi::io_mode::single;
