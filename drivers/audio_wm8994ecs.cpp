@@ -392,7 +392,10 @@ void audio_wm8994ecs::write_reg(uint16_t reg_addr, uint16_t reg_val)
     {
         this->i2c.transfer(desc);
         if (reg_addr != WM8994_SW_RESET)
-            assert(this->read_reg(reg_addr) == reg_val);
+        {
+            [[maybe_unused]] auto read_back = this->read_reg(reg_addr);
+            assert(read_back == reg_val);
+        }
     }
     else
     {
@@ -461,7 +464,8 @@ i2c {i2c}, i2c_addr {addr}, sai_drv{sai_32bit::id::sai2}, input_ch_swapped{in_ch
     }
 
     /* Initialize wm8994 codec */
-    assert(this->read_id() == WM8994_ID);
+    [[maybe_unused]] auto id = this->read_id();
+    assert(id == WM8994_ID);
     this->reset();
 
     delay::ms(10);

@@ -441,7 +441,11 @@ extern uint32_t SystemCoreClock;
  * number of the failing assert (for example, "vAssertCalled( __FILE__, __LINE__
  * )" or it can simple disable interrupts and sit in a loop to halt all
  * execution on the failing line for viewing in a debugger. */
-#define configASSERT( x ) if( ( x ) == 0 ) { taskDISABLE_INTERRUPTS(); assert((x)); }
+#ifdef NDEBUG
+#define configASSERT(x) ((void)sizeof(!!(x)))
+#else
+#define configASSERT(x) assert(x)
+#endif
 
 /******************************************************************************/
 /* FreeRTOS MPU specific definitions. *****************************************/

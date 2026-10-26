@@ -202,7 +202,7 @@ extern "C" int _read (int fd, char *buf, int cnt)
 extern "C"
 {
 void vApplicationIdleHook (void){ __WFI(); }
-void vApplicationMallocFailedHook (void) { assert(0); }
-void vApplicationStackOverflowHook (TaskHandle_t xTask, char *pcTaskName) { assert(0); }
+void vApplicationMallocFailedHook (void) { assert(!"vApplicationMallocFailedHook"); }
+void vApplicationStackOverflowHook (TaskHandle_t xTask, char *pcTaskName) { assert(!"vApplicationStackOverflowHook"); }
 }
 #endif /* HAL_SYSTEM_RTOS_ENABLED */

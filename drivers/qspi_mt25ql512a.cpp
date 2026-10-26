@@ -349,9 +349,12 @@ qspi_mt25ql512a::qspi_mt25ql512a()
 
     qspi::configure(cfg);
 
-    assert(this->reset());
-    assert(this->set_4_byte_addresing(true));
-    assert(this->set_dummy_cycles(MT25QL512A_DUMMY_CYCLES_READ_QUAD));
+    [[maybe_unused]] bool result = this->reset();
+    assert(result && "QSPI reset failed");
+    result = this->set_4_byte_addresing(true);
+    assert(result && "QSPI 4-byte addressing setup failed");
+    result = this->set_dummy_cycles(MT25QL512A_DUMMY_CYCLES_READ_QUAD);
+    assert(result && "QSPI dummy cycles setup failed");
 }
 
 qspi_mt25ql512a::~qspi_mt25ql512a()

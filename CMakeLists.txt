@@ -179,6 +179,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 add_library(audio_mfx_common INTERFACE)
 
 target_compile_definitions(audio_mfx_common INTERFACE
+    # NDEBUG
     __HEAP_SIZE=0x00020000
     __STACK_SIZE=0x00001000
     _LITE_EXIT
@@ -218,10 +219,8 @@ target_compile_options(audio_mfx_common INTERFACE
     -fsingle-precision-constant
     -Wall
     -Werror
-    $<$<CONFIG:Debug>:-Og;-g>
+    $<$<CONFIG:Debug>:-O3;-g>
     $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions;-fno-rtti>
-    $<$<AND:$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>,$<CONFIG:Release>>:-include>
-    $<$<AND:$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>,$<CONFIG:Release>>:${PROJECT_SOURCE_DIR}/system/release_assert.h>
 )
 
 target_link_options(audio_mfx_common INTERFACE
