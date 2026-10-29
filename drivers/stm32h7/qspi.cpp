@@ -75,7 +75,8 @@ void qspi::configure(const config &cfg)
 
     while (QUADSPI->SR & QUADSPI_SR_BUSY);
 
-    QUADSPI->CCR = cfg.ddr << QUADSPI_CCR_DDRM_Pos;
+    if (cfg.ddr)
+        QUADSPI->CCR = QUADSPI_CCR_DDRM;
 
     QUADSPI->DCR |= ((31 - __CLZ(cfg.size)) - 1) << QUADSPI_DCR_FSIZE_Pos;
     QUADSPI->DCR |= (std::clamp((uint32_t)cfg.cs_ht, 1ul, 8ul) - 1) << QUADSPI_DCR_CSHT_Pos;

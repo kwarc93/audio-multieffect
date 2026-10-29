@@ -1,5 +1,5 @@
 /*
- * system_init.c
+ * system.cpp
  *
  *  Created on: 19 paź 2020
  *      Author: kwarc
@@ -31,7 +31,7 @@ extern "C" void system_init(void)
     __DSB();
     __ISB();
 
-    /* Enable FPU Flush To Zero to avoid handling subnormals */
+    /* Enable 'FPU Flush To Zero' to avoid handling subnormals */
     FPU->FPDSCR |= (1UL << FPU_FPDSCR_FZ_Pos);
     __set_FPSCR(__get_FPSCR() | (1UL << FPU_FPDSCR_FZ_Pos));
 #endif
@@ -55,7 +55,7 @@ extern "C" void system_init(void)
     /* Enable CortexM7 HSEM EXTI line (line 78)*/
     EXTI_D2->EMR3 |= 0x4000UL;
 
-    /* Change  the switch matrix read issuing capability to 1 for the AXI SRAM target (Target 7) */
+    /* Change the switch matrix read issuing capability to 1 for the AXI SRAM target (Target 7) */
     if((DBGMCU->IDCODE & 0xFFFF0000U) < 0x20000000U)
     {
         /* if stm32h7 revY*/
@@ -86,17 +86,35 @@ extern "C" void ipc_notify_core(void * xUpdatedMessageBuffer)
 }
 #endif /* DUAL_CORE_APP */
 
-//-----------------------------------------------------------------------------
-/* syscalls */
-
-extern "C"
-__attribute__((noreturn))
-void abort(void)
+extern "C" [[noreturn]] void abort(void)
 {
-    puts("abort()");
+    puts("abort");
     __disable_irq();
     __BKPT(0);
     for (;;);
+}
+
+//-----------------------------------------------------------------------------
+/* syscalls */
+
+extern "C" caddr_t _sbrk(int incr)
+{
+    extern char __HeapBase[];
+    extern char __StackLimit[];
+
+    static auto heap_end = __HeapBase;
+    
+    /* Check heap collision against maximum allowed stack limit */
+    if (heap_end + incr > __StackLimit)
+    {
+        errno = ENOMEM;
+        assert(!"_sbrk: no memory");
+        return reinterpret_cast<caddr_t>(-1);
+    }
+
+    const auto prev = heap_end;
+    heap_end += incr;
+    return reinterpret_cast<caddr_t>(prev);
 }
 
 #ifdef HAL_SYSTEM_RTOS_ENABLED
@@ -122,64 +140,53 @@ extern "C" void __malloc_unlock(struct _reent *r)
 #ifdef HAL_SYSTEM_RTOS_ENABLED
 static SemaphoreHandle_t stdio_mutex_id = NULL;
 
-extern "C" ssize_t _write_r(struct _reent *ptr, int fd, const void *buf, size_t cnt)
+extern "C" ssize_t _write(int fd, const void *buf, size_t cnt)
 {
     if (xPortIsInsideInterrupt())
     {
-        ptr->_errno = EACCES;
-        return -1;
+        errno = EACCES;
+        return -1; 
     }
 
-    /* If doesnt exist, create mutex for stdio USART */
-    stdio_mutex_id = (stdio_mutex_id == NULL) ? xSemaphoreCreateRecursiveMutex() : stdio_mutex_id;
-    assert(stdio_mutex_id != NULL);
+    stdio_mutex_id = (stdio_mutex_id == nullptr) ? xSemaphoreCreateRecursiveMutex() : stdio_mutex_id;
+    assert(stdio_mutex_id != nullptr);
 
+    errno = EBUSY;
     size_t ret = 0;
     if (xSemaphoreTakeRecursive(stdio_mutex_id, portMAX_DELAY) == pdTRUE)
     {
         auto &stdio = hal::usart::stdio::get_instance();
         ret = stdio.write(reinterpret_cast<const std::byte*>(buf), cnt);
-        ptr->_errno = (ret != cnt) ? EIO : 0;
-
+        errno = (ret != cnt) ? EIO : 0;
         xSemaphoreGiveRecursive(stdio_mutex_id);
-    }
-    else
-    {
-        ptr->_errno = EBUSY;
     }
 
     return ret;
 }
 
-extern "C" ssize_t _read_r(struct _reent *ptr, int fd, void *buf, size_t cnt)
+extern "C" ssize_t _read(int fd, void *buf, size_t cnt)
 {
     if (xPortIsInsideInterrupt())
     {
-        ptr->_errno = EACCES;
-        return -1;
+        errno = EACCES;
+        return -1; 
     }
 
-    /* If doesnt exist, create mutex for stdio USART */
-    stdio_mutex_id = (stdio_mutex_id == NULL) ? xSemaphoreCreateRecursiveMutex() : stdio_mutex_id;
-    assert(stdio_mutex_id != NULL);
+    stdio_mutex_id = (stdio_mutex_id == nullptr) ? xSemaphoreCreateRecursiveMutex() : stdio_mutex_id;
+    assert(stdio_mutex_id != nullptr);
 
+    errno = EBUSY;
     size_t ret = 0;
     if (xSemaphoreTakeRecursive(stdio_mutex_id, portMAX_DELAY) == pdTRUE)
     {
         auto &stdio = hal::usart::stdio::get_instance();
         ret = stdio.read(reinterpret_cast<std::byte*>(buf), cnt);
-        ptr->_errno = (ret != cnt) ? EIO : 0;
-
+        errno = (ret != cnt) ? EIO : 0;
         xSemaphoreGiveRecursive(stdio_mutex_id);
-    }
-    else
-    {
-        ptr->_errno = EBUSY;
     }
 
     return ret;
 }
-
 #else
 extern "C" int _write (int fd, char *buf, int cnt)
 {

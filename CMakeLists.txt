@@ -179,7 +179,6 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 add_library(audio_mfx_common INTERFACE)
 
 target_compile_definitions(audio_mfx_common INTERFACE
-    __HEAP_SIZE=0x00020000
     __STACK_SIZE=0x00001000
     _LITE_EXIT
     LFS_DEFINES=libs/lfs_conf.h
@@ -227,6 +226,7 @@ target_link_options(audio_mfx_common INTERFACE
     -T${LINKER_SCRIPT}
     -Wl,--gc-sections
     -Wl,--print-memory-usage
+    -Wl,-Map=${PROJECT_NAME}.map
     -u_printf_float
 #   -u_scanf_float
     --specs=nano.specs
