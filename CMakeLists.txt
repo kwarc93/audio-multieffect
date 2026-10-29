@@ -284,6 +284,7 @@ endif()
 
 add_custom_target(flash
     COMMAND "${OPENOCD_BIN}"
+            -c "set QUADSPI 0"
             -f "${OPENOCD_CONFIG_FILE}"
             -c "program $<TARGET_FILE:${PROJECT_NAME}> preverify verify reset exit"
     DEPENDS ${PROJECT_NAME}
