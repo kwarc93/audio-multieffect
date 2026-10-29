@@ -56,7 +56,7 @@ public:
 
     void transfer(transfer_desc &descriptor) override
     {
-        const event e {i2c_manager_events::perform_transfer_evt_t {descriptor, xTaskGetCurrentTaskHandle()}, true};
+        const event e {i2c_manager_events::perform_transfer_evt_t {descriptor, xTaskGetCurrentTaskHandle()}};
 
         auto bytes_to_write = descriptor.tx_size;
         auto bytes_to_read = descriptor.rx_size;

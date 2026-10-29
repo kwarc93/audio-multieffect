@@ -13,6 +13,8 @@
 #include "queue.h"
 #include "timers.h"
 
+#include "memory_pool.hpp"
+
 #include <functional>
 #include <string_view>
 #include <cstdio>
@@ -33,16 +35,13 @@ public:
     struct event
     {
         I data {};
-        bool immutable {};
-    };
-
-    struct timed_event
-    {
-        event evt {};
+        event(I value) : data(std::move(value)) {}
+    private:
         actor *target {};
+        friend class actor;
     };
 
-    actor(std::string_view name, uint32_t priority, size_t stack_size, uint32_t queue_size = 32)
+    actor(std::string_view name, uint32_t priority, size_t stack_size, uint32_t queue_size = 32) : mempool(queue_size)
     {
         assert(queue_size > 0);
 
@@ -67,97 +66,52 @@ public:
             this->callback(std::move(evt));
     }
 
-    template <typename E = event>
-    void send(E &&evt, uint32_t timeout = portMAX_DELAY)
+    bool send(const event &evt)
     {
-        static_assert(std::is_same_v<std::remove_cv_t<std::remove_reference_t<E>>, event>);
+        auto *e = this->mempool.alloc(evt);
+        bool const result = this->enqueue(e);
+        if (!result)
+            this->mempool.free(e);
+        return result;
+    }
 
-        const event *e = nullptr;
-
-        if (evt.immutable)
-        {
-            /* With immutable (static) events, rvalue must not be passed - it would cause dangling pointer */
-            assert(!std::is_rvalue_reference<E&&>::value);
-            e = &evt;
-        }
-        else
-        {
-            /* Mutable (dynamic) events must not be used from interrupt */
-            assert(xPortIsInsideInterrupt() == pdFALSE);
-            e = new event(std::forward<E>(evt));
-        }
-
-        assert(e != nullptr);
-
-        [[maybe_unused]] auto status = pdFALSE;
-
-        if (xPortIsInsideInterrupt())
-        {
-            BaseType_t yield = pdFALSE;
-            status = xQueueSendToBackFromISR(this->queue, &e, &yield);
-            portYIELD_FROM_ISR(yield);
-        }
-        else
-        {
-            status = xQueueSendToBack(this->queue, &e, pdMS_TO_TICKS(timeout));
-        }
-
-        assert(status == pdTRUE);
+    bool send(event &&evt)
+    {
+        auto *e = this->mempool.alloc(std::move(evt));
+        bool const result = this->enqueue(e);
+        if (!result)
+            this->mempool.free(e);
+        return result;
     }
 
     TimerHandle_t schedule(const event &evt, uint32_t period, bool periodic = true)
     {
-        /* Periodic events can be immutable because they live on heap */
-        auto *timer_ctx = new timed_event{{evt.data, periodic}, this};
-        assert(timer_ctx != nullptr);
+        event *e = this->mempool.alloc(evt);
+        if (e == nullptr)
+            return TimerHandle_t {};
+
+        e->target = this;
 
         auto timer_cb = [](TimerHandle_t timer)
         {
-            auto *ctx = static_cast<timed_event*>(pvTimerGetTimerID(timer));
+            auto *e = static_cast<event*>(pvTimerGetTimerID(timer));
             const bool periodic = xTimerGetReloadMode(timer);
 
-            ctx->target->send(ctx->evt);
+            e->target->send(*e);
 
-            if (!periodic)
-            {
-                [[maybe_unused]] auto result = xTimerDelete(timer, 0);
-                assert(result == pdPASS);
-                delete ctx;
-            }
+            if (!periodic && (xTimerDelete(timer, 0) == pdPASS))
+                e->target->mempool.free(e);
         };
 
-        auto timer = xTimerCreate(nullptr, pdMS_TO_TICKS(period), periodic, timer_ctx, timer_cb);
-        assert(timer != nullptr);
+        auto timer = xTimerCreate("actor's timer", pdMS_TO_TICKS(period), periodic, e, timer_cb);
+        auto result = xTimerStart(timer, 0);
 
-        [[maybe_unused]] auto result = xTimerStart(timer, 0);
-        assert(result == pdPASS);
+        if (timer == nullptr || result == pdFAIL)
+            this->mempool.free(e);
 
         return timer;
     }
 
-void cancel(TimerHandle_t &timer)
-    {
-        assert(xPortIsInsideInterrupt() == pdFALSE);
-        if (timer == nullptr)
-            return;
-
-        auto *ctx = static_cast<timed_event*>(pvTimerGetTimerID(timer));
-        if (ctx != nullptr)
-        {
-            [[maybe_unused]] auto result = xTimerDelete(timer, portMAX_DELAY);
-            assert(result == pdPASS);
-
-            result = xTimerPendFunctionCall(
-            [](void *p, uint32_t)
-            {
-                delete static_cast<timed_event*>(p);
-            },
-            ctx, 0, portMAX_DELAY);
-            assert(result == pdPASS);
-        }
-
-        timer = nullptr;
-    }
 protected:
     virtual ~actor()
     {
@@ -178,7 +132,7 @@ protected:
 
         if (xPortIsInsideInterrupt())
         {
-            BaseType_t yield = pdFALSE;
+            auto yield = pdFALSE;
             vTaskNotifyGiveFromISR(task_handle, &yield);
             portYIELD_FROM_ISR(yield);
         }
@@ -189,29 +143,49 @@ protected:
     }
 
 private:
+    bool enqueue(event *evt)
+    {
+        if (evt == nullptr)
+            return false;
+
+        evt->target = this;
+
+        auto status = pdFALSE;
+        if (xPortIsInsideInterrupt())
+        {
+            auto yield = pdFALSE;
+            status = xQueueSendToBackFromISR(this->queue, &evt, &yield);
+            portYIELD_FROM_ISR(yield);
+        }
+        else
+        {
+            status = xQueueSendToBack(this->queue, &evt, 0);
+        }
+
+        return status == pdTRUE;
+    }
+
     virtual void dispatch(const event &evt) = 0;
 
     static void thread_loop(void *arg)
     {
-        actor *this_ = static_cast<actor*>(arg);
+        auto *this_ = static_cast<actor*>(arg);
 
         printf("Actor '%s' started, event size: %u bytes\r\n", pcTaskGetName(this_->task), sizeof(event));
 
         while (true)
         {
             event *evt = nullptr;
-
             if (xQueueReceive(this_->queue, &evt, portMAX_DELAY) == pdTRUE)
             {
                 this_->dispatch(*evt);
-
-                if (!evt->immutable)
-                    delete evt;
+                this_->mempool.free(evt);
             }
         }
     }
 
     std::function<void(O)> callback {};
+    memory_pool<event> mempool;
     QueueHandle_t queue {};
     TaskHandle_t task {};
 };

@@ -219,10 +219,13 @@ bool qspi_mt25ql512a::reset(void)
 
     if (qspi::send(cmd))
     {
-        cmd.instruction.value = MT25QL512A_RESET_MEMORY_CMD;
+        delay::us(50);
 
+        cmd.instruction.value = MT25QL512A_RESET_MEMORY_CMD;
         if (qspi::send(cmd))
         {
+            delay::us(50);
+
             cmd.mode = qspi::functional_mode::auto_polling;
             cmd.instruction.value = MT25QL512A_READ_STATUS_REG_CMD;
             cmd.data.mode = qspi::io_mode::single;
@@ -349,9 +352,12 @@ qspi_mt25ql512a::qspi_mt25ql512a()
 
     qspi::configure(cfg);
 
-    assert(this->reset());
-    assert(this->set_4_byte_addresing(true));
-    assert(this->set_dummy_cycles(MT25QL512A_DUMMY_CYCLES_READ_QUAD));
+    [[maybe_unused]] bool result = this->reset();
+    assert(result && "QSPI reset failed");
+    result = this->set_4_byte_addresing(true);
+    assert(result && "QSPI 4-byte addressing setup failed");
+    result = this->set_dummy_cycles(MT25QL512A_DUMMY_CYCLES_READ_QUAD);
+    assert(result && "QSPI dummy cycles setup failed");
 }
 
 qspi_mt25ql512a::~qspi_mt25ql512a()

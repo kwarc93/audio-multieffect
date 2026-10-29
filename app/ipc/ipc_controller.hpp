@@ -48,7 +48,7 @@ public:
          [this]()
          {
              /* Send event to process IPC data */
-             static const event e{ ipc_controller_events::ipc_data {}, true };
+             static const event e{ ipc_controller_events::ipc_data {} };
              this->send(e);
          });
 

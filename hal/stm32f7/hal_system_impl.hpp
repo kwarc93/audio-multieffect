@@ -82,10 +82,8 @@ namespace hal::system
         };
 
         drivers::rcc::set_main_pll(pll, presc);
-
-        assert(drivers::rcc::get_sysclk_freq() == system::system_clock);
-
-        SystemCoreClock = system::system_clock;
+        SystemCoreClock = drivers::rcc::get_sysclk_freq();
+        assert(SystemCoreClock == system::system_clock);
 
         /* Configure the MPU as Strongly ordered for not defined regions */
         ARM_MPU_SetRegionEx(0, 0, ARM_MPU_RASR(1, ARM_MPU_AP_NONE, 0, 1, 0, 0, 0x87, ARM_MPU_REGION_SIZE_4GB));

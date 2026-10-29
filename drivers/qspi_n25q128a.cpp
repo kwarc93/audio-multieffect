@@ -148,10 +148,13 @@ bool qspi_n25q128a::reset(void)
 
     if (qspi::send(cmd))
     {
+        delay::us(50);
+        
         cmd.instruction.value = RESET_MEMORY_CMD;
-
         if (qspi::send(cmd))
         {
+            delay::us(50);
+
             cmd.mode = qspi::functional_mode::auto_polling;
             cmd.instruction.value = READ_STATUS_REG_CMD;
             cmd.data.mode = qspi::io_mode::single;
@@ -253,8 +256,10 @@ qspi_n25q128a::qspi_n25q128a()
 
     qspi::configure(cfg);
 
-    assert(this->reset());
-    assert(this->set_dummy_cycles(N25Q128A_DUMMY_CYCLES_READ_QUAD));
+    [[maybe_unused]] bool result = this->reset();
+    assert(result && "QSPI reset failed");
+    result = this->set_dummy_cycles(N25Q128A_DUMMY_CYCLES_READ_QUAD);
+    assert(result && "QSPI dummy cycles setup failed");
 }
 
 qspi_n25q128a::~qspi_n25q128a()

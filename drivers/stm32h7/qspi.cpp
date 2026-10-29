@@ -19,19 +19,6 @@
 using namespace drivers;
 
 //-----------------------------------------------------------------------------
-/* ERRATA WORKAROUND */
-// The code below have to be executed upon reset and upon switching from memory-mapped to any other mode:
-
-//QUADSPI->CR = 0; // ensure that prescaling factor is not at maximum, and disable the peripheral
-//while(QUADSPI->SR & 0x20){}; // wait for BUSY flag to fall if not already low
-//QUADSPI->CR = 0xFF000001; // set maximum prescaling factor, and enable the peripheral
-//QUADSPI->CCR = 0x20000000; // activate the free-running clock
-//QUADSPI->CCR = 0x20000000; // repeat the previous instruction to prevent a back-to-back disable
-//// The following command must complete less than 127 kernel clocks after the first write to the QSPI_CCR register
-//QUADSPI->CR = 0; // disable QSPI
-//while(QUADSPI->SR & 0x20){}; // wait for busy to fall
-
-//-----------------------------------------------------------------------------
 /* helpers */
 
 namespace
@@ -55,6 +42,20 @@ inline bool wait_for_flag(volatile uint32_t &reg, uint32_t flag, uint32_t &timeo
     return true;
 }
 
+inline void errata_workaround()
+{
+    // The code below have to be executed upon reset and upon switching from memory-mapped to any other mode:
+    QUADSPI->CR = 0;                // ensure that prescaling factor is not at maximum, and disable the peripheral
+    while (QUADSPI->SR & 0x20);     // wait for BUSY flag to fall if not already low
+    QUADSPI->CR = 0xFF000001;       // set maximum prescaling factor, and enable the peripheral
+    QUADSPI->CCR = 0x20000000;      // activate the free-running clock
+    QUADSPI->CCR = 0x20000000;      // repeat the previous instruction to prevent a back-to-back disable
+
+    // The following command must complete less than 127 kernel clocks after the first write to the QSPI_CCR register
+    QUADSPI->CR = 0;                // disable QSPI
+    while (QUADSPI->SR & 0x20);     // wait for busy to fall
+}
+
 }
 
 //-----------------------------------------------------------------------------
@@ -66,6 +67,8 @@ inline bool wait_for_flag(volatile uint32_t &reg, uint32_t flag, uint32_t &timeo
 void qspi::configure(const config &cfg)
 {
     rcc::enable_periph_clock(RCC_PERIPH_BUS(AHB3, QSPI), true);
+
+    errata_workaround();
 
     QUADSPI->CR = 0;
     QUADSPI->DCR = 0;

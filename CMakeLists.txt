@@ -57,7 +57,6 @@ if(BOARD STREQUAL "STM32F746G-DISCO")
     set(SYSTEM_DIR        "${PROJECT_SOURCE_DIR}/system/stm32f746")
     set(DRIVERS_MCU_DIR   "${PROJECT_SOURCE_DIR}/drivers/stm32f7")
     set(HAL_MCU_DIR       "${PROJECT_SOURCE_DIR}/hal/stm32f7")
-    set(CMSIS_DSP_LIB     arm_cortexM7lfsp_math)
     set(FREERTOS_PORT     GCC_ARM_CM7)
     set(FREERTOS_PORT_DIR "${PROJECT_SOURCE_DIR}/libs/FreeRTOS/portable/GCC/ARM_CM7/r0p1")
 
@@ -86,7 +85,6 @@ elseif(BOARD STREQUAL "STM32H745I-DISCO")
     set(SYSTEM_DIR        "${PROJECT_SOURCE_DIR}/system/stm32h745")
     set(DRIVERS_MCU_DIR   "${PROJECT_SOURCE_DIR}/drivers/stm32h7")
     set(HAL_MCU_DIR       "${PROJECT_SOURCE_DIR}/hal/stm32h7")
-    set(CMSIS_DSP_LIB     arm_cortexM7lfsp_math)
     set(FREERTOS_PORT     GCC_ARM_CM4F)
     set(FREERTOS_PORT_DIR "${PROJECT_SOURCE_DIR}/libs/FreeRTOS/portable/GCC/ARM_CM4F")
 
@@ -116,7 +114,6 @@ elseif(BOARD STREQUAL "STM32H745I-DISCO-CM7")
     set(SYSTEM_DIR        "${PROJECT_SOURCE_DIR}/system/stm32h745")
     set(DRIVERS_MCU_DIR   "${PROJECT_SOURCE_DIR}/drivers/stm32h7")
     set(HAL_MCU_DIR       "${PROJECT_SOURCE_DIR}/hal/stm32h7")
-    set(CMSIS_DSP_LIB     arm_cortexM7lfsp_math)
     set(FREERTOS_PORT     GCC_ARM_CM4F)
     set(FREERTOS_PORT_DIR "${PROJECT_SOURCE_DIR}/libs/FreeRTOS/portable/GCC/ARM_CM4F")
 
@@ -144,7 +141,6 @@ elseif(BOARD STREQUAL "STM32H745I-DISCO-CM4")
     set(SYSTEM_DIR        "${PROJECT_SOURCE_DIR}/system/stm32h745")
     set(DRIVERS_MCU_DIR   "${PROJECT_SOURCE_DIR}/drivers/stm32h7")
     set(HAL_MCU_DIR       "${PROJECT_SOURCE_DIR}/hal/stm32h7")
-    set(CMSIS_DSP_LIB     arm_cortexM4lf_math)
     set(FREERTOS_PORT     GCC_ARM_CM4F)
     set(FREERTOS_PORT_DIR "${PROJECT_SOURCE_DIR}/libs/FreeRTOS/portable/GCC/ARM_CM4F")
 
@@ -183,7 +179,6 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 add_library(audio_mfx_common INTERFACE)
 
 target_compile_definitions(audio_mfx_common INTERFACE
-    __HEAP_SIZE=0x00020000
     __STACK_SIZE=0x00001000
     _LITE_EXIT
     LFS_DEFINES=libs/lfs_conf.h
@@ -224,8 +219,6 @@ target_compile_options(audio_mfx_common INTERFACE
     -Werror
     $<$<CONFIG:Debug>:-Og;-g>
     $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions;-fno-rtti>
-    $<$<AND:$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>,$<CONFIG:Release>>:-include>
-    $<$<AND:$<OR:$<COMPILE_LANGUAGE:C>,$<COMPILE_LANGUAGE:CXX>>,$<CONFIG:Release>>:${PROJECT_SOURCE_DIR}/system/release_assert.h>
 )
 
 target_link_options(audio_mfx_common INTERFACE
@@ -233,6 +226,7 @@ target_link_options(audio_mfx_common INTERFACE
     -T${LINKER_SCRIPT}
     -Wl,--gc-sections
     -Wl,--print-memory-usage
+    -Wl,-Map=${PROJECT_NAME}.map
     -u_printf_float
 #   -u_scanf_float
     --specs=nano.specs
@@ -290,6 +284,7 @@ endif()
 
 add_custom_target(flash
     COMMAND "${OPENOCD_BIN}"
+            -c "set QUADSPI 0"
             -f "${OPENOCD_CONFIG_FILE}"
             -c "program $<TARGET_FILE:${PROJECT_NAME}> preverify verify reset exit"
     DEPENDS ${PROJECT_NAME}

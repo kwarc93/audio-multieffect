@@ -99,9 +99,8 @@ namespace hal::system
         };
 
         drivers::rcc::set_main_pll(RCC_PLLCKSELR_PLLSRC_HSE, pll, presc);
-        assert(drivers::rcc::get_sysclk_freq() == system::system_clock);
-
-        SystemCoreClock = system::system_clock;
+        SystemCoreClock = drivers::rcc::get_sysclk_freq();
+        assert(SystemCoreClock == system::system_clock);
 
         /* Configure MPU */
         ARM_MPU_Disable();

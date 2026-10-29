@@ -26,7 +26,7 @@ public:
         [this]()
         {
             /* Send event to process IPC data */
-            static const event e{ effect_processor_events::ipc_data {}, true };
+            static const event e{ effect_processor_events::ipc_data {} };
             this->send(e);
         });
         assert(initialized);
