@@ -555,6 +555,9 @@ void lcd_view::set_effect_attr(const effect_attr &basic, const phaser_attr &spec
 
 void lcd_view::set_effect_attr(const effect_attr &basic, const amp_sim_attr &specific)
 {
+    if (this->current_effect != effect_id::amplifier_sim)
+        return;
+
     if (basic.bypassed)
         lv_obj_clear_state(ui_btn_amp_sim_bypass, LV_STATE_CHECKED);
     else

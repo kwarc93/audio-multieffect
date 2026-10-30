@@ -310,7 +310,7 @@ public:
         (
             &this->instance,
             taps,
-            const_cast<float*>(coeffs.data()),
+            coeffs.data(),
             this->state.data(),
             block_size
         );
@@ -318,7 +318,7 @@ public:
 
     void process(const float *in, float *out)
     {
-        arm_fir_f32(&this->instance, const_cast<float*>(in), out, block_size);
+        arm_fir_f32(&this->instance, in, out, block_size);
     }
 private:
     arm_fir_instance_f32 instance;
@@ -338,7 +338,7 @@ public:
             &this->instance,
             factor,
             this->fir_taps,
-            const_cast<float*>((factor == 2) ? this->intrpl_x2_fir_coeffs.data() : this->intrpl_x4_fir_coeffs.data()),
+            (factor == 2) ? this->intrpl_x2_fir_coeffs.data() : this->intrpl_x4_fir_coeffs.data(),
             this->state.data(),
             block_size
         );
@@ -346,7 +346,7 @@ public:
 
     void process(const float *in, float *out)
     {
-        arm_fir_interpolate_f32(&this->instance, const_cast<float*>(in), out, block_size);
+        arm_fir_interpolate_f32(&this->instance, in, out, block_size);
     }
 
 private:
@@ -390,7 +390,7 @@ public:
             &this->instance,
             fir_taps,
             factor,
-            const_cast<float*>((factor == 2) ? this->decim_x2_fir_coeffs.data() : this->decim_x4_fir_coeffs.data()),
+            (factor == 2) ? this->decim_x2_fir_coeffs.data() : this->decim_x4_fir_coeffs.data(),
             this->state.data(),
             block_size
         );
@@ -398,7 +398,7 @@ public:
 
     void process(const float *in, float *out)
     {
-        arm_fir_decimate_f32(&this->instance, const_cast<float*>(in), out, block_size);
+        arm_fir_decimate_f32(&this->instance, in, out, block_size);
     }
 
 private:
@@ -551,7 +551,7 @@ public:
 
     void process(const float *in, float *out, uint32_t samples)
     {
-        arm_biquad_cascade_df2T_f32(&this->instance, const_cast<float*>(in), out, samples);
+        arm_biquad_cascade_df2T_f32(&this->instance, in, out, samples);
     }
 protected:
     arm_biquad_cascade_df2T_instance_f32 instance;
@@ -683,9 +683,9 @@ public:
     void set_ir(const float *ir)
     {
         /* Precompute FFT of IR */
-        arm_fill_f32(0, this->ir_fft.data(), this->ir_fft.size());
-        arm_copy_f32(const_cast<float*>(ir), this->ir_fft.data(), ir_size);
-        arm_rfft_fast_f32(&this->fft, this->ir_fft.data(), this->ir_fft.data() + this->fft_size, 0);
+        arm_fill_f32(0, this->input_fft.data(), this->fft_size);
+        arm_copy_f32(ir, this->input_fft.data(), ir_size);
+        arm_rfft_fast_f32(&this->fft, this->input_fft.data(), this->ir_fft.data(), 0);
     }
 
     void process(const float *in, float *out)
@@ -696,14 +696,16 @@ public:
 
         /* Sliding window of input blocks */
         arm_copy_f32(this->input.data() + block_size, this->input.data(), move_size);
-        arm_copy_f32(const_cast<float*>(in), this->input.data() + move_size, block_size);
+        arm_copy_f32(in, this->input.data() + move_size, block_size);
 
         /* FFT of sliding window */
         arm_copy_f32(this->input.data(), this->input_fft.data(), this->input.size());
         arm_rfft_fast_f32(&this->fft, this->input_fft.data(), this->input_fft.data() + this->fft_size, 0);
 
         /* Multiplication (circular convolution) in frequency domain */
-        arm_cmplx_mult_cmplx_f32(this->ir_fft.data() + this->fft_size, this->input_fft.data() + this->fft_size, this->input_fft.data(), this->fft_size / 2);
+        arm_cmplx_mult_cmplx_f32(this->ir_fft.data() + 2, this->input_fft.data() + this->fft_size + 2, this->input_fft.data() + 2, this->fft_size / 2 - 1);
+        this->input_fft[0] = this->ir_fft[0] * this->input_fft[this->fft_size];     // DC
+        this->input_fft[1] = this->ir_fft[1] * this->input_fft[this->fft_size + 1]; // Nyquist
 
         /* Inverse FFT */
         arm_rfft_fast_f32(&this->fft, this->input_fft.data(), this->input_fft.data() + this->fft_size, 1);
@@ -712,15 +714,12 @@ public:
         arm_copy_f32(this->input_fft.data() + this->input_fft.size() - block_size, out, block_size);
     }
 private:
-    /* Max supported FFT size is 4096 */
-    static_assert((block_size + ir_size) <= 4096);
-
-    /* Ceil FFT size to next power of 2 for overlap-save fast convolution */
-    constexpr static uint32_t fft_size {1UL << static_cast<uint32_t>(std::floor(std::log2(block_size + ir_size - 1)) + 1)};
+    /* Smallest power-of-two FFT size sufficient for overlap-save convolution */
+    constexpr static uint32_t fft_size {1UL << static_cast<uint32_t>(std::ceil(std::log2(block_size + ir_size - 1)))};
 
     arm_rfft_fast_instance_f32 fft;
 
-    std::array<float, 2 * fft_size> ir_fft;
+    std::array<float, fft_size> ir_fft;
     std::array<float, 2 * fft_size> input_fft;
     std::array<float, fft_size> input;
 };
@@ -817,7 +816,7 @@ public:
         this->autocorr.resize(2 * x_len - 1);
 
         /* Autocorrelation with lag (ord) */
-        arm_correlate_f32(const_cast<float*>(x), x_len, const_cast<float*>(x), x_len, this->autocorr.data());
+        arm_correlate_f32(x, x_len, x, x_len, this->autocorr.data());
 
         float *r = this->autocorr.data() + (x_len - 1);
 
@@ -872,7 +871,7 @@ public:
         /* 1. Sliding window of input blocks */
         const uint32_t move_size = this->input.size() - block_size;
         arm_copy_f32(this->input.data() + block_size, this->input.data(), move_size);
-        arm_copy_f32(const_cast<float*>(in), this->input.data() + move_size, block_size);
+        arm_copy_f32(in, this->input.data() + move_size, block_size);
 
         /* 2. Compute the Normalized Square Difference Function */
         calculate_nsdf_fast(this->input.data(), window_size);
