@@ -285,11 +285,7 @@ uint8_t touch_ft5336::detect_touch(void)
         touch_points = !this->get_int_status();
         break;
     case touch_detect_mode::int_trigg:
-        if (this->int_detected)
-        {
-            this->int_detected = false;
-            touch_points = 1;
-        }
+        touch_points = this->int_detected.exchange(false, std::memory_order_relaxed);
         break;
     default:
         break;
@@ -348,9 +344,10 @@ i2c {i2c}, i2c_addr {addr}, int_io {int_io}, orient {ori}, td_mode {touch_detect
                             static_cast<exti::port>(this->int_io.port),
                             exti::mode::interrupt,
                             exti::edge::falling,
-                            [this](){ this->int_detected = true; });
+                            [this](){ this->int_detected.store(true, std::memory_order_relaxed); });
             break;
         default:
+            this->td_mode = touch_detect_mode::reg_poll;
             break;
     }
 }

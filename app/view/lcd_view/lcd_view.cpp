@@ -12,6 +12,7 @@
 #include "ui.h"
 #include "app/utils.hpp"
 
+#include <atomic>
 #include <string>
 #include <middlewares/i2c_manager.hpp>
 
@@ -28,7 +29,7 @@ lv_disp_drv_t lvgl_disp_drv;
 lv_indev_drv_t lvgl_indev_drv;
 lv_disp_draw_buf_t lvgl_draw_buf;
 
-hal::displays::main::pixel_t *lvgl_ready_fb = NULL;
+std::atomic<hal::displays::main::pixel_t*> lvgl_ready_fb{nullptr};
 
 }
 
@@ -94,12 +95,12 @@ void lcd_view::event_handler(const events::initialize &e)
 
         display.set_vsync_callback([this]()
         {
-            if (lvgl_ready_fb)
+            auto* ready_fb = lvgl_ready_fb.exchange(nullptr, std::memory_order_acquire);
+            if (ready_fb)
             {
-                display.set_frame_buffer(lvgl_ready_fb);
+                display.set_frame_buffer(ready_fb);
                 lv_disp_flush_ready(&lvgl_disp_drv);
                 this->signal();
-                lvgl_ready_fb = NULL;
             }
         });
     }
@@ -140,7 +141,7 @@ void lcd_view::event_handler(const events::initialize &e)
         if constexpr (display_t::use_double_framebuf)
         {
             if (lv_disp_flush_is_last(drv))
-                lvgl_ready_fb = reinterpret_cast<display_t::pixel_t*>(color_p);
+                lvgl_ready_fb.store(reinterpret_cast<display_t::pixel_t*>(color_p), std::memory_order_release);
             else
                 lv_disp_flush_ready(drv);
         }
@@ -181,7 +182,7 @@ void lcd_view::event_handler(const events::initialize &e)
 
     display.backlight(true);
 
-    this->schedule({events::timer {}}, 10);
+    this->schedule({events::timer {}}, 20);
 
     ui_init(this);
 }

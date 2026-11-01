@@ -15,36 +15,10 @@
 #include <type_traits>
 #include <utility>
 
-#include "FreeRTOS.h"
+#include <hal_system.hpp>
 
 namespace middlewares
 {
-
-namespace detail
-{
-
-class critical_section
-{
-public:
-    critical_section(const critical_section&) = delete;
-    critical_section& operator=(const critical_section&) = delete;
-    critical_section(critical_section&&) = delete;
-    critical_section& operator=(critical_section&&) = delete;
-
-    critical_section()
-    {
-        interrupt_mask = xPortIsInsideInterrupt() ? taskENTER_CRITICAL_FROM_ISR() : (taskENTER_CRITICAL(), 0);
-    }
-    ~critical_section()
-    {
-        xPortIsInsideInterrupt() ? taskEXIT_CRITICAL_FROM_ISR(interrupt_mask) : taskEXIT_CRITICAL();
-    }
-
-private:
-    UBaseType_t interrupt_mask {};
-};
-
-}
 
 template<typename T>
 class memory_pool
@@ -59,7 +33,7 @@ public:
     {
         assert(pool_size > 0);
         
-        blocks = reinterpret_cast<Block*>(pvPortMalloc(size * sizeof(Block)));
+        blocks = new (std::nothrow) Block[size];
         assert(blocks != nullptr);
 
         head = &blocks[0];
@@ -76,7 +50,7 @@ public:
         assert(available_size == size);
         if (blocks)
         {
-            vPortFree(blocks);
+            delete[] blocks;
         }
     }
 
@@ -85,12 +59,10 @@ public:
     {
         Block* block = nullptr;
         {
-            detail::critical_section cs {};
+            hal::system::critical_section cs {};
             block = head;
             if (!block)
-            {
                 return nullptr;
-            }
             head = block->next;
             --available_size;
         }
@@ -105,20 +77,25 @@ public:
         if (p == nullptr)
             return;
 
+        [[maybe_unused]] const auto data_begin = reinterpret_cast<std::uintptr_t>(blocks) + offsetof(Block, data);
+        [[maybe_unused]] const auto address = reinterpret_cast<std::uintptr_t>(p);
+        assert(address >= data_begin && address - data_begin < size * sizeof(Block) && (address - data_begin) % sizeof(Block) == 0);
+
         p->~T();
 
         Block* block = reinterpret_cast<Block*>(reinterpret_cast<std::uint8_t*>(p) - offsetof(Block, data));
-
-        detail::critical_section cs {};
-        block->next = head;
-        head = block;
-        ++available_size;
-        assert(available_size <= size);
+        {
+            hal::system::critical_section cs {};
+            block->next = head;
+            head = block;
+            ++available_size;
+            assert(available_size <= size);
+        }
     }
 
     std::size_t available() const
     {
-        detail::critical_section cs {};
+        hal::system::critical_section cs {};
         return available_size;
     }
 
@@ -129,13 +106,12 @@ private:
         alignas(T) unsigned char data[sizeof(T)];
     };
 
-    Block* blocks {};
     Block* head {};
-    std::size_t size {};
+    Block* blocks {};
+    const std::size_t size {};
     std::size_t available_size {};
 };
 
 }
 
 #endif /* MEMORY_POOL_HPP_ */
-

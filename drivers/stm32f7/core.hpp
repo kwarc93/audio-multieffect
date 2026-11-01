@@ -33,6 +33,10 @@ class core_critical_section
 public:
     core_critical_section(void);
     ~core_critical_section(void);
+    core_critical_section(const core_critical_section&) = delete;
+    core_critical_section& operator=(const core_critical_section&) = delete;
+    core_critical_section(core_critical_section&&) = delete;
+    core_critical_section& operator=(core_critical_section&&) = delete;
 private:
     uint32_t primask;
 };

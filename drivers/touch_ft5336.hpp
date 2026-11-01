@@ -12,6 +12,8 @@
 
 #include <drivers/stm32.hpp>
 
+#include <atomic>
+
 namespace drivers
 {
 
@@ -33,8 +35,7 @@ private:
     gpio::io int_io;
     orientation orient;
     touch_detect_mode td_mode;
-
-    bool int_detected;
+    std::atomic_bool int_detected {};
 
     uint8_t read_reg(uint8_t reg_addr);
     void read_reg_burst(uint8_t reg_addr, std::byte *reg_val, std::size_t size);
