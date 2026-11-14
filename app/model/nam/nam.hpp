@@ -14,7 +14,7 @@
 
 extern "C"
 {
-#include "nam_a2lite.h"
+#include <libs/nam-a2-embedded/engines/cortex-m7/a2lite/nam_a2lite.h>
 }
 
 namespace mfx
