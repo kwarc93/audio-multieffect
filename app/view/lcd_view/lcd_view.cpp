@@ -107,7 +107,7 @@ void lcd_view::event_handler(const events::initialize &e)
     else
     {
 #ifdef STM32F7 // TODO: Make it independent from CPU architecture
-        __attribute__((section(".dtcmram"))) static lv_color_t lvgl_buf[64 * 1024 / sizeof(lv_color_t)];
+        static lv_color_t lvgl_buf[64 * 1024 / sizeof(lv_color_t)] FAST_RAM;
 #else
         static lv_color_t lvgl_buf[64 * 1024 / sizeof(lv_color_t)];
 #endif

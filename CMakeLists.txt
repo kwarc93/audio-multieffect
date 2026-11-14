@@ -102,7 +102,6 @@ elseif(BOARD STREQUAL "STM32H745I-DISCO")
         CORE_CM7
         CFG_FS_CALIB=-2
         CFG_TUSB_MCU=OPT_MCU_STM32H7
-        "NAM_DTCM=__attribute__((section(\".dtcmram\")))"
     )
 
 elseif(BOARD STREQUAL "STM32H745I-DISCO-CM7")
@@ -129,7 +128,6 @@ elseif(BOARD STREQUAL "STM32H745I-DISCO-CM7")
         DUAL_CORE_APP
         CFG_FS_CALIB=-2
         CFG_TUSB_MCU=OPT_MCU_STM32H7
-        "NAM_DTCM=__attribute__((section(\".dtcmram\")))"
     )
 
 elseif(BOARD STREQUAL "STM32H745I-DISCO-CM4")
@@ -184,6 +182,7 @@ target_compile_definitions(audio_mfx_common INTERFACE
     LFS_DEFINES=libs/lfs_conf.h
     CFG_TUSB_OS=OPT_OS_FREERTOS
     GIT_REVISION="${GIT_REVISION}"
+    "FAST_RAM=__attribute__((section(\".dtcmram\")))"
     ${BOARD_DEFINES}
 )
 

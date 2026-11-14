@@ -14,7 +14,7 @@
 
 extern "C"
 {
-#include <libs/nam-core/nam_model.h>
+#include "nam_a2lite.h"
 }
 
 namespace mfx
@@ -37,7 +37,10 @@ private:
     bool prewarm(int samples_to_prewarm);
     bool load_model(const uint8_t* model, size_t size);
 
-    nam_state_t nam_state {0};
+    inline static nam_a2lite_t nam FAST_RAM {};
+    inline static nam_a2lite_weights_t nam_weights FAST_RAM {};
+    nam_a2lite_state_t nam_state {};
+
     bool model_ready {false};
     int prewarmed_samples {0};
     float out_gain {1};

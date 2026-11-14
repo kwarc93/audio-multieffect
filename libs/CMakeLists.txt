@@ -8,7 +8,7 @@
 # =============================================================================
 
 # -----------------------------------------------------------------------------
-# FreeRTOS Kernel
+# FreeRTOS
 # -----------------------------------------------------------------------------
 add_library(freertos_config INTERFACE)
 target_include_directories(freertos_config SYSTEM INTERFACE
@@ -40,7 +40,7 @@ if(HAS_TINYUSB)
 endif()
 
 # -----------------------------------------------------------------------------
-# LVGL Graphical Stack
+# LVGL
 # -----------------------------------------------------------------------------
 if(HAS_VIEW)
     set(LV_CONF_PATH "${CMAKE_CURRENT_LIST_DIR}/lv_conf.h" CACHE STRING "")
@@ -97,11 +97,15 @@ target_link_libraries(memtest PRIVATE audio_mfx_common)
 target_link_libraries(${PROJECT_NAME} PRIVATE memtest)
 
 # -----------------------------------------------------------------------------
-# nam-core (Encapsulated Component)
+# nam-a2-embedded (Encapsulated Component)
 # -----------------------------------------------------------------------------
 if(HAS_EFFECT_NAM)
-    add_library(nam_core STATIC "${CMAKE_CURRENT_LIST_DIR}/nam-core/nam_model.c")
-    target_include_directories(nam_core PUBLIC "${CMAKE_CURRENT_LIST_DIR}/nam-core")
-    target_link_libraries(nam_core PRIVATE audio_mfx_common)
-    target_link_libraries(${PROJECT_NAME} PRIVATE nam_core)
+    add_library(nam_a2_embedded STATIC
+        "${CMAKE_CURRENT_LIST_DIR}/nam-a2-embedded/engines/cortex-m7/a2lite/nam_a2lite.c"
+        "${CMAKE_CURRENT_LIST_DIR}/nam-a2-embedded/namb/namb_reader.c")
+    target_include_directories(nam_a2_embedded PUBLIC "${CMAKE_CURRENT_LIST_DIR}/nam-a2-embedded/engines/cortex-m7/a2lite")
+    target_include_directories(nam_a2_embedded PUBLIC "${CMAKE_CURRENT_LIST_DIR}/nam-a2-embedded/namb")
+    target_compile_definitions(nam_a2_embedded PUBLIC NAM_A2LITE_MAX_BUFFER_SIZE=128)
+    target_link_libraries(nam_a2_embedded PRIVATE audio_mfx_common)
+    target_link_libraries(${PROJECT_NAME} PRIVATE nam_a2_embedded)
 endif()

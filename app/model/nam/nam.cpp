@@ -7,6 +7,7 @@
 
 #include "nam.hpp"
 #include "nam_models.hpp"
+#include "namb_reader.h"
 
 #include <algorithm>
 
@@ -33,18 +34,8 @@ constexpr std::array<std::pair<const char*, const nam_a2_lite_t*>, 10> nam_map
 }};
 
 static_assert(nam_map.size() == neural_amp_modeler_attr{}.model_names.size());
-
-// A2-lite receptive field. Dilations x (kernel_size - 1) summed across layers:
-//   layers  0–13: kernel=6,  dilations [1,3,7,17,41,101,239, 1,3,7,17,41,101,239] -> 4090
-//   layers 14–15: kernel=15, dilations [1,13]                                     ->  196
-//   layers 16–22: kernel=6,  dilations [1,3,7,17,41,101,239]                      -> 2045
-constexpr unsigned prewarm_samples = 1 + 4090 + 196 + 2045;
-
-// A2-lite has 1871 float weights -> 7484 bytes payload + 32-byte .namb header.
-constexpr size_t max_model_size = 8 * 1024;
-
-// .namb magic number
-constexpr uint32_t namb_magic = 0x4E414D42; // "NAMB"
+static_assert(NAM_A2LITE_MAX_BUFFER_SIZE == mfx::config::dsp_buffer_size);
+static_assert((static_cast<uint32_t>(NAM_A2LITE_SAMPLE_RATE) + 500u) / 1000u == (mfx::config::sampling_frequency_hz + 500u) / 1000u);
 
 }
 
@@ -58,21 +49,18 @@ bool neural_amp_modeler::prewarm(int samples_to_prewarm)
 
     // Feed silence through the model until the receptive field is full
 
-    float zero_buf[NAM_MAX_BUFFER_SIZE];
-    float out_buf[NAM_MAX_BUFFER_SIZE];
-    memset(zero_buf, 0, sizeof(zero_buf));
+    static constexpr float zero_buf[NAM_A2LITE_MAX_BUFFER_SIZE] {};
+    static float out_buf[NAM_A2LITE_MAX_BUFFER_SIZE] {};
 
-    float *in_ptrs[NAM_IN_CHANNELS];
-    float *out_ptrs[NAM_OUT_CHANNELS];
-    in_ptrs[0] = zero_buf;
-    out_ptrs[0] = out_buf;
+    const float *in_ptrs[NAM_A2LITE_IN_CHANNELS] {zero_buf};
+    float *out_ptrs[NAM_A2LITE_OUT_CHANNELS] {out_buf};
 
     if (this->prewarmed_samples < samples_to_prewarm)
     {
-        int n = NAM_MAX_BUFFER_SIZE;
+        int n = NAM_A2LITE_MAX_BUFFER_SIZE;
         if (n > samples_to_prewarm - this->prewarmed_samples)
             n = samples_to_prewarm - this->prewarmed_samples;
-        nam_process(&this->nam_state, (const float* const*) in_ptrs, out_ptrs, n);
+        nam_a2lite_process(&this->nam, in_ptrs, out_ptrs, n);
         this->prewarmed_samples += n;
     }
 
@@ -81,35 +69,23 @@ bool neural_amp_modeler::prewarm(int samples_to_prewarm)
 
 bool neural_amp_modeler::load_model(const uint8_t* model, size_t size)
 {
-    // .namb header (32 bytes):
-    //   u32 magic, u16 version, u16 flags, u32 total_size,
-    //   u32 weights_offset, u32 num_weights, u32 model_block_size, u32 checksum
-    uint32_t magic;
-    memcpy(&magic, model, 4);
-    if (magic != namb_magic)
+    namb_model_t namb_model;
+    if (namb_parse(model, size, &namb_model) != NAMB_OK)
     {
-        // Bad magic number
         return false;
     }
 
-    uint32_t weights_offset, num_weights;
-    memcpy(&weights_offset, model + 12, 4);
-    memcpy(&num_weights, model + 16, 4);
-    if (weights_offset + num_weights * 4 > size)
+    if (namb_check_a2lite(&namb_model) != NAMB_OK)
     {
-        // Weights extend beyond file
         return false;
     }
 
-    nam_init(&nam_state);
-
-    const float* weights = reinterpret_cast<const float*>(model + weights_offset);
-    if (nam_load_weights(weights, (int)num_weights) != 0)
+    if (nam_a2lite_load_weights(&this->nam_weights, namb_model.weights, (int)namb_model.weight_count) != 0)
     {
-        // nam_load_weights failed (not an A2-lite model?)
         return false;
     }
 
+    nam_a2lite_init(&this->nam, &this->nam_weights, &this->nam_state);
     return true;
 }
 
@@ -140,20 +116,14 @@ neural_amp_modeler::~neural_amp_modeler()
 
 void neural_amp_modeler::process(const dsp_input& in, dsp_output& out)
 {
-    this->model_ready = this->prewarm(prewarm_samples);
+    this->model_ready = this->prewarm(NAM_A2LITE_PREWARM_SAMPLES);
 
     if (this->model_ready)
     {
-        float *in_ptrs[NAM_IN_CHANNELS];
-        float *out_ptrs[NAM_OUT_CHANNELS];
+        const float *in_ptrs[NAM_A2LITE_IN_CHANNELS] {in.data()};
+        float *out_ptrs[NAM_A2LITE_OUT_CHANNELS] {out.data()};
 
-        in_ptrs[0] = const_cast<float*>(in.data());
-        out_ptrs[0] = out.data();
-        nam_process(&this->nam_state, static_cast<const float* const*>(in_ptrs), out_ptrs, mfx::config::dsp_buffer_size / 2);
-
-        in_ptrs[0] = const_cast<float*>(in.data() + mfx::config::dsp_buffer_size / 2);
-        out_ptrs[0] = out.data() + mfx::config::dsp_buffer_size / 2;
-        nam_process(&this->nam_state, static_cast<const float* const*>(in_ptrs), out_ptrs, mfx::config::dsp_buffer_size / 2);
+        nam_a2lite_process(&this->nam, in_ptrs, out_ptrs, mfx::config::dsp_buffer_size);
 
         std::transform(out.begin(), out.end(), out.begin(),
         [this](auto input)
